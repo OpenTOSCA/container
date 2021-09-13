@@ -13,15 +13,15 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TArtifactType;
+import org.eclipse.winery.model.tosca.TNodeType;
+import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TPolicyTemplate;
 import org.eclipse.winery.model.tosca.TPolicyType;
 import org.eclipse.winery.model.tosca.TRelationshipType;
+import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.repository.backend.IRepository;
 
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,10 +44,10 @@ public class DefinitionsImpl extends AbstractDefinitions {
     private final Set<org.eclipse.winery.model.tosca.TDefinitions> allDefs;
     private final Set<Path> filesInCsar;
     private final Set<AbstractServiceTemplate> serviceTemplates = new HashSet<>();
-    private final Set<AbstractNodeType> nodeTypes = new HashSet<>();
-    private final Set<AbstractNodeTypeImplementation> nodeTypeImpls = new HashSet<>();
+    private final Set<TNodeType> nodeTypes = new HashSet<>();
+    private final Set<TNodeTypeImplementation> nodeTypeImpls = new HashSet<>();
     private final Set<TRelationshipType> relationshipTypes = new HashSet<>();
-    private final Set<AbstractRelationshipTypeImplementation> relationshipTypeImpls = new HashSet<>();
+    private final Set<TRelationshipTypeImplementation> relationshipTypeImpls = new HashSet<>();
     private final Set<TArtifactTemplate> artifactTemplates = new HashSet<>();
     private final Set<TArtifactType> artifactTypes = new HashSet<>();
     private final Set<TPolicyType> policyTypes = new HashSet<>();
@@ -75,10 +75,10 @@ public class DefinitionsImpl extends AbstractDefinitions {
 
         allDefs.forEach(definitions -> {
             this.serviceTemplates.addAll(definitions.getServiceTemplates().stream().map(x -> new ServiceTemplateImpl(x, this)).collect(Collectors.toList()));
-            this.nodeTypes.addAll(definitions.getNodeTypes().stream().map(x -> new NodeTypeImpl(x, this)).collect(Collectors.toList()));
+            this.nodeTypes.addAll(definitions.getNodeTypes().stream().collect(Collectors.toList()));
             this.relationshipTypes.addAll(definitions.getRelationshipTypes().stream().collect(Collectors.toList()));
-            this.nodeTypeImpls.addAll(definitions.getNodeTypeImplementations().stream().map(x -> new NodeTypeImplementationImpl(x, this)).collect(Collectors.toList()));
-            this.relationshipTypeImpls.addAll(definitions.getRelationshipTypeImplementations().stream().map(x -> new RelationshipTypeImplementationImpl(x, this)).collect(Collectors.toList()));
+            this.nodeTypeImpls.addAll(definitions.getNodeTypeImplementations().stream().collect(Collectors.toList()));
+            this.relationshipTypeImpls.addAll(definitions.getRelationshipTypeImplementations().stream().collect(Collectors.toList()));
             this.artifactTemplates.addAll(definitions.getArtifactTemplates().stream().collect(Collectors.toList()));
             this.artifactTypes.addAll(definitions.getArtifactTypes().stream().collect(Collectors.toList()));
             this.policyTypes.addAll(definitions.getPolicyTypes().stream().collect(Collectors.toList()));
@@ -107,7 +107,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
      * {@inheritDoc}
      */
     @Override
-    public Collection<AbstractNodeType> getNodeTypes() {
+    public Collection<TNodeType> getNodeTypes() {
         return this.nodeTypes;
     }
 
@@ -155,7 +155,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
      * {@inheritDoc}
      */
     @Override
-    public Collection<AbstractNodeTypeImplementation> getNodeTypeImplementations() {
+    public Collection<TNodeTypeImplementation> getNodeTypeImplementations() {
         return this.nodeTypeImpls;
     }
 
@@ -163,7 +163,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
      * {@inheritDoc}
      */
     @Override
-    public Collection<AbstractRelationshipTypeImplementation> getRelationshipTypeImplementations() {
+    public Collection<TRelationshipTypeImplementation> getRelationshipTypeImplementations() {
         return this.relationshipTypeImpls;
     }
 
@@ -178,10 +178,10 @@ public class DefinitionsImpl extends AbstractDefinitions {
     /**
      * Returns a List of all nodeTypes in the current csar context of this definitions document
      *
-     * @return a List of AbstractNodeType
+     * @return a List of TNodeType
      */
-    protected List<AbstractNodeType> getAllNodeTypes() {
-        final List<AbstractNodeType> nodeTypes = new ArrayList<>();
+    protected List<TNodeType> getAllNodeTypes() {
+        final List<TNodeType> nodeTypes = new ArrayList<>();
 
         nodeTypes.addAll(this.getNodeTypes());
 
@@ -216,7 +216,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
     /**
      * >>>>>>> master Returns a List of all nodeTypes in the current csar context of this definitions document
      *
-     * @return a List of AbstractNodeType
+     * @return a List of TNodeType
      */
     protected List<TRelationshipType> getAllRelationshipTypes() {
         final List<TRelationshipType> relationshipTypes = new ArrayList<>();

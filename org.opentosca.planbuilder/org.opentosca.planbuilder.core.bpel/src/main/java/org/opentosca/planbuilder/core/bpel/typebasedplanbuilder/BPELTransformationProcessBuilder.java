@@ -8,6 +8,9 @@ import javax.inject.Inject;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractTransformingPlanbuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
@@ -31,8 +34,6 @@ import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
@@ -95,10 +96,10 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
      * @return a BPEL Plan that is able to adapt an instance from the given current and target configurations
      */
     public BPELPlan buildPlan(Csar csar, AbstractDefinitions definitions, QName serviceTemplateId,
-                              Collection<AbstractNodeTemplate> sourceNodeTemplates,
-                              Collection<AbstractRelationshipTemplate> sourceRelationshipTemplates,
-                              Collection<AbstractNodeTemplate> targetNodeTemplates,
-                              Collection<AbstractRelationshipTemplate> targetRelationshipTemplates) {
+                              Collection<TNodeTemplate> sourceNodeTemplates,
+                              Collection<TRelationshipTemplate> sourceRelationshipTemplates,
+                              Collection<TNodeTemplate> targetNodeTemplates,
+                              Collection<TRelationshipTemplate> targetRelationshipTemplates) {
         AbstractServiceTemplate serviceTemplate = this.getServiceTemplate(definitions, serviceTemplateId);
         Long id = System.currentTimeMillis();
         // generate abstract plan
@@ -514,8 +515,8 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
                     this.bpelPluginHandler.handleActivity(context, bpelScope, bpelScope.getNodeTemplate());
                 } else if (activity.getType().equals(ActivityType.MIGRATION)) {
 
-                    AbstractNodeTemplate sourceRelationshipTemplate = bpelScope.getNodeTemplate();
-                    AbstractNodeTemplate targetRelationshipTemplate =
+                    TNodeTemplate sourceRelationshipTemplate = bpelScope.getNodeTemplate();
+                    TNodeTemplate targetRelationshipTemplate =
                         this.getCorrespondingNode(bpelScope.getNodeTemplate(),
                             targetServiceTemplate.getTopologyTemplate().getNodeTemplates());
 
@@ -554,11 +555,11 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
                     this.bpelPluginHandler.handleActivity(context, bpelScope, bpelScope.getRelationshipTemplate());
                 } else if (activity.getType().equals(ActivityType.MIGRATION)) {
 
-                    AbstractRelationshipTemplate sourceNodeTemplate = bpelScope.getRelationshipTemplate();
-                    AbstractRelationshipTemplate targetNodeTemplate =
+                    TRelationshipTemplate sourceNodeTemplate = bpelScope.getRelationshipTemplate();
+                    TRelationshipTemplate targetNodeTemplate =
                         this.getCorrespondingEdge(bpelScope.getRelationshipTemplate(),
                             targetServiceTemplate.getTopologyTemplate()
-                                .getRelationshipTemplates());
+                                .getRelationshipTemplates(), sourceCsar);
 
                     final BPELPlanContext sourceContext = new BPELPlanContext(scopeBuilder, buildPlan, bpelScope,
                         sourceServiceTemplateMap, sourceServiceTemplate, sourceServiceInstanceUrl,

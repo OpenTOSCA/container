@@ -1,7 +1,8 @@
 package org.opentosca.planbuilder.core.plugins.context;
 
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
@@ -9,10 +10,10 @@ public class PropertyVariable extends Variable {
 
     private final AbstractServiceTemplate serviceTemplate;
     private final String propertyName;
-    private AbstractNodeTemplate nodeTemplate;
-    private AbstractRelationshipTemplate relationshipTemplate;
+    private TNodeTemplate nodeTemplate;
+    private TRelationshipTemplate relationshipTemplate;
 
-    public PropertyVariable(AbstractServiceTemplate serviceTemplate, AbstractNodeTemplate templateId,
+    public PropertyVariable(AbstractServiceTemplate serviceTemplate, TNodeTemplate templateId,
                             String variableName, String propertyName) {
         super(variableName);
         this.serviceTemplate = serviceTemplate;
@@ -20,7 +21,7 @@ public class PropertyVariable extends Variable {
         this.propertyName = propertyName;
     }
 
-    public PropertyVariable(AbstractServiceTemplate serviceTemplate, AbstractRelationshipTemplate templateId,
+    public PropertyVariable(AbstractServiceTemplate serviceTemplate, TRelationshipTemplate templateId,
                             String variableName, String propertyName) {
         super(variableName);
         this.serviceTemplate = serviceTemplate;
@@ -36,11 +37,11 @@ public class PropertyVariable extends Variable {
         return this.nodeTemplate != null;
     }
 
-    public AbstractNodeTemplate getNodeTemplate() {
+    public TNodeTemplate getNodeTemplate() {
         return this.nodeTemplate;
     }
 
-    public AbstractRelationshipTemplate getRelationshipTemplate() {
+    public TRelationshipTemplate getRelationshipTemplate() {
         return this.relationshipTemplate;
     }
 

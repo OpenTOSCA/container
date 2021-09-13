@@ -8,6 +8,9 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
@@ -17,8 +20,6 @@ import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.springframework.ui.Model;
@@ -174,18 +175,18 @@ public class NodeRelationInstanceVariablesHandler {
     public boolean addInstanceIDVarToTemplatePlans(final BPELPlan plan, AbstractServiceTemplate serviceTemplate) {
         boolean check = true;
 
-        for (AbstractNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+        for (TNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             check &= addInstanceIDVarToPlan(node, plan, serviceTemplate);
         }
 
-        for (AbstractRelationshipTemplate relation : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
+        for (TRelationshipTemplate relation : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
             check &= addInstanceIDVarToPlan(relation, plan, serviceTemplate);
         }
 
         return check;
     }
 
-    private boolean addInstanceIDVarToPlan(AbstractNodeTemplate nodeTemplate, BPELPlan plan, AbstractServiceTemplate serviceTemplate) {
+    private boolean addInstanceIDVarToPlan(TNodeTemplate nodeTemplate, BPELPlan plan, AbstractServiceTemplate serviceTemplate) {
         String templateId = nodeTemplate.getId();
         String instanceIdVarName = nodeInstanceIDVarKeyword;
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
@@ -200,7 +201,7 @@ public class NodeRelationInstanceVariablesHandler {
             plan);
     }
 
-    private boolean addInstanceIDVarToPlan(AbstractRelationshipTemplate relationshipTemplate, BPELPlan plan, AbstractServiceTemplate serviceTemplate) {
+    private boolean addInstanceIDVarToPlan(TRelationshipTemplate relationshipTemplate, BPELPlan plan, AbstractServiceTemplate serviceTemplate) {
         String templateId = relationshipTemplate.getId();
         String instanceIdVarName = relationInstanceIDVarKeyword;
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
@@ -215,7 +216,7 @@ public class NodeRelationInstanceVariablesHandler {
             plan);
     }
 
-    private boolean addInstanceURLVarToTemplatePlan(BPELPlan plan, final AbstractNodeTemplate nodeTemplate,
+    private boolean addInstanceURLVarToTemplatePlan(BPELPlan plan, final TNodeTemplate nodeTemplate,
                                                     AbstractServiceTemplate serviceTemplate) {
 
         String templateId = nodeTemplate.getId();
@@ -239,7 +240,7 @@ public class NodeRelationInstanceVariablesHandler {
             plan);
     }
 
-    private boolean addInstanceURLVarToTemplatePlan(BPELPlan plan, final AbstractRelationshipTemplate relationshipTemplate,
+    private boolean addInstanceURLVarToTemplatePlan(BPELPlan plan, final TRelationshipTemplate relationshipTemplate,
                                                     AbstractServiceTemplate serviceTemplate) {
 
         String templateId = relationshipTemplate.getId();
@@ -271,11 +272,11 @@ public class NodeRelationInstanceVariablesHandler {
     public boolean addInstanceURLVarToTemplatePlans(final BPELPlan plan, AbstractServiceTemplate serviceTemplate) {
         boolean check = true;
 
-        for (AbstractRelationshipTemplate relation : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
+        for (TRelationshipTemplate relation : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
             check &= addInstanceURLVarToTemplatePlan(plan, relation, serviceTemplate);
         }
 
-        for (AbstractNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+        for (TNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             check &= addInstanceURLVarToTemplatePlan(plan, node, serviceTemplate);
         }
         return check;
@@ -360,7 +361,7 @@ public class NodeRelationInstanceVariablesHandler {
 
         final String instanceIdVarName = this.findInstanceVarName(templatePlan, serviceTemplate);
 
-        final AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
+        final TRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
         // add XMLSchema Namespace for the logic
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
@@ -433,7 +434,7 @@ public class NodeRelationInstanceVariablesHandler {
 
         final String instanceIdVarName = this.findInstanceVarName(templatePlan, serviceTemplate);
 
-        final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
+        final TNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
         // add XMLSchema Namespace for the logic
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
@@ -481,7 +482,7 @@ public class NodeRelationInstanceVariablesHandler {
     }
 
     public boolean addPropertyVariableUpdateBasedOnNodeInstanceID(final BPELPlanContext context,
-                                                                  final AbstractNodeTemplate nodeTemplate,
+                                                                  final TNodeTemplate nodeTemplate,
                                                                   AbstractServiceTemplate serviceTemplate) {
 
         final String instanceIdVarName =
@@ -538,7 +539,7 @@ public class NodeRelationInstanceVariablesHandler {
         return true;
     }
 
-    public String appendCountInstancesLogic(final BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate,
+    public String appendCountInstancesLogic(final BPELPlanContext context, final TRelationshipTemplate relationshipTemplate,
                                             final String query) {
 
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
@@ -613,7 +614,7 @@ public class NodeRelationInstanceVariablesHandler {
         return null;
     }
 
-    public String appendCountInstancesLogic(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
+    public String appendCountInstancesLogic(final BPELPlanContext context, final TNodeTemplate nodeTemplate,
                                             final String query) {
 
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
@@ -699,7 +700,7 @@ public class NodeRelationInstanceVariablesHandler {
     }
 
     public String appendCountInstancesLogic(final PlanContext context,
-                                            final AbstractRelationshipTemplate relationshipTemplate) {
+                                            final TRelationshipTemplate relationshipTemplate) {
         // TODO
         return null;
     }

@@ -1,10 +1,11 @@
 package org.opentosca.planbuilder.core.plugins.artifactbased;
 
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeType;
+
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPlugin;
-import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 
 /**
  * <p>
@@ -26,7 +27,7 @@ public interface IPlanBuilderPrePhaseIAPlugin<T extends PlanContext> extends IPl
      * @param infrastructureNodeType a NodeType which should be a InfrastructureNodeType
      * @return true iff this plugin can deploy the given ArtifactTypes to the given InfrastructureNodeType
      */
-    boolean canHandle(T context, AbstractImplementationArtifact ia, AbstractNodeType infrastructureNodeType);
+    boolean canHandle(T context, TImplementationArtifact ia, TNodeType infrastructureNodeType);
 
     /**
      * This method is used add the fragment this plugin can generate for the given IA which must be deployed unto the
@@ -38,6 +39,6 @@ public interface IPlanBuilderPrePhaseIAPlugin<T extends PlanContext> extends IPl
      * @param infrastructureNodeTemplate an InfrastructureNodeTemplate of the template inside the context
      * @return true iff generating and adding the fragment was successful
      */
-    boolean handle(T context, AbstractImplementationArtifact ia,
-                   AbstractNodeTemplate infrastructureNodeTemplate);
+    boolean handle(T context, TImplementationArtifact ia,
+                   TNodeTemplate infrastructureNodeTemplate);
 }

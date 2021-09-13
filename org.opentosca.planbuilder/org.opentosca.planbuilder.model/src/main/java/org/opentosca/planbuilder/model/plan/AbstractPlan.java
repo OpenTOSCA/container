@@ -3,10 +3,11 @@ package org.opentosca.planbuilder.model.plan;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 /**
@@ -117,7 +118,7 @@ public abstract class AbstractPlan {
         return sources;
     }
 
-    public AbstractActivity findRelationshipTemplateActivity(final AbstractRelationshipTemplate relationshipTemplate,
+    public AbstractActivity findRelationshipTemplateActivity(final TRelationshipTemplate relationshipTemplate,
                                                              final ActivityType type) {
         for (final AbstractActivity activity : findRelationshipTemplateActivities(relationshipTemplate)) {
             if (activity.getType().equals(type)) {
@@ -127,7 +128,7 @@ public abstract class AbstractPlan {
         return null;
     }
 
-    public Collection<AbstractActivity> findNodeTemplateActivities(final AbstractNodeTemplate nodeTemplate) {
+    public Collection<AbstractActivity> findNodeTemplateActivities(final TNodeTemplate nodeTemplate) {
         final Collection<AbstractActivity> foundActivities = new HashSet<>();
         for (final AbstractActivity activity : this.activites) {
 
@@ -140,7 +141,7 @@ public abstract class AbstractPlan {
         return foundActivities;
     }
 
-    public Collection<AbstractActivity> findRelationshipTemplateActivities(final AbstractRelationshipTemplate relationshipTemplate) {
+    public Collection<AbstractActivity> findRelationshipTemplateActivities(final TRelationshipTemplate relationshipTemplate) {
         final Collection<AbstractActivity> foundActivities = new HashSet<>();
         for (final AbstractActivity activity : this.activites) {
 
@@ -153,7 +154,7 @@ public abstract class AbstractPlan {
         return foundActivities;
     }
 
-    public AbstractActivity findNodeTemplateActivity(final AbstractNodeTemplate nodeTemplate, final ActivityType type) {
+    public AbstractActivity findNodeTemplateActivity(final TNodeTemplate nodeTemplate, final ActivityType type) {
         for (final AbstractActivity activity : findNodeTemplateActivities(nodeTemplate)) {
             if (activity.getType().equals(type)) {
                 return activity;

@@ -3,8 +3,9 @@ package org.opentosca.planbuilder.core.plugins.context;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 /**
@@ -28,7 +29,7 @@ public class Property2VariableMapping {
     }
 
     public boolean addPropertyMapping(final AbstractServiceTemplate serviceTemplate,
-                                      final AbstractNodeTemplate nodeTemplate, final String propertyName,
+                                      final TNodeTemplate nodeTemplate, final String propertyName,
                                       final String propertyVariableName) {
 
         return this.propertyVariables.add(new PropertyVariable(serviceTemplate, nodeTemplate, propertyVariableName,
@@ -36,7 +37,7 @@ public class Property2VariableMapping {
     }
 
     public boolean addPropertyMapping(final AbstractServiceTemplate serviceTemplate,
-                                      final AbstractRelationshipTemplate relationshipTemplate,
+                                      final TRelationshipTemplate relationshipTemplate,
                                       final String propertyName, final String propertyVariableName) {
 
         return this.propertyVariables.add(new PropertyVariable(serviceTemplate, relationshipTemplate,
@@ -61,7 +62,7 @@ public class Property2VariableMapping {
     }
 
     public Collection<PropertyVariable> getNodePropertyVariables(AbstractServiceTemplate serviceTemplate,
-                                                                 AbstractNodeTemplate nodeTemplate) {
+                                                                 TNodeTemplate nodeTemplate) {
         Collection<PropertyVariable> toReturn = new HashSet<PropertyVariable>();
 
         for (PropertyVariable variable : this.propertyVariables) {
@@ -75,7 +76,7 @@ public class Property2VariableMapping {
     }
 
     public Collection<PropertyVariable> getRelationPropertyVariables(AbstractServiceTemplate serviceTemplate,
-                                                                     AbstractRelationshipTemplate relationshipTemplate) {
+                                                                     TRelationshipTemplate relationshipTemplate) {
         Collection<PropertyVariable> toReturn = new HashSet<PropertyVariable>();
 
         for (PropertyVariable variable : this.propertyVariables) {

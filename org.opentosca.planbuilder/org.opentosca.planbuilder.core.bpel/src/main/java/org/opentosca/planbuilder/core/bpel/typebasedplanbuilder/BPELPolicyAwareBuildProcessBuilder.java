@@ -15,6 +15,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TPolicy;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
@@ -40,9 +44,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,7 +142,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
 
         // create empty templateplans for each template and add them to
         // buildplan
-        // for (AbstractNodeTemplate nodeTemplate :
+        // for (TNodeTemplate nodeTemplate :
         // serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
         // BPELScope newTemplate =
         // this.templateHandler.createTemplateBuildPlan(nodeTemplate,
@@ -150,7 +151,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
         // newBuildPlan.addTemplateBuildPlan(newTemplate);
         // }
         //
-        // for (AbstractRelationshipTemplate relationshipTemplate :
+        // for (TRelationshipTemplate relationshipTemplate :
         // serviceTemplate.getTopologyTemplate().getRelationshipTemplates())
         // {
         // BPELScope newTemplate =
@@ -260,7 +261,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
             boolean handled = false;
             if (templatePlan.getNodeTemplate() != null) {
                 // handling nodetemplate
-                final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
+                final TNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
                 LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
                 final BPELPlanContext context = new BPELPlanContext(scopeBuilder, buildPlan, templatePlan, map, buildPlan.getServiceTemplate(),
                     serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csar);
@@ -305,13 +306,13 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
                             LOG.debug("Created ProvisioningChain for NodeTemplate {}",
                                 nodeTemplate.getId());
 
-                            final List<AbstractPolicy> policies = nodeTemplate.getPolicies();
-                            final Map<AbstractPolicy, IPlanBuilderPolicyAwarePrePhasePlugin<BPELPlanContext>> compatiblePrePlugins =
+                            final List<TPolicy> policies = nodeTemplate.getPolicies();
+                            final Map<TPolicy, IPlanBuilderPolicyAwarePrePhasePlugin<BPELPlanContext>> compatiblePrePlugins =
                                 new HashMap<>();
-                            final Map<AbstractPolicy, IPlanBuilderPolicyAwarePostPhasePlugin<BPELPlanContext>> compatiblePostPlugins =
+                            final Map<TPolicy, IPlanBuilderPolicyAwarePostPhasePlugin<BPELPlanContext>> compatiblePostPlugins =
                                 new HashMap<>();
 
-                            for (final AbstractPolicy policy : policies) {
+                            for (final TPolicy policy : policies) {
                                 boolean matched = false;
                                 for (final IPlanBuilderPolicyAwarePrePhasePlugin<?> policyPrePhasePlugin : this.pluginRegistry.getPolicyAwarePrePhasePlugins()) {
                                     if (policyPrePhasePlugin.canHandlePolicyAwareCreate(nodeTemplate, policy)) {
@@ -341,12 +342,12 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
                                 handled = false;
                             } else {
 
-                                for (final AbstractPolicy policy : compatiblePrePlugins.keySet()) {
+                                for (final TPolicy policy : compatiblePrePlugins.keySet()) {
                                     compatiblePrePlugins.get(policy).handlePolicyAwareCreate(context, nodeTemplate,
                                         policy);
                                 }
 
-                                for (final AbstractPolicy policy : compatiblePostPlugins.keySet()) {
+                                for (final TPolicy policy : compatiblePostPlugins.keySet()) {
                                     compatiblePostPlugins.get(policy).handle(context, nodeTemplate, policy);
                                 }
 
@@ -373,7 +374,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
                 }
             } else {
                 // handling relationshiptemplate
-                final AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
+                final TRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
                 final BPELPlanContext context = new BPELPlanContext(scopeBuilder, buildPlan, templatePlan, map, buildPlan.getServiceTemplate(),
                     serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csar);
 
@@ -407,10 +408,10 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
      * Checks whether there is any generic plugin, that can handle the given RelationshipTemplate
      * </p>
      *
-     * @param relationshipTemplate an AbstractRelationshipTemplate denoting a RelationshipTemplate
+     * @param relationshipTemplate an TRelationshipTemplate denoting a RelationshipTemplate
      * @return true if there is any generic plugin which can handle the given RelationshipTemplate, else false
      */
-    private boolean canGenericPluginHandle(final AbstractRelationshipTemplate relationshipTemplate, Csar csar) {
+    private boolean canGenericPluginHandle(final TRelationshipTemplate relationshipTemplate, Csar csar) {
         for (final IPlanBuilderTypePlugin plugin : this.pluginRegistry.getTypePlugins()) {
             if (plugin.canHandleCreate(csar, relationshipTemplate)) {
                 LOG.info("Found GenericPlugin {} thath can handle RelationshipTemplate {}",

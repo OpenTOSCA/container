@@ -11,14 +11,14 @@ import javax.xml.xpath.XPathFactory;
 
 import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TPropertyMapping;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
@@ -384,15 +384,15 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
     }
 
     /**
-     * Returns an AbstractNodeTemplate of the given serviceTemplate and TemplateId
+     * Returns an TNodeTemplate of the given serviceTemplate and TemplateId
      *
      * @param serviceTemplate the ServiceTemplate to search in
      * @param templateId      the Id of the Template
-     * @return an AbstractNodeTemplate with the specified Id, else null
+     * @return an TNodeTemplate with the specified Id, else null
      */
-    private AbstractNodeTemplate getNodeTemplate(final AbstractServiceTemplate serviceTemplate,
+    private TNodeTemplate getNodeTemplate(final AbstractServiceTemplate serviceTemplate,
                                                  final String templateId) {
-        for (final AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+        for (final TNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             if (nodeTemplate.getId().equals(templateId)) {
                 return nodeTemplate;
             }
@@ -401,15 +401,15 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
     }
 
     /**
-     * Returns an AbstractRelationshipTemplate of the given serviceTemplate and TemplateId
+     * Returns an TRelationshipTemplate of the given serviceTemplate and TemplateId
      *
      * @param serviceTemplate the ServiceTemplate to search in
      * @param templateId      the If of the template to search for
-     * @return an AbstractRelationshipTemplate with the specified Id, else null
+     * @return an TRelationshipTemplate with the specified Id, else null
      */
-    private AbstractRelationshipTemplate getRelationshipTemplate(final AbstractServiceTemplate serviceTemplate,
-                                                                 final String templateId) {
-        for (final AbstractRelationshipTemplate relationshipTemplate : serviceTemplate.getTopologyTemplate()
+    private TRelationshipTemplate getRelationshipTemplate(final AbstractServiceTemplate serviceTemplate,
+                                                          final String templateId) {
+        for (final TRelationshipTemplate relationshipTemplate : serviceTemplate.getTopologyTemplate()
             .getRelationshipTemplates()) {
             if (relationshipTemplate.getId().equals(templateId)) {
                 return relationshipTemplate;

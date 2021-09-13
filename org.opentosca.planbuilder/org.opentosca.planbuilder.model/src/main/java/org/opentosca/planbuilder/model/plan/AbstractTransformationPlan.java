@@ -3,10 +3,11 @@ package org.opentosca.planbuilder.model.plan;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 public class AbstractTransformationPlan extends AbstractPlan {
@@ -32,25 +33,25 @@ public class AbstractTransformationPlan extends AbstractPlan {
         return this.targetServiceTemplate;
     }
 
-    public Collection<AbstractNodeTemplate> getHandledSourceServiceTemplateNodes() {
+    public Collection<TNodeTemplate> getHandledSourceServiceTemplateNodes() {
         return this.getHandledServiceTemplateNodes(this.getServiceTemplate());
     }
 
-    public Collection<AbstractRelationshipTemplate> getHandledSourceServiceTemplateRelations() {
+    public Collection<TRelationshipTemplate> getHandledSourceServiceTemplateRelations() {
         return this.getHandledServiceTemplateRelations(this.getServiceTemplate());
     }
 
-    public Collection<AbstractNodeTemplate> getHandledTargetServiceTemplateNodes() {
+    public Collection<TNodeTemplate> getHandledTargetServiceTemplateNodes() {
         return this.getHandledServiceTemplateNodes(this.targetServiceTemplate);
     }
 
-    public Collection<AbstractRelationshipTemplate> getHandledTargetServiceTemplateRelations() {
+    public Collection<TRelationshipTemplate> getHandledTargetServiceTemplateRelations() {
         return this.getHandledServiceTemplateRelations(this.targetServiceTemplate);
     }
 
-    private Collection<AbstractRelationshipTemplate> getHandledServiceTemplateRelations(AbstractServiceTemplate serviceTemplate) {
-        Collection<AbstractRelationshipTemplate> handledServiceTemplateRelations = new HashSet<AbstractRelationshipTemplate>();
-        for (AbstractRelationshipTemplate relation : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
+    private Collection<TRelationshipTemplate> getHandledServiceTemplateRelations(AbstractServiceTemplate serviceTemplate) {
+        Collection<TRelationshipTemplate> handledServiceTemplateRelations = new HashSet<TRelationshipTemplate>();
+        for (TRelationshipTemplate relation : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
             if (!this.findRelationshipTemplateActivities(relation).isEmpty()) {
                 handledServiceTemplateRelations.add(relation);
             }
@@ -58,9 +59,9 @@ public class AbstractTransformationPlan extends AbstractPlan {
         return handledServiceTemplateRelations;
     }
 
-    private Collection<AbstractNodeTemplate> getHandledServiceTemplateNodes(AbstractServiceTemplate serviceTemplate) {
-        Collection<AbstractNodeTemplate> handledServiceTemplateNodes = new HashSet<AbstractNodeTemplate>();
-        for (AbstractNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+    private Collection<TNodeTemplate> getHandledServiceTemplateNodes(AbstractServiceTemplate serviceTemplate) {
+        Collection<TNodeTemplate> handledServiceTemplateNodes = new HashSet<TNodeTemplate>();
+        for (TNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             if (!this.findNodeTemplateActivities(node).isEmpty()) {
                 handledServiceTemplateNodes.add(node);
             }

@@ -9,6 +9,10 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
@@ -16,15 +20,13 @@ import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.core.plugins.utils.PluginUtils;
-import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.BPELDockerContainerTypePlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.handler.OpenMTCDockerContainerTypePluginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ui.Model;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -46,13 +48,13 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
 
     @Override
     public boolean handleOpenMTCGateway(final BPELPlanContext templateContext,
-                                        final AbstractNodeTemplate backendNodeTemplate) {
+                                        final TNodeTemplate backendNodeTemplate) {
         if (templateContext.getNodeTemplate() == null) {
             BPELOpenMTCDockerContainerTypePluginHandler.LOG.warn("Appending logic to relationshipTemplate plan is not possible by this plugin");
             return false;
         }
 
-        final AbstractNodeTemplate nodeTemplate = templateContext.getNodeTemplate();
+        final TNodeTemplate nodeTemplate = templateContext.getNodeTemplate();
 
         // fetch port binding variables (ContainerPort, Port)
         final Variable containerPortVar = templateContext.getPropertyVariable(nodeTemplate, "ContainerPort");
@@ -82,7 +84,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
          */
         Variable ownIp = null;
 
-        for (final AbstractNodeTemplate infraNode : templateContext.getInfrastructureNodes()) {
+        for (final TNodeTemplate infraNode : templateContext.getInfrastructureNodes()) {
             for (final String serverIpName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
                 ownIp = templateContext.getPropertyVariable(infraNode, serverIpName);
                 if (ownIp != null) {
@@ -153,7 +155,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         final Variable containerIdVar = templateContext.getPropertyVariable(nodeTemplate, "ContainerID");
 
         // fetch DockerEngine
-        final AbstractNodeTemplate dockerEngineNode = BPELDockerContainerTypePlugin.getDockerEngineNode(nodeTemplate);
+        final TNodeTemplate dockerEngineNode = BPELDockerContainerTypePlugin.getDockerEngineNode(nodeTemplate, templateContext.getCsar());
 
         if (dockerEngineNode == null) {
             BPELOpenMTCDockerContainerTypePluginHandler.LOG.error("Couldn't fetch DockerEngineNode to install given DockerContainer NodeTemplate");
@@ -169,8 +171,8 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         if (containerImageVar == null || PluginUtils.isVariableValueEmpty(containerImageVar)) {
             // handle with DA -> construct URL to the DockerImage .zip
 
-            final AbstractDeploymentArtifact da =
-                BPELDockerContainerTypePlugin.fetchFirstDockerContainerDA(nodeTemplate);
+            final TDeploymentArtifact da =
+                BPELDockerContainerTypePlugin.fetchFirstDockerContainerDA(nodeTemplate, templateContext.getCsar());
             return handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar,
                 containerIpVar, containerIdVar, envMappingVar, null, null);
         }
@@ -178,14 +180,14 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         return false;
     }
 
-    private List<AbstractNodeTemplate> fetchDataChannels(final PlanContext templateContext,
-                                                         final AbstractNodeTemplate protocolAdapterDerviceNodeTemplate) {
-        final List<AbstractNodeTemplate> dataChannelNTs = new ArrayList<>();
+    private List<TNodeTemplate> fetchDataChannels(final PlanContext templateContext,
+                                                         final TNodeTemplate protocolAdapterDerviceNodeTemplate) {
+        final List<TNodeTemplate> dataChannelNTs = new ArrayList<>();
 
-        for (final AbstractRelationshipTemplate relation : protocolAdapterDerviceNodeTemplate.getIngoingRelations()) {
-            if (ModelUtils.getRelationshipTypeHierarchy(relation.getRelationshipType(), templateContext.getCsar())
+        for (final TRelationshipTemplate relation : ModelUtils.getIngoingRelations(protocolAdapterDerviceNodeTemplate, templateContext.getCsar())) {
+            if (ModelUtils.getRelationshipTypeHierarchy(ModelUtils.findRelationshipType(relation, templateContext.getCsar()), templateContext.getCsar())
                 .contains(this.pyhsicallyConnectedRelationshipType)) {
-                dataChannelNTs.add(relation.getSource());
+                dataChannelNTs.add(ModelUtils.getSource(relation, templateContext.getCsar()));
             }
         }
         return dataChannelNTs;
@@ -214,14 +216,14 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
 
     @Override
     public boolean handleOpenMTCProtocolAdapter(final BPELPlanContext templateContext,
-                                                final AbstractNodeTemplate openMtcGateway,
-                                                final AbstractNodeTemplate protocolAdapterDeviceNodeTemplate) {
+                                                final TNodeTemplate openMtcGateway,
+                                                final TNodeTemplate protocolAdapterDeviceNodeTemplate) {
         if (templateContext.getNodeTemplate() == null) {
             BPELOpenMTCDockerContainerTypePluginHandler.LOG.warn("Appending logic to relationshipTemplate plan is not possible by this plugin");
             return false;
         }
 
-        final AbstractNodeTemplate nodeTemplate = templateContext.getNodeTemplate();
+        final TNodeTemplate nodeTemplate = templateContext.getNodeTemplate();
 
         // fetch port binding variables (ContainerPort, Port)
         final Variable containerPortVar = templateContext.getPropertyVariable(nodeTemplate, "ContainerPort");
@@ -246,7 +248,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         final PropertyVariable sensorDeviceId =
             templateContext.getPropertyVariable(protocolAdapterDeviceNodeTemplate, "DeviceID");
 
-        final List<AbstractNodeTemplate> dataChannels =
+        final List<TNodeTemplate> dataChannels =
             fetchDataChannels(templateContext, protocolAdapterDeviceNodeTemplate);
 
         if (dataChannels.isEmpty()) {
@@ -254,7 +256,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         }
         final List<Variable> resourceNames = new ArrayList<>();
 
-        for (final AbstractNodeTemplate dataChannel : dataChannels) {
+        for (final TNodeTemplate dataChannel : dataChannels) {
             if (templateContext.getPropertyVariable(dataChannel, "ResourceName") != null) {
                 resourceNames.add(templateContext.getPropertyVariable(dataChannel, "ResourceName"));
             }
@@ -351,7 +353,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         final Variable containerIdVar = templateContext.getPropertyVariable(nodeTemplate, "ContainerID");
 
         // fetch DockerEngine
-        final AbstractNodeTemplate dockerEngineNode = BPELDockerContainerTypePlugin.getDockerEngineNode(nodeTemplate);
+        final TNodeTemplate dockerEngineNode = BPELDockerContainerTypePlugin.getDockerEngineNode(nodeTemplate, templateContext.getCsar());
 
         if (dockerEngineNode == null) {
             BPELOpenMTCDockerContainerTypePluginHandler.LOG.error("Couldn't fetch DockerEngineNode to install given DockerContainer NodeTemplate");
@@ -367,8 +369,8 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         if (containerImageVar == null || PluginUtils.isVariableValueEmpty(containerImageVar)) {
             // handle with DA -> construct URL to the DockerImage .zip
 
-            final AbstractDeploymentArtifact da =
-                BPELDockerContainerTypePlugin.fetchFirstDockerContainerDA(nodeTemplate);
+            final TDeploymentArtifact da =
+                BPELDockerContainerTypePlugin.fetchFirstDockerContainerDA(nodeTemplate, templateContext.getCsar());
             return handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar,
                 containerIpVar, containerIdVar, envMappingVar, linksVar, deviceMappingVar);
         }
@@ -376,15 +378,16 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         return false;
     }
 
-    protected boolean handleWithDA(final BPELPlanContext context, final AbstractNodeTemplate dockerEngineNode,
-                                   final AbstractDeploymentArtifact da, final Variable portMappingVar,
+    protected boolean handleWithDA(final BPELPlanContext context, final TNodeTemplate dockerEngineNode,
+                                   final TDeploymentArtifact da, final Variable portMappingVar,
                                    final Variable dockerEngineUrlVar, final Variable sshPortVar,
                                    final Variable containerIpVar, final Variable containerIdVar,
                                    final Variable envMappingVar, final Variable linksVar,
                                    final Variable deviceMappingVar) {
         context.addStringValueToPlanRequest("csarEntrypoint");
+
         final String artifactPathQuery =
-            this.planBuilderFragments.createXPathQueryForURLRemoteFilePath(da.getArtifactRef().getArtifactReferences().stream().findFirst().get().getReference());
+            this.planBuilderFragments.createXPathQueryForURLRemoteFilePath(ModelUtils.findArtifactTemplate(da.getArtifactRef(), context.getCsar()).getArtifactReferences().stream().findFirst().get().getReference());
 
         final String artefactVarName = "dockerContainerFile" + System.currentTimeMillis();
 

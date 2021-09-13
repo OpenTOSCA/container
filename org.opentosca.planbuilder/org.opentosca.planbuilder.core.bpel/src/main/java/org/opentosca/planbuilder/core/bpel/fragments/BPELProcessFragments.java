@@ -15,10 +15,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TPolicy;
+
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -116,8 +117,8 @@ public class BPELProcessFragments {
         return this.transformStringToNode(templateString);
     }
 
-    public String createAssignAndPostSituationMonitor(Map<AbstractNodeTemplate, Collection<AbstractPolicy>> situationPolicies,
-                                                      Map<AbstractPolicy, String> policy2IdMap, String serviceTemplateInstanceUrlVarName, String anyVarName, String requestVarName) throws IOException {
+    public String createAssignAndPostSituationMonitor(Map<TNodeTemplate, Collection<TPolicy>> situationPolicies,
+                                                      Map<TPolicy, String> policy2IdMap, String serviceTemplateInstanceUrlVarName, String anyVarName, String requestVarName) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPELMonitoringSituation.xml"));
 
         StringBuilder situationIdRequestBody = new StringBuilder();
@@ -133,13 +134,13 @@ public class BPELProcessFragments {
             </bpel:copy>
          */
 
-        for (AbstractNodeTemplate node : situationPolicies.keySet()) {
+        for (TNodeTemplate node : situationPolicies.keySet()) {
             String nodeTemplateId = node.getId();
-            List<AbstractPolicy> policies = new ArrayList<>(situationPolicies.get(node));
+            List<TPolicy> policies = new ArrayList<>(situationPolicies.get(node));
 
             situationIdRequestBody.append("<entry><key>").append(nodeTemplateId).append("</key><value><SituationIdsList>");
             for (int i = 0; i < policies.size(); i++) {
-                AbstractPolicy policy = policies.get(i);
+                TPolicy policy = policies.get(i);
                 String inputLocalName = policy2IdMap.get(policy);
 
                 situationIdRequestBody.append("<situationId/>");
@@ -165,8 +166,8 @@ public class BPELProcessFragments {
         return template;
     }
 
-    public Node createAssignAndPostSituationMonitorAsNode(Map<AbstractNodeTemplate, Collection<AbstractPolicy>> situationPolicies,
-                                                          Map<AbstractPolicy, String> policy2IdMap, String serviceTemplateInstanceUrlVarName, String anyVarName, String requestVarName) throws SAXException, IOException {
+    public Node createAssignAndPostSituationMonitorAsNode(Map<TNodeTemplate, Collection<TPolicy>> situationPolicies,
+                                                          Map<TPolicy, String> policy2IdMap, String serviceTemplateInstanceUrlVarName, String anyVarName, String requestVarName) throws SAXException, IOException {
         final String templateString = this.createAssignAndPostSituationMonitor(situationPolicies, policy2IdMap, serviceTemplateInstanceUrlVarName, anyVarName, requestVarName);
         return this.transformStringToNode(templateString);
     }

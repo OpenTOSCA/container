@@ -12,8 +12,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.convention.Interfaces;
@@ -22,12 +24,11 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.handler.ConnectsToPluginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ui.Model;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -69,14 +70,14 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
      * @param sourceParameterNode the source node template of the connectsTo relationship
      * @param targetParameterNode the target node template of the connectsTo relationship
      */
-    private boolean executeConnectsTo(final BPELPlanContext templateContext, final AbstractNodeTemplate connectToNode,
-                                      final AbstractNodeTemplate sourceParameterNode,
-                                      final AbstractNodeTemplate targetParameterNode) {
+    private boolean executeConnectsTo(final BPELPlanContext templateContext, final TNodeTemplate connectToNode,
+                                      final TNodeTemplate sourceParameterNode,
+                                      final TNodeTemplate targetParameterNode) {
         // fetch the connectsTo Operation of the source node and it's parameters
         TInterface connectsToIface = null;
         TOperation connectsToOp = null;
         Map<TParameter, Variable> param2propertyMapping = null;
-        for (final TInterface iface : connectToNode.getType().getInterfaces()) {
+        for (final TInterface iface : ModelUtils.findNodeType(connectToNode, templateContext.getCsar()).getInterfaces()) {
             for (final TOperation op : iface.getOperations()) {
                 if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO)) {
                     // find properties that match the params on the target nodes' stack or prefixed
@@ -129,13 +130,13 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
      */
     private Map<TParameter, Variable> findInputParameters(final BPELPlanContext templateContext,
                                                                  final TOperation connectsToOp,
-                                                                 final AbstractNodeTemplate connectToNode,
-                                                                 final AbstractNodeTemplate sourceParameterNode,
-                                                                 final AbstractNodeTemplate targetParameterNode) {
+                                                                 final TNodeTemplate connectToNode,
+                                                                 final TNodeTemplate sourceParameterNode,
+                                                                 final TNodeTemplate targetParameterNode) {
         final Map<TParameter, Variable> param2propertyMapping = new HashMap<>();
 
         // search on the opposite side of the connectToNode NodeTemplate for default parameters
-        AbstractNodeTemplate parametersRootNode;
+        TNodeTemplate parametersRootNode;
         if (sourceParameterNode.equals(connectToNode)) {
             parametersRootNode = targetParameterNode;
         } else {
@@ -204,7 +205,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
      * @param propName        the name of the property
      * @return the property if found, null otherwise
      */
-    private Variable searchPropertyInStack(final PlanContext templateContext, AbstractNodeTemplate currentNode,
+    private Variable searchPropertyInStack(final PlanContext templateContext, TNodeTemplate currentNode,
                                            final String propName) {
         while (currentNode != null) {
             final Variable property = templateContext.getPropertyVariable(currentNode, propName);
@@ -221,21 +222,21 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
      * Returns the first node found connected trough a hostedOn relation
      *
      * @param nodeTemplate the node which is a possible source of an hostedOn relation
-     * @return an AbstractNodeTemplate which is a target of an hostedOn relation. Null if the given nodeTemplate isn't
+     * @return an TNodeTemplate which is a target of an hostedOn relation. Null if the given nodeTemplate isn't
      * connected to as a source to a hostedOn relation
      */
-    private AbstractNodeTemplate fetchNodeConnectedWithHostedOn(final AbstractNodeTemplate nodeTemplate, Csar csar) {
-        for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
-            if (ModelUtils.getRelationshipTypeHierarchy(relation.getRelationshipType(), csar)
+    private TNodeTemplate fetchNodeConnectedWithHostedOn(final TNodeTemplate nodeTemplate, Csar csar) {
+        for (final TRelationshipTemplate relation : ModelUtils.getOutgoingRelations(nodeTemplate, csar)) {
+            if (ModelUtils.getRelationshipTypeHierarchy(ModelUtils.findRelationshipType(relation, csar), csar)
                 .contains(Types.hostedOnRelationType)) {
-                return relation.getTarget();
+                return ModelUtils.getTarget(relation, csar);
             }
         }
         return null;
     }
 
-    private String getInterface(final AbstractNodeTemplate nodeTemplate, final String operationName) {
-        for (final TInterface iface : nodeTemplate.getType().getInterfaces()) {
+    private String getInterface(final TNodeTemplate nodeTemplate, final String operationName, Csar csar) {
+        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
             for (final TOperation op : iface.getOperations()) {
                 if (op.getName().equals(operationName)) {
                     return iface.getName();
@@ -247,17 +248,17 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
 
     @Override
     public boolean handle(final BPELPlanContext templateContext) {
-        final AbstractRelationshipTemplate relationTemplate = templateContext.getRelationshipTemplate();
-        final AbstractNodeTemplate sourceNodeTemplate = relationTemplate.getSource();
-        final AbstractNodeTemplate targetNodeTemplate = relationTemplate.getTarget();
+        final TRelationshipTemplate relationTemplate = templateContext.getRelationshipTemplate();
+        final TNodeTemplate sourceNodeTemplate = ModelUtils.getSource(relationTemplate, templateContext.getCsar());
+        final TNodeTemplate targetNodeTemplate = ModelUtils.getTarget(relationTemplate, templateContext.getCsar());
 
         // if the target has connectTo we execute it
-        if (hasOperation(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO)) {
+        if (hasOperation(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO, templateContext.getCsar())) {
             // if we can stop and start the node and it is not defined as non interruptive, stop it
-            if (!hasInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE)
-                && startAndStopAvailable(targetNodeTemplate)) {
+            if (!hasInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
+                && startAndStopAvailable(targetNodeTemplate, templateContext.getCsar())) {
                 final String ifaceName =
-                    getInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP);
+                    getInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, templateContext.getCsar());
                 templateContext.executeOperation(targetNodeTemplate, ifaceName,
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, null);
             }
@@ -266,24 +267,24 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             executeConnectsTo(templateContext, targetNodeTemplate, sourceNodeTemplate, targetNodeTemplate);
 
             // start the node again
-            if (!hasInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE)
-                && startAndStopAvailable(targetNodeTemplate)) {
+            if (!hasInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
+                && startAndStopAvailable(targetNodeTemplate, templateContext.getCsar())) {
                 templateContext.executeOperation(targetNodeTemplate,
                     getInterface(targetNodeTemplate,
-                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START),
+                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, templateContext.getCsar()),
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, null);
             }
         }
 
         // if the source has connectTo we execute it
-        if (hasOperation(sourceNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO)) {
+        if (hasOperation(sourceNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO, templateContext.getCsar())) {
 
             // if we can stop and start the node and it is not defined as non interruptive, stop it
-            if (!hasInterface(sourceNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE)
-                && startAndStopAvailable(sourceNodeTemplate)) {
+            if (!hasInterface(sourceNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
+                && startAndStopAvailable(sourceNodeTemplate, templateContext.getCsar())) {
                 templateContext.executeOperation(sourceNodeTemplate,
                     getInterface(sourceNodeTemplate,
-                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP),
+                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, templateContext.getCsar()),
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, null);
             }
 
@@ -291,11 +292,11 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             executeConnectsTo(templateContext, sourceNodeTemplate, sourceNodeTemplate, targetNodeTemplate);
 
             // start the node again
-            if (!hasInterface(sourceNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE)
-                && startAndStopAvailable(sourceNodeTemplate)) {
+            if (!hasInterface(sourceNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
+                && startAndStopAvailable(sourceNodeTemplate, templateContext.getCsar())) {
                 templateContext.executeOperation(sourceNodeTemplate,
                     getInterface(sourceNodeTemplate,
-                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START),
+                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, templateContext.getCsar()),
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, null);
             }
         }
@@ -303,18 +304,18 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         return true;
     }
 
-    private boolean startAndStopAvailable(final AbstractNodeTemplate nodeTemplate) {
-        return hasOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP)
-            & hasOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START);
+    private boolean startAndStopAvailable(final TNodeTemplate nodeTemplate, Csar csar) {
+        return hasOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, csar)
+            & hasOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, csar);
     }
 
-    private boolean hasInterface(final AbstractNodeTemplate nodeTemplate, final String interfaceName) {
-        return nodeTemplate.getType().getInterfaces().stream().filter(inter -> inter.getName().equals(interfaceName))
+    private boolean hasInterface(final TNodeTemplate nodeTemplate, final String interfaceName, Csar csar) {
+        return ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces().stream().filter(inter -> inter.getName().equals(interfaceName))
             .findFirst().isPresent();
     }
 
-    private boolean hasOperation(final AbstractNodeTemplate nodeTemplate, final String operationName) {
-        return nodeTemplate.getType().getInterfaces().stream().flatMap(inter -> inter.getOperations().stream())
+    private boolean hasOperation(final TNodeTemplate nodeTemplate, final String operationName, Csar csar) {
+        return ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces().stream().flatMap(inter -> inter.getOperations().stream())
             .filter(op -> op.getName().equals(operationName)).findFirst().isPresent();
     }
 

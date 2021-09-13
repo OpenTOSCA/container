@@ -8,15 +8,16 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TPolicy;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
@@ -48,25 +49,25 @@ public class BPELSituationPlugin implements IPlanBuilderPostPhasePlugin<BPELPlan
     }
 
     @Override
-    public boolean canHandleCreate(BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
-        Collection<AbstractNodeTemplate> nodes = SituationPluginUtils.findUsedNodes(context);
+    public boolean canHandleCreate(BPELPlanContext context, final TNodeTemplate nodeTemplate) {
+        Collection<TNodeTemplate> nodes = SituationPluginUtils.findUsedNodes(context);
         return SituationPluginUtils.getSituationAwareExecutionPolicy(nodes) != null & !SituationPluginUtils.getSituationPolicies(nodes).isEmpty();
     }
 
     @Override
-    public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
-        Collection<AbstractNodeTemplate> usedNodes = SituationPluginUtils.findUsedNodes(context);
+    public boolean handleCreate(final BPELPlanContext context, final TNodeTemplate nodeTemplate) {
+        Collection<TNodeTemplate> usedNodes = SituationPluginUtils.findUsedNodes(context);
         // get annotated policy for the situational scope
-        AbstractPolicy situationAwareExecutionPolicy = SituationPluginUtils.getSituationAwareExecutionPolicy(usedNodes);
-        String entryMode = ModelUtils.asMap(situationAwareExecutionPolicy.getTemplate().getProperties()).get("EntryMode");
+        TPolicy situationAwareExecutionPolicy = SituationPluginUtils.getSituationAwareExecutionPolicy(usedNodes);
+        String entryMode = ModelUtils.asMap(situationAwareExecutionPolicy.getProperties()).get("EntryMode");
         String situationViolation =
-            ModelUtils.asMap(situationAwareExecutionPolicy.getTemplate().getProperties()).get("SituationViolation");
+            ModelUtils.asMap(situationAwareExecutionPolicy.getProperties()).get("SituationViolation");
 
         // get annotated situation policies
-        Collection<AbstractPolicy> situationPolicies = SituationPluginUtils.getSituationPolicies(usedNodes);
-        Map<AbstractPolicy, Variable> situationPolicies2DataVariables = new HashMap<AbstractPolicy, Variable>();
-        Map<AbstractPolicy, Variable> situationPolicies2IdVariables = new HashMap<AbstractPolicy, Variable>();
-        Map<AbstractPolicy, String> situationPolicies2InputParamName = new HashMap<AbstractPolicy, String>();
+        Collection<TPolicy> situationPolicies = SituationPluginUtils.getSituationPolicies(usedNodes);
+        Map<TPolicy, Variable> situationPolicies2DataVariables = new HashMap<TPolicy, Variable>();
+        Map<TPolicy, Variable> situationPolicies2IdVariables = new HashMap<TPolicy, Variable>();
+        Map<TPolicy, String> situationPolicies2InputParamName = new HashMap<TPolicy, String>();
 
         // create variable to check if we started the situational scope yet
         Variable situationalScopeStartedVariable =
@@ -74,7 +75,7 @@ public class BPELSituationPlugin implements IPlanBuilderPostPhasePlugin<BPELPlan
 
         // create ID(/URL) and data variable for each situation
 
-        for (AbstractPolicy policy : situationPolicies) {
+        for (TPolicy policy : situationPolicies) {
             String varName = policy.getName() + "_URL_" + System.currentTimeMillis();
             Variable policyIdVar = context.createGlobalStringVariable(varName, "-1");
 
@@ -181,25 +182,25 @@ public class BPELSituationPlugin implements IPlanBuilderPostPhasePlugin<BPELPlan
     }
 
     @Override
-    public boolean canHandleTerminate(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleTerminate(BPELPlanContext context, TNodeTemplate nodeTemplate) {
         // if we can handle creation, we can also handle termination as we only add situation observation
         // code
         return this.canHandleCreate(context, nodeTemplate);
     }
 
     @Override
-    public boolean canHandleCreate(BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(BPELPlanContext context, final TRelationshipTemplate relationshipTemplate) {
         // we can handle relations
         return false;
     }
 
     @Override
-    public boolean canHandleTerminate(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(BPELPlanContext context, TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean handleTerminate(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
+    public boolean handleTerminate(BPELPlanContext context, TNodeTemplate nodeTemplate) {
         return false;
     }
 
@@ -210,12 +211,12 @@ public class BPELSituationPlugin implements IPlanBuilderPostPhasePlugin<BPELPlan
 
     @Override
     public boolean handleCreate(final BPELPlanContext context,
-                                final AbstractRelationshipTemplate relationshipTemplate) {
+                                final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean handleTerminate(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean handleTerminate(BPELPlanContext context, TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
@@ -226,48 +227,48 @@ public class BPELSituationPlugin implements IPlanBuilderPostPhasePlugin<BPELPlan
 
     @Override
     public boolean handleUpdate(BPELPlanContext sourceContext, BPELPlanContext targetContext,
-                                AbstractNodeTemplate sourceNodeTemplate, AbstractNodeTemplate targetNodeTemplate) {
+                                TNodeTemplate sourceNodeTemplate, TNodeTemplate targetNodeTemplate) {
 
         return false;
     }
 
     @Override
-    public boolean canHandleUpdate(AbstractNodeTemplate sourceNodeTemplate, AbstractNodeTemplate targetNodeTemplate) {
+    public boolean canHandleUpdate(TNodeTemplate sourceNodeTemplate, TNodeTemplate targetNodeTemplate) {
         // this plugin can create instance data for only equal nodeTemplates as of now
-        return sourceNodeTemplate.getType().getId().equals(targetNodeTemplate.getType().getId());
+        return sourceNodeTemplate.getType().equals(targetNodeTemplate.getType());
     }
 
     @Override
     public boolean handleUpdate(BPELPlanContext sourceContext, BPELPlanContext targetContext,
-                                AbstractRelationshipTemplate sourceRelationshipTemplate,
-                                AbstractRelationshipTemplate targetRelationshipTemplate) {
+                                TRelationshipTemplate sourceRelationshipTemplate,
+                                TRelationshipTemplate targetRelationshipTemplate) {
 
         return false;
     }
 
     @Override
-    public boolean canHandleUpdate(AbstractRelationshipTemplate sourceRelationshipTemplate,
-                                   AbstractRelationshipTemplate targetRelationshipTemplate) {
+    public boolean canHandleUpdate(TRelationshipTemplate sourceRelationshipTemplate,
+                                   TRelationshipTemplate targetRelationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean handleUpgrade(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
+    public boolean handleUpgrade(BPELPlanContext context, TNodeTemplate nodeTemplate) {
         return false;
     }
 
     @Override
-    public boolean handleUpgrade(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean handleUpgrade(BPELPlanContext context, TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandleUpgrade(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleUpgrade(BPELPlanContext context, TNodeTemplate nodeTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandleUpgrade(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleUpgrade(BPELPlanContext context, TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 }

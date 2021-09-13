@@ -13,6 +13,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TArtifactReference;
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 
@@ -20,13 +23,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Properties;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.ansibleoperation.core.handler.AnsibleOperationPluginHandler;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
@@ -70,7 +71,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
     private Variable appendBPELAssignOperationShScript(final BPELPlanContext templateContext,
                                                        final TOperation operation,
                                                        final TArtifactReference reference,
-                                                       final AbstractImplementationArtifact ia) {
+                                                       final TImplementationArtifact ia) {
 
         final String runShScriptStringVarName = "runShFile" + templateContext.getIdForNames();
 
@@ -122,7 +123,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
     private Variable appendBPELAssignOperationShScript(final PlanContext templateContext,
                                                        final TOperation operation,
                                                        final TArtifactReference reference,
-                                                       final AbstractImplementationArtifact ia,
+                                                       final TImplementationArtifact ia,
                                                        final Map<TParameter, Variable> inputMappings) {
 
         LOG.error("Not supported!");
@@ -178,12 +179,12 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
     /**
      * Returns the first occurrence of *.zip file, inside the given ImplementationArtifact
      *
-     * @param ia an AbstractImplementationArtifact
+     * @param ia an TImplementationArtifact
      * @return a String containing a relative file path to a *.zip file, if no *.zip file inside the given IA is found
      * null
      */
-    private TArtifactReference fetchAnsiblePlaybookRefFromIA(final AbstractImplementationArtifact ia) {
-        final Collection<TArtifactReference> refs = ia.getArtifactRef().getArtifactReferences();
+    private TArtifactReference fetchAnsiblePlaybookRefFromIA(final TImplementationArtifact ia, Csar csar) {
+        final Collection<TArtifactReference> refs = ModelUtils.findArtifactTemplate(ia.getArtifactRef(), csar).getArtifactReferences();
         for (final TArtifactReference ref : refs) {
             if (ref.getReference().endsWith(".zip")) {
                 return ref;
@@ -192,10 +193,9 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         return null;
     }
 
-    private AbstractNodeTemplate findInfrastructureNode(final List<AbstractNodeTemplate> nodes) {
-        for (final AbstractNodeTemplate nodeTemplate : nodes) {
-            if (org.opentosca.container.core.convention.Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType()
-                .getId())) {
+    private TNodeTemplate findInfrastructureNode(final List<TNodeTemplate> nodes) {
+        for (final TNodeTemplate nodeTemplate : nodes) {
+            if (org.opentosca.container.core.convention.Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType())) {
                 return nodeTemplate;
             }
         }
@@ -209,14 +209,15 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
      */
     private String getAnsiblePlaybookFilePath(final BPELPlanContext templateContext) {
 
-        final List<AbstractNodeTypeImplementation> abstractNodeTypeImpls =
-            templateContext.getNodeTemplate().getImplementations();
+        final Collection<TNodeTypeImplementation> abstractNodeTypeImpls =
+            ModelUtils.findNodeTypeImplementation(templateContext.getNodeTemplate(), templateContext.getCsar());
 
-        for (final AbstractNodeTypeImplementation abstractNodeTypeImpl : abstractNodeTypeImpls) {
-            final Collection<AbstractImplementationArtifact> abstractIAs = abstractNodeTypeImpl.getImplementationArtifacts();
-            for (final AbstractImplementationArtifact abstractIA : abstractIAs) {
+        for (final TNodeTypeImplementation abstractNodeTypeImpl : abstractNodeTypeImpls) {
+            final Collection<TImplementationArtifact> abstractIAs = abstractNodeTypeImpl.getImplementationArtifacts();
+            for (final TImplementationArtifact abstractIA : abstractIAs) {
                 final String value =
-                    ModelUtils.asMap(abstractIA.getArtifactRef().getProperties()).get("Playbook");
+
+                    ModelUtils.asMap(ModelUtils.findArtifactTemplate(abstractIA.getArtifactRef(), templateContext.getCsar()).getProperties()).get("Playbook");
                 if (value != null && !value.isEmpty()) {
                     return value;
                 }
@@ -235,10 +236,10 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
      */
     @Override
     public boolean handle(final BPELPlanContext templateContext, final TOperation operation,
-                          final AbstractImplementationArtifact ia) {
+                          final TImplementationArtifact ia) {
 
         LOG.debug("Handling Ansible Playbook IA operation: " + operation.getName());
-        final TArtifactReference ansibleRef = fetchAnsiblePlaybookRefFromIA(ia);
+        final TArtifactReference ansibleRef = fetchAnsiblePlaybookRefFromIA(ia, templateContext.getCsar());
         if (ansibleRef == null) {
             return false;
         }
@@ -246,13 +247,13 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
 
         // calculate relevant nodeTemplates for this operation call (the node
         // itself and infraNodes)
-        final List<AbstractNodeTemplate> nodes = templateContext.getInfrastructureNodes();
+        final List<TNodeTemplate> nodes = templateContext.getInfrastructureNodes();
 
         // add the template itself
         nodes.add(templateContext.getNodeTemplate());
 
         // find the ubuntu node and its nodeTemplateId
-        final AbstractNodeTemplate infrastructureNodeTemplate = findInfrastructureNode(nodes);
+        final TNodeTemplate infrastructureNodeTemplate = findInfrastructureNode(nodes);
 
         if (infrastructureNodeTemplate == null) {
             BPELAnsibleOperationPluginHandler.LOG.warn("Couldn't determine NodeTemplateId of Ubuntu Node");
@@ -385,21 +386,21 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
 
     @Override
     public boolean handle(final BPELPlanContext templateContext, final TOperation operation,
-                          final AbstractImplementationArtifact ia,
+                          final TImplementationArtifact ia,
                           final Map<TParameter, Variable> param2propertyMapping) {
 
         if (operation.getInputParameters().size() != param2propertyMapping.size()) {
             return false;
         }
 
-        final AbstractNodeTemplate infrastructureNodeTemplate =
+        final TNodeTemplate infrastructureNodeTemplate =
             findInfrastructureNode(templateContext.getInfrastructureNodes());
         if (infrastructureNodeTemplate == null) {
             return false;
         }
 
         Variable runShScriptStringVar = null;
-        final TArtifactReference scriptRef = fetchAnsiblePlaybookRefFromIA(ia);
+        final TArtifactReference scriptRef = fetchAnsiblePlaybookRefFromIA(ia, templateContext.getCsar());
         if (scriptRef == null) {
             return false;
         }

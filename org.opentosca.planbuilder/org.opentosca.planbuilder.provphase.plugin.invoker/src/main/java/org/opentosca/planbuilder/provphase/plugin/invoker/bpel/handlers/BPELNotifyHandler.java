@@ -12,8 +12,10 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TTag;
 
 import com.google.common.collect.Lists;
@@ -23,8 +25,6 @@ import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -205,14 +205,14 @@ public class BPELNotifyHandler extends PluginHandler {
     }
 
     public boolean addChoreographyParameters(final BPELPlanContext context, final Map<String, Variable> params) {
-        final AbstractRelationshipTemplate connectingRelationshipTemplate =
-            (AbstractRelationshipTemplate) context.getActivity().getMetadata().get("ConnectingRelationshipTemplate");
+        final TRelationshipTemplate connectingRelationshipTemplate =
+            (TRelationshipTemplate) context.getActivity().getMetadata().get("ConnectingRelationshipTemplate");
 
         String sendingPartner = null;
         String receivingPartner = null;
         if (connectingRelationshipTemplate != null) {
             sendingPartner = getMyPartnerId(context);
-            receivingPartner = getPartnerLocation(connectingRelationshipTemplate.getSource());
+            receivingPartner = getPartnerLocation(ModelUtils.getSource(connectingRelationshipTemplate, context.getCsar()));
             final Variable connectingRelationIdVar = context.createGlobalStringVariable("connectingRelationId_"
                 + sendingPartner + "_IDVar_" + context.getIdForNames(), connectingRelationshipTemplate.getId());
             params.put("ConnectingRelationshipTemplate", connectingRelationIdVar);
@@ -480,7 +480,7 @@ public class BPELNotifyHandler extends PluginHandler {
     public Collection<TParameter> getAllOperationParameters(final BPELPlanContext context) {
         final Collection<TParameter> parameters = new HashSet<>();
         if (context.isNodeTemplate()) {
-            for (final TInterface iface : context.getNodeTemplate().getType().getInterfaces()) {
+            for (final TInterface iface : ModelUtils.findNodeType(context.getNodeTemplate(), context.getCsar()).getInterfaces()) {
                 for (final TOperation op : iface.getOperations()) {
                     parameters.addAll(op.getInputParameters());
                 }
@@ -490,15 +490,15 @@ public class BPELNotifyHandler extends PluginHandler {
     }
 
     public Collection<PropertyVariable> getPartnerPropertyVariables(final BPELPlanContext context) {
-        final List<AbstractNodeTemplate> nodes = new ArrayList<>();
+        final List<TNodeTemplate> nodes = new ArrayList<>();
         final Collection<PropertyVariable> props = new HashSet<>();
 
-        final AbstractRelationshipTemplate relationshipTemplate =
-            (AbstractRelationshipTemplate) context.getActivity().getMetadata().get("ConnectingRelationshipTemplate");
+        final TRelationshipTemplate relationshipTemplate =
+            (TRelationshipTemplate) context.getActivity().getMetadata().get("ConnectingRelationshipTemplate");
 
-        ModelUtils.getNodesFromNodeToSink(relationshipTemplate.getTarget(), nodes);
+        ModelUtils.getNodesFromNodeToSink(ModelUtils.getTarget(relationshipTemplate, context.getCsar()), nodes, context.getCsar());
 
-        for (final AbstractNodeTemplate infraNode : nodes) {
+        for (final TNodeTemplate infraNode : nodes) {
             for (final PropertyVariable propVar : context.getPropertyVariables(infraNode)) {
                 // TODO/FIXME this shouldn't be necessary here..
                 if (!propVar.getPropertyName().equals("State")) {
@@ -536,7 +536,7 @@ public class BPELNotifyHandler extends PluginHandler {
         return params;
     }
 
-    public String getPartnerLocation(final AbstractNodeTemplate node) {
+    public String getPartnerLocation(final TNodeTemplate node) {
         for (final QName qName : node.getOtherAttributes().keySet()) {
             if (qName.getLocalPart().equals(LOCATION)) {
                 return node.getOtherAttributes().get(qName);

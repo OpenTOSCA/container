@@ -2,9 +2,10 @@ package org.opentosca.planbuilder.selection.plugin.mosquitto.workload.core;
 
 import java.util.List;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IScalingPlanBuilderSelectionPlugin;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 
 /**
  * <p>
@@ -22,7 +23,7 @@ public abstract class MosquittoSelectionPlugin<T extends PlanContext> implements
     private static final String WORKLOAD_SELECTION_STRATEGY = "WorkloadBased";
 
     @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate, final List<String> selectionStrategies) {
+    public boolean canHandle(final TNodeTemplate nodeTemplate, final List<String> selectionStrategies) {
         // we can basically handle every type with this strategy
         return selectionStrategies.contains(MosquittoSelectionPlugin.WORKLOAD_SELECTION_STRATEGY);
     }

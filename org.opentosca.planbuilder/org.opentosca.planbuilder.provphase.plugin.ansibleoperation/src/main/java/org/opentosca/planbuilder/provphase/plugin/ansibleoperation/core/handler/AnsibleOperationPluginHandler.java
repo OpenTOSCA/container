@@ -2,12 +2,12 @@ package org.opentosca.planbuilder.provphase.plugin.ansibleoperation.core.handler
 
 import java.util.Map;
 
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 
 /**
  * <p>
@@ -32,8 +32,8 @@ public interface AnsibleOperationPluginHandler<T extends PlanContext> {
      * @return true iff adding BPEL Fragment was successful
      */
     boolean handle(final T templateContext, final TOperation operation,
-                   final AbstractImplementationArtifact ia);
+                   final TImplementationArtifact ia);
 
-    boolean handle(final T context, final TOperation operation, final AbstractImplementationArtifact ia,
+    boolean handle(final T context, final TOperation operation, final TImplementationArtifact ia,
                    final Map<TParameter, Variable> param2propertyMapping);
 }

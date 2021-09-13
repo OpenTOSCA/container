@@ -9,15 +9,17 @@ import java.util.Objects;
 
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Properties;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -42,10 +44,10 @@ public class BPELTransferArtifactHandler extends BPELInvokeOperationHandler {
         return ref;
     }
 
-    public List<String> getRunScriptParams(final AbstractNodeTemplate nodeTemplate) {
+    public List<String> getRunScriptParams(final TNodeTemplate nodeTemplate, Csar csar) {
         final List<String> inputParams = new ArrayList<>();
 
-        for (final TInterface iface : nodeTemplate.getType().getInterfaces()) {
+        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
             for (final TOperation op : iface.getOperations()) {
                 if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)) {
                     for (final TParameter param : op.getInputParameters()) {
@@ -58,10 +60,10 @@ public class BPELTransferArtifactHandler extends BPELInvokeOperationHandler {
         return inputParams;
     }
 
-    public List<String> getTransferFileParams(final AbstractNodeTemplate nodeTemplate) {
+    public List<String> getTransferFileParams(final TNodeTemplate nodeTemplate, Csar csar) {
         final List<String> inputParams = new ArrayList<>();
 
-        for (final TInterface iface : nodeTemplate.getType().getInterfaces()) {
+        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
             for (final TOperation op : iface.getOperations()) {
                 if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
                     for (final TParameter param : op.getInputParameters()) {
@@ -77,7 +79,7 @@ public class BPELTransferArtifactHandler extends BPELInvokeOperationHandler {
     public boolean handleArtifactReferenceUpload(final TArtifactReference ref,
                                                  final BPELPlanContext templateContext, final PropertyVariable serverIp,
                                                  final PropertyVariable sshUser, final PropertyVariable sshKey,
-                                                 final AbstractNodeTemplate infraTemplate,
+                                                 final TNodeTemplate infraTemplate,
                                                  Element elementToAppendTo) throws Exception {
         BPELInvokeOperationHandler.LOG.debug("Handling DA " + ref.getReference());
 
@@ -129,12 +131,12 @@ public class BPELTransferArtifactHandler extends BPELInvokeOperationHandler {
             templateContext.createGlobalStringVariable(mkdirScriptVarName, ubuntuFolderPathScript);
         final Map<String, Variable> runScriptRequestInputParams = new HashMap<>();
         runScriptRequestInputParams.put("Script", mkdirScriptVar);
-        final List<String> runScriptInputParams = getRunScriptParams(infraTemplate);
+        final List<String> runScriptInputParams = getRunScriptParams(infraTemplate, templateContext.getCsar());
 
         final Map<String, Variable> transferFileRequestInputParams = new HashMap<>();
         transferFileRequestInputParams.put("TargetAbsolutePath", ubuntuFilePathVar);
         transferFileRequestInputParams.put("SourceURLorLocalPath", containerAPIAbsoluteURIVar);
-        final List<String> transferFileInputParams = getTransferFileParams(infraTemplate);
+        final List<String> transferFileInputParams = getTransferFileParams(infraTemplate,templateContext.getCsar());
 
         switch (serverIp.getPropertyName()) {
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_CONTAINERIP:

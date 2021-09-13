@@ -20,8 +20,10 @@ import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
@@ -41,8 +43,6 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
@@ -128,25 +128,25 @@ public class BPELPlanContext extends PlanContext {
      * specified localName
      */
     public PropertyVariable getPropertyVariable(final String propertyName, final boolean directionSink) {
-        final List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
+        final List<TNodeTemplate> infraNodes = new ArrayList<>();
 
         if (isNodeTemplate()) {
             if (directionSink) {
                 // get all NodeTemplates that are reachable from this
                 // nodeTemplate
-                ModelUtils.getNodesFromNodeToSink(getNodeTemplate(), infraNodes);
+                ModelUtils.getNodesFromNodeToSink(getNodeTemplate(), infraNodes, this.csar);
             } else {
-                ModelUtils.getNodesFromNodeToSource(getNodeTemplate(), infraNodes);
+                ModelUtils.getNodesFromNodeToSource(getNodeTemplate(), infraNodes, this.csar);
             }
         } else {
             if (directionSink) {
-                ModelUtils.getNodesFromNodeToSink(getRelationshipTemplate().getSource(), infraNodes);
+                ModelUtils.getNodesFromNodeToSink(ModelUtils.getSource(getRelationshipTemplate(), this.csar), infraNodes, this.csar);
             } else {
-                ModelUtils.getNodesFromRelationToSink(getRelationshipTemplate(), infraNodes);
+                ModelUtils.getNodesFromRelationToSink(getRelationshipTemplate(), infraNodes, this.csar);
             }
         }
 
-        for (final AbstractNodeTemplate infraNode : infraNodes) {
+        for (final TNodeTemplate infraNode : infraNodes) {
             for (PropertyVariable var : this.propertyMap.getNodePropertyVariables(this.serviceTemplate, infraNode)) {
                 if (var.getPropertyName().equals(propertyName)) {
                     return var;
@@ -163,7 +163,7 @@ public class BPELPlanContext extends PlanContext {
      * @return a String containing the variable name, else null
      */
     public String getVariableNameOfInfraNodeProperty(final String propertyName) {
-        for (final AbstractNodeTemplate infraNode : this.getInfrastructureNodes()) {
+        for (final TNodeTemplate infraNode : this.getInfrastructureNodes()) {
             String varName;
             if ((varName = this.getVariableNameOfProperty(infraNode, propertyName)) != null) {
                 return varName;
@@ -265,7 +265,7 @@ public class BPELPlanContext extends PlanContext {
      * creates a context with the current context as it's parent scope using the given node template and activity types
      * as input
      */
-    public BPELPlanContext createContext(final AbstractNodeTemplate nodeTemplate, ActivityType... activityType) {
+    public BPELPlanContext createContext(final TNodeTemplate nodeTemplate, ActivityType... activityType) {
         LOG.debug("Trying to create {} plan context for nodeTemplate {}", activityType, nodeTemplate);
         for (BPELScope scope : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
             if (scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate)
@@ -299,7 +299,7 @@ public class BPELPlanContext extends PlanContext {
      * @param param2variableMapping If a Map of Parameter to Variable is given this will be used for the operation call
      * @return true if appending logic to execute the operation at runtime was successfull
      */
-    public boolean executeOperation(final AbstractNodeTemplate nodeTemplate, final String interfaceName,
+    public boolean executeOperation(final TNodeTemplate nodeTemplate, final String interfaceName,
                                     final String operationName,
                                     final Map<TParameter, Variable> param2variableMapping) {
 
@@ -316,8 +316,8 @@ public class BPELPlanContext extends PlanContext {
          * context
          */
         // backup nodes
-        final AbstractRelationshipTemplate relationBackup = this.templateBuildPlan.getRelationshipTemplate();
-        final AbstractNodeTemplate nodeBackup = this.templateBuildPlan.getNodeTemplate();
+        final TRelationshipTemplate relationBackup = this.templateBuildPlan.getRelationshipTemplate();
+        final TNodeTemplate nodeBackup = this.templateBuildPlan.getNodeTemplate();
 
         // create context from this context and set the given nodeTemplate as
         // the node for the scope
@@ -348,9 +348,9 @@ public class BPELPlanContext extends PlanContext {
     /**
      * Returns a set of nodes that will be provisioned in the plan of this context
      */
-    public Collection<AbstractNodeTemplate> getNodesInCreation() {
+    public Collection<TNodeTemplate> getNodesInCreation() {
         Collection<AbstractActivity> activities = this.templateBuildPlan.getBuildPlan().getActivites();
-        Collection<AbstractNodeTemplate> result = new HashSet<>();
+        Collection<TNodeTemplate> result = new HashSet<>();
         for (AbstractActivity activity : activities) {
             if ((activity instanceof NodeTemplateActivity) &&
                 (activity.getType().equals(ActivityType.PROVISIONING) || activity.getType().equals(ActivityType.MIGRATION))) {
@@ -371,14 +371,14 @@ public class BPELPlanContext extends PlanContext {
     /**
      * Returns alls InfrastructureEdges of the Template this context belongs to
      *
-     * @return a List of AbstractRelationshipTemplate which are InfrastructureEdges of the template this context handles
+     * @return a List of TRelationshipTemplate which are InfrastructureEdges of the template this context handles
      */
-    public List<AbstractRelationshipTemplate> getInfrastructureEdges(Csar csar) {
-        final List<AbstractRelationshipTemplate> infraEdges = new ArrayList<>();
+    public List<TRelationshipTemplate> getInfrastructureEdges(Csar csar) {
+        final List<TRelationshipTemplate> infraEdges = new ArrayList<>();
         if (this.templateBuildPlan.getNodeTemplate() != null) {
             ModelUtils.getInfrastructureEdges(getNodeTemplate(), infraEdges, csar);
         } else {
-            final AbstractRelationshipTemplate template = this.templateBuildPlan.getRelationshipTemplate();
+            final TRelationshipTemplate template = this.templateBuildPlan.getRelationshipTemplate();
             if (ModelUtils.getRelationshipBaseType(template,csar).equals(Types.connectsToRelationType)) {
                 ModelUtils.getInfrastructureEdges(template, infraEdges, true , csar);
                 ModelUtils.getInfrastructureEdges(template, infraEdges, false, csar);
@@ -392,15 +392,15 @@ public class BPELPlanContext extends PlanContext {
     /**
      * Returns all InfrastructureNodes of the Template this context belongs to
      *
-     * @return a List of AbstractNodeTemplate which are InfrastructureNodeTemplate of the template this context handles
+     * @return a List of TNodeTemplate which are InfrastructureNodeTemplate of the template this context handles
      */
 
-    public List<AbstractNodeTemplate> getInfrastructureNodes() {
-        final List<AbstractNodeTemplate> infrastructureNodes = new ArrayList<>();
+    public List<TNodeTemplate> getInfrastructureNodes() {
+        final List<TNodeTemplate> infrastructureNodes = new ArrayList<>();
         if (this.templateBuildPlan.getNodeTemplate() != null) {
             ModelUtils.getInfrastructureNodes(getNodeTemplate(), infrastructureNodes, this.getCsar());
         } else {
-            final AbstractRelationshipTemplate template = this.templateBuildPlan.getRelationshipTemplate();
+            final TRelationshipTemplate template = this.templateBuildPlan.getRelationshipTemplate();
             if (ModelUtils.getRelationshipBaseType(template, this.getCsar()).equals(Types.connectsToRelationType)) {
                 ModelUtils.getInfrastructureNodes(template, infrastructureNodes, true, this.getCsar());
                 ModelUtils.getInfrastructureNodes(template, infrastructureNodes, false, this.getCsar());
@@ -415,14 +415,14 @@ public class BPELPlanContext extends PlanContext {
      * Returns all InfrastructureNodes of the Template this context belongs to
      *
      * @param forSource whether to look for InfrastructureNodes along the Source relations or Target relations
-     * @return a List of AbstractNodeTemplate which are InfrastructureNodeTemplate of the template this context handles
+     * @return a List of TNodeTemplate which are InfrastructureNodeTemplate of the template this context handles
      */
-    public List<AbstractNodeTemplate> getInfrastructureNodes(final boolean forSource) {
-        final List<AbstractNodeTemplate> infrastructureNodes = new ArrayList<>();
+    public List<TNodeTemplate> getInfrastructureNodes(final boolean forSource) {
+        final List<TNodeTemplate> infrastructureNodes = new ArrayList<>();
         if (this.templateBuildPlan.getNodeTemplate() != null) {
             ModelUtils.getInfrastructureNodes(getNodeTemplate(), infrastructureNodes, csar);
         } else {
-            final AbstractRelationshipTemplate template = this.templateBuildPlan.getRelationshipTemplate();
+            final TRelationshipTemplate template = this.templateBuildPlan.getRelationshipTemplate();
             ModelUtils.getInfrastructureNodes(template, infrastructureNodes, forSource, csar);
         }
         return infrastructureNodes;
@@ -447,7 +447,7 @@ public class BPELPlanContext extends PlanContext {
         return this.bpelProcessHandler.getMainVariableNames(this.templateBuildPlan.getBuildPlan());
     }
 
-    public boolean executeOperation(final AbstractRelationshipTemplate relationshipTemplate, final String interfaceName,
+    public boolean executeOperation(final TRelationshipTemplate relationshipTemplate, final String interfaceName,
                                     final String operationName, Map<TParameter, Variable> inputPropertyMapping,
                                     Map<TParameter, Variable> outputPropertyMapping) {
 
@@ -459,7 +459,7 @@ public class BPELPlanContext extends PlanContext {
         }
 
         final OperationChain chain =
-            scopeBuilder.createOperationCall(relationshipTemplate, interfaceName, operationName);
+            scopeBuilder.createOperationCall(relationshipTemplate, interfaceName, operationName, this.csar);
         if (chain == null) {
             return false;
         }
@@ -467,8 +467,8 @@ public class BPELPlanContext extends PlanContext {
         final List<String> opNames = new ArrayList<>();
         opNames.add(operationName);
 
-        final AbstractRelationshipTemplate relationBackup = this.templateBuildPlan.getRelationshipTemplate();
-        final AbstractNodeTemplate nodeBackup = this.templateBuildPlan.getNodeTemplate();
+        final TRelationshipTemplate relationBackup = this.templateBuildPlan.getRelationshipTemplate();
+        final TNodeTemplate nodeBackup = this.templateBuildPlan.getNodeTemplate();
 
         final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
             this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
@@ -485,7 +485,7 @@ public class BPELPlanContext extends PlanContext {
         return true;
     }
 
-    public boolean executeOperation(final AbstractNodeTemplate nodeTemplate, final String interfaceName,
+    public boolean executeOperation(final TNodeTemplate nodeTemplate, final String interfaceName,
                                     final String operationName,
                                     final Map<TParameter, Variable> param2propertyMapping,
                                     final Map<TParameter, Variable> param2propertyOutputMapping,
@@ -503,8 +503,8 @@ public class BPELPlanContext extends PlanContext {
          * context
          */
         // backup nodes
-        final AbstractRelationshipTemplate relationBackup = this.templateBuildPlan.getRelationshipTemplate();
-        final AbstractNodeTemplate nodeBackup = this.templateBuildPlan.getNodeTemplate();
+        final TRelationshipTemplate relationBackup = this.templateBuildPlan.getRelationshipTemplate();
+        final TNodeTemplate nodeBackup = this.templateBuildPlan.getNodeTemplate();
 
         // create context from this context and set the given nodeTemplate as
         // the node for the scope
@@ -536,7 +536,7 @@ public class BPELPlanContext extends PlanContext {
         return true;
     }
 
-    public boolean executeOperation(final AbstractNodeTemplate nodeTemplate, final String interfaceName,
+    public boolean executeOperation(final TNodeTemplate nodeTemplate, final String interfaceName,
                                     final String operationName,
                                     final Map<TParameter, Variable> param2propertyMapping,
                                     final Map<TParameter, Variable> param2propertyOutputMapping) {
@@ -554,8 +554,8 @@ public class BPELPlanContext extends PlanContext {
          * context
          */
         // backup nodes
-        final AbstractRelationshipTemplate relationBackup = this.templateBuildPlan.getRelationshipTemplate();
-        final AbstractNodeTemplate nodeBackup = this.templateBuildPlan.getNodeTemplate();
+        final TRelationshipTemplate relationBackup = this.templateBuildPlan.getRelationshipTemplate();
+        final TNodeTemplate nodeBackup = this.templateBuildPlan.getNodeTemplate();
 
         // create context from this context and set the given nodeTemplate as
         // the node for the scope
@@ -590,9 +590,9 @@ public class BPELPlanContext extends PlanContext {
     /**
      * Returns the NodeTemplate of this BPELPlanContext
      *
-     * @return an AbstractNodeTemplate if this BPELPlanContext handles a NodeTemplate, else null
+     * @return an TNodeTemplate if this BPELPlanContext handles a NodeTemplate, else null
      */
-    public AbstractNodeTemplate getNodeTemplate() {
+    public TNodeTemplate getNodeTemplate() {
         return this.templateBuildPlan.getNodeTemplate();
     }
 
@@ -644,9 +644,9 @@ public class BPELPlanContext extends PlanContext {
     /**
      * Returns the RelationshipTemplate this context handles
      *
-     * @return an AbstractRelationshipTemplate if this context handle a RelationshipTemplate, else null
+     * @return an TRelationshipTemplate if this context handle a RelationshipTemplate, else null
      */
-    public AbstractRelationshipTemplate getRelationshipTemplate() {
+    public TRelationshipTemplate getRelationshipTemplate() {
         return this.templateBuildPlan.getRelationshipTemplate();
     }
 

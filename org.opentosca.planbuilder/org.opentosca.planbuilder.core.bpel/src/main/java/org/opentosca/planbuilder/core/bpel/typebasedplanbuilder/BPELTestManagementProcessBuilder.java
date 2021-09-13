@@ -11,8 +11,10 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.model.csar.Csar;
@@ -36,8 +38,6 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
@@ -107,7 +107,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
 
         final AbstractPlan abstractTestPlan =
             generateMOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate,
-                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST, ActivityType.TEST, false);
+                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST, ActivityType.TEST, false, csar);
 
         LOG.debug("Generated the following abstract test plan: ");
         LOG.debug(abstractTestPlan.toString());
@@ -184,7 +184,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
-            if (containsManagementInterface(serviceTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST)) {
+            if (containsManagementInterface(serviceTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST, csar)) {
                 LOG.debug("ServiceTemplate {} contains NodeTypes with defined test interface.",
                     serviceTemplate.getName());
                 final BPELPlan newTestPlan = buildPlan(csar, definitions, serviceTemplate);
@@ -213,15 +213,15 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
             if (Objects.nonNull(bpelScope.getNodeTemplate())) {
 
                 // retrieve NodeTemplate and corresponding test interface
-                final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
+                final TNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
                 final TInterface testInterface =
-                    ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST);
+                    ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST, csar);
 
                 if (Objects.nonNull(testInterface)) {
 
                     // retrieve input parameters from all nodes which are downwards in the same topology stack
-                    final List<AbstractNodeTemplate> nodesForMatching = new ArrayList<>();
-                    ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodesForMatching);
+                    final List<TNodeTemplate> nodesForMatching = new ArrayList<>();
+                    ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodesForMatching, csar);
 
                     LOG.debug("NodeTemplate {} has {} test operations defined.", nodeTemplate.getName(),
                         testInterface.getOperations().size());
@@ -236,7 +236,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
                         for (final TParameter param : testOperation.getInputParameters()) {
                             LOG.debug("Input param: {}", param.getName());
                             found:
-                            for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
+                            for (final TNodeTemplate nodeForMatching : nodesForMatching) {
                                 for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
                                     if (param.getName().equals(propName)) {
                                         inputMapping.put(param, context.getPropertyVariable(nodeForMatching, propName));
@@ -282,7 +282,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
                 }
             } else if (bpelScope.getRelationshipTemplate() != null) {
                 // handling relationshiptemplate
-                final AbstractRelationshipTemplate relationshipTemplate = bpelScope.getRelationshipTemplate();
+                final TRelationshipTemplate relationshipTemplate = bpelScope.getRelationshipTemplate();
 
                 this.bpelPluginHandler.handleActivity(context, bpelScope, relationshipTemplate);
             }

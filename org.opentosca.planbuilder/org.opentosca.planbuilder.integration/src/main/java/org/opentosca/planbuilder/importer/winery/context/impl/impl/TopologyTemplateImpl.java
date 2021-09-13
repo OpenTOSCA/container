@@ -5,8 +5,9 @@ import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +27,8 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
 
     protected final org.eclipse.winery.model.tosca.TTopologyTemplate topologyTemplate;
     private final QName serviceTemplateId;
-    private final List<AbstractNodeTemplate> nodeTemplates;
-    private final List<AbstractRelationshipTemplate> relationshipTemplates;
+    private final List<TNodeTemplate> nodeTemplates;
+    private final List<TRelationshipTemplate> relationshipTemplates;
     private DefinitionsImpl definitions = null;
 
     public TopologyTemplateImpl(final org.eclipse.winery.model.tosca.TTopologyTemplate topologyTemplate, final DefinitionsImpl definitions,
@@ -35,15 +36,15 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
         this.topologyTemplate = topologyTemplate;
         this.definitions = definitions;
         this.serviceTemplateId = serviceTemplateId;
-        this.nodeTemplates = this.topologyTemplate.getNodeTemplates().stream().map(x -> new NodeTemplateImpl(x, this.definitions, this)).collect(Collectors.toList());
-        this.relationshipTemplates = this.topologyTemplate.getRelationshipTemplates().stream().map(x -> new RelationshipTemplateImpl(x, this.definitions, this)).collect(Collectors.toList());
+        this.nodeTemplates = this.topologyTemplate.getNodeTemplates().stream().collect(Collectors.toList());
+        this.relationshipTemplates = this.topologyTemplate.getRelationshipTemplates().stream().collect(Collectors.toList());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<AbstractNodeTemplate> getNodeTemplates() {
+    public List<TNodeTemplate> getNodeTemplates() {
         return this.nodeTemplates;
     }
 
@@ -51,7 +52,7 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
      * {@inheritDoc}
      */
     @Override
-    public List<AbstractRelationshipTemplate> getRelationshipTemplates() {
+    public List<TRelationshipTemplate> getRelationshipTemplates() {
         return this.relationshipTemplates;
     }
 

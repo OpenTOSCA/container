@@ -6,6 +6,9 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
@@ -29,8 +32,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
@@ -126,7 +127,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
             if (this.choreoBuilder.isChoreographyPartner(serviceTemplate)) {
                 LOG.debug("Transforming plan to be part of a choreography: ");
-                buildPlan = this.choreoBuilder.transformToChoreography(buildPlan);
+                buildPlan = this.choreoBuilder.transformToChoreography(buildPlan, csar);
             }
 
             LOG.debug("Generated the following abstract prov plan: ");
@@ -257,13 +258,13 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csar);
             if (bpelScope.getNodeTemplate() != null) {
 
-                final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
+                final TNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
 
                 // if this nodeTemplate has the label running (Property: State=Running), skip
                 // provisioning and just generate instance data handling
                 // extended check for OperatingSystem node type
                 if (isRunning(nodeTemplate)
-                    || nodeTemplate.getType().getName().equals(Types.abstractOperatingSystemNodeType.getLocalPart())) {
+                    || ModelUtils.findNodeType(nodeTemplate, csar).getName().equals(Types.abstractOperatingSystemNodeType.getLocalPart())) {
                     LOG.debug("Skipping the provisioning of NodeTemplate "
                         + bpelScope.getNodeTemplate().getId() + "  because state=running is set.");
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
@@ -278,7 +279,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 this.bpelPluginHandler.handleActivity(context, bpelScope, nodeTemplate);
             } else if (bpelScope.getRelationshipTemplate() != null) {
                 // handling relationshiptemplate
-                final AbstractRelationshipTemplate relationshipTemplate = bpelScope.getRelationshipTemplate();
+                final TRelationshipTemplate relationshipTemplate = bpelScope.getRelationshipTemplate();
 
                 this.bpelPluginHandler.handleActivity(context, bpelScope, relationshipTemplate);
             } else {

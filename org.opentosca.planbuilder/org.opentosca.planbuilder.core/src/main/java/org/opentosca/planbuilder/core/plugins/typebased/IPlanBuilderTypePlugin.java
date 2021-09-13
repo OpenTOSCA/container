@@ -2,10 +2,11 @@ package org.opentosca.planbuilder.core.plugins.typebased;
 
 import java.util.Collection;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 
 /**
  * <p>
@@ -26,7 +27,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param templateContext a TemplateContext of a Template
      * @return true iff when generating and adding fragment that handles the template completely
      */
-    boolean handleCreate(T templateContext, AbstractNodeTemplate nodeTemplate);
+    boolean handleCreate(T templateContext, TNodeTemplate nodeTemplate);
 
     /**
      * This method should generate and add a fragment which handle the termination of the Template inside the
@@ -35,7 +36,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param templateContext a TemplateContext of a Template
      * @return true iff when generating and adding fragment that handles the template completely
      */
-    boolean handleTerminate(T templateContext, AbstractNodeTemplate nodeTemplate);
+    boolean handleTerminate(T templateContext, TNodeTemplate nodeTemplate);
 
     /**
      * This method should generate and add a fragment which handle the creation of the Template inside the
@@ -44,7 +45,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param templateContext a TemplateContext of a Template
      * @return true iff when generating and adding fragment that handles the template completely
      */
-    boolean handleCreate(T templateContext, AbstractRelationshipTemplate relationshipTemplate);
+    boolean handleCreate(T templateContext, TRelationshipTemplate relationshipTemplate);
 
     /**
      * This method should generate and add a fragment which handle the termination of the Template inside the
@@ -53,7 +54,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param templateContext a TemplateContext of a Template
      * @return true iff when generating and adding fragment that handles the template completely
      */
-    boolean handleTerminate(T templateContext, AbstractRelationshipTemplate relationshipTemplate);
+    boolean handleTerminate(T templateContext, TRelationshipTemplate relationshipTemplate);
 
     /**
      * This method should return true if the plugin can handle creation of the given nodeTemplate
@@ -61,7 +62,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param nodeTemplate the NodeTemplate to be handled by this plugin
      * @return true iff this plugin can handle the given nodeTemplate
      */
-    boolean canHandleCreate(Csar csar, AbstractNodeTemplate nodeTemplate);
+    boolean canHandleCreate(Csar csar, TNodeTemplate nodeTemplate);
 
     /**
      * This method should return true if the plugin can handle the termination of the given nodeTemplate
@@ -69,7 +70,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param nodeTemplate the NodeTemplate to be handled by this plugin
      * @return true iff this plugin can handle the given nodeTemplate
      */
-    boolean canHandleTerminate(Csar csar, AbstractNodeTemplate nodeTemplate);
+    boolean canHandleTerminate(Csar csar, TNodeTemplate nodeTemplate);
 
     /**
      * This method should return true if the plugin can handle the creation of the given relationshipTemplate
@@ -77,7 +78,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param relationshipTemplate the RelationshipTemplate to be handled by this plugin
      * @return true iff this can handle the given relationshipTemplate
      */
-    boolean canHandleCreate(Csar csar, AbstractRelationshipTemplate relationshipTemplate);
+    boolean canHandleCreate(Csar csar, TRelationshipTemplate relationshipTemplate);
 
     /**
      * This method should return true if the plugin can handle the termination of the given relationshipTemplate
@@ -85,7 +86,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param relationshipTemplate the RelationshipTemplate to be handled by this plugin
      * @return true iff this can handle the given relationshipTemplate
      */
-    boolean canHandleTerminate(Csar csar, AbstractRelationshipTemplate relationshipTemplate);
+    boolean canHandleTerminate(Csar csar, TRelationshipTemplate relationshipTemplate);
 
     /**
      * This method should generate and add a fragment which handle the update of the Template inside the
@@ -94,7 +95,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param templateContext a TemplateContext of a Template
      * @return true iff when generating and adding fragment that handles the template completely
      */
-    default boolean handleUpdate(T templateContext, AbstractNodeTemplate nodeTemplate) {
+    default boolean handleUpdate(T templateContext, TNodeTemplate nodeTemplate) {
         return false;
     }
 
@@ -104,7 +105,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * @param nodeTemplate the NodeTemplate to be handled by this plugin
      * @return true iff this plugin can handle the given nodeTemplate
      */
-    default boolean canHandleUpdate(Csar csar, AbstractNodeTemplate nodeTemplate) {
+    default boolean canHandleUpdate(Csar csar, TNodeTemplate nodeTemplate) {
         return false;
     }
 
@@ -125,7 +126,7 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
          * plugin, if null -> the given NodeTemplate cannot be created under the context of the node (e.g. the topology
          * template misses nodes)
          */
-        Collection<AbstractNodeTemplate> getCreateDependencies(AbstractNodeTemplate nodeTemplate, Csar csar);
+        Collection<TNodeTemplate> getCreateDependencies(TNodeTemplate nodeTemplate, Csar csar);
 
         /**
          * Returns a collection of nodeTemplates that are needed to be able to terminate an instance of the given
@@ -136,6 +137,6 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
          * plugin, if null -> the given NodeTemplate cannot be terminated under the context of the node (e.g. the
          * topology template misses nodes)
          */
-        Collection<AbstractNodeTemplate> getTerminateDependencies(AbstractNodeTemplate nodeTemplate, Csar csar);
+        Collection<TNodeTemplate> getTerminateDependencies(TNodeTemplate nodeTemplate, Csar csar);
     }
 }

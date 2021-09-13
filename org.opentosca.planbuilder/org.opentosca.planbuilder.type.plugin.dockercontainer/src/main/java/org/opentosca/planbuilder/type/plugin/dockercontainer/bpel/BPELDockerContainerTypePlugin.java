@@ -3,11 +3,12 @@ package org.opentosca.planbuilder.type.plugin.dockercontainer.bpel;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.handler.BPELDockerContainerTypePluginHandler;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContainerTypePlugin;
 
@@ -26,7 +27,7 @@ public class BPELDockerContainerTypePlugin extends DockerContainerTypePlugin<BPE
     private final BPELDockerContainerTypePluginHandler handler = new BPELDockerContainerTypePluginHandler();
 
     @Override
-    public boolean handleCreate(final BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPELPlanContext templateContext, TNodeTemplate nodeTemplate) {
 
         boolean check = false;
         if (this.canHandleCreate(templateContext.getCsar(), nodeTemplate)) {
@@ -44,24 +45,24 @@ public class BPELDockerContainerTypePlugin extends DockerContainerTypePlugin<BPE
     }
 
     @Override
-    public boolean handleCreate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean handleCreate(BPELPlanContext templateContext, TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
     @Override
-    public Collection<AbstractNodeTemplate> getCreateDependencies(AbstractNodeTemplate nodeTemplate, Csar csar) {
-        Collection<AbstractNodeTemplate> deps = new HashSet<AbstractNodeTemplate>();
-        deps.add(getDockerEngineNode(nodeTemplate));
+    public Collection<TNodeTemplate> getCreateDependencies(TNodeTemplate nodeTemplate, Csar csar) {
+        Collection<TNodeTemplate> deps = new HashSet<TNodeTemplate>();
+        deps.add(getDockerEngineNode(nodeTemplate, csar));
         return deps;
     }
 
     @Override
-    public Collection<AbstractNodeTemplate> getTerminateDependencies(AbstractNodeTemplate nodeTemplate, Csar csar) {
+    public Collection<TNodeTemplate> getTerminateDependencies(TNodeTemplate nodeTemplate, Csar csar) {
         return null;
     }
 
     @Override
-    public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
+    public boolean handleTerminate(BPELPlanContext templateContext, TNodeTemplate nodeTemplate) {
         boolean check = false;
         if (this.canHandleTerminate(templateContext.getCsar(), nodeTemplate)) {
             check = this.handler.handleTerminate(templateContext);
@@ -78,13 +79,13 @@ public class BPELDockerContainerTypePlugin extends DockerContainerTypePlugin<BPE
     }
 
     @Override
-    public boolean handleTerminate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean handleTerminate(BPELPlanContext templateContext, TRelationshipTemplate relationshipTemplate) {
         // never handles relationshipTemplates
         return false;
     }
 
     @Override
-    public boolean canHandleTerminate(Csar csar, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(Csar csar, TRelationshipTemplate relationshipTemplate) {
         // never handles relationshipTemplates
         return false;
     }

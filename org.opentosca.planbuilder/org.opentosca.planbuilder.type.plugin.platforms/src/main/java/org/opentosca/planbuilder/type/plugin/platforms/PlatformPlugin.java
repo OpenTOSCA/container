@@ -5,12 +5,13 @@ import java.util.HashSet;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,70 +42,70 @@ public class PlatformPlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
     }
 
     @Override
-    public boolean handleCreate(final BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPELPlanContext templateContext, TNodeTemplate nodeTemplate) {
         return this.canHandleCreate(templateContext.getCsar(), nodeTemplate);
         // available platforms such as Clouds and Devices are not provisioned (as of yet), therefore do
         // nothing here
     }
 
     @Override
-    public boolean canHandleCreate(Csar csar, final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(Csar csar, final TNodeTemplate nodeTemplate) {
         return this.isSupportedType(nodeTemplate);
     }
 
     @Override
-    public boolean canHandleCreate(Csar csar, final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(Csar csar, final TRelationshipTemplate relationshipTemplate) {
         // can only handle node templates
         return false;
     }
 
     @Override
-    public boolean handleCreate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean handleCreate(BPELPlanContext templateContext, TRelationshipTemplate relationshipTemplate) {
         // can only handle node templates
         return false;
     }
 
     @Override
-    public Collection<AbstractNodeTemplate> getCreateDependencies(AbstractNodeTemplate nodeTemplate, Csar csar) {
+    public Collection<TNodeTemplate> getCreateDependencies(TNodeTemplate nodeTemplate, Csar csar) {
         if (this.isSupportedType(nodeTemplate)) {
             // if we can support this type we return an empty set for dependencies, because they are already
             // running
-            return new HashSet<AbstractNodeTemplate>();
+            return new HashSet<TNodeTemplate>();
         } else {
             return null;
         }
     }
 
     @Override
-    public Collection<AbstractNodeTemplate> getTerminateDependencies(AbstractNodeTemplate nodeTemplate, Csar csar) {
+    public Collection<TNodeTemplate> getTerminateDependencies(TNodeTemplate nodeTemplate, Csar csar) {
         if (this.isSupportedType(nodeTemplate)) {
             // if we can support this type we return an empty set for dependencies, because they are already
             // running
-            return new HashSet<AbstractNodeTemplate>();
+            return new HashSet<TNodeTemplate>();
         } else {
             return null;
         }
     }
 
     @Override
-    public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
+    public boolean handleTerminate(BPELPlanContext templateContext, TNodeTemplate nodeTemplate) {
         return this.isSupportedType(nodeTemplate);
         // handle these running components by doing nothing
     }
 
     @Override
-    public boolean handleTerminate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean handleTerminate(BPELPlanContext templateContext, TRelationshipTemplate relationshipTemplate) {
         // never handles relationshipTemplates
         return false;
     }
 
     @Override
-    public boolean canHandleTerminate(Csar csar, AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleTerminate(Csar csar, TNodeTemplate nodeTemplate) {
         return this.isSupportedType(nodeTemplate);
     }
 
     @Override
-    public boolean canHandleTerminate(Csar csar, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(Csar csar, TRelationshipTemplate relationshipTemplate) {
         // never handles relationshipTemplates
         return false;
     }
@@ -114,8 +115,8 @@ public class PlatformPlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
         return 1;
     }
 
-    private boolean isSupportedType(AbstractNodeTemplate nodeTemplate) {
-        QName type = nodeTemplate.getType().getId();
+    private boolean isSupportedType(TNodeTemplate nodeTemplate) {
+        QName type = nodeTemplate.getType();
         return Utils.isSupportedCloudProviderNodeType(type) || Utils.isSupportedOSNodeType(type) || Utils.isSupportedDeviceNodeType(type);
     }
 }

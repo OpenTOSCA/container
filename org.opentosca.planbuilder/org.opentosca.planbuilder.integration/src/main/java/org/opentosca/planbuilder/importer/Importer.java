@@ -14,6 +14,8 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.ids.definitions.DefinitionsChildId;
 import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.common.RepositoryFileReference;
@@ -27,8 +29,6 @@ import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.integration.layer.AbstractImporter;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,10 +82,10 @@ public class Importer extends AbstractImporter {
             this.getRelations(topology, targetRelationshipTemplateId));
     }
 
-    private Collection<AbstractNodeTemplate> getNodes(AbstractTopologyTemplate topology, Collection<String> nodeIds) {
-        Collection<AbstractNodeTemplate> result = new ArrayList<>();
+    private Collection<TNodeTemplate> getNodes(AbstractTopologyTemplate topology, Collection<String> nodeIds) {
+        Collection<TNodeTemplate> result = new ArrayList<>();
 
-        for (AbstractNodeTemplate node : topology.getNodeTemplates()) {
+        for (TNodeTemplate node : topology.getNodeTemplates()) {
             if (nodeIds.contains(node.getId())) {
                 result.add(node);
             }
@@ -94,11 +94,11 @@ public class Importer extends AbstractImporter {
         return result;
     }
 
-    private Collection<AbstractRelationshipTemplate> getRelations(AbstractTopologyTemplate topology,
-                                                                  Collection<String> relationIds) {
-        Collection<AbstractRelationshipTemplate> result = new ArrayList<>();
+    private Collection<TRelationshipTemplate> getRelations(AbstractTopologyTemplate topology,
+                                                           Collection<String> relationIds) {
+        Collection<TRelationshipTemplate> result = new ArrayList<>();
 
-        for (AbstractRelationshipTemplate relation : topology.getRelationshipTemplates()) {
+        for (TRelationshipTemplate relation : topology.getRelationshipTemplates()) {
             if (relationIds.contains(relation.getId())) {
                 result.add(relation);
             }

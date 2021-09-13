@@ -3,10 +3,11 @@ package org.opentosca.planbuilder.core;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
@@ -25,7 +26,7 @@ public abstract class AbstractPlanBuilder {
 
     abstract public PlanType createdPlanType();
 
-    public boolean isRunning(final AbstractNodeTemplate nodeTemplate) {
+    public boolean isRunning(final TNodeTemplate nodeTemplate) {
         if (nodeTemplate.getProperties() != null) {
             String val = ModelUtils.asMap(nodeTemplate.getProperties()).get("State");
             return val != null && val.equals("Running");

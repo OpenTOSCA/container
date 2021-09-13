@@ -10,6 +10,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 
@@ -35,7 +36,6 @@ import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
@@ -201,14 +201,14 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
         return plans;
     }
 
-    private TInterface getSaveStateInterface(final AbstractNodeTemplate nodeTemplate) {
-        return nodeTemplate.getType().getInterfaces().stream()
+    private TInterface getSaveStateInterface(final TNodeTemplate nodeTemplate, Csar csar) {
+        return ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces().stream()
             .filter(iface -> iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE))
             .findFirst().orElse(null);
     }
 
-    private TOperation getSaveStateOperation(final AbstractNodeTemplate nodeTemplate) {
-        final TInterface iface = getSaveStateInterface(nodeTemplate);
+    private TOperation getSaveStateOperation(final TNodeTemplate nodeTemplate, Csar csar) {
+        final TInterface iface = getSaveStateInterface(nodeTemplate, csar);
         if (iface != null) {
             for (final TOperation op : iface.getOperations()) {
                 if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE)) {
@@ -249,7 +249,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
 
                 // create a context for the node
 
-                final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
+                final TNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
 
                 if (templatePlan.getActivity().getType().equals(ActivityType.FREEZE)) {
                     final String targetServiceTemplateUrlVar = context.getServiceTemplateURLVar();
@@ -276,7 +276,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
 
                     final Map<TParameter, Variable> inputs = new HashMap<>();
 
-                    TOperation saveStateOperation = getSaveStateOperation(nodeTemplate);
+                    TOperation saveStateOperation = getSaveStateOperation(nodeTemplate, csar);
                     if (saveStateOperation != null) {
                         inputs.put(getSaveStateParameter(saveStateOperation), saveStateUrlVar);
                     } else {
@@ -294,21 +294,21 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
                  */
                 final TOperation updateOp =
                     ModelUtils.getOperationOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE,
-                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE_RUNUPDATE);
-                if (this.isUpdatableComponent(nodeTemplate) && updateOp != null) {
+                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE_RUNUPDATE, csar);
+                if (this.isUpdatableComponent(nodeTemplate, csar) && updateOp != null) {
 
                     final Map<TParameter, Variable> inputs = new HashMap<>();
 
                     // retrieve input parameters from all nodes which are downwards in the same topology stack
-                    final List<AbstractNodeTemplate> nodesForMatching = new ArrayList<>();
-                    ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodesForMatching);
+                    final List<TNodeTemplate> nodesForMatching = new ArrayList<>();
+                    ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodesForMatching, csar);
 
                     LOG.debug("Update on NodeTemplate {} needs the following input parameters:",
                         nodeTemplate.getName());
                     for (final TParameter param : updateOp.getInputParameters()) {
                         LOG.debug("Input param: {}", param.getName());
                         found:
-                        for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
+                        for (final TNodeTemplate nodeForMatching : nodesForMatching) {
                             for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
                                 if (param.getName().equals(propName)) {
                                     inputs.put(param, context.getPropertyVariable(nodeForMatching, propName));

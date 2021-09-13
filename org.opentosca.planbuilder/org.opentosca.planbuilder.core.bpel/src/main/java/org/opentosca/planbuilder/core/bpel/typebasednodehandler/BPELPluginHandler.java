@@ -7,8 +7,10 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
@@ -20,8 +22,6 @@ import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPrePhasePlug
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +47,7 @@ public class BPELPluginHandler {
     }
 
     public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope,
-                                  final AbstractNodeTemplate nodeTemplate) {
+                                  final TNodeTemplate nodeTemplate) {
         boolean result = false;
         switch (bpelScope.getActivity().getType()) {
             case PROVISIONING:
@@ -74,7 +74,7 @@ public class BPELPluginHandler {
     }
 
     public boolean handleActivity(final BPELPlanContext context, final BPELScope bpelScope,
-                                  final AbstractRelationshipTemplate relationshipTemplate) {
+                                  final TRelationshipTemplate relationshipTemplate) {
         boolean result = false;
         switch (bpelScope.getActivity().getType()) {
             case PROVISIONING:
@@ -99,7 +99,7 @@ public class BPELPluginHandler {
         return result;
     }
 
-    private boolean handleSendNotifyActivity(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    private boolean handleSendNotifyActivity(final BPELPlanContext context, final TNodeTemplate nodeTemplate) {
         boolean result = true;
 
         for (final IPlanBuilderChoreographyPlugin plugin : this.pluginRegistry.getChoreographyPlugins()) {
@@ -117,7 +117,7 @@ public class BPELPluginHandler {
         return result;
     }
 
-    private boolean handleReceiveNotifyActivity(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    private boolean handleReceiveNotifyActivity(final BPELPlanContext context, final TNodeTemplate nodeTemplate) {
         boolean result = true;
 
         for (final IPlanBuilderChoreographyPlugin plugin : this.pluginRegistry.getChoreographyPlugins()) {
@@ -136,7 +136,7 @@ public class BPELPluginHandler {
     }
 
     private boolean handleTerminationActivity(final BPELPlanContext context,
-                                              final AbstractRelationshipTemplate relationshipTemplate) {
+                                              final TRelationshipTemplate relationshipTemplate) {
         boolean result = true;
         // generate code for the termination, e.g., call install, start or create
         // methods
@@ -158,7 +158,7 @@ public class BPELPluginHandler {
         return result;
     }
 
-    private boolean handleTerminationActivity(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    private boolean handleTerminationActivity(final BPELPlanContext context, final TNodeTemplate nodeTemplate) {
         boolean result = true;
 
         // generate code for the termination, e.g., call install, start or create
@@ -181,7 +181,7 @@ public class BPELPluginHandler {
     }
 
     private boolean handleProvisioningActivity(final BPELPlanContext context, final BPELScope bpelScope,
-                                               final AbstractNodeTemplate nodeTemplate) {
+                                               final TNodeTemplate nodeTemplate) {
         boolean result = true;
 
         if (bpelScope.getActivity().getMetadata().get("ignoreProvisioning") == null) {
@@ -217,7 +217,7 @@ public class BPELPluginHandler {
     }
 
     private boolean handleProvisioningActivity(final BPELPlanContext context, final BPELScope bpelScope,
-                                               final AbstractRelationshipTemplate relationshipTemplate) {
+                                               final TRelationshipTemplate relationshipTemplate) {
         boolean result = true;
 
         if (bpelScope.getActivity().getMetadata().get("ignoreProvisioning") == null) {
@@ -244,7 +244,7 @@ public class BPELPluginHandler {
     }
 
     private boolean handleUpdateActivity(final BPELPlanContext context, final BPELScope bpelScope,
-                                         final AbstractNodeTemplate nodeTemplate) {
+                                         final TNodeTemplate nodeTemplate) {
         boolean result = true;
 
         // generate code for the provisioning, e.g., call install, start or create
@@ -267,19 +267,19 @@ public class BPELPluginHandler {
     }
 
     private boolean handleDefrostActivity(final BPELPlanContext context, final BPELScope bpelScope,
-                                          final AbstractNodeTemplate nodeTemplate) {
+                                          final TNodeTemplate nodeTemplate) {
         boolean result = true;
 
         final Map<TParameter, Variable> param2propertyMapping = new HashMap<>();
 
         // retrieve input parameters from all nodes which are downwards in the same
         // topology stack
-        final List<AbstractNodeTemplate> nodesForMatching = new ArrayList<>();
-        ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodesForMatching);
+        final List<TNodeTemplate> nodesForMatching = new ArrayList<>();
+        ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodesForMatching, context.getCsar());
 
         final TOperation defrostOp = ModelUtils.getOperationOfNode(nodeTemplate,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE);
+            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE, context.getCsar());
 
         // generate code for the pre handling, e.g., upload DAs
         for (final IPlanBuilderPrePhasePlugin prePlugin : this.pluginRegistry.getPrePlugins()) {
@@ -293,7 +293,7 @@ public class BPELPluginHandler {
         for (final TParameter param : defrostOp.getInputParameters()) {
             LOG.debug("Input param: {}", param.getName());
             found:
-            for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
+            for (final TNodeTemplate nodeForMatching : nodesForMatching) {
                 for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
                     if (param.getName().equals(propName)) {
                         param2propertyMapping.put(param, context.getPropertyVariable(nodeForMatching, propName));

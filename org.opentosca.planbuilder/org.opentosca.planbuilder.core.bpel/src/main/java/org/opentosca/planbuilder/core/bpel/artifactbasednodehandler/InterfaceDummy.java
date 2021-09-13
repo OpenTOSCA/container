@@ -3,12 +3,14 @@ package org.opentosca.planbuilder.core.bpel.artifactbasednodehandler;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 
-import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 /**
  * As some IAs may implement a whole interface we mock the matching of these kind of IAs with this dummy class
@@ -17,16 +19,18 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
  */
 class InterfaceDummy extends TOperation {
 
-    private final AbstractImplementationArtifact ia;
-    private final AbstractNodeTemplate nodeTemplate;
+    private final TImplementationArtifact ia;
+    private final TNodeTemplate nodeTemplate;
+    private Csar csar;
 
-    public InterfaceDummy(final AbstractNodeTemplate nodeTemplate, final AbstractImplementationArtifact ia) {
+    public InterfaceDummy(final TNodeTemplate nodeTemplate, final TImplementationArtifact ia, Csar csar) {
         this.ia = ia;
         this.nodeTemplate = nodeTemplate;
+        this.csar = csar;
     }
 
     public TOperation getOperation(final String opName) {
-        for (final TInterface iface : this.nodeTemplate.getType().getInterfaces()) {
+        for (final TInterface iface : ModelUtils.findNodeType(this.nodeTemplate, this.csar).getInterfaces()) {
             if (iface.getName().equals(this.ia.getInterfaceName())) {
                 for (final TOperation op : iface.getOperations()) {
                     if (op.getName().equals(opName)) {
@@ -39,7 +43,7 @@ class InterfaceDummy extends TOperation {
     }
 
     public List<String> getOperationNames() {
-        for (final TInterface iface : this.nodeTemplate.getType().getInterfaces()) {
+        for (final TInterface iface : ModelUtils.findNodeType(this.nodeTemplate, this.csar).getInterfaces()) {
             if (iface.getName().equals(this.ia.getInterfaceName())) {
                 final List<String> opNames = new ArrayList<>();
                 for (final TOperation op : iface.getOperations()) {
@@ -51,11 +55,11 @@ class InterfaceDummy extends TOperation {
         return new ArrayList<>();
     }
 
-    public AbstractNodeTemplate getNodeTemplate() {
+    public TNodeTemplate getNodeTemplate() {
         return this.nodeTemplate;
     }
 
-    public AbstractImplementationArtifact getIA() {
+    public TImplementationArtifact getIA() {
         return this.ia;
     }
 

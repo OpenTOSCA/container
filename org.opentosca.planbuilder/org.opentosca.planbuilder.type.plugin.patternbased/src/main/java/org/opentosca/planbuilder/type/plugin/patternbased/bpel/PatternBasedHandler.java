@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 
@@ -17,7 +18,6 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.w3c.dom.Element;
@@ -27,7 +27,7 @@ public abstract class PatternBasedHandler {
     protected static final BPELInvokerPlugin invoker = new BPELInvokerPlugin();
 
     protected boolean invokeOperation(final BPELPlanContext context, final ConcreteOperationMatching matching,
-                                      final AbstractNodeTemplate hostingContainer, Element elementToAppendTo) {
+                                      final TNodeTemplate hostingContainer, Element elementToAppendTo) {
 
         return invoker.handle(context, hostingContainer.getId(), true, matching.operationName.getName(),
             matching.interfaceName.getName(), transformForInvoker(matching.inputMatching),
@@ -40,7 +40,7 @@ public abstract class PatternBasedHandler {
         return newMap;
     }
 
-    protected boolean invokeArtifactReferenceUpload(BPELPlanContext context, TArtifactReference ref, AbstractNodeTemplate infraNode) {
+    protected boolean invokeArtifactReferenceUpload(BPELPlanContext context, TArtifactReference ref, TNodeTemplate infraNode) {
         PropertyVariable ip = this.getIpProperty(context,infraNode);
         PropertyVariable user = this.getUserProperty(context, infraNode);
         PropertyVariable key = this.getKeyProperty(context, infraNode);
@@ -52,7 +52,7 @@ public abstract class PatternBasedHandler {
         return invoker.handleArtifactReferenceUpload(ref, context, ip, user, key, infraNode, context.getPrePhaseElement());
     }
 
-    protected PropertyVariable getIpProperty(BPELPlanContext context, AbstractNodeTemplate node) {
+    protected PropertyVariable getIpProperty(BPELPlanContext context, TNodeTemplate node) {
         for (String propName : Utils.getSupportedVirtualMachineIPPropertyNames()) {
             PropertyVariable propVar = context.getPropertyVariable(propName);
             if (propVar != null) {
@@ -62,7 +62,7 @@ public abstract class PatternBasedHandler {
         return null;
     }
 
-    protected PropertyVariable getUserProperty(BPELPlanContext context, AbstractNodeTemplate node) {
+    protected PropertyVariable getUserProperty(BPELPlanContext context, TNodeTemplate node) {
         for (String propName : Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
             PropertyVariable propVar = context.getPropertyVariable(propName);
             if (propVar != null) {
@@ -72,7 +72,7 @@ public abstract class PatternBasedHandler {
         return null;
     }
 
-    protected PropertyVariable getKeyProperty(BPELPlanContext context, AbstractNodeTemplate node) {
+    protected PropertyVariable getKeyProperty(BPELPlanContext context, TNodeTemplate node) {
         for (String propName : Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             PropertyVariable propVar = context.getPropertyVariable(propName);
             if (propVar != null) {
@@ -82,9 +82,9 @@ public abstract class PatternBasedHandler {
         return null;
     }
 
-    protected boolean invokeWithMatching(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
+    protected boolean invokeWithMatching(final BPELPlanContext context, final TNodeTemplate nodeTemplate,
                                          final TInterface iface, final TOperation op,
-                                         final Set<AbstractNodeTemplate> nodesForMatching, Element elementToAppendTo) {
+                                         final Set<TNodeTemplate> nodesForMatching, Element elementToAppendTo) {
         final ConcreteOperationMatching matching =
             createConcreteOperationMatching(context, createPropertyToParameterMatching(nodesForMatching, iface, op));
         return invokeOperation(context, matching, nodeTemplate, elementToAppendTo);
@@ -101,7 +101,7 @@ public abstract class PatternBasedHandler {
         for (final TParameter param : abstractMatching.inputMatching.keySet()) {
             boolean added = false;
 
-            for (final AbstractNodeTemplate nodeForMatch : matching.matchedNodes) {
+            for (final TNodeTemplate nodeForMatch : matching.matchedNodes) {
                 for (final String nodePropName : ModelUtils.getPropertyNames(nodeForMatch)) {
                     if (abstractMatching.inputMatching.get(param).equals(nodePropName)) {
                         matching.inputMatching.put(param, context.getPropertyVariable(nodeForMatch, nodePropName));
@@ -117,7 +117,7 @@ public abstract class PatternBasedHandler {
 
         for (final TParameter param : abstractMatching.outputMatching.keySet()) {
             boolean added = false;
-            for (final AbstractNodeTemplate nodeForMatch : matching.matchedNodes) {
+            for (final TNodeTemplate nodeForMatch : matching.matchedNodes) {
                 for (final String nodePropName : ModelUtils.getPropertyNames(nodeForMatch)) {
                     if (abstractMatching.outputMatching.get(param).equals(nodePropName)) {
                         matching.outputMatching.put(param, context.getPropertyVariable(nodeForMatch, nodePropName));
@@ -134,7 +134,7 @@ public abstract class PatternBasedHandler {
         return matching;
     }
 
-    protected boolean hasCompleteMatching(final Collection<AbstractNodeTemplate> nodesForMatching,
+    protected boolean hasCompleteMatching(final Collection<TNodeTemplate> nodesForMatching,
                                           final TInterface ifaceToMatch,
                                           final TOperation operationToMatch) {
 
@@ -144,16 +144,16 @@ public abstract class PatternBasedHandler {
         return matching.inputMatching.size() == operationToMatch.getInputParameters().size();
     }
 
-    protected OperationMatching createPropertyToParameterMatching(final Collection<AbstractNodeTemplate> nodesForMatching,
+    protected OperationMatching createPropertyToParameterMatching(final Collection<TNodeTemplate> nodesForMatching,
                                                                   final TInterface ifaceToMatch,
                                                                   final TOperation operationToMatch) {
         final OperationMatching matching = new OperationMatching(ifaceToMatch, operationToMatch);
-        final Set<AbstractNodeTemplate> matchedNodes = new HashSet<>();
+        final Set<TNodeTemplate> matchedNodes = new HashSet<>();
 
         for (final TParameter param : operationToMatch.getInputParameters()) {
             boolean matched = false;
 
-            for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
+            for (final TNodeTemplate nodeForMatching : nodesForMatching) {
                 for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
                     if (param.getName().equals(propName)) {
                         matching.inputMatching.put(param, propName);
@@ -171,7 +171,7 @@ public abstract class PatternBasedHandler {
         for (final TParameter param : operationToMatch.getOutputParameters()) {
             boolean matched = false;
 
-            for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
+            for (final TNodeTemplate nodeForMatching : nodesForMatching) {
                 for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
                     if (param.getName().equals(propName)) {
                         matching.outputMatching.put(param, propName);
@@ -198,7 +198,7 @@ public abstract class PatternBasedHandler {
         Map<TParameter, String> inputMatching;
         Map<TParameter, String> outputMatching;
 
-        Set<AbstractNodeTemplate> matchedNodes;
+        Set<TNodeTemplate> matchedNodes;
 
         public OperationMatching(final TInterface iface, final TOperation op) {
             this.interfaceName = iface;
@@ -215,7 +215,7 @@ public abstract class PatternBasedHandler {
         TOperation operationName;
         Map<TParameter, Variable> inputMatching = new HashMap<>();
         Map<TParameter, Variable> outputMatching = new HashMap<>();
-        Set<AbstractNodeTemplate> matchedNodes;
+        Set<TNodeTemplate> matchedNodes;
 
         public ConcreteOperationMatching(final TInterface iface, final TOperation op) {
             this.interfaceName = iface;

@@ -5,12 +5,13 @@ import java.util.Collection;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TArtifactReference;
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
-import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,9 +54,9 @@ public class BPELPrePhasePluginHandler {
      * @param infraNodeTemplate the NodeTemplate which is used as InfrastructureNode
      * @return true iff adding logic was successful
      */
-    public boolean handle(final BPELPlanContext context, final AbstractDeploymentArtifact da,
-                          final AbstractNodeTemplate infraNodeTemplate) {
-        final Collection<TArtifactReference> refs = da.getArtifactRef().getArtifactReferences();
+    public boolean handle(final BPELPlanContext context, final TDeploymentArtifact da,
+                          final TNodeTemplate infraNodeTemplate) {
+        final Collection<TArtifactReference> refs = ModelUtils.findArtifactTemplate(da.getArtifactRef(), context.getCsar()).getArtifactReferences();
         return this.handle(context, refs, da.getName(), infraNodeTemplate);
     }
 
@@ -68,10 +69,10 @@ public class BPELPrePhasePluginHandler {
      * @param nodeTemplate the NodeTemplate which is used as InfrastructureNode
      * @return true iff adding logic was successful
      */
-    public boolean handle(final BPELPlanContext context, final AbstractImplementationArtifact ia,
-                          final AbstractNodeTemplate nodeTemplate) {
+    public boolean handle(final BPELPlanContext context, final TImplementationArtifact ia,
+                          final TNodeTemplate nodeTemplate) {
         // fetch references
-        final Collection<TArtifactReference> refs = ia.getArtifactRef().getArtifactReferences();
+        final Collection<TArtifactReference> refs = ModelUtils.findArtifactTemplate(ia.getArtifactRef(), context.getCsar()).getArtifactReferences();
         return this.handle(context, refs, ia.getArtifactType().getLocalPart() + "_" + ia.getOperationName() + "_IA",
             nodeTemplate);
     }
@@ -87,7 +88,7 @@ public class BPELPrePhasePluginHandler {
      * @return true iff adding the logic was successful
      */
     private boolean handle(final BPELPlanContext templateContext, final Collection<TArtifactReference> refs,
-                           final String artifactName, final AbstractNodeTemplate infraTemplate) {
+                           final String artifactName, final TNodeTemplate infraTemplate) {
 
         LOG.debug("Handling DA upload with");
         String refsString = "";
@@ -96,7 +97,7 @@ public class BPELPrePhasePluginHandler {
         }
         LOG.debug("Refs:" + refsString.substring(0, refsString.lastIndexOf(",")));
         LOG.debug("ArtifactName: " + artifactName);
-        LOG.debug("NodeTemplate: " + infraTemplate.getId() + "(Type: " + infraTemplate.getType().getId().toString()
+        LOG.debug("NodeTemplate: " + infraTemplate.getId() + "(Type: " + infraTemplate.getType().toString()
             + ")");
 
         // fetch server ip of the vm this artefact will be deployed on

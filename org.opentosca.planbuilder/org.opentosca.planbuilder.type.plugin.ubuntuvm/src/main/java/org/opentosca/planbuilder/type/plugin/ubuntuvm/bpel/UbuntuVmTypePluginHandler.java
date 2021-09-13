@@ -1,7 +1,8 @@
 package org.opentosca.planbuilder.type.plugin.ubuntuvm.bpel;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 
 /**
  * <p>
@@ -23,9 +24,9 @@ public interface UbuntuVmTypePluginHandler<T extends PlanContext> {
      * @param nodeTemplate the NodeTemplate on which the fragments are used
      * @return true iff adding the fragments was successful
      */
-    boolean handle(final T context, final AbstractNodeTemplate nodeTemplate);
+    boolean handle(final T context, final TNodeTemplate nodeTemplate);
 
-    boolean handleCreateWithCloudProviderInterface(final T context, final AbstractNodeTemplate nodeTemplate);
+    boolean handleCreateWithCloudProviderInterface(final T context, final TNodeTemplate nodeTemplate);
 
     /**
      * Provisions a Docker Ubuntu Container on a DockerEngine
@@ -34,5 +35,5 @@ public interface UbuntuVmTypePluginHandler<T extends PlanContext> {
      * @param nodeTemplate the NodeTemplate on which the fragments are used
      * @return true iff provisioning the container was successful
      */
-    boolean handleWithDockerEngineInterface(final T context, final AbstractNodeTemplate nodeTemplate);
+    boolean handleWithDockerEngineInterface(final T context, final TNodeTemplate nodeTemplate);
 }

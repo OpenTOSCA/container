@@ -19,6 +19,7 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -180,10 +181,10 @@ public class PluginHandler {
     public String findInterfaceForOperation(final BPELPlanContext context, final TOperation operation) {
         List<TInterface> interfaces = null;
         if (context.getNodeTemplate() != null) {
-            interfaces = context.getNodeTemplate().getType().getInterfaces();
+            interfaces = ModelUtils.findNodeType(context.getNodeTemplate(), context.getCsar()).getInterfaces();
         } else {
-            interfaces = context.getRelationshipTemplate().getRelationshipType().getSourceInterfaces();
-            interfaces.addAll(context.getRelationshipTemplate().getRelationshipType().getTargetInterfaces());
+            interfaces = ModelUtils.findRelationshipType(context.getRelationshipTemplate(), context.getCsar()).getSourceInterfaces();
+            interfaces.addAll(ModelUtils.findRelationshipType(context.getRelationshipTemplate(), context.getCsar()).getTargetInterfaces());
         }
 
         if (interfaces != null && interfaces.size() > 0) {

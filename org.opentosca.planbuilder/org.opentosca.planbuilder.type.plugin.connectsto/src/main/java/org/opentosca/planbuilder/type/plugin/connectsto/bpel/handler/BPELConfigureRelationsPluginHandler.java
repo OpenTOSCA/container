@@ -4,40 +4,41 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.ConfigureRelationsPlugin;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.handler.ConnectsToPluginHandler;
+import org.springframework.ui.Model;
 
 public class BPELConfigureRelationsPluginHandler implements ConnectsToPluginHandler<BPELPlanContext> {
 
     @Override
     public boolean handle(final BPELPlanContext templateContext) {
-        final AbstractRelationshipTemplate relationTemplate = templateContext.getRelationshipTemplate();
-        final AbstractNodeTemplate sourceNodeTemplate = relationTemplate.getSource();
-        final AbstractNodeTemplate targetNodeTemplate = relationTemplate.getTarget();
+        final TRelationshipTemplate relationTemplate = templateContext.getRelationshipTemplate();
+        final TNodeTemplate sourceNodeTemplate = ModelUtils.getSource(relationTemplate, templateContext.getCsar());
+        final TNodeTemplate targetNodeTemplate = ModelUtils.getTarget(relationTemplate, templateContext.getCsar());
 
-        if (hasOperation(relationTemplate, ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_SOURCE)) {
+        if (hasOperation(relationTemplate, ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_SOURCE, templateContext.getCsar())) {
             final TOperation op =
-                getOperation(relationTemplate, ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_SOURCE);
+                getOperation(relationTemplate, ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_SOURCE, templateContext.getCsar());
             final Map<TParameter, Variable> input =
                 findInputParameters(templateContext, op, relationTemplate, sourceNodeTemplate, targetNodeTemplate);
             templateContext.executeOperation(relationTemplate, ConfigureRelationsPlugin.INTERFACE_NAME,
                 ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_SOURCE, input, null);
         }
 
-        if (hasOperation(relationTemplate, ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_TARGET)) {
+        if (hasOperation(relationTemplate, ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_TARGET, templateContext.getCsar())) {
             final TOperation op =
-                getOperation(relationTemplate, ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_TARGET);
+                getOperation(relationTemplate, ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_TARGET, templateContext.getCsar());
             final Map<TParameter, Variable> input =
                 findInputParameters(templateContext, op, relationTemplate, sourceNodeTemplate, targetNodeTemplate);
             templateContext.executeOperation(relationTemplate, ConfigureRelationsPlugin.INTERFACE_NAME,
@@ -47,12 +48,12 @@ public class BPELConfigureRelationsPluginHandler implements ConnectsToPluginHand
         return true;
     }
 
-    private boolean hasOperation(final AbstractRelationshipTemplate template, final String name) {
-        return getOperation(template, name) != null;
+    private boolean hasOperation(final TRelationshipTemplate template, final String name, Csar csar) {
+        return getOperation(template, name, csar) != null;
     }
 
-    private TOperation getOperation(final AbstractRelationshipTemplate template, final String name) {
-        for (final TInterface i : template.getRelationshipType().getInterfaces()) {
+    private TOperation getOperation(final TRelationshipTemplate template, final String name, Csar csar) {
+        for (final TInterface i : ModelUtils.findRelationshipType(template, csar).getInterfaces()) {
             for (final TOperation op : i.getOperations()) {
                 if (op.getName().equals(name)) {
                     return op;
@@ -64,9 +65,9 @@ public class BPELConfigureRelationsPluginHandler implements ConnectsToPluginHand
 
     private Map<TParameter, Variable> findInputParameters(final BPELPlanContext templateContext,
                                                                  final TOperation op,
-                                                                 final AbstractRelationshipTemplate relationshipTemplate,
-                                                                 final AbstractNodeTemplate sourceNodeTemplate,
-                                                                 final AbstractNodeTemplate targetNodeTemplate) {
+                                                                 final TRelationshipTemplate relationshipTemplate,
+                                                                 final TNodeTemplate sourceNodeTemplate,
+                                                                 final TNodeTemplate targetNodeTemplate) {
         final Map<TParameter, Variable> parameters = new HashMap<>();
         for (final TParameter p : op.getInputParameters()) {
             // Search parameter in RelationshipTemplate
@@ -93,9 +94,9 @@ public class BPELConfigureRelationsPluginHandler implements ConnectsToPluginHand
         return parameters;
     }
 
-    private Variable findPropertyInTopology(final PlanContext templateContext, final AbstractNodeTemplate node,
+    private Variable findPropertyInTopology(final PlanContext templateContext, final TNodeTemplate node,
                                             final String name, Csar csar) {
-        AbstractNodeTemplate n = node;
+        TNodeTemplate n = node;
         while (n != null) {
             final Variable v = templateContext.getPropertyVariable(n, name);
             if (v != null) {
@@ -107,10 +108,10 @@ public class BPELConfigureRelationsPluginHandler implements ConnectsToPluginHand
         return null;
     }
 
-    private AbstractNodeTemplate getNextNodeTemplate(final AbstractNodeTemplate node, Csar csar) {
-        for (final AbstractRelationshipTemplate r : node.getOutgoingRelations()) {
-            if (ModelUtils.getRelationshipTypeHierarchy(r.getRelationshipType(), csar).contains(Types.hostedOnRelationType)) {
-                return r.getTarget();
+    private TNodeTemplate getNextNodeTemplate(final TNodeTemplate node, Csar csar) {
+        for (final TRelationshipTemplate r : ModelUtils.getOutgoingRelations(node, csar)) {
+            if (ModelUtils.getRelationshipTypeHierarchy(ModelUtils.findRelationshipType(r, csar), csar).contains(Types.hostedOnRelationType)) {
+                return ModelUtils.getTarget(r, csar);
             }
         }
         return null;

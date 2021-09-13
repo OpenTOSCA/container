@@ -6,6 +6,9 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractTerminationPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
@@ -23,8 +26,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
@@ -221,12 +222,12 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
         for (final BPELScope bpelScope : plan.getTemplateBuildPlans()) {
             boolean result = false;
             if (bpelScope.getNodeTemplate() != null) {
-                final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
+                final TNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
                 final BPELPlanContext context = new BPELPlanContext(scopeBuilder, plan, bpelScope, propMap, plan.getServiceTemplate(),
                     serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csar);
                 result = this.bpelPluginHandler.handleActivity(context, bpelScope, nodeTemplate);
             } else {
-                AbstractRelationshipTemplate relationshipTempalte = bpelScope.getRelationshipTemplate();
+                TRelationshipTemplate relationshipTempalte = bpelScope.getRelationshipTemplate();
                 final BPELPlanContext context = new BPELPlanContext(scopeBuilder, plan, bpelScope, propMap, plan.getServiceTemplate(),
                     serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csar);
                 result = this.bpelPluginHandler.handleActivity(context, bpelScope, relationshipTempalte);

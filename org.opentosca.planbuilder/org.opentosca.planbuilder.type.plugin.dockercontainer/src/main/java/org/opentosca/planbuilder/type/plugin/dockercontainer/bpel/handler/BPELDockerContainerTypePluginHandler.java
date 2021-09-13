@@ -10,17 +10,18 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TArtifactReference;
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.core.plugins.utils.PluginUtils;
-import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContainerTypePlugin;
@@ -32,7 +33,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import static org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContainerTypePlugin.getAbstractDeploymentArtifact;
+import static org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContainerTypePlugin.getTDeploymentArtifact;
 
 /**
  * <p>
@@ -59,21 +60,21 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         }
     }
 
-    public static AbstractDeploymentArtifact fetchFirstDockerContainerDA(final AbstractNodeTemplate nodeTemplate) {
-        return getAbstractDeploymentArtifact(nodeTemplate);
+    public static TDeploymentArtifact fetchFirstDockerContainerDA(final TNodeTemplate nodeTemplate, Csar csar) {
+        return getTDeploymentArtifact(nodeTemplate, csar);
     }
 
-    public static List<AbstractDeploymentArtifact> fetchVolumeDeploymentArtifacts(final AbstractNodeTemplate nodeTemplate) {
-        final List<AbstractDeploymentArtifact> das = new ArrayList<>();
+    public static List<TDeploymentArtifact> fetchVolumeDeploymentArtifacts(final TNodeTemplate nodeTemplate, Csar csar) {
+        final List<TDeploymentArtifact> das = new ArrayList<>();
 
-        for (final AbstractDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
+        for (final TDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
             if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_VOLUME_ARTIFACTTYPE)) {
                 das.add(da);
             }
         }
 
-        for (final AbstractNodeTypeImplementation nodeTypeImpl : nodeTemplate.getImplementations()) {
-            for (final AbstractDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
+        for (final TNodeTypeImplementation nodeTypeImpl : ModelUtils.findNodeTypeImplementation(nodeTemplate, csar)) {
+            for (final TDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
                 if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_VOLUME_ARTIFACTTYPE)) {
                     das.add(da);
                 }
@@ -84,12 +85,11 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
     }
 
     private boolean handleTerminate(final BPELPlanContext context, Element elementToAppendTo) {
-        final List<AbstractNodeTemplate> nodes = new ArrayList<>();
-        ModelUtils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes);
+        final List<TNodeTemplate> nodes = new ArrayList<>();
+        ModelUtils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes, context.getCsar());
 
-        for (AbstractNodeTemplate node : nodes) {
-            if (org.opentosca.container.core.convention.Utils.isSupportedDockerEngineNodeType(node.getType()
-                .getId())) {
+        for (TNodeTemplate node : nodes) {
+            if (org.opentosca.container.core.convention.Utils.isSupportedDockerEngineNodeType(node.getType())) {
 
                 final Map<String, Variable> createDEInternalExternalPropsInput = new HashMap<>();
                 final Map<String, Variable> createDEInternalExternalPropsOutput = new HashMap<>();
@@ -122,7 +122,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             return false;
         }
 
-        final AbstractNodeTemplate nodeTemplate = templateContext.getNodeTemplate();
+        final TNodeTemplate nodeTemplate = templateContext.getNodeTemplate();
 
         // fetch port binding variables (ContainerPort, Port)
         final PropertyVariable containerPortVar = templateContext.getPropertyVariable(nodeTemplate, "ContainerPort");
@@ -161,7 +161,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         final Variable containerIdVar = templateContext.getPropertyVariable(nodeTemplate, "ContainerID");
 
         // fetch DockerEngine
-        final AbstractNodeTemplate dockerEngineNode = DockerContainerTypePlugin.getDockerEngineNode(nodeTemplate);
+        final TNodeTemplate dockerEngineNode = DockerContainerTypePlugin.getDockerEngineNode(nodeTemplate, templateContext.getCsar());
 
         if (dockerEngineNode == null) {
             BPELDockerContainerTypePluginHandler.LOG.error("Couldn't fetch DockerEngineNode to install given DockerContainer NodeTemplate");
@@ -188,7 +188,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
         if (containerMountPath != null && !PluginUtils.isVariableValueEmpty(containerMountPath)) {
 
-            final List<AbstractDeploymentArtifact> volumeDas = fetchVolumeDeploymentArtifacts(nodeTemplate);
+            final List<TDeploymentArtifact> volumeDas = fetchVolumeDeploymentArtifacts(nodeTemplate, templateContext.getCsar());
 
             if (!volumeDas.isEmpty()) {
                 remoteVolumeDataVariable = createRemoteVolumeDataInputVariable(volumeDas, templateContext);
@@ -197,7 +197,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             hostVolumeDataVariable = templateContext.getPropertyVariable(nodeTemplate, "HostMountFiles");
 
             if (hostVolumeDataVariable != null && !PluginUtils.isVariableValueEmpty(hostVolumeDataVariable)) {
-                final AbstractNodeTemplate infraNode = findInfrastructureTemplate(templateContext, dockerEngineNode);
+                final TNodeTemplate infraNode = findInfrastructureTemplate(templateContext, dockerEngineNode);
                 vmIpVariable = findVMIP(templateContext, infraNode);
                 vmPrivateKeyVariable = findPrivateKey(templateContext, infraNode);
             }
@@ -206,7 +206,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         if (containerImageVar == null || PluginUtils.isVariableValueEmpty(containerImageVar)) {
             // handle with DA -> construct URL to the DockerImage .zip
 
-            final AbstractDeploymentArtifact da = fetchFirstDockerContainerDA(nodeTemplate);
+            final TDeploymentArtifact da = fetchFirstDockerContainerDA(nodeTemplate, templateContext.getCsar());
             return handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar,
                 containerIpVar, containerIdVar,
                 fetchEnvironmentVariables(templateContext, nodeTemplate), null, null,
@@ -222,12 +222,12 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         }
     }
 
-    private AbstractNodeTemplate findInfrastructureTemplate(final PlanContext context,
-                                                            final AbstractNodeTemplate nodeTemplate) {
-        final List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
+    private TNodeTemplate findInfrastructureTemplate(final PlanContext context,
+                                                            final TNodeTemplate nodeTemplate) {
+        final List<TNodeTemplate> infraNodes = new ArrayList<>();
         ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes, context.getCsar());
 
-        for (final AbstractNodeTemplate infraNode : infraNodes) {
+        for (final TNodeTemplate infraNode : infraNodes) {
             if (!infraNode.getId().equals(nodeTemplate.getId()) & ModelUtils.getPropertyNames(infraNode).contains("VMIP")) {
                 // fetch the first which is not a dockercontainer
                 return infraNode;
@@ -237,7 +237,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         return null;
     }
 
-    private Variable findVMIP(final PlanContext templateContext, final AbstractNodeTemplate infraTemplate) {
+    private Variable findVMIP(final PlanContext templateContext, final TNodeTemplate infraTemplate) {
         Variable serverIpPropWrapper = null;
         for (final String serverIpName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
             serverIpPropWrapper = templateContext.getPropertyVariable(infraTemplate, serverIpName);
@@ -248,7 +248,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         return serverIpPropWrapper;
     }
 
-    private Variable findPrivateKey(final PlanContext templateContext, final AbstractNodeTemplate infraTemplate) {
+    private Variable findPrivateKey(final PlanContext templateContext, final TNodeTemplate infraTemplate) {
         Variable sshKeyVariable = null;
         for (final String vmLoginPassword : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             sshKeyVariable = templateContext.getPropertyVariable(infraTemplate, vmLoginPassword);
@@ -259,7 +259,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         return sshKeyVariable;
     }
 
-    private Variable createRemoteVolumeDataInputVariable(final List<AbstractDeploymentArtifact> das,
+    private Variable createRemoteVolumeDataInputVariable(final List<TDeploymentArtifact> das,
                                                          final BPELPlanContext context) {
 
         final Variable remoteVolumeDataVariable =
@@ -267,8 +267,8 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
         StringBuilder remoteVolumeDataVarAssignQuery = new StringBuilder("concat(");
 
-        for (final AbstractDeploymentArtifact da : das) {
-            for (final TArtifactReference ref : da.getArtifactRef().getArtifactReferences()) {
+        for (final TDeploymentArtifact da : das) {
+            for (final TArtifactReference ref : ModelUtils.findArtifactTemplate(da.getArtifactRef(), context.getCsar()).getArtifactReferences()) {
                 // $input.payload//*[local-name()='instanceDataAPIUrl']
                 remoteVolumeDataVarAssignQuery.append("$input.payload//*[local-name()='csarEntrypoint'],'/Content/").append(ref.getReference()).append(";',");
             }
@@ -295,7 +295,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
      * Checks whether there are properties which start with "ENV_" in the name and generates a variable for all of these
      * properties to pass them as environment variables to a docker container
      */
-    private Variable fetchEnvironmentVariables(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    private Variable fetchEnvironmentVariables(final BPELPlanContext context, final TNodeTemplate nodeTemplate) {
         final Collection<String> propertyNames = ModelUtils.getPropertyNames(nodeTemplate);
         StringBuilder envVarXpathQuery = new StringBuilder("concat(");
 
@@ -328,7 +328,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
                                 final String nodeTemplateId = splits[1];
                                 final String propertyName = splits[2];
 
-                                final AbstractNodeTemplate refNode = getNode(nodeTemplateId, context);
+                                final TNodeTemplate refNode = getNode(nodeTemplateId, context);
                                 final Variable refProp = context.getPropertyVariable(refNode, propertyName);
 
                                 envVarXpathQuery.append(",$").append(refProp.getVariableName());
@@ -351,7 +351,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
                         final String nodeTemplateId = splits[1];
                         final String propertyName = splits[2];
 
-                        final AbstractNodeTemplate refNode = getNode(nodeTemplateId, context);
+                        final TNodeTemplate refNode = getNode(nodeTemplateId, context);
                         final Variable refProp = context.getPropertyVariable(refNode, propertyName);
                         foundEnvVar = true;
                         final String envVarName = propName.replaceFirst("ENV_", "");
@@ -389,9 +389,9 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         return envMappingVar;
     }
 
-    private AbstractNodeTemplate getNode(final String id, final PlanContext ctx) {
+    private TNodeTemplate getNode(final String id, final PlanContext ctx) {
 
-        for (final AbstractNodeTemplate nodeTemplate : ctx.getNodeTemplates()) {
+        for (final TNodeTemplate nodeTemplate : ctx.getNodeTemplates()) {
             if (nodeTemplate.getId().equals(id)) {
                 return nodeTemplate;
             }
@@ -399,8 +399,8 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         return null;
     }
 
-    protected boolean handleWithDA(final BPELPlanContext context, final AbstractNodeTemplate dockerEngineNode,
-                                   final AbstractDeploymentArtifact da, final Variable portMappingVar,
+    protected boolean handleWithDA(final BPELPlanContext context, final TNodeTemplate dockerEngineNode,
+                                   final TDeploymentArtifact da, final Variable portMappingVar,
                                    final Variable dockerEngineUrlVar, final Variable sshPortVar,
                                    final Variable containerIpVar, final Variable containerIdVar,
                                    final Variable envMappingVar, final Variable linksVar,
@@ -408,8 +408,10 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
                                    final Variable remoteVolumeDataVariable, final Variable hostVolumeDataVariable,
                                    final Variable vmIpVariable, final Variable vmPrivateKeyVariable) {
         context.addStringValueToPlanRequest("containerApiAddress");
+
+
         final String artifactPathQuery =
-            this.planBuilderFragments.createXPathQueryForURLRemoteFilePathViaContainerAPI(da.getArtifactRef().getArtifactReferences().stream().findFirst().get()
+            this.planBuilderFragments.createXPathQueryForURLRemoteFilePathViaContainerAPI(ModelUtils.findArtifactTemplate(da.getArtifactRef(), context.getCsar()).getArtifactReferences().stream().findFirst().get()
                 .getReference(), context.getCSARFileName());
 
         final String artefactVarName = "dockerContainerFile" + System.currentTimeMillis();
@@ -474,7 +476,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         }
     }
 
-    protected boolean handleWithImageId(final BPELPlanContext context, final AbstractNodeTemplate dockerEngineNode,
+    protected boolean handleWithImageId(final BPELPlanContext context, final TNodeTemplate dockerEngineNode,
                                         final Variable containerImageVar, final Variable portMappingVar,
                                         final Variable dockerEngineUrlVar, final Variable sshPortVar,
                                         final Variable containerIpVar, final Variable containerIdVar,

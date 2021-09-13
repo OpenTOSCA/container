@@ -14,14 +14,14 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TPolicy;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -42,11 +42,11 @@ public class SituationPluginUtils {
         return null;
     }
 
-    public static Collection<AbstractNodeTemplate> fetchUsedNodeTemplates(BPELPlanContext context) {
+    public static Collection<TNodeTemplate> fetchUsedNodeTemplates(BPELPlanContext context) {
         // in some cases plugins use operations of other node templates (e.g. docker containers and docker
         // engines or VM's and cloud providers)
         // therefore we have to find those node templates here
-        Collection<AbstractNodeTemplate> nodes = new ArrayList<AbstractNodeTemplate>();
+        Collection<TNodeTemplate> nodes = new ArrayList<TNodeTemplate>();
 
         Element provPhaseElement = context.getProvisioningPhaseElement();
         XPath xpath = XPathFactory.newInstance().newXPath();
@@ -57,7 +57,7 @@ public class SituationPluginUtils {
 
             for (int i = 0; i < nodeTemplateIDNodes.getLength(); i++) {
                 String nodeTemplateId = nodeTemplateIDNodes.item(i).getTextContent();
-                for (AbstractNodeTemplate node : context.getNodeTemplates()) {
+                for (TNodeTemplate node : context.getNodeTemplates()) {
                     if (node.getId().equals(nodeTemplateId)) {
                         nodes.add(node);
                     }
@@ -71,9 +71,9 @@ public class SituationPluginUtils {
         return nodes;
     }
 
-    public static Collection<AbstractNodeTemplate> findUsedNodes(BPELPlanContext context) {
+    public static Collection<TNodeTemplate> findUsedNodes(BPELPlanContext context) {
         Map<TOperation, TOperation> ops = context.getUsedOperations();
-        Set<AbstractNodeTemplate> nodes = new HashSet<AbstractNodeTemplate>();
+        Set<TNodeTemplate> nodes = new HashSet<TNodeTemplate>();
 
         // Temp fix
         //          for (TOperation key : ops.keySet()) {
@@ -86,10 +86,10 @@ public class SituationPluginUtils {
         return nodes;
     }
 
-    public static Collection<AbstractNodeTemplate> findUsedNodes(BPELPlanContext context, TOperation op) {
-        Set<AbstractNodeTemplate> nodes = new HashSet<AbstractNodeTemplate>();
-        for (AbstractNodeTemplate node : context.getNodeTemplates()) {
-            for (TInterface iface : node.getType().getInterfaces()) {
+    public static Collection<TNodeTemplate> findUsedNodes(BPELPlanContext context, TOperation op) {
+        Set<TNodeTemplate> nodes = new HashSet<TNodeTemplate>();
+        for (TNodeTemplate node : context.getNodeTemplates()) {
+            for (TInterface iface : ModelUtils.findNodeType(node, context.getCsar()).getInterfaces()) {
                 for (TOperation o : iface.getOperations()) {
                     if (op != null && op.equals(o)) {
                         nodes.add(node);
@@ -101,20 +101,20 @@ public class SituationPluginUtils {
         return nodes;
     }
 
-    public static AbstractPolicy getSituationAwareExecutionPolicy(AbstractNodeTemplate nodeTemplate) {
-        for (AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getQName().getLocalPart().startsWith("SituationAwareExecutionPolicy")) {
+    public static TPolicy getSituationAwareExecutionPolicy(TNodeTemplate nodeTemplate) {
+        for (TPolicy policy : nodeTemplate.getPolicies()) {
+            if (policy.getPolicyType().getLocalPart().startsWith("SituationAwareExecutionPolicy")) {
                 return policy;
             }
         }
         return null;
     }
 
-    public static AbstractPolicy getSituationAwareExecutionPolicy(Collection<AbstractNodeTemplate> nodes) {
+    public static TPolicy getSituationAwareExecutionPolicy(Collection<TNodeTemplate> nodes) {
         // Note: right now we assume a nodeTemplate uses operations of only a single node (either itself or
         // other), multiple execution policies for a single scope is not supported yet
-        for (AbstractNodeTemplate node : nodes) {
-            AbstractPolicy pol = SituationPluginUtils.getSituationAwareExecutionPolicy(node);
+        for (TNodeTemplate node : nodes) {
+            TPolicy pol = SituationPluginUtils.getSituationAwareExecutionPolicy(node);
             if (pol != null) {
                 return pol;
             }
@@ -122,29 +122,29 @@ public class SituationPluginUtils {
         return null;
     }
 
-    public static Collection<AbstractPolicy> getSituationPolicies(AbstractNodeTemplate nodeTemplate) {
-        Set<AbstractPolicy> policies = new HashSet<AbstractPolicy>();
-        for (AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getQName().getLocalPart().startsWith("SituationPolicy")) {
+    public static Collection<TPolicy> getSituationPolicies(TNodeTemplate nodeTemplate) {
+        Set<TPolicy> policies = new HashSet<TPolicy>();
+        for (TPolicy policy : nodeTemplate.getPolicies()) {
+            if (policy.getPolicyType().getLocalPart().startsWith("SituationPolicy")) {
                 policies.add(policy);
             }
         }
         return policies;
     }
 
-    public static Collection<AbstractPolicy> getSituationPolicies(Collection<AbstractNodeTemplate> nodeTemplates) {
-        Set<AbstractPolicy> policies = new HashSet<AbstractPolicy>();
-        for (AbstractNodeTemplate node : nodeTemplates) {
+    public static Collection<TPolicy> getSituationPolicies(Collection<TNodeTemplate> nodeTemplates) {
+        Set<TPolicy> policies = new HashSet<TPolicy>();
+        for (TNodeTemplate node : nodeTemplates) {
             policies.addAll(SituationPluginUtils.getSituationPolicies(node));
         }
         return policies;
     }
 
     public static void addGETSituationData(BPELPlanContext context,
-                                           Map<AbstractPolicy, Variable> situationPolicies2IdVariables,
-                                           Map<AbstractPolicy, Variable> situationPolicies2DataVariables,
+                                           Map<TPolicy, Variable> situationPolicies2IdVariables,
+                                           Map<TPolicy, Variable> situationPolicies2DataVariables,
                                            Element elementToAppendTo, Fragments fragments) {
-        for (AbstractPolicy policy : situationPolicies2DataVariables.keySet()) {
+        for (TPolicy policy : situationPolicies2DataVariables.keySet()) {
             try {
                 // fetch situation data
                 Node fetchSituationState =
@@ -163,8 +163,8 @@ public class SituationPluginUtils {
     }
 
     public static void addSituationDataUpdate(BPELPlanContext context, Node nodeToAppendTo,
-                                              Map<AbstractPolicy, Variable> situationPolicies2DataVariables,
-                                              Map<AbstractPolicy, Variable> situationPolicies2IdVariables,
+                                              Map<TPolicy, Variable> situationPolicies2DataVariables,
+                                              Map<TPolicy, Variable> situationPolicies2IdVariables,
                                               String situationViolation, Variable situationalScopeStartedVariable,
                                               Fragments fragments, BPELProcessFragments mainFragments) {
         // main sequence
@@ -200,10 +200,10 @@ public class SituationPluginUtils {
     }
 
     public static void addSituationObservationActivities(final BPELPlanContext context,
-                                                         final AbstractNodeTemplate nodeTemplate,
+                                                         final TNodeTemplate nodeTemplate,
                                                          String durationExpression,
-                                                         Map<AbstractPolicy, Variable> situationPolicies2DataVariables,
-                                                         Map<AbstractPolicy, Variable> situationPolicies2IdVariables,
+                                                         Map<TPolicy, Variable> situationPolicies2DataVariables,
+                                                         Map<TPolicy, Variable> situationPolicies2IdVariables,
                                                          String situationViolation,
                                                          Variable situationalScopeStartedVariable,
                                                          Fragments pluginFragments,
@@ -215,29 +215,29 @@ public class SituationPluginUtils {
         context.getEventHandlersElement().appendChild(onAlarmElement);
     }
 
-    public static boolean isWCETCalculationPossible(BPELPlanContext context, AbstractNodeTemplate nodeTemplate,
-                                                    Collection<AbstractNodeTemplate> usedNodes) {
+    public static boolean isWCETCalculationPossible(BPELPlanContext context, TNodeTemplate nodeTemplate,
+                                                    Collection<TNodeTemplate> usedNodes) {
 
         // at least all compensation operations must have a WCET defined to be able to work with timing
         Map<TOperation, TOperation> usedOperations = context.getUsedOperations();
         int usedCompensationOperationsCount = usedOperations.values().size();
 
-        Collection<AbstractPolicy> operationExecutionTimePolicies =
+        Collection<TPolicy> operationExecutionTimePolicies =
             SituationPluginUtils.getOperationExecutionTimePolicies(usedNodes);
 
         int defiendWcets = 0;
 
         for (TOperation op : usedOperations.values()) {
             if (op != null) {
-                for (AbstractPolicy pol : operationExecutionTimePolicies) {
+                for (TPolicy pol : operationExecutionTimePolicies) {
                     // FIXME Removed this from the lower if, could be a bomb...
                     //ModelUtils.asMap(pol.getTemplate().getProperties()).get("InterfaceName")
                     //                        .equals(op.getInterface().getName())
                     //                        &&
                     //
-                    if (ModelUtils.asMap(pol.getTemplate().getProperties()).get("OperationName").equals(op.getName())) {
+                    if (ModelUtils.asMap(pol.getProperties()).get("OperationName").equals(op.getName())) {
 
-                        String wcetProp = ModelUtils.asMap(pol.getTemplate().getProperties()).get("WorstCaseExecutionTime");
+                        String wcetProp = ModelUtils.asMap(pol.getProperties()).get("WorstCaseExecutionTime");
                         if (wcetProp != null) {
                             defiendWcets++;
                         }
@@ -249,10 +249,10 @@ public class SituationPluginUtils {
         return defiendWcets == usedCompensationOperationsCount;
     }
 
-    public static Variable appendCompensationWCETCalculation(BPELPlanContext context, AbstractNodeTemplate nodeTemplate,
-                                                             Collection<AbstractNodeTemplate> usedNodes) {
+    public static Variable appendCompensationWCETCalculation(BPELPlanContext context, TNodeTemplate nodeTemplate,
+                                                             Collection<TNodeTemplate> usedNodes) {
 
-        Collection<AbstractPolicy> operationExecutionTimePolicies =
+        Collection<TPolicy> operationExecutionTimePolicies =
             SituationPluginUtils.getOperationExecutionTimePolicies(usedNodes);
 
         Map<TOperation, TOperation> usedOperations = context.getUsedOperations();
@@ -264,14 +264,14 @@ public class SituationPluginUtils {
 
         for (TOperation op : usedOperations.values()) {
             if (op != null) {
-                for (AbstractPolicy pol : operationExecutionTimePolicies) {
+                for (TPolicy pol : operationExecutionTimePolicies) {
                     // FIXME Removed this from the lower if, could be a bomb, however, there is no way of finding out the interface the operation belongs with basic winery backend methods
                     //ModelUtils.asMap(pol.getTemplate().getProperties()).get("InterfaceName")
                     //                        .equals(op.getInterface().getName())
                     //                        &&
-                    if (ModelUtils.asMap(pol.getTemplate().getProperties()).get("OperationName").equals(op.getName())) {
+                    if (ModelUtils.asMap(pol.getProperties()).get("OperationName").equals(op.getName())) {
 
-                        String wcetProp = ModelUtils.asMap(pol.getTemplate().getProperties()).get("WorstCaseExecutionTime");
+                        String wcetProp = ModelUtils.asMap(pol.getProperties()).get("WorstCaseExecutionTime");
                         if (wcetProp != null) {
                             wcet += Integer.valueOf(wcetProp);
                         }
@@ -287,7 +287,7 @@ public class SituationPluginUtils {
         return wcetVariable;
     }
 
-    public static Node createIfXPathExprTrueThrowError(String xpathQuery, AbstractNodeTemplate nodeTemplate,
+    public static Node createIfXPathExprTrueThrowError(String xpathQuery, TNodeTemplate nodeTemplate,
                                                        BPELProcessFragments mainFragments, String faultMessageVariableName) {
 
         Node node = mainFragments.createIfTrueThrowsError(xpathQuery, new QName("http://opentosca.org/situations",
@@ -313,19 +313,19 @@ public class SituationPluginUtils {
         return ifElement;
     }
 
-    public static Collection<AbstractPolicy> getOperationExecutionTimePolicies(Collection<AbstractNodeTemplate> nodeTemplates) {
-        Set<AbstractPolicy> policies = new HashSet<AbstractPolicy>();
-        for (AbstractNodeTemplate node : nodeTemplates) {
+    public static Collection<TPolicy> getOperationExecutionTimePolicies(Collection<TNodeTemplate> nodeTemplates) {
+        Set<TPolicy> policies = new HashSet<TPolicy>();
+        for (TNodeTemplate node : nodeTemplates) {
             policies.addAll(getOperationExecutionTimePolicies(node));
         }
         return policies;
     }
 
-    public static Collection<AbstractPolicy> getOperationExecutionTimePolicies(AbstractNodeTemplate nodeTemplate) {
-        Set<AbstractPolicy> policies = new HashSet<AbstractPolicy>();
+    public static Collection<TPolicy> getOperationExecutionTimePolicies(TNodeTemplate nodeTemplate) {
+        Set<TPolicy> policies = new HashSet<TPolicy>();
 
-        for (AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getQName().getLocalPart().contains("ExecutionTimePolicy")) {
+        for (TPolicy policy : nodeTemplate.getPolicies()) {
+            if (policy.getPolicyType().getLocalPart().contains("ExecutionTimePolicy")) {
                 policies.add(policy);
             }
         }
@@ -333,7 +333,7 @@ public class SituationPluginUtils {
         return policies;
     }
 
-    public static String getSituationDataEvaluationQuery(Map<AbstractPolicy, Variable> situationPolicies2DataVariables) {
+    public static String getSituationDataEvaluationQuery(Map<TPolicy, Variable> situationPolicies2DataVariables) {
         String xpathQuery = "";
         for (Variable situationDataVar : situationPolicies2DataVariables.values()) {
             xpathQuery += "count($" + situationDataVar.getVariableName()
@@ -343,7 +343,7 @@ public class SituationPluginUtils {
         return xpathQuery;
     }
 
-    public static String getSituationMinActiveTimeEvaluationQuery(Map<AbstractPolicy, Variable> situationPolicies2DataVariables) {
+    public static String getSituationMinActiveTimeEvaluationQuery(Map<TPolicy, Variable> situationPolicies2DataVariables) {
         String xpathQuery = "min((";
 
         for (Variable situationDataVar : situationPolicies2DataVariables.values()) {

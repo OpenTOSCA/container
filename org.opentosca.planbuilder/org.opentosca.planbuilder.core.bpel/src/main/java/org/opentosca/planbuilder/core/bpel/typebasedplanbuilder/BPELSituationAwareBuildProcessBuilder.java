@@ -12,6 +12,9 @@ import javax.inject.Inject;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TPolicy;
+
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
@@ -31,8 +34,6 @@ import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
@@ -124,7 +125,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
             final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_sitAwareBuildPlan");
             final String processNamespace = serviceTemplate.getTargetNamespace() + "_sitAwareBuildPlan";
 
-            Map<AbstractNodeTemplate, Collection<AbstractPolicy>> situationPolicies =
+            Map<TNodeTemplate, Collection<TPolicy>> situationPolicies =
                 this.getSituationPolicies(serviceTemplate);
 
             if (situationPolicies.isEmpty()) {
@@ -133,7 +134,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
             }
 
             // generate id for each situation policy
-            Map<AbstractPolicy, String> policy2IdMap = this.nodePolicyToId(situationPolicies);
+            Map<TPolicy, String> policy2IdMap = this.nodePolicyToId(situationPolicies);
 
             final AbstractPlan buildPlan =
                 generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate, csar);
@@ -242,11 +243,11 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
         return plans;
     }
 
-    private Map<AbstractPolicy, String> nodePolicyToId(Map<AbstractNodeTemplate, Collection<AbstractPolicy>> situationPolicies) {
-        Map<AbstractPolicy, String> nodePolicyToIdMap = new HashMap<AbstractPolicy, String>();
+    private Map<TPolicy, String> nodePolicyToId(Map<TNodeTemplate, Collection<TPolicy>> situationPolicies) {
+        Map<TPolicy, String> nodePolicyToIdMap = new HashMap<TPolicy, String>();
 
-        for (AbstractNodeTemplate node : situationPolicies.keySet()) {
-            for (AbstractPolicy policy : situationPolicies.get(node)) {
+        for (TNodeTemplate node : situationPolicies.keySet()) {
+            for (TPolicy policy : situationPolicies.get(node)) {
                 String id = node.getId() + "_" + policy.getName();
                 nodePolicyToIdMap.put(policy, id);
             }
@@ -255,18 +256,18 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
         return nodePolicyToIdMap;
     }
 
-    private Map<AbstractNodeTemplate, Collection<AbstractPolicy>> getSituationPolicies(AbstractServiceTemplate serviceTemplate) {
-        Map<AbstractNodeTemplate, Collection<AbstractPolicy>> nodeToPolicies =
-            new HashMap<AbstractNodeTemplate, Collection<AbstractPolicy>>();
+    private Map<TNodeTemplate, Collection<TPolicy>> getSituationPolicies(AbstractServiceTemplate serviceTemplate) {
+        Map<TNodeTemplate, Collection<TPolicy>> nodeToPolicies =
+            new HashMap<TNodeTemplate, Collection<TPolicy>>();
 
         if (serviceTemplate.getTopologyTemplate()  == null) {
             return nodeToPolicies;
         }
 
-        for (AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
-            Collection<AbstractPolicy> situationPolicies = new HashSet<AbstractPolicy>();
-            for (AbstractPolicy policy : nodeTemplate.getPolicies()) {
-                if (policy.getType().getQName().equals(new QName("http://opentosca.org/servicetemplates/policytypes",
+        for (TNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+            Collection<TPolicy> situationPolicies = new HashSet<TPolicy>();
+            for (TPolicy policy : nodeTemplate.getPolicies()) {
+                if (policy.getPolicyType().equals(new QName("http://opentosca.org/servicetemplates/policytypes",
                     "SituationPolicy_w1-wip1"))) {
                     situationPolicies.add(policy);
                 }

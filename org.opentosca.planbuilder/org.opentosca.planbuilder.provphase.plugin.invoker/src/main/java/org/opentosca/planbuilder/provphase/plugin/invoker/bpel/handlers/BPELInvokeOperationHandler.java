@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 
@@ -16,7 +17,6 @@ import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -32,7 +32,7 @@ public class BPELInvokeOperationHandler extends PluginHandler {
     }
 
     public boolean handleInvokeOperation(final BPELPlanContext context, final TOperation operation,
-                                         final AbstractImplementationArtifact ia) throws IOException {
+                                         final TImplementationArtifact ia) throws IOException {
 
         boolean isNodeTemplate = true;
         String templateId = "";

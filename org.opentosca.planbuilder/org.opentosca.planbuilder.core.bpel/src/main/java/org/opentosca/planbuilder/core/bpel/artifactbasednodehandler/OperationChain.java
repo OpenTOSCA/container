@@ -5,8 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
@@ -15,10 +19,6 @@ import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhas
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseParamOperationPlugin;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.w3c.dom.Element;
 
 /**
@@ -34,8 +34,8 @@ import org.w3c.dom.Element;
 public class OperationChain {
 
     // this chain either holds a NodeTemplate or RelationshipTemplate
-    AbstractNodeTemplate nodeTemplate;
-    AbstractRelationshipTemplate relationshipTemplate;
+    TNodeTemplate nodeTemplate;
+    TRelationshipTemplate relationshipTemplate;
 
     // lists for all other wrapper classes
     List<DANodeTypeImplCandidate> daCandidates = new ArrayList<>();
@@ -52,7 +52,7 @@ public class OperationChain {
      *
      * @param nodeTemplate a NodeTemplate which the ProvisioningChain should belong
      */
-    OperationChain(final AbstractNodeTemplate nodeTemplate) {
+    OperationChain(final TNodeTemplate nodeTemplate) {
         this.nodeTemplate = nodeTemplate;
     }
 
@@ -63,7 +63,7 @@ public class OperationChain {
      *
      * @param relationshipTemplate a RelationshipTemplate which the ProvisioningChain should belong
      */
-    OperationChain(final AbstractRelationshipTemplate relationshipTemplate) {
+    OperationChain(final TRelationshipTemplate relationshipTemplate) {
         this.relationshipTemplate = relationshipTemplate;
     }
 
@@ -82,8 +82,8 @@ public class OperationChain {
         if (!this.daCandidates.isEmpty()) {
             final DANodeTypeImplCandidate daCandidate = this.daCandidates.get(this.selectedCandidateSet);
             for (int index = 0; index < daCandidate.das.size(); index++) {
-                final AbstractDeploymentArtifact da = daCandidate.das.get(index);
-                final AbstractNodeTemplate infraNode = daCandidate.infraNodes.get(index);
+                final TDeploymentArtifact da = daCandidate.das.get(index);
+                final TNodeTemplate infraNode = daCandidate.infraNodes.get(index);
                 final IPlanBuilderPrePhaseDAPlugin plugin = daCandidate.plugins.get(index);
                 check &= plugin.handle(context, da, infraNode);
             }
@@ -106,8 +106,8 @@ public class OperationChain {
         if (!this.iaCandidates.isEmpty()) {
             final IANodeTypeImplCandidate iaCandidate = this.iaCandidates.get(this.selectedCandidateSet);
             for (int index = 0; index < iaCandidate.ias.size(); index++) {
-                final AbstractImplementationArtifact ia = iaCandidate.ias.get(index);
-                final AbstractNodeTemplate infraNode = iaCandidate.infraNodes.get(index);
+                final TImplementationArtifact ia = iaCandidate.ias.get(index);
+                final TNodeTemplate infraNode = iaCandidate.infraNodes.get(index);
                 final IPlanBuilderPrePhaseIAPlugin plugin = iaCandidate.plugins.get(index);
                 check &= plugin.handle(context, ia, infraNode);
             }
@@ -137,7 +137,7 @@ public class OperationChain {
             final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(this.selectedCandidateSet);
             for (int index = 0; index < provCandidate.ops.size(); index++) {
                 final TOperation op = provCandidate.ops.get(index);
-                final AbstractImplementationArtifact ia = provCandidate.ias.get(index);
+                final TImplementationArtifact ia = provCandidate.ias.get(index);
                 final IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins.get(index);
                 check &= plugin.handle(context, op, ia);
             }
@@ -194,7 +194,7 @@ public class OperationChain {
                     // list, don't execute the operation
                     continue;
                 }
-                final AbstractImplementationArtifact ia = provCandidate.ias.get(index);
+                final TImplementationArtifact ia = provCandidate.ias.get(index);
                 final IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins.get(index);
                 check &= plugin.handle(context, op, ia);
             }
@@ -229,7 +229,7 @@ public class OperationChain {
                     // list, don't execute the operation
                     continue;
                 }
-                final AbstractImplementationArtifact ia = provCandidate.ias.get(index);
+                final TImplementationArtifact ia = provCandidate.ias.get(index);
                 final IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins.get(index);
 
                 if (plugin instanceof IPlanBuilderProvPhaseParamOperationPlugin) {
@@ -299,7 +299,7 @@ public class OperationChain {
                         continue;
                     }
                 }
-                final AbstractImplementationArtifact ia = provCandidate.ias.get(index);
+                final TImplementationArtifact ia = provCandidate.ias.get(index);
                 final IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins.get(index);
 
                 if (plugin instanceof IPlanBuilderProvPhaseParamOperationPlugin) {
@@ -322,7 +322,7 @@ public class OperationChain {
         return checkCount == operationNames.size();
     }
 
-    public List<AbstractDeploymentArtifact> getDAsOfCandidate(final int candidateIndex) {
+    public List<TDeploymentArtifact> getDAsOfCandidate(final int candidateIndex) {
         return this.daCandidates.get(candidateIndex).das;
     }
 
@@ -374,7 +374,7 @@ public class OperationChain {
                         continue;
                     }
                 }
-                final AbstractImplementationArtifact ia = provCandidate.ias.get(index);
+                final TImplementationArtifact ia = provCandidate.ias.get(index);
                 final IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins.get(index);
 
                 if (plugin instanceof IPlanBuilderProvPhaseParamOperationPlugin) {
@@ -425,7 +425,7 @@ public class OperationChain {
                     // list, don't execute the operation
                     continue;
                 }
-                final AbstractImplementationArtifact ia = provCandidate.ias.get(index);
+                final TImplementationArtifact ia = provCandidate.ias.get(index);
                 final IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins.get(index);
 
                 if (plugin instanceof IPlanBuilderProvPhaseParamOperationPlugin) {

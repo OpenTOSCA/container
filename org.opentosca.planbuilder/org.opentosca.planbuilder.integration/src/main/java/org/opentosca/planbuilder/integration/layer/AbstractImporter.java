@@ -6,6 +6,9 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import com.google.common.collect.Lists;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.service.CsarStorageService;
@@ -23,8 +26,6 @@ import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELUpdateProces
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 /**
@@ -49,10 +50,10 @@ public abstract class AbstractImporter {
 
     protected AbstractPlan buildAdaptationPlan(final Csar csar, final AbstractDefinitions definitions,
                                                final QName serviceTemplateId,
-                                               final Collection<AbstractNodeTemplate> sourceNodeTemplates,
-                                               final Collection<AbstractRelationshipTemplate> sourceRelationshipTemplates,
-                                               final Collection<AbstractNodeTemplate> targetNodeTemplates,
-                                               final Collection<AbstractRelationshipTemplate> targetRelationshipTemplates) {
+                                               final Collection<TNodeTemplate> sourceNodeTemplates,
+                                               final Collection<TRelationshipTemplate> sourceRelationshipTemplates,
+                                               final Collection<TNodeTemplate> targetNodeTemplates,
+                                               final Collection<TRelationshipTemplate> targetRelationshipTemplates) {
         final BPELTransformationProcessBuilder transformPlanBuilder = new BPELTransformationProcessBuilder(pluginRegistry);
 
         return transformPlanBuilder.buildPlan(csar, definitions, serviceTemplateId, sourceNodeTemplates,

@@ -3,11 +3,11 @@ package org.opentosca.planbuilder.model.plan.bpel;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -46,8 +46,8 @@ public class BPELScope {
 
     private BPELScope bpelCompensationScope;
     private BPELScope bpelFaultScope;
-    private AbstractNodeTemplate nodeTemplate = null;
-    private AbstractRelationshipTemplate relationshipTemplate = null;
+    private TNodeTemplate nodeTemplate = null;
+    private TRelationshipTemplate relationshipTemplate = null;
 
     public BPELScope(AbstractActivity activity) {
         this.act = activity;
@@ -299,36 +299,36 @@ public class BPELScope {
     /**
      * Gets the NodeTemplate this TemplateBuildPlan belongs to
      *
-     * @return an AbstractNodeTemplate, else null if this is a TemplateBuildPlan for a RelationshipTemplate
+     * @return an TNodeTemplate, else null if this is a TemplateBuildPlan for a RelationshipTemplate
      */
-    public AbstractNodeTemplate getNodeTemplate() {
+    public TNodeTemplate getNodeTemplate() {
         return this.nodeTemplate;
     }
 
     /**
      * Set the NodeTemplate of this TemplateBuildPlan
      *
-     * @param nodeTemplate an AbstractNodeTemplate
+     * @param nodeTemplate an TNodeTemplate
      */
-    public void setNodeTemplate(final AbstractNodeTemplate nodeTemplate) {
+    public void setNodeTemplate(final TNodeTemplate nodeTemplate) {
         this.nodeTemplate = nodeTemplate;
     }
 
     /**
      * Get the RelationshipTemplate this TemplateBuildPlan belongs to
      *
-     * @return an AbstractRelationshipTemplate, else null if this is a TemplateBuildPlan for a RelationshipTemplate
+     * @return an TRelationshipTemplate, else null if this is a TemplateBuildPlan for a RelationshipTemplate
      */
-    public AbstractRelationshipTemplate getRelationshipTemplate() {
+    public TRelationshipTemplate getRelationshipTemplate() {
         return this.relationshipTemplate;
     }
 
     /**
      * Sets the RelationshipTemplate of this TemplateBuildPlan
      *
-     * @param relationshipTemplate an AbstractRelationshipTemplate
+     * @param relationshipTemplate an TRelationshipTemplate
      */
-    public void setRelationshipTemplate(final AbstractRelationshipTemplate relationshipTemplate) {
+    public void setRelationshipTemplate(final TRelationshipTemplate relationshipTemplate) {
         this.relationshipTemplate = relationshipTemplate;
     }
 

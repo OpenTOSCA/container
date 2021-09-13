@@ -2,12 +2,12 @@ package org.opentosca.planbuilder.core.plugins.artifactbased;
 
 import java.util.Map;
 
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.w3c.dom.Element;
 
 /**
@@ -32,17 +32,17 @@ public interface IPlanBuilderProvPhaseParamOperationPlugin<T extends PlanContext
      * @param param2propertyMapping a mapping from operation parameters to tosca property variables
      * @return true iff the plugin generated and added a fragment into the ProvisioningPhase in the TemplateContext
      */
-    boolean handle(T context, TOperation operation, AbstractImplementationArtifact ia,
+    boolean handle(T context, TOperation operation, TImplementationArtifact ia,
                    Map<TParameter, Variable> param2propertyMapping);
 
-    boolean handle(T context, TOperation operation, AbstractImplementationArtifact ia,
+    boolean handle(T context, TOperation operation, TImplementationArtifact ia,
                    Map<TParameter, Variable> param2propertyMapping, Element elementToAppendTo);
 
-    boolean handle(T context, TOperation operation, AbstractImplementationArtifact ia,
+    boolean handle(T context, TOperation operation, TImplementationArtifact ia,
                    Map<TParameter, Variable> param2propertyMapping,
                    Map<TParameter, Variable> param2PropertyOutputMapping);
 
-    boolean handle(T context, TOperation operation, AbstractImplementationArtifact ia,
+    boolean handle(T context, TOperation operation, TImplementationArtifact ia,
                    Map<TParameter, Variable> param2propertyMapping,
                    Map<TParameter, Variable> param2PropertyOutputMapping, Element elementToAppendTo);
 }

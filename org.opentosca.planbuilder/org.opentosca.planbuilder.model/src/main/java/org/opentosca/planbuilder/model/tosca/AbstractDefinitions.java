@@ -8,10 +8,13 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TArtifactType;
 import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeType;
+import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TPolicyTemplate;
 import org.eclipse.winery.model.tosca.TPolicyType;
 import org.eclipse.winery.model.tosca.TRelationshipType;
+import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 
 /**
  * <p>
@@ -48,16 +51,16 @@ public abstract class AbstractDefinitions {
     /**
      * Returns a List of the NodeTypes this TOSCA Definitions has declared
      *
-     * @return a List of AbstractNodeType
+     * @return a List of TNodeType
      */
-    public abstract Collection<AbstractNodeType> getNodeTypes();
+    public abstract Collection<TNodeType> getNodeTypes();
 
     /**
      * Returns a List of the NodeTypeImplementation this TOSCA Definitions has declared
      *
-     * @return a List of AbstractNodeTypeImplementation
+     * @return a List of TNodeTypeImplementation
      */
-    public abstract Collection<AbstractNodeTypeImplementation> getNodeTypeImplementations();
+    public abstract Collection<TNodeTypeImplementation> getNodeTypeImplementations();
 
     /**
      * Returns a List of the RelationshipTypes this TOSCA Definitions has declared
@@ -110,11 +113,11 @@ public abstract class AbstractDefinitions {
      * search looks trough the imported Definitions of this Definitions
      *
      * @param nodeTypeId a QName
-     * @return an AbstractNodeType, if nothing was found null
+     * @return an TNodeType, if nothing was found null
      */
-    public AbstractNodeType getNodeType(final QName nodeTypeId) {
-        for (final AbstractNodeType nodeType : getNodeTypes()) {
-            if (nodeType.getId().equals(nodeTypeId)) {
+    public TNodeType getNodeType(final QName nodeTypeId) {
+        for (final TNodeType nodeType : getNodeTypes()) {
+            if (nodeType.getQName().equals(nodeTypeId)) {
                 return nodeType;
             }
         }
@@ -143,7 +146,7 @@ public abstract class AbstractDefinitions {
     }
 
     public TOperation findOperation(String interfaceName, String operationName) {
-        for (AbstractNodeType nodeType : this.getNodeTypes()) {
+        for (TNodeType nodeType : this.getNodeTypes()) {
             for (TInterface iface : nodeType.getInterfaces()) {
                 if (iface.getName().equals(interfaceName)) {
                     for (TOperation op : iface.getOperations()) {
@@ -168,7 +171,7 @@ public abstract class AbstractDefinitions {
      *
      * @return a List of AbstractRelationshipTypeImplementation
      */
-    public abstract Collection<AbstractRelationshipTypeImplementation> getRelationshipTypeImplementations();
+    public abstract Collection<TRelationshipTypeImplementation> getRelationshipTypeImplementations();
 
     /**
      * Returns all {@link TArtifactType} objects of this {@link AbstractDefinitions} obj.

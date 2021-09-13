@@ -1,14 +1,14 @@
 package org.opentosca.planbuilder.type.plugin.connectsto.core;
 
 import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 /**
@@ -30,10 +30,10 @@ public abstract class ConnectsToPlugin<T extends PlanContext> implements IPlanBu
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin#canHandle(org.
-     * opentosca.planbuilder.model.tosca.AbstractNodeTemplate)
+     * opentosca.planbuilder.model.tosca.TNodeTemplate)
      */
     @Override
-    public boolean canHandleCreate(Csar csar, final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(Csar csar, final TNodeTemplate nodeTemplate) {
         // we can't handle nodeTemplates
         return false;
     }
@@ -42,21 +42,21 @@ public abstract class ConnectsToPlugin<T extends PlanContext> implements IPlanBu
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin#canHandle(org.
-     * opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate)
+     * opentosca.planbuilder.model.tosca.TRelationshipTemplate)
      */
     @Override
-    public boolean canHandleCreate(Csar csar, final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(Csar csar, final TRelationshipTemplate relationshipTemplate) {
 
         // check the relationshipType
-        if (!ModelUtils.getRelationshipTypeHierarchy(relationshipTemplate.getRelationshipType(), csar)
+        if (!ModelUtils.getRelationshipTypeHierarchy(ModelUtils.findRelationshipType(relationshipTemplate, csar), csar)
             .contains(Types.connectsToRelationType)) {
             return false;
         }
 
         // look for a connectTo operation on the source node
-        final AbstractNodeTemplate sourceNode = relationshipTemplate.getSource();
+        final TNodeTemplate sourceNode = ModelUtils.getSource(relationshipTemplate, csar);
 
-        for (final TInterface iface : sourceNode.getType().getInterfaces()) {
+        for (final TInterface iface : ModelUtils.findNodeType(sourceNode, csar).getInterfaces()) {
             for (final TOperation op : iface.getOperations()) {
                 if (op.getName().equals("connectTo")) {
                     // found needed operation
@@ -79,13 +79,13 @@ public abstract class ConnectsToPlugin<T extends PlanContext> implements IPlanBu
     }
 
     @Override
-    public boolean canHandleTerminate(Csar csar, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(Csar csar, TRelationshipTemplate relationshipTemplate) {
         // TODO we have to define the semantics of a disconnect first
         return false;
     }
 
     @Override
-    public boolean canHandleTerminate(Csar csar, AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleTerminate(Csar csar, TNodeTemplate nodeTemplate) {
         // will never be used for nodeTemplates
         return false;
     }

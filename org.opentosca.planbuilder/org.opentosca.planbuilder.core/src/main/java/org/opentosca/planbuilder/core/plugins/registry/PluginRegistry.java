@@ -8,6 +8,9 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import com.google.common.collect.Lists;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
@@ -23,8 +26,6 @@ import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlu
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPrePhasePlugin;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.core.plugins.typebased.IScalingPlanBuilderSelectionPlugin;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -196,15 +197,15 @@ public class PluginRegistry {
         return choreographyPlugins;
     }
 
-    public boolean canTypePluginHandleCreate(final AbstractNodeTemplate nodeTemplate, Csar csar) {
+    public boolean canTypePluginHandleCreate(final TNodeTemplate nodeTemplate, Csar csar) {
         return this.findTypePluginForCreation(nodeTemplate, csar) != null;
     }
 
-    public boolean canTypePluginHandleCreate(final AbstractRelationshipTemplate relationshipTemplate, Csar csar) {
+    public boolean canTypePluginHandleCreate(final TRelationshipTemplate relationshipTemplate, Csar csar) {
         return this.findTypePluginForCreation(relationshipTemplate, csar) != null;
     }
 
-    public IPlanBuilderPolicyAwareTypePlugin<?> findPolicyAwareTypePluginForCreation(final AbstractNodeTemplate nodeTemplate, Csar csar) {
+    public IPlanBuilderPolicyAwareTypePlugin<?> findPolicyAwareTypePluginForCreation(final TNodeTemplate nodeTemplate, Csar csar) {
         for (final IPlanBuilderPolicyAwareTypePlugin<?> plugin : this.getPolicyAwareTypePlugins()) {
             if (plugin.canHandlePolicyAwareCreate(csar, nodeTemplate)) {
                 return plugin;
@@ -213,7 +214,7 @@ public class PluginRegistry {
         return null;
     }
 
-    public IPlanBuilderTypePlugin<?> findTypePluginForTermination(final AbstractRelationshipTemplate relationshipTemplate, Csar csar) {
+    public IPlanBuilderTypePlugin<?> findTypePluginForTermination(final TRelationshipTemplate relationshipTemplate, Csar csar) {
         for (final IPlanBuilderTypePlugin<?> plugin : this.getTypePlugins()) {
             if (plugin.canHandleTerminate(csar, relationshipTemplate)) {
                 return plugin;
@@ -222,7 +223,7 @@ public class PluginRegistry {
         return null;
     }
 
-    public IPlanBuilderTypePlugin<?> findTypePluginForTermination(final AbstractNodeTemplate nodeTemplate, Csar csar) {
+    public IPlanBuilderTypePlugin<?> findTypePluginForTermination(final TNodeTemplate nodeTemplate, Csar csar) {
         return getTypePlugins().stream()
             .filter(p -> p.canHandleTerminate(csar, nodeTemplate))
             // sort highest priority first
@@ -231,7 +232,7 @@ public class PluginRegistry {
             .orElse(null);
     }
 
-    public IPlanBuilderTypePlugin<?> findTypePluginForCreation(final AbstractNodeTemplate nodeTemplate, Csar csar) {
+    public IPlanBuilderTypePlugin<?> findTypePluginForCreation(final TNodeTemplate nodeTemplate, Csar csar) {
         return getTypePlugins().stream()
             .filter(p -> p.canHandleCreate(csar, nodeTemplate))
             // sort highest priority first
@@ -240,7 +241,7 @@ public class PluginRegistry {
             .orElse(null);
     }
 
-    public IPlanBuilderTypePlugin<?> findTypePluginForUpdate(final AbstractNodeTemplate nodeTemplate, Csar csar) {
+    public IPlanBuilderTypePlugin<?> findTypePluginForUpdate(final TNodeTemplate nodeTemplate, Csar csar) {
         return getTypePlugins().stream()
             .filter(p -> p.canHandleUpdate(csar, nodeTemplate))
             // sort highest priority first
@@ -249,7 +250,7 @@ public class PluginRegistry {
             .orElse(null);
     }
 
-    public IPlanBuilderTypePlugin<?> findTypePluginForCreation(final AbstractRelationshipTemplate relationshipTemplate, Csar csar) {
+    public IPlanBuilderTypePlugin<?> findTypePluginForCreation(final TRelationshipTemplate relationshipTemplate, Csar csar) {
         for (final IPlanBuilderTypePlugin<?> plugin : this.getTypePlugins()) {
             if (plugin.canHandleCreate(csar, relationshipTemplate)) {
                 return plugin;
@@ -258,13 +259,13 @@ public class PluginRegistry {
         return null;
     }
 
-    public boolean handleCreateWithTypePlugin(final PlanContext context, final AbstractNodeTemplate nodeTemplate,
+    public boolean handleCreateWithTypePlugin(final PlanContext context, final TNodeTemplate nodeTemplate,
                                               IPlanBuilderTypePlugin plugin) {
         return plugin.handleCreate(context, nodeTemplate);
     }
 
     public boolean handleCreateWithTypePlugin(final PlanContext context,
-                                              final AbstractRelationshipTemplate relationshipTemplate,
+                                              final TRelationshipTemplate relationshipTemplate,
                                               IPlanBuilderTypePlugin plugin) {
         return plugin.handleCreate(context, relationshipTemplate);
     }

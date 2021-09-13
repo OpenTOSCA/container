@@ -5,11 +5,12 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 public abstract class PlanContext {
@@ -37,7 +38,7 @@ public abstract class PlanContext {
         this.propertyMap = map;
     }
 
-    public Collection<PropertyVariable> getPropertyVariables(final AbstractNodeTemplate nodeTemplate) {
+    public Collection<PropertyVariable> getPropertyVariables(final TNodeTemplate nodeTemplate) {
         return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, nodeTemplate);
     }
 
@@ -77,12 +78,12 @@ public abstract class PlanContext {
      * @param propertyName the name of the searched property
      * @return a Variable object representing the property
      */
-    public PropertyVariable getPropertyVariable(final AbstractNodeTemplate nodeTemplate, final String propertyName) {
+    public PropertyVariable getPropertyVariable(final TNodeTemplate nodeTemplate, final String propertyName) {
         return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, nodeTemplate).stream()
             .filter(var -> var.getPropertyName().equals(propertyName)).findFirst().orElse(null);
     }
 
-    public PropertyVariable getPropertyVariable(final AbstractRelationshipTemplate relationshipTemplate,
+    public PropertyVariable getPropertyVariable(final TRelationshipTemplate relationshipTemplate,
                                                 final String propertyName) {
         return this.propertyMap.getRelationPropertyVariables(this.serviceTemplate, relationshipTemplate).stream()
             .filter(var -> var.getPropertyName().equals(propertyName)).findFirst().orElse(null);
@@ -98,13 +99,13 @@ public abstract class PlanContext {
      */
     public PropertyVariable getPropertyVariable(final String localName) {
         // then on everything else
-        for (final AbstractNodeTemplate infraNode : getNodeTemplates()) {
+        for (final TNodeTemplate infraNode : getNodeTemplates()) {
             if (this.getPropertyVariable(infraNode, localName) != null) {
                 return this.getPropertyVariable(infraNode, localName);
             }
         }
 
-        for (final AbstractRelationshipTemplate infraEdge : getRelationshipTemplates()) {
+        for (final TRelationshipTemplate infraEdge : getRelationshipTemplates()) {
             if (this.getPropertyVariable(infraEdge, localName) != null) {
                 return this.getPropertyVariable(infraEdge, localName);
             }
@@ -140,9 +141,9 @@ public abstract class PlanContext {
      * Returns all NodeTemplates that are part of the ServiceTemplate this context belongs to.
      * </p>
      *
-     * @return a List of AbstractNodeTemplate
+     * @return a List of TNodeTemplate
      */
-    public List<AbstractNodeTemplate> getNodeTemplates() {
+    public List<TNodeTemplate> getNodeTemplates() {
         // find the serviceTemplate
         return this.plan.getServiceTemplate().getTopologyTemplate().getNodeTemplates();
     }
@@ -152,9 +153,9 @@ public abstract class PlanContext {
      * Returns all RelationshipTemplates that are part of the ServiceTemplate this context belongs to.
      * </p>
      *
-     * @return a List of AbstractRelationshipTemplate
+     * @return a List of TRelationshipTemplate
      */
-    public List<AbstractRelationshipTemplate> getRelationshipTemplates() {
+    public List<TRelationshipTemplate> getRelationshipTemplates() {
         return this.serviceTemplate.getTopologyTemplate().getRelationshipTemplates();
     }
 
@@ -169,13 +170,13 @@ public abstract class PlanContext {
      * @param propertyName the LocalName of a Template Property
      * @return a String containing the variable name, else null
      */
-    public String getVariableNameOfProperty(final AbstractNodeTemplate templateId, final String propertyName) {
+    public String getVariableNameOfProperty(final TNodeTemplate templateId, final String propertyName) {
         return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, templateId).stream()
             .filter(var -> var.getPropertyName().equals(propertyName)).findFirst()
             .map(var -> var.getVariableName()).orElse(null);
     }
 
-    public String getVariableNameOfProperty(final AbstractRelationshipTemplate templateId, final String propertyName) {
+    public String getVariableNameOfProperty(final TRelationshipTemplate templateId, final String propertyName) {
         return this.propertyMap.getRelationPropertyVariables(this.serviceTemplate, templateId).stream()
             .filter(var -> var.getPropertyName().equals(propertyName)).findFirst()
             .map(var -> var.getVariableName()).orElse(null);

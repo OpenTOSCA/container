@@ -1,8 +1,9 @@
 package org.opentosca.planbuilder.core.plugins.typebased;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 
 /**
  * <p>
@@ -24,7 +25,7 @@ public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPla
      * @param nodeTemplate the NodeTemplate the plugin should handle
      * @return true if generating the Fragment of this Plugin was successful, else false
      */
-    boolean handleCreate(T context, AbstractNodeTemplate nodeTemplate);
+    boolean handleCreate(T context, TNodeTemplate nodeTemplate);
 
     /**
      * When this method is called the Plugin should fetch relevant runtime data inside the BuildPlan of the given
@@ -34,23 +35,23 @@ public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPla
      * @param relationshipTemplate the RelationshipTemplate the plugin should handle
      * @return true if generating the Fragment of this Plugin was successful, else false
      */
-    boolean handleCreate(T context, AbstractRelationshipTemplate relationshipTemplate);
+    boolean handleCreate(T context, TRelationshipTemplate relationshipTemplate);
 
     /**
      * Evaluates whether the given NodeTemplate can be handled by this post phase plugin.
      *
-     * @param nodeTemplate An AbstractNodeTemplate
+     * @param nodeTemplate An TNodeTemplate
      * @return true iff this plugin can handle the given nodeTemplate
      */
-    boolean canHandleCreate(T context, AbstractNodeTemplate nodeTemplate);
+    boolean canHandleCreate(T context, TNodeTemplate nodeTemplate);
 
     /**
      * Evaluates whether the given RelationshipTemplate can be handled by this post phase plugin.
      *
-     * @param relationshipTemplate An AbstractRelationshipTemplate
+     * @param relationshipTemplate An TRelationshipTemplate
      * @return true iff this plugin can handle the given relationshipTemplate
      */
-    boolean canHandleCreate(T context, AbstractRelationshipTemplate relationshipTemplate);
+    boolean canHandleCreate(T context, TRelationshipTemplate relationshipTemplate);
 
     /**
      * When this method is called the Plugin should fetch relevant runtime data inside the BuildPlan of the given
@@ -60,7 +61,7 @@ public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPla
      * @param nodeTemplate the NodeTemplate the plugin should handle
      * @return true if generating the Fragment of this Plugin was successful, else false
      */
-    boolean handleTerminate(T context, AbstractNodeTemplate nodeTemplate);
+    boolean handleTerminate(T context, TNodeTemplate nodeTemplate);
 
     /**
      * When this method is called the Plugin should fetch relevant runtime data inside the BuildPlan of the given
@@ -70,63 +71,63 @@ public interface IPlanBuilderPostPhasePlugin<T extends PlanContext> extends IPla
      * @param relationshipTemplate the RelationshipTemplate the plugin should handle
      * @return true if generating the Fragment of this Plugin was successful, else false
      */
-    boolean handleTerminate(T context, AbstractRelationshipTemplate relationshipTemplate);
+    boolean handleTerminate(T context, TRelationshipTemplate relationshipTemplate);
 
     /**
      * Evaluates whether the given NodeTemplate can be handled by this post phase plugin.
      *
-     * @param nodeTemplate An AbstractNodeTemplate
+     * @param nodeTemplate An TNodeTemplate
      * @return true iff this plugin can handle the given nodeTemplate
      */
-    boolean canHandleTerminate(T context, AbstractNodeTemplate nodeTemplate);
+    boolean canHandleTerminate(T context, TNodeTemplate nodeTemplate);
 
     /**
      * Evaluates whether the given RelationshipTemplate can be handled by this post phase plugin.
      *
-     * @param relationshipTemplate An AbstractRelationshipTemplate
+     * @param relationshipTemplate An TRelationshipTemplate
      * @return true iff this plugin can handle the given relationshipTemplate
      */
-    boolean canHandleTerminate(T context, AbstractRelationshipTemplate relationshipTemplate);
+    boolean canHandleTerminate(T context, TRelationshipTemplate relationshipTemplate);
 
-    boolean handleUpdate(T sourceContext, T targetContext, AbstractNodeTemplate sourceNodeTemplate,
-                         AbstractNodeTemplate targetNodeTemplate);
+    boolean handleUpdate(T sourceContext, T targetContext, TNodeTemplate sourceNodeTemplate,
+                         TNodeTemplate targetNodeTemplate);
 
-    boolean canHandleUpdate(AbstractNodeTemplate sourceNodeTemplate, AbstractNodeTemplate targetNodeTemplate);
+    boolean canHandleUpdate(TNodeTemplate sourceNodeTemplate, TNodeTemplate targetNodeTemplate);
 
     boolean handleUpdate(T sourceContext, T targetContext,
-                         AbstractRelationshipTemplate sourceRelationshipTemplate,
-                         AbstractRelationshipTemplate targetRelationshipTemplate);
+                         TRelationshipTemplate sourceRelationshipTemplate,
+                         TRelationshipTemplate targetRelationshipTemplate);
 
-    boolean canHandleUpdate(AbstractRelationshipTemplate sourceRelationshipTemplate,
-                            AbstractRelationshipTemplate targetRelationshipTemplate);
+    boolean canHandleUpdate(TRelationshipTemplate sourceRelationshipTemplate,
+                            TRelationshipTemplate targetRelationshipTemplate);
 
     /**
      * @param context      a TemplatePlanContext for accessing data inside the BuildPlan
      * @param nodeTemplate the NodeTemplate the plugin should handle
      * @return true if generating the Fragment of this Plugin was successful, else false
      */
-    boolean handleUpgrade(T context, AbstractNodeTemplate nodeTemplate);
+    boolean handleUpgrade(T context, TNodeTemplate nodeTemplate);
 
     /**
      * @param context              a TemplatePlanContext for accessing data inside the BuildPlan
      * @param relationshipTemplate the RelationshipTemplate the plugin should handle
      * @return true if generating the Fragment of this Plugin was successful, else false
      */
-    boolean handleUpgrade(T context, AbstractRelationshipTemplate relationshipTemplate);
+    boolean handleUpgrade(T context, TRelationshipTemplate relationshipTemplate);
 
     /**
      * Evaluates whether the given NodeTemplate can be handled by this post phase plugin.
      *
-     * @param nodeTemplate An AbstractNodeTemplate
+     * @param nodeTemplate An TNodeTemplate
      * @return true iff this plugin can handle the given nodeTemplate
      */
-    boolean canHandleUpgrade(T context, AbstractNodeTemplate nodeTemplate);
+    boolean canHandleUpgrade(T context, TNodeTemplate nodeTemplate);
 
     /**
      * Evaluates whether the given RelationshipTemplate can be handled by this post phase plugin.
      *
-     * @param relationshipTemplate An AbstractRelationshipTemplate
+     * @param relationshipTemplate An TRelationshipTemplate
      * @return true iff this plugin can handle the given relationshipTemplate
      */
-    boolean canHandleUpgrade(T context, AbstractRelationshipTemplate relationshipTemplate);
+    boolean canHandleUpgrade(T context, TRelationshipTemplate relationshipTemplate);
 }
