@@ -18,7 +18,6 @@ import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ui.Model;
 
 public class ChoreographyBuilder {
 

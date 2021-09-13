@@ -29,7 +29,6 @@ import org.opentosca.planbuilder.core.plugins.utils.PluginUtils;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.slf4j.LoggerFactory;
-import org.springframework.ui.Model;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;

@@ -26,7 +26,6 @@ import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.springframework.ui.Model;
 
 public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilder {
 

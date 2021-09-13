@@ -19,7 +19,6 @@ import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.springframework.ui.Model;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;

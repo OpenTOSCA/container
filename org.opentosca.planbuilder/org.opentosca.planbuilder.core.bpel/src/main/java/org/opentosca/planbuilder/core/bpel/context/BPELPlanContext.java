@@ -47,7 +47,6 @@ import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ui.Model;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 

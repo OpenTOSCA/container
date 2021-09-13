@@ -33,7 +33,6 @@ import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ui.Model;
 
 /**
  * Abstract Class for generating an AbstractPlan implementing a Transformation Function from a Source Model to a Target

@@ -28,7 +28,6 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.handler.ConnectsToPluginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ui.Model;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;

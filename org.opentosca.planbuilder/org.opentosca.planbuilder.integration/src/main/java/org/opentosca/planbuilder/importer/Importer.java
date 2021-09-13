@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
@@ -24,7 +23,6 @@ import org.eclipse.winery.repository.common.RepositoryFileReference;
 import com.google.common.collect.Lists;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.model.csar.Csar;
-import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.integration.layer.AbstractImporter;

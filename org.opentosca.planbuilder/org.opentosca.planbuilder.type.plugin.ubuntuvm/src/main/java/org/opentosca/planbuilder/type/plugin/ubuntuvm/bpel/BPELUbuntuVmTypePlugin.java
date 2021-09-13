@@ -5,7 +5,6 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TPolicy;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
-import org.eclipse.winery.model.tosca.utils.ModelUtilities;
 
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.convention.Utils;
@@ -16,7 +15,6 @@ import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ui.Model;
 
 /**
  * <p>

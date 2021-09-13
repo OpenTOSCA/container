@@ -14,17 +14,13 @@ import org.eclipse.winery.model.tosca.TCapability;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
-import org.eclipse.winery.model.tosca.TNodeType;
-import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TPolicy;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRequirement;
 import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
-import com.google.common.collect.Lists;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
-
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public class ScalingPlanDefinition {

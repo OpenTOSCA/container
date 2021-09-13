@@ -12,7 +12,6 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import com.google.common.collect.Lists;
-import org.apache.ode.schemas.dd._2007._03.TService;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.core.AbstractSimplePlanBuilder;
@@ -29,7 +28,6 @@ import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELUpdateProces
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.springframework.ui.Model;
 
 /**
  * <p>

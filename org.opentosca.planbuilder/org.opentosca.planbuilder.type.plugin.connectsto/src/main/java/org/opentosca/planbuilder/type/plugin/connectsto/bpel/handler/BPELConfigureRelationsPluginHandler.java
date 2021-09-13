@@ -17,7 +17,6 @@ import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.ConfigureRelationsPlugin;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.handler.ConnectsToPluginHandler;
-import org.springframework.ui.Model;
 
 public class BPELConfigureRelationsPluginHandler implements ConnectsToPluginHandler<BPELPlanContext> {
 

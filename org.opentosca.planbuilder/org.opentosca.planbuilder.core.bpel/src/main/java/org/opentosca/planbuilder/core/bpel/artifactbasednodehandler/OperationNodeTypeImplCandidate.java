@@ -13,7 +13,6 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.springframework.ui.Model;
 
 /**
  * <p>

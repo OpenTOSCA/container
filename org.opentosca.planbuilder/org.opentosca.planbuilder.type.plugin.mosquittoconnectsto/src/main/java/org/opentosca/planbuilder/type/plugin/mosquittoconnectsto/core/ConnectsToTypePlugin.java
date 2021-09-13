@@ -8,7 +8,6 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.springframework.ui.Model;
 
 /**
  * Copyright 2016 IAAS University of Stuttgart <br>

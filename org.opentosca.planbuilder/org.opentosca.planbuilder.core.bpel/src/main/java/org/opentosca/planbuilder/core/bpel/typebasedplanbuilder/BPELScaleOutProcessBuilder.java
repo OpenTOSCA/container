@@ -52,7 +52,6 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ui.Model;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 

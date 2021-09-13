@@ -26,7 +26,6 @@ import org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.BPELDockerCont
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.handler.OpenMTCDockerContainerTypePluginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ui.Model;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 

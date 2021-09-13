@@ -11,7 +11,6 @@ import javax.inject.Singleton;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
-import com.google.common.collect.Lists;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;

@@ -16,16 +16,18 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeType;
+import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
+import com.google.gson.Gson;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.cxf.binding.soap.SoapHeader;
 import org.apache.cxf.headers.Header;
-import org.eclipse.winery.model.tosca.TNodeTemplate;
-import org.eclipse.winery.model.tosca.TNodeType;
-import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
-import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.bus.management.api.soaphttp.model.Doc;
 import org.opentosca.bus.management.api.soaphttp.model.InvokeOperationAsync;
 import org.opentosca.bus.management.api.soaphttp.model.InvokeOperationSync;
@@ -56,8 +58,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import com.google.gson.Gson;
 
 /**
  * Request-Processor of the Management Bus-SOAP/HTTP-API.<br>

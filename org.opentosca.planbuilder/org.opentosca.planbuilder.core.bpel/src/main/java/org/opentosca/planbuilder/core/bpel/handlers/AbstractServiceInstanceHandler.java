@@ -9,7 +9,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
-import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

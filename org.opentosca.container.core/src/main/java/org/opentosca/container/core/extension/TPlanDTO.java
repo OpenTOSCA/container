@@ -18,7 +18,6 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TPlan;
 
-import org.eclipse.jdt.annotation.Nullable;
 import org.w3c.dom.Element;
 
 @XmlRootElement(name = "Plan")
