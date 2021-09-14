@@ -52,9 +52,7 @@ public class BPELAnsibleOperationPluginHandler {
     }
 
     private Variable appendBPELAssignOperationShScript(final BPELPlanContext templateContext,
-                                                       final TOperation operation,
-                                                       final TArtifactReference reference,
-                                                       final TImplementationArtifact ia) {
+                                                       final TArtifactReference reference) {
 
         final String runShScriptStringVarName = "runShFile" + templateContext.getIdForNames();
 
@@ -349,7 +347,7 @@ public class BPELAnsibleOperationPluginHandler {
         templateContext.addStringValueToPlanRequest("csarEntrypoint");
 
         final Variable runShScriptStringVar =
-            this.appendBPELAssignOperationShScript(templateContext, operation, ansibleRef, ia);
+            this.appendBPELAssignOperationShScript(templateContext, ansibleRef);
 
         return appendExecuteScript(templateContext, infrastructureNodeTemplate.getId(), runShScriptStringVar,
             sshUserVariable, sshKeyVariable, serverIpPropWrapper);

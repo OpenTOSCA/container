@@ -93,11 +93,10 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         return invokeWithMatching(context, nodeTemplate, iface, updateOperation, nodesForMatching, elementToAppendTo);
     }
 
-    private boolean isImplementedAsScript(TInterface iface, TOperation op,
-                                          TNodeTemplate nodeTemplate, Csar csar) {
+    private boolean isImplementedAsScript(TInterface iface, TOperation op, TNodeTemplate nodeTemplate, Csar csar) {
         for (TNodeTypeImplementation impl : ModelUtils.findNodeTypeImplementation(nodeTemplate, csar)) {
             for (TImplementationArtifact implArtifact : impl.getImplementationArtifacts()) {
-                if (implArtifact.getInterfaceName().equals(iface.getName())) {
+                if (implArtifact.getInterfaceName().equals(iface.getName()) && implArtifact.getOperationName().equals(op.getName())) {
                     if (implArtifact.getArtifactType().equals(Types.scriptArtifactType)) {
                         return true;
                     }

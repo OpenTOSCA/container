@@ -576,17 +576,16 @@ public class BPELUbuntuVmTypePluginHandler {
 
         // check if there is an access policy attached
         for (final TPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getPolicyType().equals(noPublicAccessPolicyType)
-                | policy.getPolicyType().equals(publicAccessPolicyType)) {
+            if ((policy.getPolicyType().equals(noPublicAccessPolicyType)
+                | policy.getPolicyType().equals(publicAccessPolicyType)) &&
+                (ModelUtils.asMap(policy.getProperties()).get("SecurityGroup") != null)) {
+                String securityGroup = ModelUtils.asMap(policy.getProperties()).get("SecurityGroup");
+                final Variable secGroupVar =
+                    context.createGlobalStringVariable("policyAwareSecurityGroup", securityGroup);
 
-                if (ModelUtils.asMap(policy.getProperties()).get("SecurityGroup") != null) {
-                    String securityGroup = ModelUtils.asMap(policy.getProperties()).get("SecurityGroup");
-                    final Variable secGroupVar =
-                        context.createGlobalStringVariable("policyAwareSecurityGroup", securityGroup);
+                createEC2InternalExternalPropsInput.put("VMSecurityGroup", secGroupVar);
+                break;
 
-                    createEC2InternalExternalPropsInput.put("VMSecurityGroup", secGroupVar);
-                    break;
-                }
             }
         }
 

@@ -477,43 +477,9 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
             return false;
         }
 
-        int node1DaSize = 0;
-        int node2DaSize = 0;
-
-        if (node1.getDeploymentArtifacts() != null) {
-            node1DaSize = node1.getDeploymentArtifacts().size();
-        }
-
-        if (node2.getDeploymentArtifacts() != null) {
-            node2DaSize = node2.getDeploymentArtifacts().size();
-        }
-
-        if (node1DaSize != node2DaSize) {
+        if (!this.mappingEqualsDA(node1, node2)) {
             return false;
-        } else {
-            if (node1.getDeploymentArtifacts() != null) {
-                for (TDeploymentArtifact da : node1.getDeploymentArtifacts()) {
-                    boolean matched = false;
-                    if (node2.getDeploymentArtifacts() != null) {
-                        for (TDeploymentArtifact da2 : node2.getDeploymentArtifacts()) {
-                            if (da.getArtifactType().equals(da2.getArtifactType())) {
-                                if (da.getArtifactRef().equals(da2.getArtifactRef())) {
-                                    // up to this point only the type and id of the artifact template match, a deeper mathcing
-                                    // would really look at the references and stuff, but we assume that artifact template id's
-                                    // are unique across multiple service templates
-                                    matched = true;
-                                }
-                            }
-                        }
-                    }
-                    if (!matched) {
-                        return false;
-                    }
-                }
-            }
         }
-
-        // Maybe add it later
 
         // This check is pretty heavy if i think about the State Property or changes in
         // values etc.
@@ -540,5 +506,43 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         LOG.debug("Matched node {} with node {} ", node1.getId(), node2.getId());
 
         return node1.getId().equals(node2.getId());
+    }
+
+    private boolean mappingEqualsDA(TNodeTemplate node1, TNodeTemplate node2) {
+        int node1DaSize = 0;
+        int node2DaSize = 0;
+
+        if (node1.getDeploymentArtifacts() != null) {
+            node1DaSize = node1.getDeploymentArtifacts().size();
+        }
+
+        if (node2.getDeploymentArtifacts() != null) {
+            node2DaSize = node2.getDeploymentArtifacts().size();
+        }
+
+        if (node1DaSize != node2DaSize) {
+            return false;
+        } else {
+            if (node1.getDeploymentArtifacts() != null) {
+                for (TDeploymentArtifact da : node1.getDeploymentArtifacts()) {
+                    boolean matched = false;
+                    if (node2.getDeploymentArtifacts() != null) {
+                        for (TDeploymentArtifact da2 : node2.getDeploymentArtifacts()) {
+                            if (da.getArtifactType().equals(da2.getArtifactType())) {
+                                // up to this point only the type and id of the artifact template match, a deeper mathcing
+                                // would really look at the references and stuff, but we assume that artifact template id's
+                                // are unique across multiple service templates
+                                matched = true;
+                            }
+                        }
+                    }
+                    if (!matched) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 }

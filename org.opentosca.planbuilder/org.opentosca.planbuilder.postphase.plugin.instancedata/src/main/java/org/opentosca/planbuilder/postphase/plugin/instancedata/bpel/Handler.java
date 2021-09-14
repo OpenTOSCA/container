@@ -1078,7 +1078,8 @@ public class Handler {
                 targetNodeContext.importNode(assignPropertiesToVariables);
             targetNodeContext.getPostPhaseElement().appendChild(assignPropertiesToVariables);
         } catch (final IOException | SAXException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            return false;
         }
 
         // generate BPEL4RESTLight PUT request to update the instance data

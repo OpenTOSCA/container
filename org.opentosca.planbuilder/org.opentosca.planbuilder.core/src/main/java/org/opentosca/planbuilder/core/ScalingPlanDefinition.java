@@ -26,19 +26,13 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 public class ScalingPlanDefinition {
 
     private final Csar csar;
-    // topology
     public String name;
-    public TTopologyTemplate topology;
-    // region
     public List<TNodeTemplate> nodeTemplates;
-    public List<TRelationshipTemplate> relationshipTemplates;
-
-    // nodes with selection strategies
-    public Collection<AnnotatedTNodeTemplate> selectionStrategy2BorderNodes;
-    // recursive selections
     public List<TNodeTemplate> nodeTemplatesRecursiveSelection;
+    public List<TRelationshipTemplate> relationshipTemplates;
     public List<TRelationshipTemplate> relationshipTemplatesRecursiveSelection;
-    // border crossing relations
+    public Collection<AnnotatedTNodeTemplate> selectionStrategy2BorderNodes;
+    public TTopologyTemplate topology;
 
     public ScalingPlanDefinition(final String name, final TTopologyTemplate topology,
                                  final List<TNodeTemplate> nodeTemplates,

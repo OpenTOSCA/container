@@ -272,113 +272,119 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
         for (final ScalingPlanDefinition scalingPlanDefinition : scalingPlanDefinitions) {
 
-            final String processName =
-                ModelUtils.makeValidNCName(serviceTemplate.getId() + "_scalingPlan_" + scalingPlanDefinition.name);
-            final String processNamespace = serviceTemplate.getTargetNamespace() + "_scalingPlan";
+            final BPELPlan bpelScaleOutProcess = this.createScalingPlan(csar,definitions,serviceTemplate,scalingPlanDefinition);
 
-            final AbstractPlan abstractScaleOutPlan = generateSOG(new QName(processNamespace, processName).toString(),
-                definitions, serviceTemplate, scalingPlanDefinition, csar);
-
-            printGraph(abstractScaleOutPlan);
-
-            final BPELPlan bpelScaleOutProcess =
-                this.planHandler.createEmptyBPELPlan(processNamespace, processName, abstractScaleOutPlan, "scale-out");
-
-            bpelScaleOutProcess.setTOSCAInterfaceName(scalingPlanDefinition.name);
-            bpelScaleOutProcess.setTOSCAOperationname("scale-out");
-
-            this.planHandler.initializeBPELSkeleton(bpelScaleOutProcess, csar);
-
-            Collection<TNodeTemplate> nodes = bpelScaleOutProcess.getTemplateBuildPlans().stream().map(BPELScope::getNodeTemplate).filter(Objects::nonNull).distinct().collect(Collectors.toList());
-            Collection<TRelationshipTemplate> relations = bpelScaleOutProcess.getTemplateBuildPlans().stream().map(BPELScope::getRelationshipTemplate).filter(Objects::nonNull).distinct().collect(Collectors.toList());
-
-            final Property2VariableMapping propMap = this.propertyInitializer.initializePropertiesAsVariables(bpelScaleOutProcess, serviceTemplate, nodes, relations);
-
-            // instanceDataAPI handling is done solely trough this extension
-            this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
-                bpelScaleOutProcess);
-
-            this.serviceInstanceHandler.addServiceInstanceHandlingFromInput(bpelScaleOutProcess);
-
-            this.instanceInitializer.addInstanceURLVarToTemplatePlans(bpelScaleOutProcess, serviceTemplate);
-            this.instanceInitializer.addInstanceIDVarToTemplatePlans(bpelScaleOutProcess, serviceTemplate);
-
-            this.correlationHandler.addCorrellationID(bpelScaleOutProcess);
-
-            final List<BPELScope> provScopeActivities = new ArrayList<>();
-
-            for (final BPELScope act : bpelScaleOutProcess.getAbstract2BPEL().values()) {
-                if (act.getNodeTemplate() != null
-                    && scalingPlanDefinition.nodeTemplates.contains(act.getNodeTemplate())) {
-                    provScopeActivities.add(act);
-                } else if (act.getRelationshipTemplate() != null
-                    && scalingPlanDefinition.relationshipTemplates.contains(act.getRelationshipTemplate())) {
-                    provScopeActivities.add(act);
-                }
-            }
-
-            String serviceInstanceUrl =
-                this.serviceInstanceHandler.findServiceInstanceUrlVariableName(bpelScaleOutProcess);
-            String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(bpelScaleOutProcess);
-            String serviceTemplateUrl =
-                this.serviceInstanceHandler.findServiceTemplateUrlVariableName(bpelScaleOutProcess);
-            String planInstanceUrl = this.serviceInstanceHandler.findPlanInstanceUrlVariableName(bpelScaleOutProcess);
-
-            this.emptyPropInit.initializeEmptyPropertiesAsInputParam(provScopeActivities, bpelScaleOutProcess, propMap,
-                serviceInstanceUrl, serviceInstanceId,
-                serviceTemplateUrl, serviceTemplate, planInstanceUrl, csar);
-
-            this.runProvisioningLogicGeneration(bpelScaleOutProcess, propMap, scalingPlanDefinition.nodeTemplates,
-                scalingPlanDefinition.relationshipTemplates, serviceInstanceUrl,
-                serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csar);
-
-            // add generic instance selection
-
-            for (final TRelationshipTemplate relationshipTemplate : scalingPlanDefinition.relationshipTemplatesRecursiveSelection) {
-                this.addRecursiveInstanceSelection(bpelScaleOutProcess, propMap, relationshipTemplate, serviceTemplate,
-                    csar);
-            }
-            for (final TNodeTemplate nodeTemplate : scalingPlanDefinition.nodeTemplatesRecursiveSelection) {
-                this.addRecursiveInstanceSelection(bpelScaleOutProcess, propMap, nodeTemplate, serviceTemplate,
-                    csar);
-            }
-
-            for (final AnnotatedTNodeTemplate stratNodeTemplate : scalingPlanDefinition.selectionStrategy2BorderNodes) {
-                final IScalingPlanBuilderSelectionPlugin selectionPlugin = findSelectionPlugin(stratNodeTemplate);
-                if (selectionPlugin != null) {
-                    final BPELScope scope =
-                        this.planHandler.getTemplateBuildPlanById(stratNodeTemplate.getId(), bpelScaleOutProcess);
-                    selectionPlugin.handle(new BPELPlanContext(scopeBuilder, bpelScaleOutProcess, scope, propMap, serviceTemplate, serviceInstanceUrl,
-                            serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csar), stratNodeTemplate,
-                        new ArrayList<>(stratNodeTemplate.getAnnotations()));
-                }
-            }
-
-            for (final AbstractActivity activ : bpelScaleOutProcess.getActivites()) {
-                if (activ.getType().equals(ActivityType.PROVISIONING)) {
-                    addInstanceIdToOutput(bpelScaleOutProcess.getAbstract2BPEL().get(activ), serviceTemplate);
-                }
-            }
-
-            this.serviceInstanceHandler.appendSetServiceInstanceStateAsChild(bpelScaleOutProcess,
-                this.planHandler.getMainCatchAllFaultHandlerSequenceElement(bpelScaleOutProcess),
-                "ERROR", serviceInstanceUrl);
-            this.serviceInstanceHandler.appendSetServiceInstanceStateAsChild(bpelScaleOutProcess, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(bpelScaleOutProcess), "FAILED", this.serviceInstanceHandler.findPlanInstanceUrlVariableName(bpelScaleOutProcess));
-
-            String planInstanceUrlVarName = this.serviceInstanceHandler.findPlanInstanceUrlVariableName(bpelScaleOutProcess);
-            this.serviceInstanceHandler.appendSetServiceInstanceState(bpelScaleOutProcess,
-                bpelScaleOutProcess.getBpelMainFlowElement(),
-                "RUNNING", planInstanceUrlVarName);
-
-            this.serviceInstanceHandler.appendSetServiceInstanceState(bpelScaleOutProcess,
-                bpelScaleOutProcess.getBpelMainSequenceOutputAssignElement(),
-                "FINISHED", planInstanceUrlVarName);
-
-            this.finalizer.finalize(bpelScaleOutProcess);
             scalingPlans.add(bpelScaleOutProcess);
         }
 
         return scalingPlans;
+    }
+
+    private BPELPlan createScalingPlan(Csar csar, TDefinitions definitions, TServiceTemplate serviceTemplate, ScalingPlanDefinition scalingPlanDefinition){
+        final String processName =
+            ModelUtils.makeValidNCName(serviceTemplate.getId() + "_scalingPlan_" + scalingPlanDefinition.name);
+        final String processNamespace = serviceTemplate.getTargetNamespace() + "_scalingPlan";
+
+        final AbstractPlan abstractScaleOutPlan = generateSOG(new QName(processNamespace, processName).toString(),
+            definitions, serviceTemplate, scalingPlanDefinition, csar);
+
+        printGraph(abstractScaleOutPlan);
+
+        final BPELPlan bpelScaleOutProcess =
+            this.planHandler.createEmptyBPELPlan(processNamespace, processName, abstractScaleOutPlan, "scale-out");
+
+        bpelScaleOutProcess.setTOSCAInterfaceName(scalingPlanDefinition.name);
+        bpelScaleOutProcess.setTOSCAOperationname("scale-out");
+
+        this.planHandler.initializeBPELSkeleton(bpelScaleOutProcess, csar);
+
+        Collection<TNodeTemplate> nodes = bpelScaleOutProcess.getTemplateBuildPlans().stream().map(BPELScope::getNodeTemplate).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        Collection<TRelationshipTemplate> relations = bpelScaleOutProcess.getTemplateBuildPlans().stream().map(BPELScope::getRelationshipTemplate).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+
+        final Property2VariableMapping propMap = this.propertyInitializer.initializePropertiesAsVariables(bpelScaleOutProcess, serviceTemplate, nodes, relations);
+
+        // instanceDataAPI handling is done solely trough this extension
+        this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
+            bpelScaleOutProcess);
+
+        this.serviceInstanceHandler.addServiceInstanceHandlingFromInput(bpelScaleOutProcess);
+
+        this.instanceInitializer.addInstanceURLVarToTemplatePlans(bpelScaleOutProcess, serviceTemplate);
+        this.instanceInitializer.addInstanceIDVarToTemplatePlans(bpelScaleOutProcess, serviceTemplate);
+
+        this.correlationHandler.addCorrellationID(bpelScaleOutProcess);
+
+        final List<BPELScope> provScopeActivities = new ArrayList<>();
+
+        for (final BPELScope act : bpelScaleOutProcess.getAbstract2BPEL().values()) {
+            if (act.getNodeTemplate() != null
+                && scalingPlanDefinition.nodeTemplates.contains(act.getNodeTemplate())) {
+                provScopeActivities.add(act);
+            } else if (act.getRelationshipTemplate() != null
+                && scalingPlanDefinition.relationshipTemplates.contains(act.getRelationshipTemplate())) {
+                provScopeActivities.add(act);
+            }
+        }
+
+        String serviceInstanceUrl =
+            this.serviceInstanceHandler.findServiceInstanceUrlVariableName(bpelScaleOutProcess);
+        String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(bpelScaleOutProcess);
+        String serviceTemplateUrl =
+            this.serviceInstanceHandler.findServiceTemplateUrlVariableName(bpelScaleOutProcess);
+        String planInstanceUrl = this.serviceInstanceHandler.findPlanInstanceUrlVariableName(bpelScaleOutProcess);
+
+        this.emptyPropInit.initializeEmptyPropertiesAsInputParam(provScopeActivities, bpelScaleOutProcess, propMap,
+            serviceInstanceUrl, serviceInstanceId,
+            serviceTemplateUrl, serviceTemplate, planInstanceUrl, csar);
+
+        this.runProvisioningLogicGeneration(bpelScaleOutProcess, propMap, scalingPlanDefinition.nodeTemplates,
+            scalingPlanDefinition.relationshipTemplates, serviceInstanceUrl,
+            serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csar);
+
+        // add generic instance selection
+
+        for (final TRelationshipTemplate relationshipTemplate : scalingPlanDefinition.relationshipTemplatesRecursiveSelection) {
+            this.addRecursiveInstanceSelection(bpelScaleOutProcess, propMap, relationshipTemplate, serviceTemplate,
+                csar);
+        }
+        for (final TNodeTemplate nodeTemplate : scalingPlanDefinition.nodeTemplatesRecursiveSelection) {
+            this.addRecursiveInstanceSelection(bpelScaleOutProcess, propMap, nodeTemplate, serviceTemplate,
+                csar);
+        }
+
+        for (final AnnotatedTNodeTemplate stratNodeTemplate : scalingPlanDefinition.selectionStrategy2BorderNodes) {
+            final IScalingPlanBuilderSelectionPlugin selectionPlugin = findSelectionPlugin(stratNodeTemplate);
+            if (selectionPlugin != null) {
+                final BPELScope scope =
+                    this.planHandler.getTemplateBuildPlanById(stratNodeTemplate.getId(), bpelScaleOutProcess);
+                selectionPlugin.handle(new BPELPlanContext(scopeBuilder, bpelScaleOutProcess, scope, propMap, serviceTemplate, serviceInstanceUrl,
+                        serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csar), stratNodeTemplate,
+                    new ArrayList<>(stratNodeTemplate.getAnnotations()));
+            }
+        }
+
+        for (final AbstractActivity activ : bpelScaleOutProcess.getActivites()) {
+            if (activ.getType().equals(ActivityType.PROVISIONING)) {
+                addInstanceIdToOutput(bpelScaleOutProcess.getAbstract2BPEL().get(activ), serviceTemplate);
+            }
+        }
+
+        this.serviceInstanceHandler.appendSetServiceInstanceStateAsChild(bpelScaleOutProcess,
+            this.planHandler.getMainCatchAllFaultHandlerSequenceElement(bpelScaleOutProcess),
+            "ERROR", serviceInstanceUrl);
+        this.serviceInstanceHandler.appendSetServiceInstanceStateAsChild(bpelScaleOutProcess, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(bpelScaleOutProcess), "FAILED", this.serviceInstanceHandler.findPlanInstanceUrlVariableName(bpelScaleOutProcess));
+
+        String planInstanceUrlVarName = this.serviceInstanceHandler.findPlanInstanceUrlVariableName(bpelScaleOutProcess);
+        this.serviceInstanceHandler.appendSetServiceInstanceState(bpelScaleOutProcess,
+            bpelScaleOutProcess.getBpelMainFlowElement(),
+            "RUNNING", planInstanceUrlVarName);
+
+        this.serviceInstanceHandler.appendSetServiceInstanceState(bpelScaleOutProcess,
+            bpelScaleOutProcess.getBpelMainSequenceOutputAssignElement(),
+            "FINISHED", planInstanceUrlVarName);
+
+        this.finalizer.finalize(bpelScaleOutProcess);
+        return bpelScaleOutProcess;
     }
 
     private String cleanCSVString(String commaSeperatedList) {
@@ -511,7 +517,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
                 }
 
                 final List<AnnotatedTNodeTemplate> selectionStrategy2BorderNodes =
-                    fetchSelectionStrategy2BorderNodes(topology, scalingPlanNodesNEdgesRawValueSplit[2], csar);
+                    fetchSelectionStrategy2BorderNodes(topology, scalingPlanNodesNEdgesRawValueSplit[2]);
 
                 scalingPlanDefinitions.add(new ScalingPlanDefinition(scalingPlanName, topology, nodeTemplates,
                     relationshipTemplates, selectionStrategy2BorderNodes, csar));
@@ -522,7 +528,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
     }
 
     private List<AnnotatedTNodeTemplate> fetchSelectionStrategy2BorderNodes(final TTopologyTemplate topologyTemplate,
-                                                                            String selectionStrategyBorderNodesCSV, Csar csar) {
+                                                                            String selectionStrategyBorderNodesCSV) {
 
         selectionStrategyBorderNodesCSV = cleanCSVString(selectionStrategyBorderNodesCSV);
 

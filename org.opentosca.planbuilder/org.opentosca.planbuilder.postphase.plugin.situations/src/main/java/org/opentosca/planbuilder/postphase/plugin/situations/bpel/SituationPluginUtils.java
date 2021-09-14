@@ -72,16 +72,7 @@ public class SituationPluginUtils {
     }
 
     public static Collection<TNodeTemplate> findUsedNodes(BPELPlanContext context) {
-        Map<TOperation, TOperation> ops = context.getUsedOperations();
         Set<TNodeTemplate> nodes = new HashSet<TNodeTemplate>();
-
-        // Temp fix
-        //          for (TOperation key : ops.keySet()) {
-        //              nodes.addAll(SituationPluginUtils.findUsedNodes(context, key));
-        //            nodes.addAll(SituationPluginUtils.findUsedNodes(context, ops.get(key)));
-        //
-        //        }
-
         nodes.add(context.getNodeTemplate());
         return nodes;
     }

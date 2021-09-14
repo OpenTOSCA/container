@@ -285,10 +285,6 @@ public class ModelUtils {
         if (properties.getClass().getName().equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl")) {
             isDOM = true;
         }
-        boolean isWineryKV = false;
-        if (properties.getClass().getName().equals(TEntityTemplate.WineryKVProperties.class.getName())) {
-            isWineryKV = true;
-        }
 
         if (isDOM) {
             final PropertyParser parser = new PropertyParser();

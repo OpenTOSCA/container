@@ -22,11 +22,11 @@ import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhase
  */
 class DANodeTypeImplCandidate {
 
-    private final TNodeTemplate nodeTemplate;
-    TNodeTypeImplementation impl;
-    List<TDeploymentArtifact> das = new ArrayList<>();
-    List<TNodeTemplate> infraNodes = new ArrayList<>();
-    List<IPlanBuilderPrePhaseDAPlugin> plugins = new ArrayList<>();
+    final List<TDeploymentArtifact> das = new ArrayList<>();
+    final TNodeTypeImplementation impl;
+    final List<TNodeTemplate> infraNodes = new ArrayList<>();
+    final List<IPlanBuilderPrePhaseDAPlugin> plugins = new ArrayList<>();
+    final TNodeTemplate nodeTemplate;
 
     /**
      * Constructor determines which NodeTypeImplementation is used

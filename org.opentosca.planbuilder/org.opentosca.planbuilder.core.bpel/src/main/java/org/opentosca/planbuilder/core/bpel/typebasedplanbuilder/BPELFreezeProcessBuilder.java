@@ -184,16 +184,6 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
         this.finalizer.finalize(newFreezePlan);
 
-        // add for each loop over found node instances to terminate each running
-        // instance
-        /*
-         * for (final BPELScope activ : changedActivities) { if (activ.getNodeTemplate() != null) {
-         * final BPELPlanContext context = new BPELPlanContext(activ, propMap,
-         * newTerminationPlan.getServiceTemplate());
-         * this.instanceVarsHandler.appendCountInstancesLogic(context, activ.getNodeTemplate(),
-         * "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED"); } }
-         */
-
         LOG.debug("Created Plan:");
         LOG.debug(ModelUtils.getStringFromDoc(newFreezePlan.getBpelDocument()));
 

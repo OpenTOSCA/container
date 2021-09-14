@@ -30,7 +30,7 @@ public class BPELConfigureRelationsPluginHandler implements ConnectsToPluginHand
             final TOperation op =
                 getOperation(relationTemplate, ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_SOURCE, templateContext.getCsar());
             final Map<TParameter, Variable> input =
-                findInputParameters(templateContext, op, relationTemplate, sourceNodeTemplate, targetNodeTemplate);
+                findInputParameters(templateContext, op, sourceNodeTemplate, targetNodeTemplate);
             templateContext.executeOperation(relationTemplate, ConfigureRelationsPlugin.INTERFACE_NAME,
                 ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_SOURCE, input, null);
         }
@@ -39,7 +39,7 @@ public class BPELConfigureRelationsPluginHandler implements ConnectsToPluginHand
             final TOperation op =
                 getOperation(relationTemplate, ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_TARGET, templateContext.getCsar());
             final Map<TParameter, Variable> input =
-                findInputParameters(templateContext, op, relationTemplate, sourceNodeTemplate, targetNodeTemplate);
+                findInputParameters(templateContext, op, sourceNodeTemplate, targetNodeTemplate);
             templateContext.executeOperation(relationTemplate, ConfigureRelationsPlugin.INTERFACE_NAME,
                 ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_TARGET, input, null);
         }
@@ -64,7 +64,6 @@ public class BPELConfigureRelationsPluginHandler implements ConnectsToPluginHand
 
     private Map<TParameter, Variable> findInputParameters(final BPELPlanContext templateContext,
                                                           final TOperation op,
-                                                          final TRelationshipTemplate relationshipTemplate,
                                                           final TNodeTemplate sourceNodeTemplate,
                                                           final TNodeTemplate targetNodeTemplate) {
         final Map<TParameter, Variable> parameters = new HashMap<>();

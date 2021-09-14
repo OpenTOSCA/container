@@ -27,11 +27,9 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
     public static TNodeTemplate findConnectedBackend(final TNodeTemplate gatewayNodeTemplate, Csar csar) {
         for (final TRelationshipTemplate relationshipTemplate : ModelUtils.getOutgoingRelations(gatewayNodeTemplate, csar)) {
             if (ModelUtils.getRelationshipTypeHierarchy(relationshipTemplate.getType(), csar)
-                .contains(Types.connectsToRelationType)) {
-                if (ModelUtils.getNodeTypeHierarchy(ModelUtils.getTarget(relationshipTemplate, csar).getType(), csar)
-                    .contains(DockerContainerTypePluginPluginConstants.OPENMTC_BACKEND_SERVICE_NODETYPE)) {
-                    return ModelUtils.getTarget(relationshipTemplate, csar);
-                }
+                .contains(Types.connectsToRelationType) && ModelUtils.getNodeTypeHierarchy(ModelUtils.getTarget(relationshipTemplate, csar).getType(), csar)
+                .contains(DockerContainerTypePluginPluginConstants.OPENMTC_BACKEND_SERVICE_NODETYPE)) {
+                return ModelUtils.getTarget(relationshipTemplate, csar);
             }
         }
         return null;

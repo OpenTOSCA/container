@@ -60,4 +60,8 @@ public class AbstractTransformationPlan extends AbstractPlan {
         }
         return handledServiceTemplateNodes;
     }
+
+    public TDefinitions getTargetDefinitions() {
+        return this.targetDefinitions;
+    }
 }

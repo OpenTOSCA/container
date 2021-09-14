@@ -174,10 +174,8 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
     private boolean checkIfConnectedToVMandCloudProvider(final TNodeTemplate nodeTemplate, Csar csar) {
         for (final TRelationshipTemplate relationshipTemplate : ModelUtils.getOutgoingRelations(nodeTemplate, csar)) {
             TNodeTemplate target = ModelUtils.getTarget(relationshipTemplate, csar);
-            if (target.getType().equals(Types.vmNodeType)) {
-                if (checkIfConnectedToCloudProvider(target, csar)) {
-                    return true;
-                }
+            if (target.getType().equals(Types.vmNodeType) && checkIfConnectedToCloudProvider(target, csar)) {
+                return true;
             }
         }
         return false;
