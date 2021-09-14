@@ -84,6 +84,34 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         return das;
     }
 
+    public static void addProperties(Variable sshPortVar, Variable containerIpVar, Variable containerIdVar, Variable envMappingVar, Variable linksVar, Variable deviceMappingVar, Map<String, Variable> createDEInternalExternalPropsInput, Map<String, Variable> createDEInternalExternalPropsOutput) {
+        if (envMappingVar != null) {
+            createDEInternalExternalPropsInput.put("ContainerEnv", envMappingVar);
+        }
+
+        if (deviceMappingVar != null) {
+            createDEInternalExternalPropsInput.put("Devices", deviceMappingVar);
+        }
+
+        if (linksVar != null) {
+            createDEInternalExternalPropsInput.put("Links", linksVar);
+        }
+
+        if (sshPortVar != null) {
+            // we expect a sshPort back -> add to output handling
+            createDEInternalExternalPropsOutput.put("SSHPort", sshPortVar);
+            createDEInternalExternalPropsInput.put("SSHPort", sshPortVar);
+        }
+
+        if (containerIpVar != null) {
+            createDEInternalExternalPropsOutput.put("ContainerIP", containerIpVar);
+        }
+
+        if (containerIdVar != null) {
+            createDEInternalExternalPropsOutput.put("ContainerID", containerIdVar);
+        }
+    }
+
     private boolean handleTerminate(final BPELPlanContext context, Element elementToAppendTo) {
         final List<TNodeTemplate> nodes = new ArrayList<>();
         ModelUtils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes, context.getCsar());
@@ -223,7 +251,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
     }
 
     private TNodeTemplate findInfrastructureTemplate(final PlanContext context,
-                                                            final TNodeTemplate nodeTemplate) {
+                                                     final TNodeTemplate nodeTemplate) {
         final List<TNodeTemplate> infraNodes = new ArrayList<>();
         ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes, context.getCsar());
 
@@ -409,7 +437,6 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
                                    final Variable vmIpVariable, final Variable vmPrivateKeyVariable) {
         context.addStringValueToPlanRequest("containerApiAddress");
 
-
         final String artifactPathQuery =
             this.planBuilderFragments.createXPathQueryForURLRemoteFilePathViaContainerAPI(ModelUtils.findArtifactTemplate(da.getArtifactRef(), context.getCsar()).getArtifactReferences().stream().findFirst().get()
                 .getReference(), context.getCSARFileName());
@@ -446,34 +473,6 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
             context.getProvisioningPhaseElement())
             && this.handleTerminate(context, context.getProvisioningCompensationPhaseElement());
-    }
-
-    public static void addProperties(Variable sshPortVar, Variable containerIpVar, Variable containerIdVar, Variable envMappingVar, Variable linksVar, Variable deviceMappingVar, Map<String, Variable> createDEInternalExternalPropsInput, Map<String, Variable> createDEInternalExternalPropsOutput) {
-        if (envMappingVar != null) {
-            createDEInternalExternalPropsInput.put("ContainerEnv", envMappingVar);
-        }
-
-        if (deviceMappingVar != null) {
-            createDEInternalExternalPropsInput.put("Devices", deviceMappingVar);
-        }
-
-        if (linksVar != null) {
-            createDEInternalExternalPropsInput.put("Links", linksVar);
-        }
-
-        if (sshPortVar != null) {
-            // we expect a sshPort back -> add to output handling
-            createDEInternalExternalPropsOutput.put("SSHPort", sshPortVar);
-            createDEInternalExternalPropsInput.put("SSHPort", sshPortVar);
-        }
-
-        if (containerIpVar != null) {
-            createDEInternalExternalPropsOutput.put("ContainerIP", containerIpVar);
-        }
-
-        if (containerIdVar != null) {
-            createDEInternalExternalPropsOutput.put("ContainerID", containerIdVar);
-        }
     }
 
     protected boolean handleWithImageId(final BPELPlanContext context, final TNodeTemplate dockerEngineNode,

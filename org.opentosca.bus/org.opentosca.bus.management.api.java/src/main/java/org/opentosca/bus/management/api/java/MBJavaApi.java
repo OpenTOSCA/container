@@ -1,7 +1,6 @@
 package org.opentosca.bus.management.api.java;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -438,7 +437,7 @@ public class MBJavaApi implements IManagementBus {
     }
 
     private Collection<TNodeTemplate> getDeployableSubgraph(final Collection<TNodeTemplate> nodeTemplates,
-                                                                   final Map<String, Collection<Long>> nodeIds2situationIds, Csar csar) {
+                                                            final Map<String, Collection<Long>> nodeIds2situationIds, Csar csar) {
         final Set<TNodeTemplate> validDeploymentSubgraph = new HashSet<>(nodeTemplates);
         final Collection<TNodeTemplate> toRemove = new HashSet<>();
 
@@ -543,7 +542,7 @@ public class MBJavaApi implements IManagementBus {
                 LOG.debug("instance api: {}", str);
                 map.put(para, str);
             } else if (para.equalsIgnoreCase("csarEntrypoint")) {
-            	LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \""
+                LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \""
                     + Settings.OPENTOSCA_CONTAINER_CONTENT_API.replace("{csarid}", csarID.csarName()));
                 map.put(para, Settings.OPENTOSCA_CONTAINER_CONTENT_API.replace("{csarid}", csarID.csarName()));
             } else {

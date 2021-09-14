@@ -30,7 +30,6 @@ import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
 import org.opentosca.planbuilder.core.bpel.handlers.EmptyPropertyToInputHandler;
-import org.opentosca.planbuilder.core.bpel.handlers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.PropertyVariableHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.ServiceTemplateBoundaryPropertyMappingsToOutputHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.SimplePlanBuilderServiceInstanceHandler;
@@ -237,7 +236,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} policy-aware build plans for CSAR {}", plans.size(), csar.id().csarName());
+            LOG.info("Created {} policy-aware build plans for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }

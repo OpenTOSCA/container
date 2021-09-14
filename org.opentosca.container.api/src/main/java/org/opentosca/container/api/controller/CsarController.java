@@ -25,7 +25,6 @@ import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
@@ -98,7 +97,7 @@ public class CsarController {
                 csar.setId(id);
                 csar.setDescription(csarContent.description());
                 csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                        .path(CsarController.class, "getCsar").build(id))
+                    .path(CsarController.class, "getCsar").build(id))
                     .rel("self").build());
                 list.add(csar);
             }
@@ -150,15 +149,15 @@ public class CsarController {
             );
 
             csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                    .path(CsarController.class, "getContent").build(id))
+                .path(CsarController.class, "getContent").build(id))
                 .rel("content").baseUri(this.uriInfo.getBaseUri()).build(id));
             csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                    .path(CsarController.class, "getCsar").build(id))
+                .path(CsarController.class, "getCsar").build(id))
                 .rel("self").build());
 
             csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(ServiceTemplateController.class)
-                    .path(ServiceTemplateController.class, "getServiceTemplate")
-                    .build(id, UriUtil.encodePathSegment(entryServiceTemplate.getId())))
+                .path(ServiceTemplateController.class, "getServiceTemplate")
+                .build(id, UriUtil.encodePathSegment(entryServiceTemplate.getId())))
                 .rel("servicetemplate").baseUri(this.uriInfo.getBaseUri()).build());
 
             return Response.ok(csar).build();

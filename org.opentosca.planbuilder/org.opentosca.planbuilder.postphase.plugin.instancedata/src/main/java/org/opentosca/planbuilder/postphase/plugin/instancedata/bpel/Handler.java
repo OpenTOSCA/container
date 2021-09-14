@@ -27,7 +27,6 @@ import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
-import org.opentosca.planbuilder.core.bpel.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
@@ -1036,7 +1035,6 @@ public class Handler {
             e1.printStackTrace();
             return false;
         }
-
 
         // assign the values from the property variables into REST/HTTP
         // Request

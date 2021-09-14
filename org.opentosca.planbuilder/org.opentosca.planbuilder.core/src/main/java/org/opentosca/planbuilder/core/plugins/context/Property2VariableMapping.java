@@ -7,7 +7,6 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
-
 /**
  * <p>
  * This class represents a mapping from TemplateId to Property LocalName and VariableName

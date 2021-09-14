@@ -1,15 +1,11 @@
 package org.opentosca.container.core.impl.service;
 
 import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -22,8 +18,6 @@ import java.util.zip.ZipOutputStream;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.nio.file.FileVisitResult.CONTINUE;
 
 @NonNullByDefault
 public class FileSystem {

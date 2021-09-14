@@ -558,7 +558,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                 final Optional<WSDLEndpoint> currentEndpoint =
                     endpoints.stream().filter(wsdlEndpoint -> wsdlEndpoint.getServiceTemplateInstanceID()
-                            .equals(serviceTemplateInstanceID))
+                        .equals(serviceTemplateInstanceID))
                         .findFirst();
 
                 if (!currentEndpoint.isPresent()) {
@@ -660,7 +660,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     new WSDLEndpoint(endpointURI, portType, triggeringContainer, deploymentLocation, csar.id(),
                         serviceTemplateInstanceID, null, typeImplementation.getQName(), ia.getName(), new HashMap<>());
                 LOG.debug("Storing WSDLEndpoint:");
-                LOG.debug("URI = {}, portType = {}, triggeringContainer = {}, managingContainer = {}, csar = {}, serviceTemplateInstanceID = {}, planId = {}, nodeTypeImplementation = {}, iaName = {}, metadata = {}",endpointURI, portType, triggeringContainer, deploymentLocation, csar.id(),
+                LOG.debug("URI = {}, portType = {}, triggeringContainer = {}, managingContainer = {}, csar = {}, serviceTemplateInstanceID = {}, planId = {}, nodeTypeImplementation = {}, iaName = {}, metadata = {}", endpointURI, portType, triggeringContainer, deploymentLocation, csar.id(),
                     serviceTemplateInstanceID, null, typeImplementation.getQName(), ia.getName(), new HashMap<>());
                 this.endpointService.storeWSDLEndpoint(endpoint);
             }
@@ -1177,7 +1177,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 // get number of endpoints for the same IA
                 final int count =
                     this.endpointService.getWSDLEndpointsForNTImplAndIAName(triggeringContainer, deploymentLocation,
-                            typeImpl, iaName)
+                        typeImpl, iaName)
                         .size();
 
                 // only undeploy the IA if this is the only endpoint

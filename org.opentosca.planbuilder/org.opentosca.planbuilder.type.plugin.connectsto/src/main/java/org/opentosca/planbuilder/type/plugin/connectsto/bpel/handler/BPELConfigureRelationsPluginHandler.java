@@ -63,10 +63,10 @@ public class BPELConfigureRelationsPluginHandler implements ConnectsToPluginHand
     }
 
     private Map<TParameter, Variable> findInputParameters(final BPELPlanContext templateContext,
-                                                                 final TOperation op,
-                                                                 final TRelationshipTemplate relationshipTemplate,
-                                                                 final TNodeTemplate sourceNodeTemplate,
-                                                                 final TNodeTemplate targetNodeTemplate) {
+                                                          final TOperation op,
+                                                          final TRelationshipTemplate relationshipTemplate,
+                                                          final TNodeTemplate sourceNodeTemplate,
+                                                          final TNodeTemplate targetNodeTemplate) {
         final Map<TParameter, Variable> parameters = new HashMap<>();
         for (final TParameter p : op.getInputParameters()) {
             // Search parameter in RelationshipTemplate
@@ -82,7 +82,7 @@ public class BPELConfigureRelationsPluginHandler implements ConnectsToPluginHand
                         parameters.put(p, v);
                     } else {
                         // Try target stack
-                        v = findPropertyInTopology(templateContext, targetNodeTemplate, p.getName(),templateContext.getCsar());
+                        v = findPropertyInTopology(templateContext, targetNodeTemplate, p.getName(), templateContext.getCsar());
                         if (v != null) {
                             parameters.put(p, v);
                         }

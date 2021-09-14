@@ -197,7 +197,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} test management plans for CSAR {}", plans.size(), csar.id().csarName());
+            LOG.info("Created {} test management plans for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }

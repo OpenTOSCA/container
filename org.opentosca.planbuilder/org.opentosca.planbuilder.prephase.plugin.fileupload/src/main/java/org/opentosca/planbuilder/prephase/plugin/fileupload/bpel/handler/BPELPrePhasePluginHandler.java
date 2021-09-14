@@ -2,11 +2,8 @@ package org.opentosca.planbuilder.prephase.plugin.fileupload.bpel.handler;
 
 import java.util.Collection;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
-import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
@@ -51,10 +48,10 @@ public class BPELPrePhasePluginHandler {
      * Adds necessary BPEL logic through the given Context, to deploy the given ArtifactReferences unto the specified
      * InfrastructureNode
      *
-     * @param templateContext       a TemplateContext
-     * @param refs          the ArtifactReferences to deploy
-     * @param artifactName  the name of the artifact, where the references originate from
-     * @param infraTemplate a NodeTemplate which is a InfrastructureNode to deploy the AbstractReferences on
+     * @param templateContext a TemplateContext
+     * @param refs            the ArtifactReferences to deploy
+     * @param artifactName    the name of the artifact, where the references originate from
+     * @param infraTemplate   a NodeTemplate which is a InfrastructureNode to deploy the AbstractReferences on
      * @return true iff adding the logic was successful
      */
     private boolean handle(final BPELPlanContext templateContext, final Collection<TArtifactReference> refs,

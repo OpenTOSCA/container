@@ -161,7 +161,6 @@ public class PluginRegistry {
         return daPlugins;
     }
 
-
     /**
      * Returns all registered PostPhasePlugins
      *

@@ -433,7 +433,6 @@ public class OperationChain {
             public List<TParameter> getInputParameters() {
                 return this.iface.getOperation(this.operationName).getInputParameters();
             }
-
         };
     }
 }

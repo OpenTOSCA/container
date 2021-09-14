@@ -1,7 +1,6 @@
 package org.opentosca.planbuilder.importer;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -10,7 +9,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.model.ids.definitions.DefinitionsChildId;
 import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -23,12 +21,9 @@ import org.eclipse.winery.repository.common.RepositoryFileReference;
 import com.google.common.collect.Lists;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.model.csar.Csar;
-import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.integration.layer.AbstractImporter;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -130,8 +125,8 @@ public class Importer extends AbstractImporter {
      * @throws SystemException is thrown if accessing data inside the OpenTOSCA Core fails
      */
     /**
-     * public TDefinitions createContext(final CSARContent csarContent) throws SystemException { final
-     * AbstractFile rootTosca = csarContent.getRootTOSCA(); final Set<AbstractFile> referencedFilesInCsar =
+     * public TDefinitions createContext(final CSARContent csarContent) throws SystemException { final AbstractFile
+     * rootTosca = csarContent.getRootTOSCA(); final Set<AbstractFile> referencedFilesInCsar =
      * csarContent.getFilesRecursively(); return new DefinitionsImpl(rootTosca, referencedFilesInCsar, true); }
      */
 

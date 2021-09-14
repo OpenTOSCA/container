@@ -13,7 +13,6 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import com.google.common.collect.Lists;
 import org.opentosca.container.core.model.csar.Csar;
-import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.core.AbstractSimplePlanBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBackupManagementProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBuildProcessBuilder;
@@ -83,7 +82,7 @@ public abstract class AbstractImporter {
     /**
      * Generates Plans for ServiceTemplates inside the given Definitions document
      *
-     * @param defs     an TDefinitions
+     * @param defs an TDefinitions
      * @param csar the CSAR the given Definitions is contained in
      * @return a List of Plans
      */

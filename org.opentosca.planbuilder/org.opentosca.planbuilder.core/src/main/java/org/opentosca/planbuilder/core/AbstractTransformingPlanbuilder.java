@@ -5,20 +5,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
-import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
@@ -103,7 +98,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         nodesToStart = this.removeNodesFromList(nodesToStart, this.getCorrespondingNodes(deployableMaxCommonSubgraph, targetNodeTemplates));
         //nodesToStart.removeAll(this.getCorrespondingNodes(deployableMaxCommonSubgraph, targetNodeTemplates));
 
-        Collection<TRelationshipTemplate> relationsToStart = this.getDeployableSubgraph(targetNodeTemplates, this.getOutgoingRelations(nodesToStart,targetCsar), targetCsar);
+        Collection<TRelationshipTemplate> relationsToStart = this.getDeployableSubgraph(targetNodeTemplates, this.getOutgoingRelations(nodesToStart, targetCsar), targetCsar);
 
         AbstractPlan startPlan =
             AbstractBuildPlanBuilder.generatePOG("transformStart" + sourceDefinitions.getId() + "_to_"
@@ -125,12 +120,12 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         Set<TNodeTemplate> result = Sets.newHashSet();
         for (TNodeTemplate node1 : list) {
             boolean matched = false;
-            for (TNodeTemplate node2: toRemove) {
+            for (TNodeTemplate node2 : toRemove) {
                 if (this.mappingEquals(node1, node2)) {
                     matched = true;
                 }
             }
-            if(!matched) {
+            if (!matched) {
                 result.add(node1);
             }
         }
@@ -202,7 +197,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     }
 
     private Collection<TRelationshipTemplate> getConnectingEdges(Collection<TRelationshipTemplate> allEdges,
-                                                                        Collection<TNodeTemplate> subgraphNodes, Csar csar) {
+                                                                 Collection<TNodeTemplate> subgraphNodes, Csar csar) {
         Collection<TRelationshipTemplate> connectingEdges = new HashSet<>();
 
         for (TRelationshipTemplate rel : allEdges) {
@@ -217,7 +212,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     }
 
     private Collection<TNodeTemplate> getCorrespondingNodes(Collection<TNodeTemplate> subgraph,
-                                                                   Collection<TNodeTemplate> graph) {
+                                                            Collection<TNodeTemplate> graph) {
         Collection<TNodeTemplate> correspondingNodes = new HashSet<>();
         for (TNodeTemplate subgraphNode : subgraph) {
             TNodeTemplate correspondingNode = this.getCorrespondingNode(subgraphNode, graph);
@@ -230,7 +225,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     }
 
     protected TNodeTemplate getCorrespondingNode(TNodeTemplate subNode,
-                                                        Collection<TNodeTemplate> graph) {
+                                                 Collection<TNodeTemplate> graph) {
         for (TNodeTemplate graphNode : graph) {
             if (this.mappingEquals(subNode, graphNode)) {
                 return graphNode;
@@ -240,7 +235,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     }
 
     public TRelationshipTemplate getCorrespondingEdge(TRelationshipTemplate subEdge,
-                                                             Collection<TRelationshipTemplate> graphEdges, Csar sourceCsar, Csar targetCsar) {
+                                                      Collection<TRelationshipTemplate> graphEdges, Csar sourceCsar, Csar targetCsar) {
         for (TRelationshipTemplate graphEdge : graphEdges) {
             if (this.mappingEquals(subEdge, graphEdge, sourceCsar, targetCsar)) {
                 return graphEdge;
@@ -356,9 +351,9 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     // TODO FIXME this is a really naive implementation until we can integrate a
     //  proper(i.e. efficient) subgraph calculation based on https://stackoverflow.com/a/14644158
     private Set<TNodeTemplate> getMaxCommonSubgraph(Set<TNodeTemplate> vertices,
-                                                           Set<TNodeTemplate> graph1,
-                                                           Set<TNodeTemplate> graph2,
-                                                           Set<TNodeTemplate> currentSubset) {
+                                                    Set<TNodeTemplate> graph1,
+                                                    Set<TNodeTemplate> graph2,
+                                                    Set<TNodeTemplate> currentSubset) {
 
         LOG.debug("Finding MaxCommon Subgraph with vertices {}", this.printCandidate(vertices));
         if (vertices.isEmpty()) {
@@ -460,9 +455,8 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     }
 
     /**
-     *
-     * @param rel1 a relation from sourceCsa
-     * @param rel2 a relation from targetCsar
+     * @param rel1       a relation from sourceCsa
+     * @param rel2       a relation from targetCsar
      * @param sourceCsar a source csar model
      * @param targetCsar a target csar model
      * @return true iff the type of rel1 and rel2 are equals, as well as, their sources and targets

@@ -165,7 +165,7 @@ public class BPELUbuntuVmTypePluginHandler {
     private TNodeTemplate findUbuntuNode(final TNodeTemplate nodeTemplate, Csar csar) {
         // check if the given node is the ubuntu node
         if (org.opentosca.container.core.convention.Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType()
-            )) {
+        )) {
             return nodeTemplate;
         }
 

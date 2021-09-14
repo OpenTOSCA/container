@@ -12,8 +12,6 @@ import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Copyright 2019 IAAS University of Stuttgart <br>

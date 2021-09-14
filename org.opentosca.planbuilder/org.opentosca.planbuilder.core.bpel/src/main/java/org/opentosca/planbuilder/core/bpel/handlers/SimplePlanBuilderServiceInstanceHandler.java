@@ -28,16 +28,6 @@ import org.xml.sax.SAXException;
  */
 public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInstanceHandler {
 
-    public class ServiceInsanceHandlingException extends RuntimeException {
-        public ServiceInsanceHandlingException(Exception e) {
-            super(e);
-        }
-
-        public ServiceInsanceHandlingException(String s) {
-            super(s);
-        }
-    }
-
     public SimplePlanBuilderServiceInstanceHandler() throws ParserConfigurationException {
         super();
     }
@@ -653,6 +643,16 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
         } catch (IOException | SAXException e) {
             e.printStackTrace();
             throw new ServiceInsanceHandlingException("Can't read xml template, couldn't generate bpel code");
+        }
+    }
+
+    public class ServiceInsanceHandlingException extends RuntimeException {
+        public ServiceInsanceHandlingException(Exception e) {
+            super(e);
+        }
+
+        public ServiceInsanceHandlingException(String s) {
+            super(s);
         }
     }
 }

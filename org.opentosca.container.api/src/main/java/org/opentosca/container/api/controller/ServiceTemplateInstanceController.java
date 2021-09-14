@@ -402,7 +402,7 @@ public class ServiceTemplateInstanceController {
             final ResourceDecorator decorator = new ResourceDecorator();
             decorator.setObject(v);
             decorator.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePathBuilder()
-                    .path(String.valueOf(v.getId())).build()))
+                .path(String.valueOf(v.getId())).build()))
                 .rel("self").build());
             return decorator;
         }).collect(Collectors.toList());

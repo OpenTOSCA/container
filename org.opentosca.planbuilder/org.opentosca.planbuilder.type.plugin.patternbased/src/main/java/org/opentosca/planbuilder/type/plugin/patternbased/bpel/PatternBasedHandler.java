@@ -41,7 +41,7 @@ public abstract class PatternBasedHandler {
     }
 
     protected boolean invokeArtifactReferenceUpload(BPELPlanContext context, TArtifactReference ref, TNodeTemplate infraNode) {
-        PropertyVariable ip = this.getIpProperty(context,infraNode);
+        PropertyVariable ip = this.getIpProperty(context, infraNode);
         PropertyVariable user = this.getUserProperty(context, infraNode);
         PropertyVariable key = this.getKeyProperty(context, infraNode);
 
@@ -143,7 +143,7 @@ public abstract class PatternBasedHandler {
 
         int inputParamSize = 0;
 
-        if(operationToMatch.getInputParameters() != null) {
+        if (operationToMatch.getInputParameters() != null) {
             inputParamSize = operationToMatch.getInputParameters().size();
         }
 
@@ -195,7 +195,6 @@ public abstract class PatternBasedHandler {
                 }
             }
         }
-
 
         matching.matchedNodes = matchedNodes;
         return matching;

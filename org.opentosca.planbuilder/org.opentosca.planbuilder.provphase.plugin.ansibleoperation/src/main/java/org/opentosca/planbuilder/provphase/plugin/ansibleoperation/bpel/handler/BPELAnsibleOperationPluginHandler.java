@@ -1,16 +1,11 @@
 package org.opentosca.planbuilder.provphase.plugin.ansibleoperation.bpel.handler;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
@@ -20,21 +15,15 @@ import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 
 import org.apache.commons.io.FilenameUtils;
-import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Properties;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 /**
  * <p>
@@ -58,8 +47,8 @@ public class BPELAnsibleOperationPluginHandler {
 
     public BPELAnsibleOperationPluginHandler() {
 
-            this.docFactory = DocumentBuilderFactory.newInstance();
-            this.docFactory.setNamespaceAware(true);
+        this.docFactory = DocumentBuilderFactory.newInstance();
+        this.docFactory.setNamespaceAware(true);
     }
 
     private Variable appendBPELAssignOperationShScript(final BPELPlanContext templateContext,
@@ -113,7 +102,6 @@ public class BPELAnsibleOperationPluginHandler {
 
         return runShScriptStringVar;
     }
-
 
     /**
      * Append logic for executing a script on a remote machine with the invoker plugin
@@ -213,9 +201,9 @@ public class BPELAnsibleOperationPluginHandler {
     /**
      * Adds logic to the BuildPlan to call a Ansible Playbook on a remote machine
      *
-     * @param templateContext   the BPELPlanContext where the logical provisioning operation is called
-     * @param operation the operation to call
-     * @param ia        the ia that implements the operation
+     * @param templateContext the BPELPlanContext where the logical provisioning operation is called
+     * @param operation       the operation to call
+     * @param ia              the ia that implements the operation
      * @return true iff adding BPEL Fragment was successful
      */
     public boolean handle(final BPELPlanContext templateContext, final TOperation operation,

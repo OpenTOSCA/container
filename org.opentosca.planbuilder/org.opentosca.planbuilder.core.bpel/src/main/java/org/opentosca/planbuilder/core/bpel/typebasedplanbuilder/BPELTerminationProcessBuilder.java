@@ -205,7 +205,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} termination plans for CSAR {}", plans.size(), csar.id().csarName());
+            LOG.info("Created {} termination plans for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }

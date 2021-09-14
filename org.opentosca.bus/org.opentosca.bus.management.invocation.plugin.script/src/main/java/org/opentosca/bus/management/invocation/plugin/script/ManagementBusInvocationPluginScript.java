@@ -395,7 +395,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
             LOG.debug("ArtifactType: {} needs no packages to install.", requiredPackages, artifactType);
             return;
         }
-        
+
         final String requiredPackagesString = String.join(" ", requiredPackages);
         final String commandsString = "apt update && export DEBIAN_FRONTEND=noninteractive && apt install -y -q " + requiredPackagesString;
 

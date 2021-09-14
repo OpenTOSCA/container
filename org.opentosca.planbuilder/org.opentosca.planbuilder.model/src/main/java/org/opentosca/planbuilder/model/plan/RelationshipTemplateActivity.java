@@ -2,7 +2,6 @@ package org.opentosca.planbuilder.model.plan;
 
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
-
 public class RelationshipTemplateActivity extends AbstractActivity {
 
     private final TRelationshipTemplate relationshipTemplate;

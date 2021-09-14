@@ -379,7 +379,7 @@ public class BPELPlanHandler {
      *
      * @param variableName String containing a name
      * @param initVal      the value for the variable, if null the value will be empty
-     * @param plan the plan to add the variable to
+     * @param plan         the plan to add the variable to
      * @return a TemplatePropWrapper containing the generated Id for the variable
      */
     public Variable createGlobalStringVariable(final String variableName, final String initVal, BPELPlan plan) {
@@ -627,7 +627,7 @@ public class BPELPlanHandler {
     public BPELPlan createEmptyBPELPlan(final String processNamespace, final String processName,
                                         final AbstractPlan abstractPlan, final String inputOperationName) {
         BPELPlanHandler.LOG.debug("Creating BuildPlan for ServiceTemplate {}",
-                abstractPlan.getServiceTemplate().getId());
+            abstractPlan.getServiceTemplate().getId());
 
         final BPELPlan buildPlan =
             new BPELPlan(abstractPlan.getId(), abstractPlan.getType(), abstractPlan.getDefinitions(),
@@ -1186,8 +1186,8 @@ public class BPELPlanHandler {
     /**
      * Imports the given QName Namespace into the BuildPlan
      *
-     * @param qname           a QName to import
-     * @param plan the plan to import namespace in
+     * @param qname a QName to import
+     * @param plan  the plan to import namespace in
      * @return the QName with set prefix
      */
     public QName importNamespace(final QName qname, final BPELPlan plan) {

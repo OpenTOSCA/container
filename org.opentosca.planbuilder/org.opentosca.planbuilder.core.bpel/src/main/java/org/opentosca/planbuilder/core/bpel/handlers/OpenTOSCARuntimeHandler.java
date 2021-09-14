@@ -23,9 +23,11 @@ public class OpenTOSCARuntimeHandler {
     }
 
     // TODO: This is a snippet which should check whether the runtime is available, however, the runtime starts to ghost the whole process isntance and I still don't know why...
+
     /**
      * Generate bpel code which checks whether the runtime is available
-     * @param plan the plan to add the check to
+     *
+     * @param plan         the plan to add the check to
      * @param appendBefore the element to append the generate code to
      * @param faultMessage the message of the fault to throw when it is not working
      */
@@ -35,10 +37,10 @@ public class OpenTOSCARuntimeHandler {
         Variable runtimeResourceStatusCode = this.planHandler.createGlobalStringVariable("runtimeResourceStatusCode" + plan.getIdForNamesAndIncrement(), "-1", plan);
         Variable faultVariable = this.planHandler.createGlobalStringVariable("runtimeResourceFaultVariable" + plan.getIdForNamesAndIncrement(), faultMessage, plan);
 
-               Node sequenceNode = this.fragments.createEmptySequence("checkRuntimeAvailabilitySequence" + plan.getIdForNamesAndIncrement());
+        Node sequenceNode = this.fragments.createEmptySequence("checkRuntimeAvailabilitySequence" + plan.getIdForNamesAndIncrement());
         sequenceNode = plan.getBpelDocument().importNode(sequenceNode, true);
 
-        Node assignInputToURL = this.fragments.generateAssignFromInputMessageToStringVariableAsNode("instanceDataAPIUrl",runtimeResourceURLVariable.getVariableName());
+        Node assignInputToURL = this.fragments.generateAssignFromInputMessageToStringVariableAsNode("instanceDataAPIUrl", runtimeResourceURLVariable.getVariableName());
         assignInputToURL = plan.getBpelDocument().importNode(assignInputToURL, true);
         sequenceNode.appendChild(assignInputToURL);
 

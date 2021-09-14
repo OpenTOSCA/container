@@ -177,7 +177,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler {
     }
 
     private List<TNodeTemplate> fetchDataChannels(final PlanContext templateContext,
-                                                         final TNodeTemplate protocolAdapterDerviceNodeTemplate) {
+                                                  final TNodeTemplate protocolAdapterDerviceNodeTemplate) {
         final List<TNodeTemplate> dataChannelNTs = new ArrayList<>();
 
         for (final TRelationshipTemplate relation : ModelUtils.getIngoingRelations(protocolAdapterDerviceNodeTemplate, templateContext.getCsar())) {

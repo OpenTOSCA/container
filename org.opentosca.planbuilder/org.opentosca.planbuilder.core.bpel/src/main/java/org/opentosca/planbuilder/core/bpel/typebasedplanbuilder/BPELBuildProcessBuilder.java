@@ -91,7 +91,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             this.correlationHandler = new CorrelationIDInitializer();
         } catch (final ParserConfigurationException e) {
             LOG.error("Error while initializing BuildPlanHandler", e);
-            throw new PlanbuilderRuntimeException( "Error while initializing BuildPlanHandler", e);
+            throw new PlanbuilderRuntimeException("Error while initializing BuildPlanHandler", e);
         }
         // TODO seems ugly
         this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
@@ -182,7 +182,6 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 newBuildPlan.getBpelMainSequenceOutputAssignElement(),
                 "CREATED", serviceInstanceUrl);
 
-
             this.serviceInstanceInitializer.appendSetServiceInstanceStateAsChild(newBuildPlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBuildPlan), "ERROR", serviceInstanceUrl);
             this.serviceInstanceInitializer.appendSetServiceInstanceStateAsChild(newBuildPlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBuildPlan), "FAILED", this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newBuildPlan));
 
@@ -196,8 +195,6 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 "FINISHED", planInstanceUrlVarName);
 
             this.sitRegistrationPlugin.handle(serviceTemplate, newBuildPlan);
-
-
 
             this.finalizer.finalize(newBuildPlan);
             return newBuildPlan;
@@ -221,7 +218,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
             if (!ModelUtils.hasBuildPlan(serviceTemplate)) {
                 LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan",
-                        serviceTemplate.getId());
+                    serviceTemplate.getId());
                 final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
 
                 if (newBuildPlan != null) {
@@ -231,7 +228,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 }
             } else {
                 LOG.debug("ServiceTemplate {} has BuildPlan, no generation needed",
-                        serviceTemplate.getId());
+                    serviceTemplate.getId());
             }
         }
         if (!plans.isEmpty()) {

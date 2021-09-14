@@ -70,7 +70,7 @@ public class BPELScopeBuilder {
      * @return a possibly empty list of TDeploymentArtifacts
      */
     static List<TDeploymentArtifact> calculateEffectiveDAs(final TNodeTemplate nodeTemplate,
-                                                                  final TNodeTypeImplementation nodeImpl) {
+                                                           final TNodeTypeImplementation nodeImpl) {
         final List<TDeploymentArtifact> effectiveDAs = new ArrayList<>();
 
         final List<TDeploymentArtifact> nodeImplDAs = Lists.newArrayList(nodeImpl.getDeploymentArtifacts());
@@ -530,7 +530,7 @@ public class BPELScopeBuilder {
      * @return AbstractOperation of the NodeTemplate if the given IA implements it, else null
      */
     private TOperation getOperationForIa(final TNodeTemplate nodeTemplate,
-                                                final TImplementationArtifact ia, Csar csar) {
+                                         final TImplementationArtifact ia, Csar csar) {
 
         if (ia.getInterfaceName() != null & ia.getOperationName() == null) {
             return new InterfaceDummy(nodeTemplate, ia, csar);
@@ -554,13 +554,13 @@ public class BPELScopeBuilder {
      * @return AbstractOperation of the RelationshipTemplate if the given IA implements it, else null
      */
     private TOperation getOperationForIa(final TRelationshipTemplate relationshipTemplate,
-                                                final TImplementationArtifact ia, Csar csar) {
+                                         final TImplementationArtifact ia, Csar csar) {
         return getOperationForIa(relationshipTemplate, ia, ia.getOperationName(), csar);
     }
 
     private TOperation getOperationForIa(final TRelationshipTemplate relationshipTemplate,
-                                                final TImplementationArtifact ia,
-                                                final String operationNameFallback, Csar csar) {
+                                         final TImplementationArtifact ia,
+                                         final String operationNameFallback, Csar csar) {
         String name = ia.getOperationName();
         if (name == null) {
             name = operationNameFallback;

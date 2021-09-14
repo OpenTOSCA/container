@@ -317,7 +317,7 @@ public class BPELProcessFragments {
     public Node createEmptySequence(String name) {
         final Document doc = this.docBuilder.newDocument();
         final Element scopeElement = doc.createElementNS(BPELPlan.bpelNamespace, "sequence");
-        scopeElement.setAttribute("name" , name);
+        scopeElement.setAttribute("name", name);
         return scopeElement;
     }
 

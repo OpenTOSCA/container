@@ -184,7 +184,7 @@ public class ChoreographyBuilder {
     }
 
     private Collection<TNodeTemplate> getConnectingChoreographyNodes(final TServiceTemplate serviceTemplate,
-                                                                            final Collection<TNodeTemplate> nodes, Csar csar) {
+                                                                     final Collection<TNodeTemplate> nodes, Csar csar) {
         final Collection<TNodeTemplate> connectingChoregraphyNodes = new HashSet<>();
 
         for (final TNodeTemplate unmanagedNode : nodes) {
@@ -212,7 +212,7 @@ public class ChoreographyBuilder {
     }
 
     private String getChoreographyTag(final TServiceTemplate serviceTemplate) {
-        if(serviceTemplate.getTags() == null){
+        if (serviceTemplate.getTags() == null) {
             return null;
         }
         return serviceTemplate.getTags().stream().filter(x -> x.getName().equals("choreography")).map(x -> x.getValue()).findFirst().orElse(null);
@@ -237,7 +237,7 @@ public class ChoreographyBuilder {
     }
 
     private Collection<TNodeTemplate> getManagedChoreographyNodes(final String choreographyTag,
-                                                                         final Collection<TNodeTemplate> nodeTemplates) {
+                                                                  final Collection<TNodeTemplate> nodeTemplates) {
         final Collection<TNodeTemplate> choreoNodes = new HashSet<>();
         for (final String nodeId : choreographyTag.split(",")) {
             for (final TNodeTemplate node : nodeTemplates) {

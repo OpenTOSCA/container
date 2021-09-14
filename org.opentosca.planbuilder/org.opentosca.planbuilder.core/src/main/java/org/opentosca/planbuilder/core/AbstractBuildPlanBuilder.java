@@ -31,12 +31,6 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder {
 
-    public class PlanbuilderRuntimeException extends RuntimeException {
-        public PlanbuilderRuntimeException (String s, Exception e) {
-            super(s,e);
-        }
-    }
-
     private final static Logger LOG = LoggerFactory.getLogger(AbstractBuildPlanBuilder.class);
 
     public AbstractBuildPlanBuilder(PluginRegistry pluginRegistry) {
@@ -51,7 +45,8 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
         final Set<Link> links = new HashSet<>();
         generatePOGActivitiesAndLinks(activities, links, new HashMap<>(), nodeTemplates, new HashMap<>(),
             relationshipTemplates, csar);
-        return new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) { };
+        return new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) {
+        };
     }
 
     protected static AbstractPlan generatePOG(final String id, final TDefinitions definitions,
@@ -68,12 +63,12 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
             topology.getRelationshipTemplates(), csar);
 
         final AbstractPlan plan =
-            new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) { };
+            new AbstractPlan(id, PlanType.BUILD, definitions, serviceTemplate, activities, links) {
+            };
 
         LOG.debug("Generated the following plan: ");
         LOG.debug(plan.toString());
         return plan;
-
     }
 
     // Generate TOG and POG are too similar and are detected as duplicates.
@@ -117,6 +112,12 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
                     links.add(new Link(activity, sourceActivity));
                 }
             }
+        }
+    }
+
+    public class PlanbuilderRuntimeException extends RuntimeException {
+        public PlanbuilderRuntimeException(String s, Exception e) {
+            super(s, e);
         }
     }
 }

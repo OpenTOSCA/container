@@ -251,7 +251,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} defrost plan for CSAR {}", plans.size(), csar.id().csarName());
+            LOG.info("Created {} defrost plan for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }

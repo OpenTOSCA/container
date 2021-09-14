@@ -203,7 +203,7 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
     }
 
     public TNodeTemplate getDeployableInfrastructureNode(final TNodeTemplate nodeToDeploy,
-                                                                final TDeploymentArtifact da, Csar csar) {
+                                                         final TDeploymentArtifact da, Csar csar) {
         final Collection<TNodeTemplate> infraNodes = new HashSet<>();
         ModelUtils.getInfrastructureNodes(nodeToDeploy, infraNodes, csar);
         for (final TNodeTemplate node : infraNodes) {

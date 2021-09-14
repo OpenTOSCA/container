@@ -1,7 +1,5 @@
 package org.opentosca.planbuilder.type.plugin.connectsto.bpel;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 

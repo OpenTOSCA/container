@@ -1,6 +1,5 @@
 package org.opentosca.planbuilder.core.bpel.context;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -274,7 +273,7 @@ public class BPELPlanContext extends PlanContext {
      */
     public Variable createGlobalStringVariable(final String variableName, final String initVal) {
         final String varName = variableName + "_" + getIdForNames();
-        return this.buildPlanHandler.createGlobalStringVariable(varName,initVal,this.templateBuildPlan.getBuildPlan());
+        return this.buildPlanHandler.createGlobalStringVariable(varName, initVal, this.templateBuildPlan.getBuildPlan());
     }
 
     /**

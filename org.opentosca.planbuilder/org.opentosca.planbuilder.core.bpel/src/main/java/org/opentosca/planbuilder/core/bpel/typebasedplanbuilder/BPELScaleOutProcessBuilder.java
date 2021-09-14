@@ -36,7 +36,6 @@ import org.opentosca.planbuilder.core.bpel.handlers.EmptyPropertyToInputHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.PropertyVariableHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.SimplePlanBuilderServiceInstanceHandler;
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlugin;
@@ -414,7 +413,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
     }
 
     private TNodeTemplate fetchNodeTemplate(final TTopologyTemplate topologyTemplate,
-                                                   final String nodeTemplateId) {
+                                            final String nodeTemplateId) {
         for (final TNodeTemplate nodeTemplate : topologyTemplate.getNodeTemplates()) {
             if (nodeTemplate.getId().equals(nodeTemplateId)) {
                 return nodeTemplate;
@@ -424,7 +423,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
     }
 
     private List<TNodeTemplate> fetchNodeTemplates(final TTopologyTemplate topology,
-                                                          String scalingPlanNodesRawValue) {
+                                                   String scalingPlanNodesRawValue) {
         final List<TNodeTemplate> nodeTemplates = new ArrayList<>();
 
         scalingPlanNodesRawValue = cleanCSVString(scalingPlanNodesRawValue);
@@ -448,7 +447,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
     }
 
     private List<TRelationshipTemplate> fetchRelationshipTemplates(final TTopologyTemplate topology,
-                                                                          String scalingPlanRelationsRawValue) {
+                                                                   String scalingPlanRelationsRawValue) {
         final List<TRelationshipTemplate> relationshipTemplates = new ArrayList<>();
 
         scalingPlanRelationsRawValue = cleanCSVString(scalingPlanRelationsRawValue);
@@ -523,7 +522,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
     }
 
     private List<AnnotatedTNodeTemplate> fetchSelectionStrategy2BorderNodes(final TTopologyTemplate topologyTemplate,
-                                                                                   String selectionStrategyBorderNodesCSV, Csar csar) {
+                                                                            String selectionStrategyBorderNodesCSV, Csar csar) {
 
         selectionStrategyBorderNodesCSV = cleanCSVString(selectionStrategyBorderNodesCSV);
 
@@ -554,7 +553,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
     }
 
     private AnnotatedTNodeTemplate findAnnotNode(final List<AnnotatedTNodeTemplate> annotNodes,
-                                                        final TNodeTemplate node) {
+                                                 final TNodeTemplate node) {
         for (final AnnotatedTNodeTemplate annotNode : annotNodes) {
             if (annotNode.getId().equals(node.getId())) {
                 return annotNode;

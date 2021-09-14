@@ -392,7 +392,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
      * @return an TNodeTemplate with the specified Id, else null
      */
     private TNodeTemplate getNodeTemplate(final TServiceTemplate serviceTemplate,
-                                                 final String templateId) {
+                                          final String templateId) {
         for (final TNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             if (nodeTemplate.getId().equals(templateId)) {
                 return nodeTemplate;

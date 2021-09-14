@@ -94,8 +94,6 @@ public class ModelUtils {
         return null;
     }
 
-
-
     public static boolean hasBuildPlan(TServiceTemplate serviceTemplate) {
         return hasPlansOfType(serviceTemplate, "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan");
     }
@@ -105,7 +103,7 @@ public class ModelUtils {
     }
 
     public static boolean hasPlansOfType(TServiceTemplate serviceTemplate, String planType) {
-        if(serviceTemplate.getPlans() != null){
+        if (serviceTemplate.getPlans() != null) {
             return !serviceTemplate.getPlans().stream().filter(x -> x.getPlanType().equals(planType)).collect(Collectors.toList()).isEmpty();
         } else {
             return false;
@@ -207,7 +205,6 @@ public class ModelUtils {
         qnames.add(artifactTemplate.getType());
 
         TArtifactType type = findArtifactType(artifactTemplate.getType(), artifactTypes);
-
 
         TArtifactType ref = null;
         if (type.getDerivedFrom() != null) {
@@ -384,7 +381,7 @@ public class ModelUtils {
     }
 
     public static TNodeTemplate getSource(TRelationshipTemplate relationshipTemplate, Csar csar) {
-        if(relationshipTemplate.getSourceElement().getRef() instanceof TNodeTemplate) {
+        if (relationshipTemplate.getSourceElement().getRef() instanceof TNodeTemplate) {
             return (TNodeTemplate) relationshipTemplate.getSourceElement().getRef();
         } else {
             return findNodeTemplate((TRequirement) relationshipTemplate.getSourceElement().getRef(), csar);
@@ -392,7 +389,7 @@ public class ModelUtils {
     }
 
     public static TNodeTemplate getTarget(TRelationshipTemplate relationshipTemplate, Csar csar) {
-        if(relationshipTemplate.getTargetElement().getRef() instanceof TNodeTemplate) {
+        if (relationshipTemplate.getTargetElement().getRef() instanceof TNodeTemplate) {
             return (TNodeTemplate) relationshipTemplate.getTargetElement().getRef();
         } else {
             return findNodeTemplate((TCapability) relationshipTemplate.getTargetElement().getRef(), csar);
@@ -628,7 +625,6 @@ public class ModelUtils {
         TNodeType lastFoundNodeType = nodeType;
         while (wasNotNull) {
 
-
             TNodeType referencedNodeType = null;
 
             if (lastFoundNodeType.getDerivedFrom() != null) {
@@ -648,7 +644,7 @@ public class ModelUtils {
     }
 
     public static List<QName> getNodeTypeHierarchy(final QName nodeType, Csar csar) {
-        return getNodeTypeHierarchy(findNodeType(nodeType, csar),csar);
+        return getNodeTypeHierarchy(findNodeType(nodeType, csar), csar);
     }
 
     public static TNodeType findNodeType(TNodeTemplate nodeTemplate, Csar csar) {
@@ -685,7 +681,7 @@ public class ModelUtils {
     }
 
     public static List<TRelationshipTemplate> getOutgoingRelations(final TNodeTemplate nodeTemplate,
-                                                                          final Collection<QName> relationshipTypes, Csar csar) {
+                                                                   final Collection<QName> relationshipTypes, Csar csar) {
         final List<TRelationshipTemplate> relations = new ArrayList<>();
 
         for (final TRelationshipTemplate relation : getOutgoingRelations(nodeTemplate, csar)) {
@@ -749,7 +745,7 @@ public class ModelUtils {
         TRelationshipType lastFoundRelationshipType = relationshipType;
         while (wasNotNull) {
             TRelationshipType referencedRelationshipType = null;
-            if(lastFoundRelationshipType.getDerivedFrom() != null) {
+            if (lastFoundRelationshipType.getDerivedFrom() != null) {
                 referencedRelationshipType = findRelationshipType(lastFoundRelationshipType.getDerivedFrom().getType(), fetchAllRelationshipTypes(csar));
             }
             if (referencedRelationshipType == null) {
@@ -773,7 +769,6 @@ public class ModelUtils {
     public static TRelationshipType findRelationshipType(QName id, Csar csar) {
         return findRelationshipType(id, fetchAllRelationshipTypes(csar));
     }
-
 
     public static TRelationshipType findRelationshipType(QName id, Collection<TRelationshipType> relTypes) {
         return relTypes.stream().filter(x -> x.getQName().equals(id)).findFirst().orElse(null);

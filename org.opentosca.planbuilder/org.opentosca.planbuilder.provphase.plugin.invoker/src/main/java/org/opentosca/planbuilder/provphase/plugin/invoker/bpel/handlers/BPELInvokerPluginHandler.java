@@ -158,7 +158,7 @@ public class BPELInvokerPluginHandler {
     private String findInterfaceForOperation(final BPELPlanContext context, final TOperation operation) {
         List<TInterface> interfaces = null;
         if (context.getNodeTemplate() != null) {
-            interfaces = ModelUtils.findNodeType(context.getNodeTemplate(),context.getCsar()).getInterfaces();
+            interfaces = ModelUtils.findNodeType(context.getNodeTemplate(), context.getCsar()).getInterfaces();
         } else {
             interfaces = ModelUtils.findRelationshipType(context.getRelationshipTemplate(), context.getCsar()).getSourceInterfaces();
             interfaces.addAll(ModelUtils.findRelationshipType(context.getRelationshipTemplate(), context.getCsar()).getTargetInterfaces());
@@ -639,9 +639,9 @@ public class BPELInvokerPluginHandler {
     /**
      * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String variable.
      *
-     * @param assignName          the name of the BPEL assign
-     * @param xpath2Query         the XPath query
-     * @param stringVarName       the variable to load the queries results into
+     * @param assignName    the name of the BPEL assign
+     * @param xpath2Query   the XPath query
+     * @param stringVarName the variable to load the queries results into
      * @return a DOM Node representing a BPEL assign element
      * @throws IOException  is thrown when loading internal bpel fragments fails
      * @throws SAXException is thrown when parsing internal format into DOM fails

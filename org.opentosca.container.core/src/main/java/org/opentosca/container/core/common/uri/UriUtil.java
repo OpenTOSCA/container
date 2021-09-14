@@ -1,6 +1,5 @@
 package org.opentosca.container.core.common.uri;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

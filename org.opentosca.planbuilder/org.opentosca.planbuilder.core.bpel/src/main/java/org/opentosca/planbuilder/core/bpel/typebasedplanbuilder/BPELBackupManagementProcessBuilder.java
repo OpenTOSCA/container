@@ -287,7 +287,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
         }
 
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} backup plans for CSAR {}", plans.size(), csar.id().csarName());
+            LOG.info("Created {} backup plans for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }
@@ -311,8 +311,8 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
                     + Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT
                     + "']/text(),'/servicetemplates/"
                     + URLEncoder.encode(URLEncoder.encode(serviceTemplateId.getNamespaceURI(),
-                        StandardCharsets.UTF_8),
-                        StandardCharsets.UTF_8)
+                    StandardCharsets.UTF_8),
+                    StandardCharsets.UTF_8)
                     + "','/" + serviceTemplateId.getLocalPart()
                     + "','/createnewstatefulversion')");
         assignStatefuleServiceTemplateStorageVar =

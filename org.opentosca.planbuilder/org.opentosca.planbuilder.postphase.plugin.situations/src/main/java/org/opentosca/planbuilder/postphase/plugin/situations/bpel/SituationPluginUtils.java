@@ -128,7 +128,7 @@ public class SituationPluginUtils {
     public static Collection<TPolicy> getSituationPolicies(TNodeTemplate nodeTemplate) {
         Set<TPolicy> policies = new HashSet<TPolicy>();
 
-        if(nodeTemplate.getPolicies() == null) {
+        if (nodeTemplate.getPolicies() == null) {
             return policies;
         }
 

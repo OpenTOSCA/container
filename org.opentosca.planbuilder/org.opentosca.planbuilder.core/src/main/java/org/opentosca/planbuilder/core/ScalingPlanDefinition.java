@@ -2,7 +2,6 @@ package org.opentosca.planbuilder.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -26,11 +25,10 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public class ScalingPlanDefinition {
 
+    private final Csar csar;
     // topology
     public String name;
     public TTopologyTemplate topology;
-    private final Csar csar;
-
     // region
     public List<TNodeTemplate> nodeTemplates;
     public List<TRelationshipTemplate> relationshipTemplates;
@@ -57,7 +55,6 @@ public class ScalingPlanDefinition {
         this.csar = csar;
 
         init();
-
     }
 
     private void init() {
@@ -79,7 +76,7 @@ public class ScalingPlanDefinition {
             types.add(Types.dependsOnRelationType);
             types.add(Types.deployedOnRelationType);
             final List<TRelationshipTemplate> outgoing =
-                ModelUtils.getOutgoingRelations(nodeTemplate, types , csar);
+                ModelUtils.getOutgoingRelations(nodeTemplate, types, csar);
 
             this.nodeTemplatesRecursiveSelection.addAll(sinkNodes);
             this.relationshipTemplatesRecursiveSelection.addAll(outgoing);
@@ -127,7 +124,7 @@ public class ScalingPlanDefinition {
     }
 
     private List<TRelationshipTemplate> getBorderCrossingRelations(final TNodeTemplate nodeTemplate,
-                                                                          final List<TNodeTemplate> nodesToScale, Csar csar) {
+                                                                   final List<TNodeTemplate> nodesToScale, Csar csar) {
         final List<TRelationshipTemplate> borderCrossingRelations = new ArrayList<>();
 
         for (final TRelationshipTemplate relation : ModelUtils.getOutgoingRelations(nodeTemplate, csar)) {
@@ -146,7 +143,7 @@ public class ScalingPlanDefinition {
     }
 
     private TNodeTemplate crossesBorder(final TRelationshipTemplate relationship,
-                                               final List<TNodeTemplate> nodesToScale, Csar csar) {
+                                        final List<TNodeTemplate> nodesToScale, Csar csar) {
 
         final TNodeTemplate source = ModelUtils.getSource(relationship, csar);
         final TNodeTemplate target = ModelUtils.getTarget(relationship, csar);
@@ -180,7 +177,7 @@ public class ScalingPlanDefinition {
         private final TNodeTemplate nodeTemplate;
 
         public AnnotatedTNodeTemplate(final TNodeTemplate nodeTemplate,
-                                             final Collection<String> annotations) {
+                                      final Collection<String> annotations) {
             this.annotations = annotations;
             this.nodeTemplate = nodeTemplate;
         }
@@ -204,7 +201,7 @@ public class ScalingPlanDefinition {
             return this.nodeTemplate.getId();
         }
 
-            @Override
+        @Override
         public String getId() {
             return this.nodeTemplate.getId();
         }

@@ -10,12 +10,10 @@ import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
-import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
-import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.container.core.common.NotFoundException;
@@ -24,7 +22,6 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
-import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.service.CsarStorageService;

@@ -219,7 +219,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} freeze plan for CSAR {}", plans.size(), csar.id().csarName());
+            LOG.info("Created {} freeze plan for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }
@@ -332,9 +332,9 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
      * This Methods Finds out if a Service Template Container a freeze method and then creats a freeze plan out of this
      * method
      *
-     * @param plan     the plan to execute the plugins on*
-     * @param propMap  a PropertyMapping from NodeTemplate to Properties to BPELVariables
-     * @param csar the csar in the context
+     * @param plan    the plan to execute the plugins on*
+     * @param propMap a PropertyMapping from NodeTemplate to Properties to BPELVariables
+     * @param csar    the csar in the context
      */
     private List<BPELScope> runPlugins(final BPELPlan plan, final Property2VariableMapping propMap,
                                        final Csar csar) {

@@ -36,8 +36,7 @@ public class PropertyVariableHandler {
     /**
      * Constructor
      *
-     * @param planHandler     a BuildPlanHandler for the class
-     *
+     * @param planHandler a BuildPlanHandler for the class
      */
     public PropertyVariableHandler(final BPELPlanHandler planHandler) {
         this.planHandler = planHandler;

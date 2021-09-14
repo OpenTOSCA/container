@@ -1,13 +1,9 @@
 package org.opentosca.planbuilder.type.plugin.connectsto.bpel.handler;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -17,7 +13,6 @@ import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
-import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
@@ -28,10 +23,6 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.handler.ConnectsToPluginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 /**
  * Copyright 2016 IAAS University of Stuttgart <br>
@@ -126,10 +117,10 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
      * @return the Map which contains all found input parameters
      */
     private Map<TParameter, Variable> findInputParameters(final BPELPlanContext templateContext,
-                                                                 final TOperation connectsToOp,
-                                                                 final TNodeTemplate connectToNode,
-                                                                 final TNodeTemplate sourceParameterNode,
-                                                                 final TNodeTemplate targetParameterNode) {
+                                                          final TOperation connectsToOp,
+                                                          final TNodeTemplate connectToNode,
+                                                          final TNodeTemplate sourceParameterNode,
+                                                          final TNodeTemplate targetParameterNode) {
         final Map<TParameter, Variable> param2propertyMapping = new HashMap<>();
 
         // search on the opposite side of the connectToNode NodeTemplate for default parameters

@@ -17,7 +17,6 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
-import com.google.common.collect.Lists;
 import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.request.CreateRelationshipTemplateInstanceRequest;
@@ -192,11 +191,11 @@ public class InstanceService {
     }
 
     public ServiceTemplateInstance createServiceTemplateInstance(final String csarId, final String serviceTemplateName) throws InstantiationException, IllegalAccessException, IllegalArgumentException {
-    	final CsarId csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateName);
-    	final Document propertiesAsDoc =
-                createServiceInstanceInitialPropertiesFromServiceTemplate(csar, serviceTemplateName);
+        final CsarId csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateName);
+        final Document propertiesAsDoc =
+            createServiceInstanceInitialPropertiesFromServiceTemplate(csar, serviceTemplateName);
         final ServiceTemplateInstanceProperty property =
-                convertDocumentToProperty(propertiesAsDoc, ServiceTemplateInstanceProperty.class);
+            convertDocumentToProperty(propertiesAsDoc, ServiceTemplateInstanceProperty.class);
 
         final ServiceTemplateInstance instance = new ServiceTemplateInstance();
         instance.setCsarId(csar);

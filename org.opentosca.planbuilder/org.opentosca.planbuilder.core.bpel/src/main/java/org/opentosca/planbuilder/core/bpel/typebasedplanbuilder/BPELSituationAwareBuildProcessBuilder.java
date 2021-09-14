@@ -19,18 +19,13 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
-import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
-import org.opentosca.planbuilder.core.bpel.handlers.EmptyPropertyToInputHandler;
-import org.opentosca.planbuilder.core.bpel.handlers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.PropertyVariableHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.ServiceTemplateBoundaryPropertyMappingsToOutputHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.SimplePlanBuilderServiceInstanceHandler;
-import org.opentosca.planbuilder.core.bpel.handlers.SituationTriggerRegistration;
-import org.opentosca.planbuilder.core.bpel.typebasednodehandler.BPELPluginHandler;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
@@ -229,7 +224,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} situation-aware build plans for CSAR {}", plans.size(), csar.id().csarName());
+            LOG.info("Created {} situation-aware build plans for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }
@@ -251,13 +246,13 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
         Map<TNodeTemplate, Collection<TPolicy>> nodeToPolicies =
             new HashMap<TNodeTemplate, Collection<TPolicy>>();
 
-        if (serviceTemplate.getTopologyTemplate()  == null) {
+        if (serviceTemplate.getTopologyTemplate() == null) {
             return nodeToPolicies;
         }
 
         for (TNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             Collection<TPolicy> situationPolicies = new HashSet<TPolicy>();
-            if(nodeTemplate.getPolicies() != null) {
+            if (nodeTemplate.getPolicies() != null) {
                 for (TPolicy policy : nodeTemplate.getPolicies()) {
                     if (policy.getPolicyType().equals(new QName("http://opentosca.org/servicetemplates/policytypes",
                         "SituationPolicy_w1-wip1"))) {

@@ -4,22 +4,16 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.eclipse.winery.model.tosca.TInterface;
-import org.eclipse.winery.model.tosca.TOperation;
-
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
-import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

@@ -23,7 +23,6 @@ import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
 import org.opentosca.planbuilder.core.bpel.handlers.EmptyPropertyToInputHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.PropertyVariableHandler;
-import org.opentosca.planbuilder.core.bpel.handlers.ServiceTemplateBoundaryPropertyMappingsToOutputHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.core.bpel.typebasednodehandler.BPELPluginHandler;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
@@ -83,7 +82,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
      * current state of nodes and relations (sourceNodeTemplates and -RelationshipTemplates) to a target configuration
      * (targetNodeTemplates and -RelationshipTemplates).
      *
-     * @param csar                    the csar
+     * @param csar                        the csar
      * @param definitions                 the definitions document of th service template
      * @param serviceTemplateId           the id of the serviceTemplate to adapt its service instance
      * @param sourceNodeTemplates         the nodeTemplates to adapt from
