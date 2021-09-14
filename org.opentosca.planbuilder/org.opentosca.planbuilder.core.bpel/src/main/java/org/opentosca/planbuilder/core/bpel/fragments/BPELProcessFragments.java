@@ -215,27 +215,6 @@ public class BPELProcessFragments {
     }
 
     /**
-     * Create a BPEL assign that copies the NodeInstanceURL from a NodeInstances Query (See {@link
-     * #createRESTExtensionGETForNodeInstanceDataAsNode(String, String, String, String)}
-     *
-     * @param assignName                  the name of the assign
-     * @param stringVarName               the name of the xsd:string variable to write the NodeInstanceId into
-     * @param nodeInstanceResponseVarName the instanceDataAPI response to fetch the NodeInstanceId from
-     * @return a String containing a BPEL assign activity
-     * @throws IOException is thrown when reading internal files fails
-     */
-    public String createAssign2FetchNodeInstanceIDFromInstanceDataAPIResponseAsString(final String assignName,
-                                                                                      final String stringVarName,
-                                                                                      final String nodeInstanceResponseVarName) throws IOException {
-        // <!-- $assignName, $stringVarName, $NodeInstanceResponseVarName -->
-        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BpelAssignFromNodeInstanceRequestToStringVar.xml"));
-        template = template.replace("$assignName", assignName);
-        template = template.replace("$stringVarName", stringVarName);
-        template = template.replace("$NodeInstanceResponseVarName", nodeInstanceResponseVarName);
-        return template;
-    }
-
-    /**
      * Creates a BPEL assign activity that reads the property values from a NodeInstance Property response and sets the
      * given variables
      *
@@ -427,17 +406,6 @@ public class BPELProcessFragments {
         return template;
     }
 
-    public String createBPEL4RESTLightNodeInstancesGETAsString(final String nodeTemplateId,
-                                                               final String serviceInstanceIdVarName,
-                                                               final String responseVarName) throws IOException {
-        // <!-- $serviceInstanceURLVar, $nodeTemplateId, $ResponseVarName -->
-        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightGET_NodeInstances_InstanceDataAPI.xml"));
-        template = template.replace("$serviceInstanceURLVar", serviceInstanceIdVarName);
-        template = template.replace("$ResponseVarName", responseVarName);
-        template = template.replace("$nodeTemplateId", nodeTemplateId);
-        return template;
-    }
-
     public String createBPEL4RESTLightPlanInstanceLOGsPOST(final String urlVarName,
                                                            final String stringVarNameWithLogContent,
                                                            final String unassignedLogReqMessage) throws IOException {
@@ -474,17 +442,6 @@ public class BPELProcessFragments {
         return this.transformStringToNode(templateString);
     }
 
-    public String createBPEL4RESTLightRelationInstancesGETAsString(final String relationshipTemplateId,
-                                                                   final String serviceInstanceIdVarName,
-                                                                   final String responseVarName) throws IOException {
-        // <!-- $serviceInstanceURLVar, $nodeTemplateId, $ResponseVarName -->
-        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightGET_RelationInstances_InstanceDataAPI.xml"));
-        template = template.replace("$serviceInstanceURLVar", serviceInstanceIdVarName);
-        template = template.replace("$ResponseVarName", responseVarName);
-        template = template.replace("relationshipTemplateId", relationshipTemplateId);
-        return template;
-    }
-
     public Node createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsNode(final String serviceInstanceIdVarName,
                                                                                       final String relationshipTemplateId,
                                                                                       final String responseVarName,
@@ -516,22 +473,6 @@ public class BPELProcessFragments {
         template = template.replace("$relationshipTemplateId", relationshipTemplateId);
         template = template.replace("$ResponseVarName", responseVarName);
         template = template.replace("$nodeInstanceIdVarName", nodeInstanceIdVarName);
-        return template;
-    }
-
-    /**
-     * Creates a BPEL4RESTLight DELETE Activity with the given BPELVar as Url to request on.
-     *
-     * @param bpelVarName     the variable containing an URL
-     * @param responseVarName the variable to hold the response
-     * @return a String containing a BPEL4RESTLight Activity
-     * @throws IOException is thrown when reading internal files fails
-     */
-    public String createRESTDeleteOnURLBPELVarAsString(final String bpelVarName,
-                                                       final String responseVarName) throws IOException {
-        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightDELETE.xml"));
-        template = template.replace("$urlVarName", bpelVarName);
-        template = template.replace("$ResponseVarName", responseVarName);
         return template;
     }
 
@@ -737,34 +678,6 @@ public class BPELProcessFragments {
                                                      final String reponseVarName, final String statusCodeVarName) throws IOException, SAXException {
         final String templateString = generateBPEL4RESTLightGETonURL(urlVarName, reponseVarName, statusCodeVarName);
         return this.transformStringToNode(templateString);
-    }
-
-    /**
-     * Generates a BPEL POST at the given InstanceDataAPI with the given ServiceTemplate id to create a Service
-     * Instance
-     *
-     * @param instanceDataAPIUrlVariableName the name of the variable holding the address to the instanceDataAPI
-     * @param csarId                         the name of the csar the serviceTemplate belongs to
-     * @param serviceTemplateId              the id of the serviceTemplate
-     * @param responseVariableName           a name of an anyType variable to save the response into
-     * @return a String containing a BPEL4RESTLight POST extension activity
-     * @throws IOException is thrown when reading internal files fail
-     */
-    public String generateBPEL4RESTLightServiceInstancePOST(final String instanceDataAPIUrlVariableName,
-                                                            final String csarId, final QName serviceTemplateId,
-                                                            final String responseVariableName) throws IOException {
-        // tags in xml snippet: $InstanceDataURLVar, $CSARName,
-        // $serviceTemplateId, $ResponseVarName
-
-        String bpel4RestString =
-            ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI_WithBody.xml"));
-
-        bpel4RestString = bpel4RestString.replace("$InstanceDataURLVar", instanceDataAPIUrlVariableName);
-        bpel4RestString = bpel4RestString.replace("$CSARName", csarId);
-        bpel4RestString = bpel4RestString.replace("$serviceTemplateId", serviceTemplateId.toString());
-        bpel4RestString = bpel4RestString.replace("$ResponseVarName", responseVariableName);
-
-        return bpel4RestString;
     }
 
     public Path getOpenTOSCAAPISchemaFile() throws IOException {

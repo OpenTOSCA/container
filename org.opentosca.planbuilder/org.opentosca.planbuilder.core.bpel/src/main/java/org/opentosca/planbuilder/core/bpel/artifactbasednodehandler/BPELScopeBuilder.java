@@ -343,7 +343,6 @@ public class BPELScopeBuilder {
         // accordingly
         final List<OperationNodeTypeImplCandidate> reorderedList = new ArrayList<>();
         for (final IANodeTypeImplCandidate iaCandidate : chain.iaCandidates) {
-            final int iaCandidateSize = iaCandidate.ias.size();
             for (final OperationNodeTypeImplCandidate provCandidate : chain.provCandidates) {
                 for (final TImplementationArtifact iaCandidateIa : iaCandidate.ias) {
                     for (final TImplementationArtifact provCandidateIa : provCandidate.ias) {
@@ -357,34 +356,6 @@ public class BPELScopeBuilder {
         }
 
         chain.provCandidates = reorderedList;
-    }
-
-    /**
-     * Filters IA and ProvCandidates which aren't generated from the same Template Implementation
-     *
-     * @param chain a ProvisioningChain
-     */
-    private void filterIADACandidatesRelations(final OperationChain chain) {
-        if (chain.provCandidates.size() != chain.iaCandidates.size()) {
-            final List<IANodeTypeImplCandidate> iaCandidatesToRemove = new ArrayList<>();
-            final Set<OperationNodeTypeImplCandidate> provCandidatesWithMatch = new HashSet<>();
-            searchIaDaCandidatesWithNoOperation(chain, iaCandidatesToRemove, provCandidatesWithMatch);
-
-            if (!iaCandidatesToRemove.isEmpty()) {
-                // we need to remove ia and da candidates accordingly, because
-                // we didn't found matchin operation candidates for them
-                for (final IANodeTypeImplCandidate iaCandidateToRemove : iaCandidatesToRemove) {
-                    chain.iaCandidates.remove(iaCandidateToRemove);
-                }
-            }
-
-            if (!provCandidatesWithMatch.isEmpty()) {
-                // remove all prov candidates which weren't matched to some ia
-                // candidate
-                chain.provCandidates = new ArrayList<>();
-                chain.provCandidates.addAll(provCandidatesWithMatch);
-            }
-        }
     }
 
     private void searchIaDaCandidatesWithNoOperation(OperationChain chain, List<IANodeTypeImplCandidate> iaCandidatesToRemove, Set<OperationNodeTypeImplCandidate> provCandidatesWithMatch) {
@@ -754,73 +725,6 @@ public class BPELScopeBuilder {
                 LOG.debug("IA Candidate is valid, adding to candidate list");
             } else {
                 LOG.debug("IA Candidate is invalid, discarding candidate");
-            }
-        }
-        chain.iaCandidates = candidates;
-    }
-
-    /**
-     * Checks whether the IA implements a SourceInterfaceOperation
-     *
-     * @param ia                   the IA to check with
-     * @param relationshipTemplate the RelationshipTemplate to check with
-     * @return true if the IA implements a Operation inside a SourceInterface of the RelationshipTemplate
-     */
-    private boolean checkIfIaImplementsSrcIface(final TImplementationArtifact ia,
-                                                final TRelationshipTemplate relationshipTemplate, Csar csar) {
-
-        for (final TInterface iface : ModelUtils.findRelationshipType(relationshipTemplate, csar).getSourceInterfaces()) {
-            if (iface.getName().equals(ia.getInterfaceName())) {
-                for (final TOperation op : iface.getOperations()) {
-                    if (op.getName().equals(ia.getOperationName())) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Calculates correct mappings for the given RelationshipTypeImplementations with the given Plugins and InfraNodes
-     *
-     * @param impls      a List of RelationshipTypeImplementation
-     * @param plugins    a List of PrePhaseIAPlugins
-     * @param infraNodes a List of InfrastructureNodes which belong to the RelationshipTemplate the given Implementation
-     *                   belong to
-     * @param chain      a ProvisioningChain to save the results
-     * @param forSource  whether the calculation is done for the SourceInterface or for the TargetInterface
-     */
-    private void calculateBestImplementationRelationIACandidates(BPELPlanContext context, final Collection<TRelationshipTypeImplementation> impls,
-                                                                 final Collection<IPlanBuilderPrePhaseIAPlugin<BPELPlanContext>> plugins,
-                                                                 final Collection<TNodeTemplate> infraNodes,
-                                                                 final OperationChain chain,
-                                                                 final boolean forSource) {
-        final List<IANodeTypeImplCandidate> candidates = new ArrayList<>();
-        for (final TRelationshipTypeImplementation impl : impls) {
-            final IANodeTypeImplCandidate candidate = new IANodeTypeImplCandidate(impl);
-            for (final TImplementationArtifact ia : impl.getImplementationArtifacts()) {
-                if (forSource) {
-                    // check if ia implements source interfaces
-                    if (!checkIfIaImplementsSrcIface(ia, chain.relationshipTemplate, context.getCsar())) {
-                        continue;
-                    }
-                } else {
-                    if (checkIfIaImplementsSrcIface(ia, chain.relationshipTemplate, context.getCsar())) {
-                        continue;
-                    }
-                }
-
-                for (final TNodeTemplate infraNode : infraNodes) {
-                    for (final IPlanBuilderPrePhaseIAPlugin<BPELPlanContext> plugin : plugins) {
-                        if (plugin.canHandle(context, ia, ModelUtils.findNodeType(infraNode, context.getCsar()))) {
-                            candidate.add(ia, infraNode, plugin);
-                        }
-                    }
-                }
-            }
-            if (candidate.isValid()) {
-                candidates.add(candidate);
             }
         }
         chain.iaCandidates = candidates;

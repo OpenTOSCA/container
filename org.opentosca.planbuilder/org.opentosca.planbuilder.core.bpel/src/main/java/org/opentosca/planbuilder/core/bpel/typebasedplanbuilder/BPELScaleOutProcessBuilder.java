@@ -131,7 +131,6 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         if (relationshipTemplate == null) {
             return;
         }
-        final PlanContext relationContext = this.createContext(relationshipTemplate, plan, map, csar);
         final String relationInstanceVarName =
             this.instanceInitializer.findInstanceUrlVarName(plan, serviceTemplate, relationshipTemplate.getId(), false);
 
@@ -189,13 +188,9 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             this.instanceInitializer.findInstanceUrlVarName(plan, serviceTemplate, relationshipTemplate.getId(), false);
 
         // fetch nodeInstance variable of source node template
-        final PlanContext nodeContext =
-            this.createContext(ModelUtils.getTarget(relationshipTemplate, csar), plan, map, csar);
         final String nodeTemplateInstanceVarName =
             this.instanceInitializer.findInstanceUrlVarName(plan, serviceTemplate,
                 ModelUtils.getTarget(relationshipTemplate, csar).getId(), true);
-
-        final String serviceInstanceIdVarName = this.serviceInstanceHandler.getServiceTemplateURLVariableName(plan);
 
         final String serviceTemplateUrlVarName = serviceInstanceHandler.getServiceTemplateURLVariableName(plan);
 
@@ -536,8 +531,6 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
         final Map<String, String> selectionStrategyBorderNodesMap =
             transformSelectionStrategyListToMap(selectionStrategyBorderNodes);
-
-        final Map<String, TNodeTemplate> selectionStrategyNodeTemplatesMap = new HashMap<>();
 
         final List<AnnotatedTNodeTemplate> annotNodes = new ArrayList<>();
 

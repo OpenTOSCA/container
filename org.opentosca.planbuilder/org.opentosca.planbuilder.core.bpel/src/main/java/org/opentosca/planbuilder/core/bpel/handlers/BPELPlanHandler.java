@@ -356,23 +356,6 @@ public class BPELPlanHandler {
     }
 
     /**
-     * Adds a partnerLinkType which only has one portType (e.g. syncronous)
-     *
-     * @param partnerLinkTypeName the name for the partnerLinkType
-     * @param roleName            the roleName of the Process
-     * @param portType            the PortType used in the PartnerLink
-     * @param buildPlan           the BuildPlan to add the PartnerLinkType to
-     * @return true if adding partnerLink was successful, else false
-     */
-    public boolean addPartnerLinkType(final String partnerLinkTypeName, final String roleName, final QName portType,
-                                      final BPELPlan buildPlan) {
-        BPELPlanHandler.LOG.debug("Trying to add partnerLinkType {} with roleName {} and portType {} to BuildPlan {}",
-            partnerLinkTypeName, roleName, portType.toString(),
-            buildPlan.getBpelProcessElement().getAttribute("name"));
-        return buildPlan.getWsdl().addPartnerLinkType(partnerLinkTypeName, roleName, portType);
-    }
-
-    /**
      * Adds a partnerLinkType which has to PortType (e.g. asynchronous callback)
      *
      * @param partnerLinkTypeName the name for the partnerLinkType

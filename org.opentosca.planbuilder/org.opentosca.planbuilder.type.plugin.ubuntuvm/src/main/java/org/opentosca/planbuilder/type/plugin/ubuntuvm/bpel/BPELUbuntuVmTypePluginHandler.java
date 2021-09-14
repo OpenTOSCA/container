@@ -157,29 +157,6 @@ public class BPELUbuntuVmTypePluginHandler {
     }
 
     /**
-     * Search from the given NodeTemplate for an Docker Engine NodeTemplate
-     *
-     * @param nodeTemplate an TNodeTemplate
-     * @return an Docker Engine NodeTemplate, may be null
-     */
-    private TNodeTemplate findDockerEngineNode(final TNodeTemplate nodeTemplate, Csar csar) {
-        // check if the given node is the docker engine node
-        if (org.opentosca.container.core.convention.Utils.isSupportedDockerEngineNodeType(nodeTemplate.getType())) {
-            return nodeTemplate;
-        }
-
-        // check if the given node is connected to an docker engine node
-        for (final TRelationshipTemplate relationTemplate : ModelUtils.getOutgoingRelations(nodeTemplate, csar)) {
-            TNodeTemplate target = ModelUtils.getTarget(relationTemplate, csar);
-            if (org.opentosca.container.core.convention.Utils.isSupportedDockerEngineNodeType(target.getType())) {
-                return target;
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * Search from the given NodeTemplate for an Ubuntu NodeTemplate
      *
      * @param nodeTemplate an TNodeTemplate

@@ -44,17 +44,15 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
     private final static Logger LOG = LoggerFactory.getLogger(BPELConnectsToPluginHandler.class);
 
     private final DocumentBuilderFactory docFactory;
-    private final DocumentBuilder docBuilder;
 
     /**
      * Constructor
      *
      * @throws ParserConfigurationException is thrown when initializing the DOM Parsers fails
      */
-    public BPELConnectsToPluginHandler() throws ParserConfigurationException {
+    public BPELConnectsToPluginHandler() {
         this.docFactory = DocumentBuilderFactory.newInstance();
         this.docFactory.setNamespaceAware(true);
-        this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
     /**
@@ -316,27 +314,6 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
     private boolean hasOperation(final TNodeTemplate nodeTemplate, final String operationName, Csar csar) {
         return ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces().stream().flatMap(inter -> inter.getOperations().stream())
             .filter(op -> op.getName().equals(operationName)).findFirst().isPresent();
-    }
-
-    /**
-     * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String variable.
-     *
-     * @param assignName    the name of the BPEL assign
-     * @param xpath2Query   the csarEntryPoint XPath query
-     * @param stringVarName the variable to load the queries results into
-     * @return a String containing a BPEL Assign element
-     * @throws IOException is thrown when reading the BPEL fragment form the resources fails
-     */
-    public String loadAssignXpathQueryToStringVarFragmentAsString(final String assignName, final String xpath2Query,
-                                                                  final String stringVarName) throws IOException {
-        // <!-- {AssignName},{xpath2query}, {stringVarName} -->
-        final URL url = getClass().getClassLoader()
-            .getResource("connectsto-plugin/assignStringVarWithXpath2Query.xml");
-        String template = ResourceAccess.readResourceAsString(url);
-        template = template.replace("{AssignName}", assignName);
-        template = template.replace("{xpath2query}", xpath2Query);
-        template = template.replace("{stringVarName}", stringVarName);
-        return template;
     }
 
     /**

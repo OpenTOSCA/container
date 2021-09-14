@@ -55,16 +55,11 @@ public class BPELAnsibleOperationPluginHandler {
     private final BPELInvokerPlugin invokerPlugin = new BPELInvokerPlugin();
 
     private DocumentBuilderFactory docFactory;
-    private DocumentBuilder docBuilder;
 
     public BPELAnsibleOperationPluginHandler() {
-        try {
+
             this.docFactory = DocumentBuilderFactory.newInstance();
             this.docFactory.setNamespaceAware(true);
-            this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        } catch (final ParserConfigurationException e) {
-            e.printStackTrace();
-        }
     }
 
     private Variable appendBPELAssignOperationShScript(final BPELPlanContext templateContext,
@@ -432,25 +427,5 @@ public class BPELAnsibleOperationPluginHandler {
             }
         }
         return false;
-    }
-
-    /**
-     * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String variable.
-     *
-     * @param assignName    the name of the BPEL assign
-     * @param xpath2Query   the csarEntryPoint XPath query
-     * @param stringVarName the variable to load the queries results into
-     * @return a String containing a BPEL Assign element
-     * @throws IOException is thrown when reading the BPEL fragment form the resources fails
-     */
-    public String loadAssignXpathQueryToStringVarFragmentAsString(final String assignName, final String xpath2Query,
-                                                                  final String stringVarName) throws IOException {
-        // <!-- {AssignName},{xpath2query}, {stringVarName} -->
-        final URL url = getClass().getClassLoader().getResource("invoker-plugin/assignStringVarWithXpath2Query.xml");
-        String template = ResourceAccess.readResourceAsString(url);
-        template = template.replace("{AssignName}", assignName);
-        template = template.replace("{xpath2query}", xpath2Query);
-        template = template.replace("{stringVarName}", stringVarName);
-        return template;
     }
 }

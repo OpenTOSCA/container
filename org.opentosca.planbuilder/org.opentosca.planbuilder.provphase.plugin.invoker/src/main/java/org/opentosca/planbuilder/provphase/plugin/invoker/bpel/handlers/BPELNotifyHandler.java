@@ -11,10 +11,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
-import org.eclipse.winery.model.tosca.TOperation;
-import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TTag;
 
@@ -477,18 +474,6 @@ public class BPELNotifyHandler extends PluginHandler {
         return true;
     }
 
-    public Collection<TParameter> getAllOperationParameters(final BPELPlanContext context) {
-        final Collection<TParameter> parameters = new HashSet<>();
-        if (context.isNodeTemplate()) {
-            for (final TInterface iface : ModelUtils.findNodeType(context.getNodeTemplate(), context.getCsar()).getInterfaces()) {
-                for (final TOperation op : iface.getOperations()) {
-                    parameters.addAll(op.getInputParameters());
-                }
-            }
-        }
-        return parameters;
-    }
-
     public Collection<PropertyVariable> getPartnerPropertyVariables(final BPELPlanContext context) {
         final List<TNodeTemplate> nodes = new ArrayList<>();
         final Collection<PropertyVariable> props = new HashSet<>();
@@ -543,22 +528,5 @@ public class BPELNotifyHandler extends PluginHandler {
             }
         }
         return null;
-    }
-
-    public Map<String, PropertyVariable> matchOperationParamertsToProperties(final BPELPlanContext context) {
-        final Map<String, PropertyVariable> params = new HashMap<>();
-
-        // TODO/FIXME right now we match all operation params against the available properties and send them
-        // over, maybe too much ?
-        final Collection<TParameter> parameters = getAllOperationParameters(context);
-
-        // try to match param against a property and add it to the input of the notify call
-        for (final TParameter param : parameters) {
-            final PropertyVariable propVar = context.getPropertyVariable(param.getName());
-            if (propVar != null) {
-                params.put(propVar.getNodeTemplate().getId() + "_" + propVar.getPropertyName(), propVar);
-            }
-        }
-        return params;
     }
 }
