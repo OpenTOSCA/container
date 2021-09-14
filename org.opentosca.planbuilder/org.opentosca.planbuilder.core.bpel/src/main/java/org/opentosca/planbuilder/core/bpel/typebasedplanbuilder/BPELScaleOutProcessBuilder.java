@@ -260,12 +260,14 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         // tags
 
         final Collection<TTag> tags = serviceTemplate.getTags();
-        final Map<String, String> tagMap = new HashMap<>();
-        tags.forEach(x -> tagMap.put(x.getName(), x.getValue()));
 
-        if (tags.stream().filter(x -> x.getName().equals("scalingplans")).findFirst().orElse(null) == null) {
+
+        if (tags == null || tags.stream().filter(x -> x.getName().equals("scalingplans")).findFirst().orElse(null) == null) {
             return scalingPlans;
         }
+
+        final Map<String, String> tagMap = new HashMap<>();
+        tags.forEach(x -> tagMap.put(x.getName(), x.getValue()));
 
         final List<ScalingPlanDefinition> scalingPlanDefinitions =
             fetchScalingPlansDefinitions(serviceTemplate.getTopologyTemplate(), tagMap, csar);
