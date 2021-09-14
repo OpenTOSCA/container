@@ -5,13 +5,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.namespace.QName;
+import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import com.google.common.collect.Sets;
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
@@ -22,12 +27,6 @@ import org.opentosca.planbuilder.model.plan.AbstractTransformationPlan;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,54 +45,16 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         super(pluginRegistry);
     }
 
-    @Override
-    public PlanType createdPlanType() {
-        return PlanType.MANAGEMENT;
-    }
+    public AbstractTransformationPlan generateTFOG(Csar sourceCsar, TDefinitions sourceDefinitions,
+                                                   TServiceTemplate sourceServiceTemplate,
+                                                   Collection<TNodeTemplate> sourceNodeTemplates,
+                                                   Collection<TRelationshipTemplate> sourceRelationshipTemplates,
+                                                   Csar targetCsar, TDefinitions targetDefinitions,
+                                                   TServiceTemplate targetServiceTemplate,
+                                                   Collection<TNodeTemplate> targetNodeTemplates,
+                                                   Collection<TRelationshipTemplate> targetRelationshipTemplates, String idSuffix) {
 
-    /**
-     * <p>
-     * Creates a BuildPlan in WS-BPEL 2.0 by using the the referenced source and target service templates as the
-     * transforming function between two models.
-     * </p>
-     *
-     * @param sourceCsarName          the name of the source csar
-     * @param sourceDefinitions       the id of the source definitions inside the referenced source csar
-     * @param sourceServiceTemplateId the id of the source service templates inside the referenced definitions
-     * @param targetCsarName          the name of the target csar
-     * @param targetDefinitions       the id of the target definitions inside the referenced target csar
-     * @param targetServiceTemplateId the id of the target service templates inside the referenced definitions
-     * @return a single AbstractPlan with a concrete implementation of a transformation function from the source to the
-     * target topology
-     */
-    abstract public AbstractPlan buildPlan(String sourceCsarName, AbstractDefinitions sourceDefinitions,
-                                           QName sourceServiceTemplateId, String targetCsarName,
-                                           AbstractDefinitions targetDefinitions, QName targetServiceTemplateId);
-
-    /**
-     * Generates a Set of Plans that is generated based on the given source and target definitions. This generation is
-     * done for each Topology Template defined in both definitions therefore for each combination of source and target
-     * topology template a plan is generated
-     *
-     * @param sourceCsarName    the name of the source csar
-     * @param sourceDefinitions the id of the source definitions inside the referenced source csar
-     * @param targetCsarName    the name of the target csar
-     * @param targetDefinitions the id of the target definitions inside the referenced target csar
-     * @return a List of AbstractPlans
-     */
-    abstract public List<AbstractPlan> buildPlans(String sourceCsarName, AbstractDefinitions sourceDefinitions,
-                                                  String targetCsarName, AbstractDefinitions targetDefinitions);
-
-    public AbstractTransformationPlan generateTFOG(String sourceCsarName, AbstractDefinitions sourceDefinitions,
-                                                   AbstractServiceTemplate sourceServiceTemplate,
-                                                   Collection<AbstractNodeTemplate> sourceNodeTemplates,
-                                                   Collection<AbstractRelationshipTemplate> sourceRelationshipTemplates,
-                                                   String targetCsarName, AbstractDefinitions targetDefinitions,
-                                                   AbstractServiceTemplate targetServiceTemplate,
-                                                   Collection<AbstractNodeTemplate> targetNodeTemplates,
-                                                   Collection<AbstractRelationshipTemplate> targetRelationshipTemplates, String idSuffix) {
-
-        Set<AbstractNodeTemplate> maxCommonSubgraph =
+        Set<TNodeTemplate> maxCommonSubgraph =
             this.getMaxCommonSubgraph(new HashSet<>(sourceNodeTemplates),
                 new HashSet<>(sourceNodeTemplates),
                 new HashSet<>(targetNodeTemplates),
@@ -103,34 +64,45 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         // any component that is a platform node (every node without outgoing
         // hostedOn edges), or is a node in the subgraph where its (transitive) platform
         // nodes are also in the subgraph are valid
-        Set<AbstractNodeTemplate> deployableMaxCommonSubgraph = this.getDeployableSubgraph(new HashSet<>(this.getCorrespondingNodes(maxCommonSubgraph, targetNodeTemplates)));
+        Set<TNodeTemplate> deployableMaxCommonSubgraph = this.getDeployableSubgraph(new HashSet<>(this.getCorrespondingNodes(maxCommonSubgraph, targetNodeTemplates)), sourceCsar, targetCsar);
 
         // determine steps which have to be deleted from the original topology
-        Set<AbstractNodeTemplate> nodesToTerminate = new HashSet<>(sourceNodeTemplates);
-        nodesToTerminate.removeAll(deployableMaxCommonSubgraph);
-        Collection<AbstractRelationshipTemplate> relationsToTerminate = this.getOutgoingRelations(nodesToTerminate);
+        Set<TNodeTemplate> nodesToTerminate = new HashSet<>(sourceNodeTemplates);
+        nodesToTerminate = this.removeNodesFromList(nodesToTerminate, deployableMaxCommonSubgraph);
+
+        // Set<TNodeTemplate> undeployableMaxCommonSubgraph = this.getDeployableSubgraph(nodesToTerminate, sourceCsar, targetCsar);
+        // For each node in nodesToTerminate - undeployablemaxCommonSubgraph we should add recursive instance selection
+        //  OR
+        //  We migrate the nodes first and terminate the nodes
+        // OR which is now implemented, we load all properties of to be migrated and terminated nodes
+        // However: That could be problematic if we handle multiple instances of the same node template
+        // Reason:
+        // we can't terminate node which rely on underlying nodes (hostindOn relations) as we often need props from these (e.g. DockerEngineURL) and these props are not properly loaded for each instance right now...
+
+        Collection<TRelationshipTemplate> relationsToTerminate = this.getOutgoingRelations(nodesToTerminate, sourceCsar);
 
         AbstractPlan termPlan = AbstractTerminationPlanBuilder.generateTOG("transformTerminate"
                 + sourceDefinitions.getId() + "_to_" + targetDefinitions.getId() + "_" + idSuffix, sourceDefinitions, sourceServiceTemplate,
-            nodesToTerminate, relationsToTerminate);
+            nodesToTerminate, relationsToTerminate, sourceCsar);
 
         // migrate node instances from old service instance to new service instance
         AbstractPlan migrateInstancePlan =
             this.generateInstanceMigrationPlan(deployableMaxCommonSubgraph,
                 this.getConnectingEdges(sourceRelationshipTemplates,
-                    deployableMaxCommonSubgraph),
+                    deployableMaxCommonSubgraph, sourceCsar),
                 sourceDefinitions, targetDefinitions, sourceServiceTemplate,
-                targetServiceTemplate);
+                targetServiceTemplate, sourceCsar);
 
         // determine steps which have to be start within the new topology
-        Set<AbstractNodeTemplate> nodesToStart = new HashSet<>(targetNodeTemplates);
-        nodesToStart.removeAll(this.getCorrespondingNodes(deployableMaxCommonSubgraph, targetNodeTemplates));
+        Set<TNodeTemplate> nodesToStart = new HashSet<>(targetNodeTemplates);
+        nodesToStart = this.removeNodesFromList(nodesToStart, this.getCorrespondingNodes(deployableMaxCommonSubgraph, targetNodeTemplates));
+        //nodesToStart.removeAll(this.getCorrespondingNodes(deployableMaxCommonSubgraph, targetNodeTemplates));
 
-        Collection<AbstractRelationshipTemplate> relationsToStart = this.getDeployableSubgraph(targetNodeTemplates, this.getOutgoingRelations(nodesToStart));
+        Collection<TRelationshipTemplate> relationsToStart = this.getDeployableSubgraph(targetNodeTemplates, this.getOutgoingRelations(nodesToStart, targetCsar), targetCsar);
 
         AbstractPlan startPlan =
             AbstractBuildPlanBuilder.generatePOG("transformStart" + sourceDefinitions.getId() + "_to_"
-                + targetDefinitions.getId(), targetDefinitions, targetServiceTemplate, nodesToStart, relationsToStart);
+                + targetDefinitions.getId(), targetDefinitions, targetServiceTemplate, nodesToStart, relationsToStart, targetCsar);
 
         AbstractTransformationPlan transPlan =
             this.mergePlans("transformationPlan_" + termPlan.getServiceTemplate().getId() + "_to_"
@@ -144,110 +116,56 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         return transPlan;
     }
 
-    public Collection<AbstractRelationshipTemplate> getDeployableSubgraph(Collection<AbstractNodeTemplate> nodes, Collection<AbstractRelationshipTemplate> relations) {
-        Collection<AbstractRelationshipTemplate> result = new HashSet<>();
-        for (AbstractRelationshipTemplate rel : relations) {
-            if (nodes.contains(rel.getSource()) && nodes.contains(rel.getTarget())) {
+    private Set<TNodeTemplate> removeNodesFromList(Collection<TNodeTemplate> list, Collection<TNodeTemplate> toRemove) {
+        Set<TNodeTemplate> result = Sets.newHashSet();
+        for (TNodeTemplate node1 : list) {
+            boolean matched = false;
+            for (TNodeTemplate node2 : toRemove) {
+                if (this.mappingEquals(node1, node2)) {
+                    matched = true;
+                }
+            }
+            if (!matched) {
+                result.add(node1);
+            }
+        }
+        return result;
+    }
+
+    public Collection<TRelationshipTemplate> getDeployableSubgraph(Collection<TNodeTemplate> nodes, Collection<TRelationshipTemplate> relations, Csar csar) {
+        Collection<TRelationshipTemplate> result = new HashSet<>();
+        for (TRelationshipTemplate rel : relations) {
+            if (nodes.contains(ModelUtils.getSource(rel, csar)) && nodes.contains(ModelUtils.getTarget(rel, csar))) {
                 result.add(rel);
             }
         }
         return result;
     }
 
-    public AbstractTransformationPlan generateTFOG(String sourceCsarName, AbstractDefinitions sourceDefinitions,
-                                                   AbstractServiceTemplate sourceServiceTemplate, String targetCsarName,
-                                                   AbstractDefinitions targetDefinitions,
-                                                   AbstractServiceTemplate targetServiceTemplate, String idSuffix) {
-        return this.generateTFOG(sourceCsarName, sourceDefinitions, sourceServiceTemplate,
+    public AbstractTransformationPlan generateTFOG(Csar sourceCsar, TDefinitions sourceDefinitions,
+                                                   TServiceTemplate sourceServiceTemplate, Csar targetCsar,
+                                                   TDefinitions targetDefinitions,
+                                                   TServiceTemplate targetServiceTemplate, String idSuffix) {
+        return this.generateTFOG(sourceCsar, sourceDefinitions, sourceServiceTemplate,
             sourceServiceTemplate.getTopologyTemplate().getNodeTemplates(),
-            sourceServiceTemplate.getTopologyTemplate().getRelationshipTemplates(), targetCsarName,
+            sourceServiceTemplate.getTopologyTemplate().getRelationshipTemplates(), targetCsar,
             targetDefinitions, targetServiceTemplate,
             targetServiceTemplate.getTopologyTemplate().getNodeTemplates(),
             targetServiceTemplate.getTopologyTemplate().getRelationshipTemplates(), idSuffix);
     }
 
-    /**
-     * Generates an abstract order of activities to transform from the source service template to the target service
-     * template
-     *
-     * @param sourceCsarName    the name of the source csar
-     * @param sourceDefinitions the id of the source definitions inside the referenced source csar
-     * @param targetCsarName    the name of the target csar
-     * @param targetDefinitions the id of the target definitions inside the referenced target csar
-     * @return a single AbstractPlan containing abstract activities for a transformation function from the source to the
-     * target topology
-     */
-    public AbstractTransformationPlan _generateTFOG(String sourceCsarName, AbstractDefinitions sourceDefinitions,
-                                                    AbstractServiceTemplate sourceServiceTemplate,
-                                                    String targetCsarName, AbstractDefinitions targetDefinitions,
-                                                    AbstractServiceTemplate targetServiceTemplate) {
-        AbstractTopologyTemplate sourceTopology = sourceServiceTemplate.getTopologyTemplate();
-        AbstractTopologyTemplate targetTopology = targetServiceTemplate.getTopologyTemplate();
-
-        Set<AbstractNodeTemplate> maxCommonSubgraph =
-            this.getMaxCommonSubgraph(new HashSet<>(sourceTopology.getNodeTemplates()),
-                new HashSet<>(sourceTopology.getNodeTemplates()),
-                new HashSet<>(targetTopology.getNodeTemplates()),
-                new HashSet<>());
-
-        // find valid subset inside common subgraph, i.e.:
-        // any component that is a platform node (every node without outgoing
-        // hostedOn edges), or is a node in the subgraph where its (transitive) platform
-        // nodes are also in the subgraph are valid
-        Set<AbstractNodeTemplate> deployableMaxCommonSubgraph = this.getDeployableSubgraph(maxCommonSubgraph);
-
-        // determine steps which have to be deleted from the original topology
-        Set<AbstractNodeTemplate> nodesToTerminate =
-            new HashSet<>(sourceTopology.getNodeTemplates());
-        nodesToTerminate.removeAll(deployableMaxCommonSubgraph);
-        Collection<AbstractRelationshipTemplate> relationsToTerminate = this.getOutgoingRelations(nodesToTerminate);
-
-        AbstractPlan termPlan = AbstractTerminationPlanBuilder.generateTOG("transformTerminate"
-                + sourceDefinitions.getId() + "_to_" + targetDefinitions.getId(), sourceDefinitions, sourceServiceTemplate,
-            nodesToTerminate, relationsToTerminate);
-
-        // migrate node instances from old service instance to new service instance
-        AbstractPlan migrateInstancePlan =
-            this.generateInstanceMigrationPlan(deployableMaxCommonSubgraph,
-                this.getConnectingEdges(sourceTopology.getRelationshipTemplates(),
-                    deployableMaxCommonSubgraph),
-                sourceDefinitions, targetDefinitions, sourceServiceTemplate,
-                targetServiceTemplate);
-
-        // determine steps which have to be start within the new topology
-        Set<AbstractNodeTemplate> nodesToStart = new HashSet<>(targetTopology.getNodeTemplates());
-        nodesToStart.removeAll(this.getCorrespondingNodes(deployableMaxCommonSubgraph,
-            targetTopology.getNodeTemplates()));
-        Collection<AbstractRelationshipTemplate> relationsToStart = this.getOutgoingRelations(nodesToStart);
-
-        AbstractPlan startPlan =
-            AbstractBuildPlanBuilder.generatePOG("transformStart" + sourceDefinitions.getId() + "_to_"
-                + targetDefinitions.getId(), targetDefinitions, targetServiceTemplate, nodesToStart, relationsToStart);
-
-        AbstractTransformationPlan transPlan =
-            this.mergePlans("transformationPlan_" + termPlan.getServiceTemplate().getId() + "_to_"
-                + startPlan.getServiceTemplate().getId(), PlanType.TRANSFORMATION, termPlan, migrateInstancePlan);
-
-        transPlan = this.mergePlans(
-            "transformationPlan_" + termPlan.getServiceTemplate().getId() + "_to_"
-                + startPlan.getServiceTemplate().getId(),
-            PlanType.TRANSFORMATION, transPlan, startPlan);
-
-        return transPlan;
-    }
-
-    private AbstractTransformationPlan generateInstanceMigrationPlan(Collection<AbstractNodeTemplate> nodeTemplates,
-                                                                     Collection<AbstractRelationshipTemplate> relationshipTemplates,
-                                                                     AbstractDefinitions sourceDefinitions,
-                                                                     AbstractDefinitions targetDefinitions,
-                                                                     AbstractServiceTemplate sourceServiceTemplate,
-                                                                     AbstractServiceTemplate targetServiceTemplate) {
+    private AbstractTransformationPlan generateInstanceMigrationPlan(Collection<TNodeTemplate> nodeTemplates,
+                                                                     Collection<TRelationshipTemplate> relationshipTemplates,
+                                                                     TDefinitions sourceDefinitions,
+                                                                     TDefinitions targetDefinitions,
+                                                                     TServiceTemplate sourceServiceTemplate,
+                                                                     TServiceTemplate targetServiceTemplate, Csar sourceCsar) {
         // General flow is as within a build plan
 
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
         this.generateIMOGActivitesAndLinks(activities, links, new HashMap<>(), nodeTemplates, new HashMap<>(),
-            relationshipTemplates);
+            relationshipTemplates, sourceCsar);
 
         return new AbstractTransformationPlan(
             "migrateInstance" + sourceDefinitions.getId() + "_to_" + targetDefinitions.getId(),
@@ -256,18 +174,18 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
     }
 
     private void generateIMOGActivitesAndLinks(final Collection<AbstractActivity> activities, final Set<Link> links,
-                                               final Map<AbstractNodeTemplate, AbstractActivity> nodeActivityMapping,
-                                               final Collection<AbstractNodeTemplate> nodeTemplates,
-                                               final Map<AbstractRelationshipTemplate, AbstractActivity> relationActivityMapping,
-                                               final Collection<AbstractRelationshipTemplate> relationshipTemplates) {
-        for (final AbstractNodeTemplate nodeTemplate : nodeTemplates) {
+                                               final Map<TNodeTemplate, AbstractActivity> nodeActivityMapping,
+                                               final Collection<TNodeTemplate> nodeTemplates,
+                                               final Map<TRelationshipTemplate, AbstractActivity> relationActivityMapping,
+                                               final Collection<TRelationshipTemplate> relationshipTemplates, Csar sourceCsar) {
+        for (final TNodeTemplate nodeTemplate : nodeTemplates) {
             final AbstractActivity activity = new NodeTemplateActivity(
                 nodeTemplate.getId() + "_instance_migration_activity", ActivityType.MIGRATION, nodeTemplate);
             activities.add(activity);
             nodeActivityMapping.put(nodeTemplate, activity);
         }
 
-        for (final AbstractRelationshipTemplate relationshipTemplate : relationshipTemplates) {
+        for (final TRelationshipTemplate relationshipTemplate : relationshipTemplates) {
             final AbstractActivity activity =
                 new RelationshipTemplateActivity(relationshipTemplate.getId() + "_instance_migration_activity",
                     ActivityType.MIGRATION, relationshipTemplate);
@@ -275,26 +193,17 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
             relationActivityMapping.put(relationshipTemplate, activity);
         }
 
-        for (final AbstractRelationshipTemplate relationshipTemplate : relationshipTemplates) {
-            final AbstractActivity activity = relationActivityMapping.get(relationshipTemplate);
-            final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate);
-            if (baseType.equals(Types.connectsToRelationType)) {
-                links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getSource()), activity));
-                links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getTarget()), activity));
-            } else if (baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
-                | baseType.equals(Types.deployedOnRelationType)) {
-                links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getTarget()), activity));
-                links.add(new Link(activity, nodeActivityMapping.get(relationshipTemplate.getSource())));
-            }
-        }
+        AbstractDefrostPlanBuilder.connectActivities(links, nodeActivityMapping, relationActivityMapping, relationshipTemplates, sourceCsar);
     }
 
-    private Collection<AbstractRelationshipTemplate> getConnectingEdges(Collection<AbstractRelationshipTemplate> allEdges,
-                                                                        Collection<AbstractNodeTemplate> subgraphNodes) {
-        Collection<AbstractRelationshipTemplate> connectingEdges = new HashSet<>();
+    private Collection<TRelationshipTemplate> getConnectingEdges(Collection<TRelationshipTemplate> allEdges,
+                                                                 Collection<TNodeTemplate> subgraphNodes, Csar csar) {
+        Collection<TRelationshipTemplate> connectingEdges = new HashSet<>();
 
-        for (AbstractRelationshipTemplate rel : allEdges) {
-            if (subgraphNodes.contains(rel.getSource()) && subgraphNodes.contains(rel.getTarget())) {
+        for (TRelationshipTemplate rel : allEdges) {
+            TNodeTemplate source = ModelUtils.getSource(rel, csar);
+            TNodeTemplate target = ModelUtils.getTarget(rel, csar);
+            if (subgraphNodes.contains(source) && subgraphNodes.contains(target)) {
                 connectingEdges.add(rel);
             }
         }
@@ -302,11 +211,11 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         return connectingEdges;
     }
 
-    private Collection<AbstractNodeTemplate> getCorrespondingNodes(Collection<AbstractNodeTemplate> subgraph,
-                                                                   Collection<AbstractNodeTemplate> graph) {
-        Collection<AbstractNodeTemplate> correspondingNodes = new HashSet<>();
-        for (AbstractNodeTemplate subgraphNode : subgraph) {
-            AbstractNodeTemplate correspondingNode = this.getCorrespondingNode(subgraphNode, graph);
+    private Collection<TNodeTemplate> getCorrespondingNodes(Collection<TNodeTemplate> subgraph,
+                                                            Collection<TNodeTemplate> graph) {
+        Collection<TNodeTemplate> correspondingNodes = new HashSet<>();
+        for (TNodeTemplate subgraphNode : subgraph) {
+            TNodeTemplate correspondingNode = this.getCorrespondingNode(subgraphNode, graph);
             if (correspondingNode != null) {
                 correspondingNodes.add(correspondingNode);
             }
@@ -315,9 +224,9 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         return correspondingNodes;
     }
 
-    protected AbstractNodeTemplate getCorrespondingNode(AbstractNodeTemplate subNode,
-                                                        Collection<AbstractNodeTemplate> graph) {
-        for (AbstractNodeTemplate graphNode : graph) {
+    protected TNodeTemplate getCorrespondingNode(TNodeTemplate subNode,
+                                                 Collection<TNodeTemplate> graph) {
+        for (TNodeTemplate graphNode : graph) {
             if (this.mappingEquals(subNode, graphNode)) {
                 return graphNode;
             }
@@ -325,10 +234,10 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         return null;
     }
 
-    public AbstractRelationshipTemplate getCorrespondingEdge(AbstractRelationshipTemplate subEdge,
-                                                             Collection<AbstractRelationshipTemplate> graphEdges) {
-        for (AbstractRelationshipTemplate graphEdge : graphEdges) {
-            if (this.mappingEquals(subEdge, graphEdge)) {
+    public TRelationshipTemplate getCorrespondingEdge(TRelationshipTemplate subEdge,
+                                                      Collection<TRelationshipTemplate> graphEdges, Csar sourceCsar, Csar targetCsar) {
+        for (TRelationshipTemplate graphEdge : graphEdges) {
+            if (this.mappingEquals(subEdge, graphEdge, sourceCsar, targetCsar)) {
                 return graphEdge;
             }
         }
@@ -359,36 +268,36 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
             plan2.getDefinitions(), plan2.getServiceTemplate(), activities, links);
     }
 
-    private Collection<AbstractRelationshipTemplate> getOutgoingRelations(Set<AbstractNodeTemplate> nodes) {
-        Collection<AbstractRelationshipTemplate> relations = new HashSet<>();
-        for (AbstractNodeTemplate node : nodes) {
-            relations.addAll(node.getOutgoingRelations());
+    private Collection<TRelationshipTemplate> getOutgoingRelations(Set<TNodeTemplate> nodes, Csar csar) {
+        Collection<TRelationshipTemplate> relations = new HashSet<>();
+        for (TNodeTemplate node : nodes) {
+            relations.addAll(ModelUtils.getOutgoingRelations(node, csar));
         }
         return relations;
     }
 
-    private Collection<AbstractNodeTemplate> getNeededNodes(AbstractNodeTemplate nodeTemplate) {
+    private Collection<TNodeTemplate> getNeededNodes(TNodeTemplate nodeTemplate, Csar csar) {
         for (IPlanBuilderTypePlugin<?> typePlugin : this.pluginRegistry.getTypePlugins()) {
-            if (typePlugin.canHandleCreate(nodeTemplate)) {
+            if (typePlugin.canHandleCreate(csar, nodeTemplate)) {
                 if (typePlugin instanceof IPlanBuilderTypePlugin.NodeDependencyInformationInterface) {
-                    return ((IPlanBuilderTypePlugin.NodeDependencyInformationInterface) typePlugin).getCreateDependencies(nodeTemplate);
+                    return ((IPlanBuilderTypePlugin.NodeDependencyInformationInterface) typePlugin).getCreateDependencies(nodeTemplate, csar);
                 }
             }
         }
         return null;
     }
 
-    public Set<AbstractNodeTemplate> getDeployableSubgraph(Set<AbstractNodeTemplate> graph) {
-        Set<AbstractNodeTemplate> validDeploymentSubgraph = new HashSet<>(graph);
-        Set<AbstractNodeTemplate> toRemove = new HashSet<>();
+    public Set<TNodeTemplate> getDeployableSubgraph(Set<TNodeTemplate> graph, Csar sourceCsar, Csar targetCsar) {
+        Set<TNodeTemplate> validDeploymentSubgraph = new HashSet<>(graph);
+        Set<TNodeTemplate> toRemove = new HashSet<>();
 
-        for (AbstractNodeTemplate node : graph) {
+        for (TNodeTemplate node : graph) {
 
-            if (this.isRunning(node) && this.hasNoHostingNodes(node)) {
+            if (this.isRunning(node) && this.hasNoHostingNodes(node, sourceCsar)) {
                 continue;
             }
 
-            Collection<AbstractNodeTemplate> neededNodes = this.getNeededNodes(node);
+            Collection<TNodeTemplate> neededNodes = this.getNeededNodes(node, sourceCsar);
 
             // no plugin found that can deploy given node on whole topology
             if (neededNodes == null) {
@@ -406,12 +315,12 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
             return validDeploymentSubgraph;
         } else {
             validDeploymentSubgraph.removeAll(toRemove);
-            return getDeployableSubgraph(validDeploymentSubgraph);
+            return getDeployableSubgraph(validDeploymentSubgraph, sourceCsar, targetCsar);
         }
     }
 
-    private boolean hasNoHostingNodes(AbstractNodeTemplate nodeTemplate) {
-        for (AbstractRelationshipTemplate rel : nodeTemplate.getOutgoingRelations()) {
+    private boolean hasNoHostingNodes(TNodeTemplate nodeTemplate, Csar csar) {
+        for (TRelationshipTemplate rel : ModelUtils.getOutgoingRelations(nodeTemplate, csar)) {
             if (rel.getType().equals(Types.hostedOnRelationType) | rel.getType().equals(Types.dependsOnRelationType)) {
                 return false;
             }
@@ -420,11 +329,11 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         return true;
     }
 
-    private boolean contains(Collection<AbstractNodeTemplate> subgraph1, Collection<AbstractNodeTemplate> subgraph2) {
+    private boolean contains(Collection<TNodeTemplate> subgraph1, Collection<TNodeTemplate> subgraph2) {
 
-        for (AbstractNodeTemplate nodeInGraph2 : subgraph2) {
+        for (TNodeTemplate nodeInGraph2 : subgraph2) {
             boolean matched = false;
-            for (AbstractNodeTemplate nodeInGraph1 : subgraph1) {
+            for (TNodeTemplate nodeInGraph1 : subgraph1) {
                 if (this.mappingEquals(nodeInGraph1, nodeInGraph2)) {
                     matched = true;
                     break;
@@ -441,10 +350,10 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
     // TODO FIXME this is a really naive implementation until we can integrate a
     //  proper(i.e. efficient) subgraph calculation based on https://stackoverflow.com/a/14644158
-    private Set<AbstractNodeTemplate> getMaxCommonSubgraph(Set<AbstractNodeTemplate> vertices,
-                                                           Set<AbstractNodeTemplate> graph1,
-                                                           Set<AbstractNodeTemplate> graph2,
-                                                           Set<AbstractNodeTemplate> currentSubset) {
+    private Set<TNodeTemplate> getMaxCommonSubgraph(Set<TNodeTemplate> vertices,
+                                                    Set<TNodeTemplate> graph1,
+                                                    Set<TNodeTemplate> graph2,
+                                                    Set<TNodeTemplate> currentSubset) {
 
         LOG.debug("Finding MaxCommon Subgraph with vertices {}", this.printCandidate(vertices));
         if (vertices.isEmpty()) {
@@ -456,14 +365,14 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
             }
         }
 
-        AbstractNodeTemplate v = this.pop(vertices);
+        TNodeTemplate v = this.pop(vertices);
 
         LOG.debug("Removed vertex {}", v.getId());
-        Set<AbstractNodeTemplate> cand1 = this.getMaxCommonSubgraph(vertices, graph1, graph2, currentSubset);
+        Set<TNodeTemplate> cand1 = this.getMaxCommonSubgraph(vertices, graph1, graph2, currentSubset);
         currentSubset.add(v);
         LOG.debug("Current subset {}", this.printCandidate(currentSubset));
 
-        Set<AbstractNodeTemplate> cand2 = new HashSet<>();
+        Set<TNodeTemplate> cand2 = new HashSet<>();
 
         if (this.isCommonSubgraph(graph1, graph2, currentSubset)) {
             cand2 = this.getMaxCommonSubgraph(vertices, graph1, graph2, currentSubset);
@@ -485,10 +394,10 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         return (cand1.size() > cand2.size()) ? cand1 : cand2;
     }
 
-    private String printCandidate(Collection<AbstractNodeTemplate> nodeTemplates) {
+    private String printCandidate(Collection<TNodeTemplate> nodeTemplates) {
         StringBuilder print = new StringBuilder("{");
 
-        AbstractNodeTemplate[] nodes = nodeTemplates.toArray(new AbstractNodeTemplate[0]);
+        TNodeTemplate[] nodes = nodeTemplates.toArray(new TNodeTemplate[0]);
 
         for (int i = 0; i < nodes.length; i++) {
             print.append(nodes[i].getId());
@@ -502,10 +411,10 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         return print.toString();
     }
 
-    private AbstractNodeTemplate pop(Set<AbstractNodeTemplate> nodes) {
-        AbstractNodeTemplate pop = null;
+    private TNodeTemplate pop(Set<TNodeTemplate> nodes) {
+        TNodeTemplate pop = null;
 
-        Iterator<AbstractNodeTemplate> iter = nodes.iterator();
+        Iterator<TNodeTemplate> iter = nodes.iterator();
 
         if (iter.hasNext()) {
             pop = iter.next();
@@ -516,21 +425,21 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         return pop;
     }
 
-    private boolean isCommonSubgraph(Set<AbstractNodeTemplate> graph1, Set<AbstractNodeTemplate> graph2,
-                                     Set<AbstractNodeTemplate> subgraph) {
+    private boolean isCommonSubgraph(Set<TNodeTemplate> graph1, Set<TNodeTemplate> graph2,
+                                     Set<TNodeTemplate> subgraph) {
 
-        for (AbstractNodeTemplate nodeTemplate : subgraph) {
+        for (TNodeTemplate nodeTemplate : subgraph) {
             boolean matchedIn1 = false;
             boolean matchedIn2 = false;
 
-            for (AbstractNodeTemplate nodeIn1 : graph1) {
+            for (TNodeTemplate nodeIn1 : graph1) {
                 if (this.mappingEquals(nodeTemplate, nodeIn1)) {
                     matchedIn1 = true;
                     break;
                 }
             }
 
-            for (AbstractNodeTemplate nodeIn2 : graph2) {
+            for (TNodeTemplate nodeIn2 : graph2) {
                 if (this.mappingEquals(nodeTemplate, nodeIn2)) {
                     matchedIn2 = true;
                     break;
@@ -545,62 +454,95 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         return true;
     }
 
-    private boolean mappingEquals(AbstractRelationshipTemplate rel1, AbstractRelationshipTemplate rel2) {
+    /**
+     * @param rel1       a relation from sourceCsa
+     * @param rel2       a relation from targetCsar
+     * @param sourceCsar a source csar model
+     * @param targetCsar a target csar model
+     * @return true iff the type of rel1 and rel2 are equals, as well as, their sources and targets
+     */
+    private boolean mappingEquals(TRelationshipTemplate rel1, TRelationshipTemplate rel2, Csar sourceCsar, Csar targetCsar) {
         if (!rel1.getType().equals(rel2.getType())) {
             return false;
         }
 
         // really weak and messy check incoming!
-        return this.mappingEquals(rel1.getSource(), rel2.getSource())
-            && this.mappingEquals(rel1.getTarget(), rel2.getTarget());
+        return this.mappingEquals(ModelUtils.getSource(rel1, sourceCsar), ModelUtils.getSource(rel2, targetCsar))
+            && this.mappingEquals(ModelUtils.getTarget(rel1, sourceCsar), ModelUtils.getTarget(rel2, targetCsar));
     }
 
-    private boolean mappingEquals(AbstractNodeTemplate node1, AbstractNodeTemplate node2) {
+    private boolean mappingEquals(TNodeTemplate node1, TNodeTemplate node2) {
         LOG.debug("Matching node {} with node {} ", node1.getId(), node2.getId());
-        if (!node1.getType().getId().equals(node2.getType().getId())) {
+        if (!node1.getType().equals(node2.getType())) {
             return false;
         }
 
-        if (node1.getDeploymentArtifacts().size() != node2.getDeploymentArtifacts().size()) {
+        if (!this.mappingEqualsDA(node1, node2)) {
             return false;
-        } else {
-            for (AbstractDeploymentArtifact da : node1.getDeploymentArtifacts()) {
-                boolean matched = false;
-                for (AbstractDeploymentArtifact da2 : node2.getDeploymentArtifacts()) {
-                    if (da.getArtifactType().equals(da.getArtifactType())) {
-                        if (da.getArtifactRef().getId().equals(da2.getArtifactRef().getId())) {
-                            // up to this point only the type and id of the artifact template match, a deeper mathcing
-                            // would really look at the references and stuff, but we assume that artifact template id's
-                            // are unique across multiple service templates
-                            matched = true;
-                        }
-                    }
-                }
-                if (!matched) {
-                    return false;
-                }
-            }
         }
-
-        // Maybe add it later
 
         // This check is pretty heavy if i think about the State Property or changes in
         // values etc.
         // FIXME? Check for values as well?
-        if (!node1.getProperties().asMap().keySet().containsAll(node2.getProperties().asMap().keySet())) {
+        Set<String> node1props = ModelUtils.asMap(node1.getProperties()).keySet();
+        Set<String> node2props = ModelUtils.asMap(node2.getProperties()).keySet();
+        if (node1props.size() != node2props.size()) {
             return false;
         }
 
-        if (!node1.getProperties().getElementName().equals(node2.getProperties().getElementName())) {
+        if (!(node1props.containsAll(node2props) && node2props.containsAll(node1props))) {
             return false;
         }
 
-        if (node1.getProperties().getNamespace().equals(node2.getProperties().getNamespace())) {
+        // This check here is probably necessary, but pretty constraining as well
+        if (!ModelUtils.getElementName(node1.getProperties()).equals(ModelUtils.getElementName(node2.getProperties()))) {
+            return false;
+        }
+
+        if (!ModelUtils.getNamespace(node1.getProperties()).equals(ModelUtils.getNamespace(node2.getProperties()))) {
             return false;
         }
 
         LOG.debug("Matched node {} with node {} ", node1.getId(), node2.getId());
 
         return node1.getId().equals(node2.getId());
+    }
+
+    private boolean mappingEqualsDA(TNodeTemplate node1, TNodeTemplate node2) {
+        int node1DaSize = 0;
+        int node2DaSize = 0;
+
+        if (node1.getDeploymentArtifacts() != null) {
+            node1DaSize = node1.getDeploymentArtifacts().size();
+        }
+
+        if (node2.getDeploymentArtifacts() != null) {
+            node2DaSize = node2.getDeploymentArtifacts().size();
+        }
+
+        if (node1DaSize != node2DaSize) {
+            return false;
+        } else {
+            if (node1.getDeploymentArtifacts() != null) {
+                for (TDeploymentArtifact da : node1.getDeploymentArtifacts()) {
+                    boolean matched = false;
+                    if (node2.getDeploymentArtifacts() != null) {
+                        for (TDeploymentArtifact da2 : node2.getDeploymentArtifacts()) {
+                            if (da.getArtifactType().equals(da2.getArtifactType())) {
+                                // up to this point only the type and id of the artifact template match, a deeper mathcing
+                                // would really look at the references and stuff, but we assume that artifact template id's
+                                // are unique across multiple service templates
+                                matched = true;
+                            }
+                        }
+                    }
+                    if (!matched) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 }

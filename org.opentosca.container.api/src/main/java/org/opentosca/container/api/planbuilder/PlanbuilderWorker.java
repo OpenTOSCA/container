@@ -33,6 +33,7 @@ import org.opentosca.container.api.planbuilder.model.PlanGenerationState;
 import org.opentosca.container.api.planbuilder.model.PlanGenerationState.PlanGenerationStates;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.IHTTPService;
@@ -83,6 +84,7 @@ public class PlanbuilderWorker {
         LOG.debug("Downloading CSAR " + state.getCsarUrl());
 
         CsarId csarId = null;
+        Csar csar = null;
         try {
             final HttpResponse csarResponse = httpService.Get(state.getCsarUrl().toString(), Collections.singletonMap("Accept", "application/zip"));
             final InputStream csarInputStream = csarResponse.getEntity().getContent();
@@ -137,6 +139,7 @@ public class PlanbuilderWorker {
 
             Path tempCsarLocation = csarStorage.storeCSARTemporarily(fileName, csarInputStream);
             csarId = csarStorage.storeCSAR(tempCsarLocation);
+            csar = csarStorage.findById(csarId);
         } catch (final IOException | SystemException | UserException e) {
             state.currentState = PlanGenerationStates.CSARDOWNLOADFAILED;
             state.currentMessage = "Couldn't download CSAR";
@@ -156,7 +159,7 @@ public class PlanbuilderWorker {
         state.currentMessage = "Generating Plan";
         LOG.debug("Starting to generate Plan");
 
-        final List<AbstractPlan> buildPlans = planBuilderImporter.generatePlans(csarId);
+        final List<AbstractPlan> buildPlans = planBuilderImporter.generatePlans(csar);
 
         if (buildPlans.size() <= 0) {
             state.currentState = PlanGenerationStates.PLANGENERATIONFAILED;

@@ -18,7 +18,6 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TPlan;
 
-import org.eclipse.jdt.annotation.Nullable;
 import org.w3c.dom.Element;
 
 @XmlRootElement(name = "Plan")
@@ -78,7 +77,7 @@ public class TPlanDTO {
     /**
      * Gets the value of the inputParameters property.
      */
-    public List<TParameterDTO>  getInputParameters() {
+    public List<TParameterDTO> getInputParameters() {
         if (null == this.inputParameters) {
             this.inputParameters = new ArrayList<>();
         }
@@ -116,14 +115,14 @@ public class TPlanDTO {
     /**
      * Sets the value of the outputParameters property.
      */
-    public void setOutputParameters(final List<TParameterDTO>  value) {
+    public void setOutputParameters(final List<TParameterDTO> value) {
         this.outputParameters = value;
     }
 
     /**
      * Sets the value of the outputParameters property with the origin OutputParameters element.
      */
-    public void setOutputParametersFromOriginalModel(final List<TParameter>  serializedOutputParams) {
+    public void setOutputParametersFromOriginalModel(final List<TParameter> serializedOutputParams) {
         if (null != serializedOutputParams) {
             this.outputParameters = serializedOutputParams.stream()
                 .map(TParameterDTO::new)

@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 /**
@@ -27,12 +29,12 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
 
     private static final String PLUGIN_ID = "OpenTOSCA PlanBuilder Type Plugin DockerContainer";
 
-    public static AbstractDeploymentArtifact fetchFirstDockerContainerDA(final AbstractNodeTemplate nodeTemplate) {
-        return getAbstractDeploymentArtifact(nodeTemplate);
+    public static TDeploymentArtifact fetchFirstDockerContainerDA(final TNodeTemplate nodeTemplate, Csar csar) {
+        return getTDeploymentArtifact(nodeTemplate, csar);
     }
 
-    public static AbstractDeploymentArtifact getAbstractDeploymentArtifact(AbstractNodeTemplate nodeTemplate) {
-        for (final AbstractDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
+    public static TDeploymentArtifact getTDeploymentArtifact(TNodeTemplate nodeTemplate, Csar csar) {
+        for (final TDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
             if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTIFACTTYPE)
                 || da.getArtifactType()
                 .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTIFACTTYPE_OLD)) {
@@ -40,8 +42,8 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
             }
         }
 
-        for (final AbstractNodeTypeImplementation nodeTypeImpl : nodeTemplate.getImplementations()) {
-            for (final AbstractDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
+        for (final TNodeTypeImplementation nodeTypeImpl : ModelUtils.findNodeTypeImplementation(nodeTemplate, csar)) {
+            for (final TDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
                 if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTIFACTTYPE)
                     || da.getArtifactType()
                     .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTIFACTTYPE_OLD)) {
@@ -52,30 +54,29 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
         return null;
     }
 
-    public static AbstractNodeTemplate getDockerEngineNode(final AbstractNodeTemplate nodeTemplate) {
-        final List<AbstractNodeTemplate> nodes = new ArrayList<>();
-        ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodes);
+    public static TNodeTemplate getDockerEngineNode(final TNodeTemplate nodeTemplate, Csar csar) {
+        final List<TNodeTemplate> nodes = new ArrayList<>();
+        ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodes, csar);
 
-        for (final AbstractNodeTemplate node : nodes) {
-            if (org.opentosca.container.core.convention.Utils.isSupportedDockerEngineNodeType(node.getType()
-                .getId())) {
+        for (final TNodeTemplate node : nodes) {
+            if (org.opentosca.container.core.convention.Utils.isSupportedDockerEngineNodeType(node.getType())) {
                 return node;
             }
         }
         return null;
     }
 
-    public static boolean isConnectedToDockerEngineNode(final AbstractNodeTemplate nodeTemplate) {
-        return DockerContainerTypePlugin.getDockerEngineNode(nodeTemplate) != null;
+    public static boolean isConnectedToDockerEngineNode(final TNodeTemplate nodeTemplate, Csar csar) {
+        return DockerContainerTypePlugin.getDockerEngineNode(nodeTemplate, csar) != null;
     }
 
     @Override
-    public boolean canHandleTerminate(AbstractNodeTemplate nodeTemplate) {
-        if (nodeTemplate.getProperties() == null || DockerUtils.notIsDockerContainer(nodeTemplate.getType())) {
+    public boolean canHandleTerminate(Csar csar, TNodeTemplate nodeTemplate) {
+        if (nodeTemplate.getProperties() == null || DockerUtils.notIsDockerContainer(ModelUtils.findNodeType(nodeTemplate, csar), csar)) {
             return false;
         }
 
-        Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
+        Map<String, String> propertiesMap = ModelUtils.asMap(nodeTemplate.getProperties());
 
         if (!propertiesMap.containsKey("ContainerID")) {
             return false;
@@ -83,16 +84,16 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
 
         // Minimum properties are available.
         // Check whether the nodeTemplate is connected to a DockerEngine Node
-        return DockerContainerTypePlugin.isConnectedToDockerEngineNode(nodeTemplate);
+        return DockerContainerTypePlugin.isConnectedToDockerEngineNode(nodeTemplate, csar);
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
-        return DockerUtils.canHandleDockerContainerPropertiesAndDA(nodeTemplate);
+    public boolean canHandleCreate(Csar csar, final TNodeTemplate nodeTemplate) {
+        return DockerUtils.canHandleDockerContainerPropertiesAndDA(nodeTemplate, csar);
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(Csar csar, final TRelationshipTemplate relationshipTemplate) {
         // we can only handle nodeTemplates
         return false;
     }

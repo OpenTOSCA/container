@@ -1,15 +1,14 @@
 package org.opentosca.planbuilder.prephase.plugin.fileupload.bpel.handler;
 
-import java.util.List;
+import java.util.Collection;
 
-import javax.xml.parsers.ParserConfigurationException;
+import org.eclipse.winery.model.tosca.TArtifactReference;
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
-import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
-import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,19 +29,6 @@ public class BPELPrePhasePluginHandler {
 
     private final BPELInvokerPlugin invokerPlugin = new BPELInvokerPlugin();
 
-    private ResourceHandler res;
-
-    /**
-     * Constructor
-     */
-    public BPELPrePhasePluginHandler() {
-        try {
-            this.res = new ResourceHandler();
-        } catch (final ParserConfigurationException e) {
-            BPELPrePhasePluginHandler.LOG.error("Couldn't initialize internal ResourceHandler", e);
-        }
-    }
-
     /**
      * Adds necessary BPEL logic trough the given context that can upload the given DA unto the given
      * InfrastructureNode
@@ -52,50 +38,33 @@ public class BPELPrePhasePluginHandler {
      * @param infraNodeTemplate the NodeTemplate which is used as InfrastructureNode
      * @return true iff adding logic was successful
      */
-    public boolean handle(final BPELPlanContext context, final AbstractDeploymentArtifact da,
-                          final AbstractNodeTemplate infraNodeTemplate) {
-        final List<AbstractArtifactReference> refs = da.getArtifactRef().getArtifactReferences();
+    public boolean handle(final BPELPlanContext context, final TDeploymentArtifact da,
+                          final TNodeTemplate infraNodeTemplate) {
+        final Collection<TArtifactReference> refs = ModelUtils.findArtifactTemplate(da.getArtifactRef(), context.getCsar()).getArtifactReferences();
         return this.handle(context, refs, da.getName(), infraNodeTemplate);
-    }
-
-    /**
-     * Adds necessary BPEL logic through the given context that can upload the given IA unto the given
-     * InfrastructureNode
-     *
-     * @param context      a TemplateContext
-     * @param ia           the ImplementationArtifact to deploy
-     * @param nodeTemplate the NodeTemplate which is used as InfrastructureNode
-     * @return true iff adding logic was successful
-     */
-    public boolean handle(final BPELPlanContext context, final AbstractImplementationArtifact ia,
-                          final AbstractNodeTemplate nodeTemplate) {
-        // fetch references
-        final List<AbstractArtifactReference> refs = ia.getArtifactRef().getArtifactReferences();
-        return this.handle(context, refs, ia.getArtifactType().getLocalPart() + "_" + ia.getOperationName() + "_IA",
-            nodeTemplate);
     }
 
     /**
      * Adds necessary BPEL logic through the given Context, to deploy the given ArtifactReferences unto the specified
      * InfrastructureNode
      *
-     * @param context       a TemplateContext
-     * @param refs          the ArtifactReferences to deploy
-     * @param artifactName  the name of the artifact, where the references originate from
-     * @param infraTemplate a NodeTemplate which is a InfrastructureNode to deploy the AbstractReferences on
+     * @param templateContext a TemplateContext
+     * @param refs            the ArtifactReferences to deploy
+     * @param artifactName    the name of the artifact, where the references originate from
+     * @param infraTemplate   a NodeTemplate which is a InfrastructureNode to deploy the AbstractReferences on
      * @return true iff adding the logic was successful
      */
-    private boolean handle(final BPELPlanContext templateContext, final List<AbstractArtifactReference> refs,
-                           final String artifactName, final AbstractNodeTemplate infraTemplate) {
+    private boolean handle(final BPELPlanContext templateContext, final Collection<TArtifactReference> refs,
+                           final String artifactName, final TNodeTemplate infraTemplate) {
 
         LOG.debug("Handling DA upload with");
         String refsString = "";
-        for (final AbstractArtifactReference ref : refs) {
+        for (final TArtifactReference ref : refs) {
             refsString += ref.getReference() + ", ";
         }
         LOG.debug("Refs:" + refsString.substring(0, refsString.lastIndexOf(",")));
         LOG.debug("ArtifactName: " + artifactName);
-        LOG.debug("NodeTemplate: " + infraTemplate.getId() + "(Type: " + infraTemplate.getType().getId().toString()
+        LOG.debug("NodeTemplate: " + infraTemplate.getId() + "(Type: " + infraTemplate.getType().toString()
             + ")");
 
         // fetch server ip of the vm this artefact will be deployed on
@@ -141,7 +110,7 @@ public class BPELPrePhasePluginHandler {
         templateContext.addStringValueToPlanRequest("csarEntrypoint");
 
         LOG.debug("Handling DA references:");
-        for (final AbstractArtifactReference ref : refs) {
+        for (final TArtifactReference ref : refs) {
             // upload da ref and unzip it
             this.invokerPlugin.handleArtifactReferenceUpload(ref, templateContext, serverIpPropWrapper, sshUserVariable,
                 sshKeyVariable, infraTemplate, templateContext.getPrePhaseElement());

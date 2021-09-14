@@ -32,8 +32,6 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.war.Application;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -42,8 +40,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = {Application.class})
 @TestPropertySource(properties = "server.port=1337")
 public class MultiMyTinyToDoIntegrationTest {
-
-    protected static final Logger LOGGER = LoggerFactory.getLogger(MultiMyTinyToDoIntegrationTest.class);
 
     public QName csarId = new QName("http://opentosca.org/servicetemplates", "Multi_MyTinyToDo_Bare_Docker_w1-wip1");
 

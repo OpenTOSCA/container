@@ -32,8 +32,6 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.war.Application;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -42,8 +40,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = {Application.class})
 @TestPropertySource(properties = "server.port=1337")
 public class AdaptMultiMyTinyToDoIntegrationTest {
-
-    protected static final Logger LOGGER = LoggerFactory.getLogger(AdaptMultiMyTinyToDoIntegrationTest.class);
 
     public QName csarId = new QName("http://opentosca.org/servicetemplates", "Multi_MyTinyToDo_Bare_Docker_w1-wip1");
 
@@ -73,8 +69,8 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
         targetRelationshipTemplateIds.add("con_17");
         targetRelationshipTemplateIds.add("con_HostedOn_0");
         targetRelationshipTemplateIds.add("con_HostedOn_1");
-        String buildPlanId = this.csarService.generateAdaptationPlan(csar.id(), new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()), new ArrayList<String>(), new ArrayList<String>(), targetNodeTemplateIds, targetRelationshipTemplateIds).planId;
-        String terminationPlanId = this.csarService.generateAdaptationPlan(csar.id(), new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()), targetNodeTemplateIds, targetRelationshipTemplateIds, new ArrayList<String>(), new ArrayList<String>()).planId;
+        String buildPlanId = this.csarService.generateAdaptationPlan(csar, new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()), new ArrayList<String>(), new ArrayList<String>(), targetNodeTemplateIds, targetRelationshipTemplateIds).planId;
+        String terminationPlanId = this.csarService.generateAdaptationPlan(csar, new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()), targetNodeTemplateIds, targetRelationshipTemplateIds, new ArrayList<String>(), new ArrayList<String>()).planId;
 
         serviceTemplate = this.storage.findById(csar.id()).entryServiceTemplate();
         TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);

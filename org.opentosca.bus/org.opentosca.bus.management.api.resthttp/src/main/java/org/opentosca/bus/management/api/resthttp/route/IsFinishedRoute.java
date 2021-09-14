@@ -28,10 +28,10 @@ public class IsFinishedRoute extends RouteBuilder {
         final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
         // handle exceptions
         onException(Exception.class).handled(true).setBody(exchangeProperty(Exchange.EXCEPTION_CAUGHT))
-                                    .process(exceptionProcessor);
+            .process(exceptionProcessor);
 
         from("jetty://" + InvocationRoute.ENDPOINT + InvocationRoute.POLL_ENDPOINT_LOCATION
             + "?httpMethodRestrict=get").process(isFinishedRequestProcessor).process(isFinishedProcessor)
-                                        .process(isFinishedResponseProcessor);
+            .process(isFinishedResponseProcessor);
     }
 }

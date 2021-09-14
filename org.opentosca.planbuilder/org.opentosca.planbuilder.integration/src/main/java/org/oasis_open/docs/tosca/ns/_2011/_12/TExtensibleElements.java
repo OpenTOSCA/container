@@ -53,11 +53,11 @@ import org.w3c.dom.Element;
     TDefinitions.class})
 public class TExtensibleElements {
 
+    @XmlAnyAttribute
+    private final Map<QName, String> otherAttributes = new HashMap<>();
     protected List<TDocumentation> documentation;
     @XmlAnyElement(lax = true)
     protected List<Object> any;
-    @XmlAnyAttribute
-    private final Map<QName, String> otherAttributes = new HashMap<>();
 
     /**
      * Gets the value of the documentation property.

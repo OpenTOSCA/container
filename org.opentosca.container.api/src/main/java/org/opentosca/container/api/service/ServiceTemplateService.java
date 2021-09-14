@@ -1,8 +1,6 @@
 package org.opentosca.container.api.service;
 
 import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
@@ -26,11 +24,6 @@ public class ServiceTemplateService {
 
     @Inject
     private CsarStorageService csarStorage;
-
-    public Set<String> getServiceTemplatesOfCsar(final String csarId) {
-        final Csar csarContent = this.csarStorage.findById(new CsarId(csarId));
-        return csarContent.serviceTemplates().stream().map(TServiceTemplate::getId).collect(Collectors.toSet());
-    }
 
     public Document getPropertiesOfServiceTemplate(final CsarId csarId, final String serviceTemplateId) {
         logger.debug("Getting ServiceTemplate properties for " + serviceTemplateId + " in " + csarId);
@@ -72,12 +65,5 @@ public class ServiceTemplateService {
         }
 
         return assumedId;
-    }
-
-    /* Service Injection */
-
-    /*********************/
-    public void bindStorage(final CsarStorageService storage) {
-        this.csarStorage = storage;
     }
 }

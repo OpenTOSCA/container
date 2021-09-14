@@ -100,7 +100,7 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
             LOG.info("Headers:");
             LOG.info(headers.toString());
             LOG.info("Body:");
-            LOG.info(((HashMap<String, String>) params).toString());
+            LOG.info(params.toString());
             return respondViaMocking(exchange, this.storage);
         }
 

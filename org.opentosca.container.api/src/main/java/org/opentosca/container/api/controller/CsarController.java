@@ -25,7 +25,6 @@ import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
@@ -98,7 +97,7 @@ public class CsarController {
                 csar.setId(id);
                 csar.setDescription(csarContent.description());
                 csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                        .path(CsarController.class, "getCsar").build(id))
+                    .path(CsarController.class, "getCsar").build(id))
                     .rel("self").build());
                 list.add(csar);
             }
@@ -150,15 +149,15 @@ public class CsarController {
             );
 
             csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                    .path(CsarController.class, "getContent").build(id))
+                .path(CsarController.class, "getContent").build(id))
                 .rel("content").baseUri(this.uriInfo.getBaseUri()).build(id));
             csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                    .path(CsarController.class, "getCsar").build(id))
+                .path(CsarController.class, "getCsar").build(id))
                 .rel("self").build());
 
             csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(ServiceTemplateController.class)
-                    .path(ServiceTemplateController.class, "getServiceTemplate")
-                    .build(id, UriUtil.encodePathSegment(entryServiceTemplate.getId())))
+                .path(ServiceTemplateController.class, "getServiceTemplate")
+                .build(id, UriUtil.encodePathSegment(entryServiceTemplate.getId())))
                 .rel("servicetemplate").baseUri(this.uriInfo.getBaseUri()).build());
 
             return Response.ok(csar).build();
@@ -191,19 +190,6 @@ public class CsarController {
         }
         logger.info("Uploading new CSAR file \"{}\", size {}", file.getFileName(), file.getSize());
         return handleCsarUpload(file.getFileName(), is, applyEnrichment);
-    }
-
-    private String extractFileName(MultivaluedMap<String, String> headers) {
-        String[] contentDispostion = headers.getFirst("Content-Disposition").split("\\s*;\\s*");
-        for (String kvPair : contentDispostion) {
-            if (kvPair.startsWith("filename")) {
-                String[] name = kvPair.split("=");
-                String quoted = name[1].trim();
-                // drops the surrounding quotes
-                return quoted.substring(1, quoted.length() - 1);
-            }
-        }
-        return null;
     }
 
     @POST
@@ -386,8 +372,10 @@ public class CsarController {
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response transformCsar(@ApiParam(required = true) final CsarTransformRequest request) {
         logger.debug("Invoking transform Csar");
-        final CsarId sourceCsar = new CsarId(request.getSourceCsarName());
-        final CsarId targetCsar = new CsarId(request.getTargetCsarName());
+        final CsarId sourceCsarId = new CsarId(request.getSourceCsarName());
+        Csar sourceCsar = this.storage.findById(sourceCsarId);
+        final CsarId targetCsarId = new CsarId(request.getTargetCsarName());
+        Csar targetCsar = this.storage.findById(targetCsarId);
 
         Collection<AbstractPlan> plansGenerated = this.csarService.generateTransformationPlans(sourceCsar, targetCsar);
         AbstractPlan planGenerated;
@@ -398,9 +386,9 @@ public class CsarController {
             planGenerated = plansGenerated.iterator().next();
         }
 
-        Csar storedCsar = storage.findById(sourceCsar);
+        Csar storedCsar = storage.findById(sourceCsarId);
 
-        List<TPlan> plans = this.storage.findById(sourceCsar).entryServiceTemplate().getPlans();
+        List<TPlan> plans = this.storage.findById(sourceCsarId).entryServiceTemplate().getPlans();
         TPlan plan = null;
 
         for (TPlan tPlan : plans) {
@@ -414,7 +402,7 @@ public class CsarController {
             return Response.serverError().entity("Couldn't generate transformation plan").build();
         }
 
-        this.controlService.invokePlanDeployment(sourceCsar, storedCsar.entryServiceTemplate(), plans, plan);
+        this.controlService.invokePlanDeployment(sourceCsarId, storedCsar.entryServiceTemplate(), plans, plan);
 
         PlanType[] planTypes = {PlanType.TRANSFORMATION};
         return Response.ok(this.planService.getPlanDto(storedCsar, planTypes, plan.getId())).build();

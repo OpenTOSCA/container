@@ -4,12 +4,10 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
-import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -20,7 +18,6 @@ public abstract class AbstractServiceInstanceHandler {
     protected static final String ServiceInstanceURLVarKeyword = "OpenTOSCAContainerAPIServiceInstanceURL";
     protected static final String ServiceInstanceIDVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
     protected static final String ServiceTemplateURLVarKeyword = "OpenTOSCAContainerAPIServiceTemplateURL";
-    protected static final String ServiceInstancesURLVarKeyword = "OpenTOSCAContainerAPIServiceInstancesURL";
     protected static final String PlanInstanceURLVarKeyword = "OpenTOSCAContainerAPIPlanInstanceURL";
     protected static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
 
@@ -29,14 +26,12 @@ public abstract class AbstractServiceInstanceHandler {
     protected final BPELPlanHandler bpelProcessHandler;
 
     protected final DocumentBuilderFactory docFactory;
-    protected final DocumentBuilder docBuilder;
 
     public AbstractServiceInstanceHandler() throws ParserConfigurationException {
         this.bpelProcessHandler = new BPELPlanHandler();
         this.fragments = new BPELProcessFragments();
         this.docFactory = DocumentBuilderFactory.newInstance();
         this.docFactory.setNamespaceAware(true);
-        this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
     public String getLowestId(Collection<String> ids, String keyword) {

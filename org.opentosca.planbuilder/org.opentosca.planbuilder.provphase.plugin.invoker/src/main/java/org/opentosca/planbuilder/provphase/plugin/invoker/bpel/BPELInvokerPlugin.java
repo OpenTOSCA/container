@@ -11,6 +11,12 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TArtifactReference;
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
+
 import com.google.common.collect.Lists;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderCompensationOperationPlugin;
@@ -20,11 +26,6 @@ import org.opentosca.planbuilder.core.plugins.choreography.IPlanBuilderChoreogra
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
-import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
-import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELInvokerPluginHandler;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELNotifyHandler;
@@ -58,8 +59,8 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     }
 
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia) {
+    public boolean handle(final BPELPlanContext context, final TOperation operation,
+                          final TImplementationArtifact ia) {
         try {
             return this.handler.handle(context, operation, ia);
         } catch (final Exception e) {
@@ -72,9 +73,9 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     }
 
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping,
+    public boolean handle(final BPELPlanContext context, final TOperation operation,
+                          final TImplementationArtifact ia,
+                          final Map<TParameter, Variable> param2propertyMapping,
                           Element elementToAppendTo) {
         String templateId = "";
         boolean isNodeTemplate = false;
@@ -87,7 +88,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         final Map<String, Variable> inputParams = new HashMap<>();
 
-        for (final AbstractParameter key : param2propertyMapping.keySet()) {
+        for (final TParameter key : param2propertyMapping.keySet()) {
             inputParams.put(key.getName(), param2propertyMapping.get(key));
         }
 
@@ -101,9 +102,9 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     }
 
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping) {
+    public boolean handle(final BPELPlanContext context, final TOperation operation,
+                          final TImplementationArtifact ia,
+                          final Map<TParameter, Variable> param2propertyMapping) {
         String templateId = "";
         boolean isNodeTemplate = false;
         if (context.getNodeTemplate() != null) {
@@ -115,7 +116,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         final Map<String, Variable> inputParams = new HashMap<>();
 
-        for (final AbstractParameter key : param2propertyMapping.keySet()) {
+        for (final TParameter key : param2propertyMapping.keySet()) {
             inputParams.put(key.getName(), param2propertyMapping.get(key));
         }
 
@@ -136,8 +137,6 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
      * @param isNodeTemplate whether the template is a NodeTemplate or RelationshipTemplate
      * @param operationName the Operation to call on the Template
      * @param interfaceName the name of the interface the operation belongs to
-     * @param callbackAddressVarName the name of the variable containing the callbackAddress of this
-     *        BuildPlan
      * @param internalExternalPropsInput Mappings from TOSCA Input Parameters to Invoker Parameters
      * @param internalExternalPropsOutput Mappings from TOSCA Output Parameters to Invoker Parameters
      *
@@ -202,10 +201,10 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
      * @param infraTemplate the templateId the serverIp belongs to
      * @return true iff appending all bpel code was successful
      */
-    public boolean handleArtifactReferenceUpload(final AbstractArtifactReference ref,
+    public boolean handleArtifactReferenceUpload(final TArtifactReference ref,
                                                  final BPELPlanContext templateContext, final PropertyVariable serverIp,
                                                  final PropertyVariable sshUser, final PropertyVariable sshKey,
-                                                 final AbstractNodeTemplate infraTemplate, Element elementToAppendTo) {
+                                                 final TNodeTemplate infraTemplate, Element elementToAppendTo) {
         try {
             return this.handler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser, sshKey,
                 infraTemplate, elementToAppendTo);
@@ -218,17 +217,12 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     @Override
     public boolean handleSendNotify(final BPELPlanContext context) {
 
-        // Currently stuff like storeSaveEndpoint for freezing is breaking the matching of all possible
-        // operations here, therefore we send all available properties -> TODO/FIXME
-        final Map<String, PropertyVariable> propMatching =
-            this.choreohandler.matchOperationParamertsToProperties(context);
-
         final Collection<PropertyVariable> propertiesToSend = new HashSet<>();
 
         // fetch nodes of the stack of the node inside context
-        AbstractNodeTemplate nodeTemplate = context.getNodeTemplate();
-        Collection<AbstractNodeTemplate> nodes = Lists.newArrayList();
-        ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodes);
+        TNodeTemplate nodeTemplate = context.getNodeTemplate();
+        Collection<TNodeTemplate> nodes = Lists.newArrayList();
+        ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodes, context.getCsar());
 
         nodes.forEach(x -> propertiesToSend.addAll(context.getPropertyVariables(x)));
         final Map<String, Variable> params = this.choreohandler.mapToParamMap(propertiesToSend);
@@ -299,10 +293,10 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     }
 
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping) {
+    public boolean handle(final BPELPlanContext context, final TOperation operation,
+                          final TImplementationArtifact ia,
+                          final Map<TParameter, Variable> param2propertyMapping,
+                          final Map<TParameter, Variable> param2PropertyOutputMapping) {
         String templateId = "";
         boolean isNodeTemplate = false;
         if (context.getNodeTemplate() != null) {
@@ -315,10 +309,10 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
         final Map<String, Variable> inputParams = new HashMap<>();
         final Map<String, Variable> outputParams = new HashMap<>();
 
-        for (final AbstractParameter key : param2propertyMapping.keySet()) {
+        for (final TParameter key : param2propertyMapping.keySet()) {
             inputParams.put(key.getName(), param2propertyMapping.get(key));
         }
-        for (final AbstractParameter key : param2PropertyOutputMapping.keySet()) {
+        for (final TParameter key : param2PropertyOutputMapping.keySet()) {
             outputParams.put(key.getName(), param2PropertyOutputMapping.get(key));
         }
 
@@ -332,17 +326,17 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     }
 
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping, Element elementToAppendTo) {
+    public boolean handle(final BPELPlanContext context, final TOperation operation,
+                          final TImplementationArtifact ia,
+                          final Map<TParameter, Variable> param2propertyMapping,
+                          final Map<TParameter, Variable> param2PropertyOutputMapping, Element elementToAppendTo) {
         final Map<String, Variable> inputParams = new HashMap<>();
         final Map<String, Variable> outputParams = new HashMap<>();
 
-        for (final AbstractParameter key : param2propertyMapping.keySet()) {
+        for (final TParameter key : param2propertyMapping.keySet()) {
             inputParams.put(key.getName(), param2propertyMapping.get(key));
         }
-        for (final AbstractParameter key : param2PropertyOutputMapping.keySet()) {
+        for (final TParameter key : param2PropertyOutputMapping.keySet()) {
             outputParams.put(key.getName(), param2PropertyOutputMapping.get(key));
         }
 
@@ -362,49 +356,49 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     }
 
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final AbstractOperation compensationOperation,
-                          final AbstractImplementationArtifact compensationIa,
-                          final Map<AbstractParameter, Variable> compensationParam2VariableMapping) {
+    public boolean handle(final BPELPlanContext context, final TOperation operation,
+                          final TImplementationArtifact ia,
+                          final Map<TParameter, Variable> param2propertyMapping,
+                          final TOperation compensationOperation,
+                          final TImplementationArtifact compensationIa,
+                          final Map<TParameter, Variable> compensationParam2VariableMapping) {
         // TODO Auto-generated method stub
 
         return false;
     }
 
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final AbstractOperation compensationOperation,
-                          final AbstractImplementationArtifact compensationIa,
-                          final Map<AbstractParameter, Variable> compensationParam2VariableMapping,
+    public boolean handle(final BPELPlanContext context, final TOperation operation,
+                          final TImplementationArtifact ia,
+                          final Map<TParameter, Variable> param2propertyMapping,
+                          final TOperation compensationOperation,
+                          final TImplementationArtifact compensationIa,
+                          final Map<TParameter, Variable> compensationParam2VariableMapping,
                           final BPELScopePhaseType phase) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping,
-                          final AbstractOperation compensationOperation,
-                          final AbstractImplementationArtifact compensationIa,
-                          final Map<AbstractParameter, Variable> compensationParam2VariableMapping) {
+    public boolean handle(final BPELPlanContext context, final TOperation operation,
+                          final TImplementationArtifact ia,
+                          final Map<TParameter, Variable> param2propertyMapping,
+                          final Map<TParameter, Variable> param2PropertyOutputMapping,
+                          final TOperation compensationOperation,
+                          final TImplementationArtifact compensationIa,
+                          final Map<TParameter, Variable> compensationParam2VariableMapping) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                          final AbstractImplementationArtifact ia,
-                          final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping,
-                          final AbstractOperation compensationOperation,
-                          final AbstractImplementationArtifact compensationIa,
-                          final Map<AbstractParameter, Variable> compensationParam2VariableMapping,
+    public boolean handle(final BPELPlanContext context, final TOperation operation,
+                          final TImplementationArtifact ia,
+                          final Map<TParameter, Variable> param2propertyMapping,
+                          final Map<TParameter, Variable> param2PropertyOutputMapping,
+                          final TOperation compensationOperation,
+                          final TImplementationArtifact compensationIa,
+                          final Map<TParameter, Variable> compensationParam2VariableMapping,
                           final BPELScopePhaseType phase) {
         // TODO Auto-generated method stub
         return false;

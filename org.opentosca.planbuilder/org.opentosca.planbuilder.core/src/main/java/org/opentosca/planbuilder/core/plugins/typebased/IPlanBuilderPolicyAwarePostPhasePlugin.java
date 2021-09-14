@@ -1,8 +1,9 @@
 package org.opentosca.planbuilder.core.plugins.typebased;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TPolicy;
+
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 
 /**
  * <p>
@@ -24,13 +25,13 @@ public interface IPlanBuilderPolicyAwarePostPhasePlugin<T extends PlanContext> e
      * @param nodeTemplate the NodeTemplate the plugin should handle
      * @return true if generating the Fragment of this Plugin was successful, else false
      */
-    boolean handle(T context, AbstractNodeTemplate nodeTemplate, AbstractPolicy policy);
+    boolean handle(T context, TNodeTemplate nodeTemplate, TPolicy policy);
 
     /**
      * Evaluates whether the given NodeTemplate can be handled by this post phase plugin.
      *
-     * @param nodeTemplate An AbstractNodeTemplate
+     * @param nodeTemplate An TNodeTemplate
      * @return true iff this plugin can handle the given nodeTemplate
      */
-    boolean canHandle(AbstractNodeTemplate nodeTemplate, AbstractPolicy policy);
+    boolean canHandle(TNodeTemplate nodeTemplate, TPolicy policy);
 }

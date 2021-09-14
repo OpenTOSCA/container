@@ -1,15 +1,11 @@
 package org.opentosca.container.core.impl.service;
 
 import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -22,8 +18,6 @@ import java.util.zip.ZipOutputStream;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.nio.file.FileVisitResult.CONTINUE;
 
 @NonNullByDefault
 public class FileSystem {
@@ -53,12 +47,6 @@ public class FileSystem {
             }
             return candidate;
         }
-    }
-
-    public static Path unpackToTemp(Path zipFile) throws IOException {
-        Path targetDir = getTemporaryFolder();
-        unzip(zipFile, targetDir);
-        return targetDir;
     }
 
     public static void zip(Path targetFile, Path... inputFiles) throws IOException {
@@ -141,27 +129,5 @@ public class FileSystem {
         } finally {
             zipFs.close();
         }
-    }
-
-    public static void copyDirectory(Path source, Path target) throws IOException {
-        Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes basicFileAttributes) throws IOException {
-                Path targetdir = target.resolve(source.relativize(dir));
-                try {
-                    Files.copy(dir, targetdir);
-                } catch (FileAlreadyExistsException e) {
-                    if (!Files.isDirectory(targetdir))
-                        throw e;
-                }
-                return CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes basicFileAttributes) throws IOException {
-                Files.copy(file, target.resolve(source.relativize(file)));
-                return CONTINUE;
-            }
-        });
     }
 }

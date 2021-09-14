@@ -52,7 +52,7 @@ public class CsarService {
             return false;
         }
 
-        final List<AbstractPlan> buildPlans = planBuilderImporter.generatePlans(csar.id());
+        final List<AbstractPlan> buildPlans = planBuilderImporter.generatePlans(csar);
         // no plans, save ourselves some work by returning early
         if (buildPlans.isEmpty()) {
             return true;
@@ -63,21 +63,21 @@ public class CsarService {
         return true;
     }
 
-    public AdaptationPlanGenerationResult generateAdaptationPlan(final CsarId csarId, QName serviceTemplateId, Collection<String> sourceNodeTemplateIds, Collection<String> sourceRelationshipTemplateIds, Collection<String> targetNodeTemplateId, Collection<String> targetRelationshipTemplateId) {
+    public AdaptationPlanGenerationResult generateAdaptationPlan(final Csar csar, QName serviceTemplateId, Collection<String> sourceNodeTemplateIds, Collection<String> sourceRelationshipTemplateIds, Collection<String> targetNodeTemplateId, Collection<String> targetRelationshipTemplateId) {
         try {
-            AbstractPlan plan = planBuilderImporter.generateAdaptationPlan(csarId, serviceTemplateId, sourceNodeTemplateIds, sourceRelationshipTemplateIds, targetNodeTemplateId, targetRelationshipTemplateId);
+            AbstractPlan plan = planBuilderImporter.generateAdaptationPlan(csar, serviceTemplateId, sourceNodeTemplateIds, sourceRelationshipTemplateIds, targetNodeTemplateId, targetRelationshipTemplateId);
 
             if (plan == null) {
                 return null;
             }
             List<AbstractPlan> plans = Lists.newArrayList();
             plans.add(plan);
-            IRepository repo = RepositoryFactory.getRepository(this.storage.findById(csarId).getSaveLocation());
+            IRepository repo = RepositoryFactory.getRepository(csar.getSaveLocation());
 
-            final WineryExporter.PlanExportResult result = planBuilderExporter.exportToCSAR(plans, csarId, repo, this.storage);
+            final WineryExporter.PlanExportResult result = planBuilderExporter.exportToCSAR(plans, csar.id(), repo, this.storage);
             final Path file = result.csarFile;
 
-            return new AdaptationPlanGenerationResult(this.storage.findById(csarId).id(), result.planIds.iterator().next());
+            return new AdaptationPlanGenerationResult(csar.id(), result.planIds.iterator().next());
         } catch (final Exception e) {
             logger.error("Could not store repackaged CSAR: {}", e.getMessage(), e);
         }
@@ -85,10 +85,10 @@ public class CsarService {
         return null;
     }
 
-    public Collection<AbstractPlan> generateTransformationPlans(final CsarId sourceCsarId, final CsarId targetCsarId) {
-        List<AbstractPlan> plans = planBuilderImporter.generateTransformationPlans(sourceCsarId, targetCsarId);
-        IRepository repo = RepositoryFactory.getRepository(this.storage.findById(sourceCsarId).getSaveLocation());
-        final Path file = planBuilderExporter.exportToCSAR(plans, sourceCsarId, repo, this.storage).csarFile;
+    public Collection<AbstractPlan> generateTransformationPlans(final Csar sourceCsar, final Csar targetCsar) {
+        List<AbstractPlan> plans = planBuilderImporter.generateTransformationPlans(sourceCsar, targetCsar);
+        IRepository repo = RepositoryFactory.getRepository(sourceCsar.getSaveLocation());
+        final Path file = planBuilderExporter.exportToCSAR(plans, sourceCsar.id(), repo, this.storage).csarFile;
         return plans;
     }
 

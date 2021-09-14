@@ -1,8 +1,9 @@
 package org.opentosca.planbuilder.core.plugins.typebased;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 
 /**
  * Copyright 2013 IAAS University of Stuttgart <br>
@@ -12,11 +13,11 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
  */
 public interface IPlanBuilderPrePhasePlugin<T extends PlanContext> extends IPlanBuilderPlugin {
 
-    boolean canHandleCreate(AbstractNodeTemplate nodeTemplate);
+    boolean canHandleCreate(T context, TNodeTemplate nodeTemplate);
 
-    boolean handleCreate(T context, AbstractNodeTemplate nodeTemplate);
+    boolean handleCreate(T context, TNodeTemplate nodeTemplate);
 
-    boolean canHandleCreate(AbstractRelationshipTemplate relationshipTemplate);
+    boolean canHandleCreate(T context, TRelationshipTemplate relationshipTemplate);
 
-    boolean handleCreate(T context, AbstractRelationshipTemplate relationshipTemplate);
+    boolean handleCreate(T context, TRelationshipTemplate relationshipTemplate);
 }

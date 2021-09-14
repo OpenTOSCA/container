@@ -17,7 +17,6 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
-import com.google.common.collect.Lists;
 import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.request.CreateRelationshipTemplateInstanceRequest;
@@ -125,13 +124,6 @@ public class InstanceService {
         return this.serviceTemplateInstanceRepository.findByTemplateId(serviceTemplate);
     }
 
-    public ServiceTemplateInstance getServiceTemplateInstanceByCorrelationId(String correlationId) {
-        return this.serviceTemplateInstanceRepository.findAll().stream()
-            .filter(s -> s.getPlanInstances().stream()
-                .anyMatch(p -> p.getCorrelationId().equals(correlationId)))
-            .findFirst().get();
-    }
-
     public ServiceTemplateInstance getServiceTemplateInstance(final Long id, final boolean evaluatePropertyMappings) {
         logger.debug("Requesting service template instance <{}>...", id);
         final Optional<ServiceTemplateInstance> instance = this.serviceTemplateInstanceRepository.find(id);
@@ -175,20 +167,6 @@ public class InstanceService {
         this.serviceTemplateInstanceRepository.update(service);
     }
 
-    public Document getServiceTemplateInstanceRawProperties(final Long id) throws NotFoundException {
-        final ServiceTemplateInstance service = getServiceTemplateInstance(id, false);
-        final Optional<ServiceTemplateInstanceProperty> firstProp = service.getProperties().stream().findFirst();
-
-        if (firstProp.isPresent()) {
-            return convertPropertyToDocument(firstProp.get());
-        }
-
-        final String msg = String.format("No properties are found for the service template instance <%s>", id);
-        logger.debug(msg);
-
-        return null;
-    }
-
     public void setServiceTemplateInstanceProperties(final Long id,
                                                      final Document properties) throws ReflectiveOperationException {
         final ServiceTemplateInstance service = getServiceTemplateInstance(id, false);
@@ -213,11 +191,11 @@ public class InstanceService {
     }
 
     public ServiceTemplateInstance createServiceTemplateInstance(final String csarId, final String serviceTemplateName) throws InstantiationException, IllegalAccessException, IllegalArgumentException {
-    	final CsarId csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateName);
-    	final Document propertiesAsDoc =
-                createServiceInstanceInitialPropertiesFromServiceTemplate(csar, serviceTemplateName);
+        final CsarId csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateName);
+        final Document propertiesAsDoc =
+            createServiceInstanceInitialPropertiesFromServiceTemplate(csar, serviceTemplateName);
         final ServiceTemplateInstanceProperty property =
-                convertDocumentToProperty(propertiesAsDoc, ServiceTemplateInstanceProperty.class);
+            convertDocumentToProperty(propertiesAsDoc, ServiceTemplateInstanceProperty.class);
 
         final ServiceTemplateInstance instance = new ServiceTemplateInstance();
         instance.setCsarId(csar);
@@ -683,10 +661,6 @@ public class InstanceService {
         return this.sitTrig.findAll();
     }
 
-    public Collection<SituationTrigger> getSituationTriggers(final Situation situation) {
-        return this.sitTrig.findSituationTriggersBySituationId(situation.getId());
-    }
-
     public SituationTrigger createNewSituationTrigger(final Collection<Situation> situations, final CsarId csarId,
                                                       final boolean triggerOnActivation, final boolean isSingleInstance,
                                                       final ServiceTemplateInstance serviceInstance,
@@ -743,20 +717,6 @@ public class InstanceService {
         this.sitTrigInst.findBySituationTriggerId(situationTriggerId).forEach(x -> this.sitTrigInst.remove(x));
 
         this.sitTrig.find(situationTriggerId).ifPresent(x -> this.sitTrig.remove(x));
-    }
-
-    public void removeSituationTriggerInstance(Long situationTriggerInstanceId) {
-        this.sitTrigInst.find(situationTriggerInstanceId).ifPresent(x -> this.sitTrigInst.remove(x));
-    }
-
-    public Collection<SituationTriggerInstance> geSituationTriggerInstances(final SituationTrigger trigger) {
-        final Collection<SituationTriggerInstance> triggerInstances = Lists.newArrayList();
-        for (final SituationTriggerInstance triggerInstance : this.sitTrigInst.findAll()) {
-            if (triggerInstance.getSituationTrigger().equals(trigger)) {
-                triggerInstances.add(triggerInstance);
-            }
-        }
-        return triggerInstances;
     }
 
     public void updateSituation(final Situation situation) {

@@ -8,13 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -78,8 +79,8 @@ public class BPELPlan extends AbstractPlan {
     private String toscaInterfaceName = null;
     private String toscaOperationName = null;
 
-    public BPELPlan(final String id, final PlanType type, final AbstractDefinitions definitions,
-                    final AbstractServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
+    public BPELPlan(final String id, final PlanType type, final TDefinitions definitions,
+                    final TServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
                     final Collection<Link> links) {
         super(id, type, definitions, serviceTemplate, activities, links);
     }
@@ -183,16 +184,7 @@ public class BPELPlan extends AbstractPlan {
         return this.templateBuildPlans;
     }
 
-    /**
-     * Sets the TemplateBuildPlans of this BuildPlan
-     *
-     * @param templateBuildPlans a List of TemplateBuildPlan
-     */
-    public void setTemplateBuildPlans(final List<BPELScope> templateBuildPlans) {
-        this.templateBuildPlans = templateBuildPlans;
-    }
-
-    public BPELScope getTemplateBuildPlan(AbstractNodeTemplate nodeTemplate) {
+    public BPELScope getTemplateBuildPlan(TNodeTemplate nodeTemplate) {
         for (BPELScope scope : this.getTemplateBuildPlans()) {
             if (scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate)) {
                 return scope;
@@ -201,7 +193,7 @@ public class BPELPlan extends AbstractPlan {
         return null;
     }
 
-    public BPELScope getTemplateBuildPlan(AbstractRelationshipTemplate relationshipTemplate) {
+    public BPELScope getTemplateBuildPlan(TRelationshipTemplate relationshipTemplate) {
         for (BPELScope scope : this.getTemplateBuildPlans()) {
             if (scope.getRelationshipTemplate() != null
                 && scope.getRelationshipTemplate().equals(relationshipTemplate)) {

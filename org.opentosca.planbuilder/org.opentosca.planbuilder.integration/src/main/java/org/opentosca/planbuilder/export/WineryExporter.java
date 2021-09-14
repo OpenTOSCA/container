@@ -142,7 +142,7 @@ public class WineryExporter extends AbstractExporter {
             }
 
             for (final BPELPlan plan : plans) {
-                if (plan.getServiceTemplate().getQName().equals(buildQName(defs, serviceTemplate))) {
+                if (new QName(plan.getServiceTemplate().getTargetNamespace(), plan.getServiceTemplate().getId()).equals(buildQName(defs, serviceTemplate))) {
 
                     final TPlan generatedPlanElement = generateTPlanElement(plan, repository, new ServiceTemplateId(new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId())));
                     exportedBpelPlanIds.add(generatedPlanElement.getId());

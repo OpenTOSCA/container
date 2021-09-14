@@ -37,7 +37,6 @@ public class IsFinishedResponseProcessor implements Processor {
 
             exchange.getMessage().setHeader(Exchange.HTTP_RESPONSE_CODE, 404);
             exchange.getMessage().setBody(exchange.getIn().getBody(String.class));
-
         } else {
 
             final Boolean isFinished = exchange.getIn().getBody(Boolean.class);
@@ -53,7 +52,6 @@ public class IsFinishedResponseProcessor implements Processor {
                 final JSONObject obj = new JSONObject();
                 obj.put("status", "FINISHED");
                 exchange.getMessage().setBody(obj.toJSONString());
-
             } else {
                 IsFinishedResponseProcessor.LOG.debug("Invocation has not finished yet.");
 
