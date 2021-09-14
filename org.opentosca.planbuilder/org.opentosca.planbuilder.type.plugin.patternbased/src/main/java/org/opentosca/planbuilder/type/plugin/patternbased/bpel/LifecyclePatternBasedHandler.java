@@ -93,10 +93,10 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         return invokeWithMatching(context, nodeTemplate, iface, updateOperation, nodesForMatching, elementToAppendTo);
     }
 
-    private boolean isImplementedAsScript(TInterface iface, TOperation op, TNodeTemplate nodeTemplate, Csar csar) {
+    private boolean isImplementedAsScript(TInterface iface, TNodeTemplate nodeTemplate, Csar csar) {
         for (TNodeTypeImplementation impl : ModelUtils.findNodeTypeImplementation(nodeTemplate, csar)) {
             for (TImplementationArtifact implArtifact : impl.getImplementationArtifacts()) {
-                if (implArtifact.getInterfaceName().equals(iface.getName()) && implArtifact.getOperationName().equals(op.getName())) {
+                if (implArtifact.getInterfaceName().equals(iface.getName())) {
                     if (implArtifact.getArtifactType().equals(Types.scriptArtifactType)) {
                         return true;
                     }
@@ -171,21 +171,21 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
             return false;
         }
 
-        hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate, csar);
+        hasScriptImplementation |= this.isImplementedAsScript(iface, nodeTemplate, csar);
 
         if (((op = this.getLifecyclePatternConfigureMethod(nodeTemplate, csar)) != null)
             && !hasCompleteMatching(nodesForMatching, iface, op)) {
             return false;
         }
 
-        hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate, csar);
+        hasScriptImplementation |= this.isImplementedAsScript(iface, nodeTemplate, csar);
 
         if (((op = this.getLifecyclePatternStartMethod(nodeTemplate, csar)) != null)
             && !hasCompleteMatching(nodesForMatching, iface, op)) {
             return false;
         }
 
-        hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate, csar);
+        hasScriptImplementation |= this.isImplementedAsScript(iface, nodeTemplate, csar);
 
         if (hasScriptImplementation) {
             return this.checkForRunScriptAndTransferFile(nodeTemplate, csar);
@@ -213,14 +213,14 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
             return false;
         }
 
-        hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate, csar);
+        hasScriptImplementation |= this.isImplementedAsScript(iface, nodeTemplate, csar);
 
         if (((op = this.getLifecyclePatternUninstallMethod(nodeTemplate, csar)) != null)
             && !hasCompleteMatching(nodesForMatching, iface, op)) {
             return false;
         }
 
-        hasScriptImplementation |= this.isImplementedAsScript(iface, op, nodeTemplate, csar);
+        hasScriptImplementation |= this.isImplementedAsScript(iface, nodeTemplate, csar);
 
         if (hasScriptImplementation) {
             return this.checkForRunScriptAndTransferFile(nodeTemplate, csar);
