@@ -1,10 +1,11 @@
 package org.opentosca.planbuilder.core.plugins.artifactbased;
 
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeType;
+
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPlugin;
-import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 
 /**
  * <p>
@@ -26,7 +27,7 @@ public interface IPlanBuilderPrePhaseDAPlugin<T extends PlanContext> extends IPl
      * @param infrastructureNodeType the NodeType of an InfrastructureNode
      * @return true iff when this plugin can deploy a DA of the given artifactType to a Node of the given nodeType
      */
-    boolean canHandle(AbstractDeploymentArtifact deploymentArtifact, AbstractNodeType infrastructureNodeType);
+    boolean canHandle(T context, TDeploymentArtifact deploymentArtifact, TNodeType infrastructureNodeType);
 
     /**
      * This method is used to add a fragment to a prephase of the nodeTemplate declared inside the given context. The
@@ -37,9 +38,9 @@ public interface IPlanBuilderPrePhaseDAPlugin<T extends PlanContext> extends IPl
      * @param infrastructureNodeTemplate the InfrastructureNodeTemplate to deploy the DA on
      * @return true iff generating and adding the fragment to the PrePhase of the TemplateContext was successful
      */
-    boolean handle(T context, AbstractDeploymentArtifact da, AbstractNodeTemplate infrastructureNodeTemplate);
+    boolean handle(T context, TDeploymentArtifact da, TNodeTemplate infrastructureNodeTemplate);
 
-    boolean canHandleCreate(AbstractNodeTemplate nodeTemplate);
+    boolean canHandleCreate(T context, TNodeTemplate nodeTemplate);
 
-    boolean handleCreate(T context, AbstractNodeTemplate nodeTemplate);
+    boolean handleCreate(T context, TNodeTemplate nodeTemplate);
 }

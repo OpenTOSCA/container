@@ -15,10 +15,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TPolicy;
+
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -87,27 +88,6 @@ public class BPELProcessFragments {
         return this.transformStringToNode(templateString);
     }
 
-    /**
-     * Create a BPEL assign that copies the NodeInstanceURL from a NodeInstances Query (See {@link
-     * #createRESTExtensionGETForNodeInstanceDataAsNode(String, String, String, String)}
-     *
-     * @param assignName                  the name of the assign
-     * @param stringVarName               the name of the xsd:string variable to write the NodeInstanceId into
-     * @param nodeInstanceResponseVarName the instanceDataAPI response to fetch the NodeInstanceId from
-     * @return a Node containing a BPEL assign activity
-     * @throws IOException  is thrown when reading internal files fails
-     * @throws SAXException is thrown when parsing internal files fails
-     */
-    public Node createAssign2FetchNodeInstanceIDFromInstanceDataAPIResponseAsNode(final String assignName,
-                                                                                  final String stringVarName,
-                                                                                  final String nodeInstanceResponseVarName) throws SAXException,
-        IOException {
-        final String templateString =
-            createAssign2FetchNodeInstanceIDFromInstanceDataAPIResponseAsString(assignName, stringVarName,
-                nodeInstanceResponseVarName);
-        return this.transformStringToNode(templateString);
-    }
-
     public Node createAssignVarToVarWithXpathQueryAsNode(final String assignName, final String fromVarName,
                                                          final String toVarName,
                                                          final String xpathQuery) throws IOException, SAXException {
@@ -116,8 +96,8 @@ public class BPELProcessFragments {
         return this.transformStringToNode(templateString);
     }
 
-    public String createAssignAndPostSituationMonitor(Map<AbstractNodeTemplate, Collection<AbstractPolicy>> situationPolicies,
-                                                      Map<AbstractPolicy, String> policy2IdMap, String serviceTemplateInstanceUrlVarName, String anyVarName, String requestVarName) throws IOException {
+    public String createAssignAndPostSituationMonitor(Map<TNodeTemplate, Collection<TPolicy>> situationPolicies,
+                                                      Map<TPolicy, String> policy2IdMap, String serviceTemplateInstanceUrlVarName, String anyVarName, String requestVarName) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPELMonitoringSituation.xml"));
 
         StringBuilder situationIdRequestBody = new StringBuilder();
@@ -133,13 +113,13 @@ public class BPELProcessFragments {
             </bpel:copy>
          */
 
-        for (AbstractNodeTemplate node : situationPolicies.keySet()) {
+        for (TNodeTemplate node : situationPolicies.keySet()) {
             String nodeTemplateId = node.getId();
-            List<AbstractPolicy> policies = new ArrayList<>(situationPolicies.get(node));
+            List<TPolicy> policies = new ArrayList<>(situationPolicies.get(node));
 
             situationIdRequestBody.append("<entry><key>").append(nodeTemplateId).append("</key><value><SituationIdsList>");
             for (int i = 0; i < policies.size(); i++) {
-                AbstractPolicy policy = policies.get(i);
+                TPolicy policy = policies.get(i);
                 String inputLocalName = policy2IdMap.get(policy);
 
                 situationIdRequestBody.append("<situationId/>");
@@ -165,8 +145,8 @@ public class BPELProcessFragments {
         return template;
     }
 
-    public Node createAssignAndPostSituationMonitorAsNode(Map<AbstractNodeTemplate, Collection<AbstractPolicy>> situationPolicies,
-                                                          Map<AbstractPolicy, String> policy2IdMap, String serviceTemplateInstanceUrlVarName, String anyVarName, String requestVarName) throws SAXException, IOException {
+    public Node createAssignAndPostSituationMonitorAsNode(Map<TNodeTemplate, Collection<TPolicy>> situationPolicies,
+                                                          Map<TPolicy, String> policy2IdMap, String serviceTemplateInstanceUrlVarName, String anyVarName, String requestVarName) throws SAXException, IOException {
         final String templateString = this.createAssignAndPostSituationMonitor(situationPolicies, policy2IdMap, serviceTemplateInstanceUrlVarName, anyVarName, requestVarName);
         return this.transformStringToNode(templateString);
     }
@@ -181,16 +161,6 @@ public class BPELProcessFragments {
         template = template.replaceAll("\\$toVarName", toVarName);
         template = template.replace("$xpath2query", xpathQuery);
         return template;
-    }
-
-    public Node createHTTPPOST(final String urlVarName, final String requestVarName,
-                               final String responseVarName) throws IOException, SAXException {
-        String template =
-            ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI_WithBody.xml"));
-        template = template.replaceAll("\\$InstanceDataURLVar", urlVarName);
-        template = template.replaceAll("\\$RequestVarName", requestVarName);
-        template = template.replaceAll("\\$ResponseVarName", responseVarName);
-        return this.transformStringToNode(template);
     }
 
     public Node createHTTPPOST(final String urlVarName, final String responseVarName) throws IOException, SAXException {
@@ -242,27 +212,6 @@ public class BPELProcessFragments {
             createAssignVarToVarWithXpathQueries(assignName, fromVarName, part1, toVarName, part2, xpathQuery1,
                 xpathQuery2, intent, extension);
         return this.transformStringToNode(templateString);
-    }
-
-    /**
-     * Create a BPEL assign that copies the NodeInstanceURL from a NodeInstances Query (See {@link
-     * #createRESTExtensionGETForNodeInstanceDataAsNode(String, String, String, String)}
-     *
-     * @param assignName                  the name of the assign
-     * @param stringVarName               the name of the xsd:string variable to write the NodeInstanceId into
-     * @param nodeInstanceResponseVarName the instanceDataAPI response to fetch the NodeInstanceId from
-     * @return a String containing a BPEL assign activity
-     * @throws IOException is thrown when reading internal files fails
-     */
-    public String createAssign2FetchNodeInstanceIDFromInstanceDataAPIResponseAsString(final String assignName,
-                                                                                      final String stringVarName,
-                                                                                      final String nodeInstanceResponseVarName) throws IOException {
-        // <!-- $assignName, $stringVarName, $NodeInstanceResponseVarName -->
-        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BpelAssignFromNodeInstanceRequestToStringVar.xml"));
-        template = template.replace("$assignName", assignName);
-        template = template.replace("$stringVarName", stringVarName);
-        template = template.replace("$NodeInstanceResponseVarName", nodeInstanceResponseVarName);
-        return template;
     }
 
     /**
@@ -365,17 +314,10 @@ public class BPELProcessFragments {
         return this.transformStringToNode(templateString);
     }
 
-    public Node createEmptyScope(String name) {
-        final Document doc = this.docBuilder.newDocument();
-        final Element scopeElement = doc.createElementNS(BPELPlan.bpelNamespace, "scope");
-        scopeElement.setAttribute("name" , name);
-        return scopeElement;
-    }
-
     public Node createEmptySequence(String name) {
         final Document doc = this.docBuilder.newDocument();
         final Element scopeElement = doc.createElementNS(BPELPlan.bpelNamespace, "sequence");
-        scopeElement.setAttribute("name" , name);
+        scopeElement.setAttribute("name", name);
         return scopeElement;
     }
 
@@ -464,26 +406,6 @@ public class BPELProcessFragments {
         return template;
     }
 
-    public Node createBPEL4RESTLightNodeInstancesGETAsNode(final String nodeTemplateId,
-                                                           final String serviceInstanceIdVarName,
-                                                           final String responseVarName) throws IOException,
-        SAXException {
-        final String templateString =
-            createBPEL4RESTLightNodeInstancesGETAsString(nodeTemplateId, serviceInstanceIdVarName, responseVarName);
-        return this.transformStringToNode(templateString);
-    }
-
-    public String createBPEL4RESTLightNodeInstancesGETAsString(final String nodeTemplateId,
-                                                               final String serviceInstanceIdVarName,
-                                                               final String responseVarName) throws IOException {
-        // <!-- $serviceInstanceURLVar, $nodeTemplateId, $ResponseVarName -->
-        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightGET_NodeInstances_InstanceDataAPI.xml"));
-        template = template.replace("$serviceInstanceURLVar", serviceInstanceIdVarName);
-        template = template.replace("$ResponseVarName", responseVarName);
-        template = template.replace("$nodeTemplateId", nodeTemplateId);
-        return template;
-    }
-
     public String createBPEL4RESTLightPlanInstanceLOGsPOST(final String urlVarName,
                                                            final String stringVarNameWithLogContent,
                                                            final String unassignedLogReqMessage) throws IOException {
@@ -520,27 +442,6 @@ public class BPELProcessFragments {
         return this.transformStringToNode(templateString);
     }
 
-    public Node createBPEL4RESTLightRelationInstancesGETAsNode(final String relationshipTemplateId,
-                                                               final String serviceInstanceIdVarName,
-                                                               final String responseVarName) throws IOException,
-        SAXException {
-        final String templateString =
-            createBPEL4RESTLightRelationInstancesGETAsString(relationshipTemplateId, serviceInstanceIdVarName,
-                responseVarName);
-        return this.transformStringToNode(templateString);
-    }
-
-    public String createBPEL4RESTLightRelationInstancesGETAsString(final String relationshipTemplateId,
-                                                                   final String serviceInstanceIdVarName,
-                                                                   final String responseVarName) throws IOException {
-        // <!-- $serviceInstanceURLVar, $nodeTemplateId, $ResponseVarName -->
-        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightGET_RelationInstances_InstanceDataAPI.xml"));
-        template = template.replace("$serviceInstanceURLVar", serviceInstanceIdVarName);
-        template = template.replace("$ResponseVarName", responseVarName);
-        template = template.replace("relationshipTemplateId", relationshipTemplateId);
-        return template;
-    }
-
     public Node createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsNode(final String serviceInstanceIdVarName,
                                                                                       final String relationshipTemplateId,
                                                                                       final String responseVarName,
@@ -572,37 +473,6 @@ public class BPELProcessFragments {
         template = template.replace("$relationshipTemplateId", relationshipTemplateId);
         template = template.replace("$ResponseVarName", responseVarName);
         template = template.replace("$nodeInstanceIdVarName", nodeInstanceIdVarName);
-        return template;
-    }
-
-    /**
-     * Creates a BPEL4RESTLight DELETE Activity with the given BPELVar as Url to request on.
-     *
-     * @param bpelVarName     the variable containing an URL
-     * @param responseVarName the variable to hold the response
-     * @return a String containing a BPEL4RESTLight Activity
-     * @throws IOException  is thrown when reading internal files fails
-     * @throws SAXException is thrown when parsing internal files fails
-     */
-    public Node createRESTDeleteOnURLBPELVarAsNode(final String bpelVarName,
-                                                   final String responseVarName) throws IOException, SAXException {
-        final String templateString = createRESTDeleteOnURLBPELVarAsString(bpelVarName, responseVarName);
-        return this.transformStringToNode(templateString);
-    }
-
-    /**
-     * Creates a BPEL4RESTLight DELETE Activity with the given BPELVar as Url to request on.
-     *
-     * @param bpelVarName     the variable containing an URL
-     * @param responseVarName the variable to hold the response
-     * @return a String containing a BPEL4RESTLight Activity
-     * @throws IOException is thrown when reading internal files fails
-     */
-    public String createRESTDeleteOnURLBPELVarAsString(final String bpelVarName,
-                                                       final String responseVarName) throws IOException {
-        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightDELETE.xml"));
-        template = template.replace("$urlVarName", bpelVarName);
-        template = template.replace("$ResponseVarName", responseVarName);
         return template;
     }
 
@@ -810,34 +680,6 @@ public class BPELProcessFragments {
         return this.transformStringToNode(templateString);
     }
 
-    /**
-     * Generates a BPEL POST at the given InstanceDataAPI with the given ServiceTemplate id to create a Service
-     * Instance
-     *
-     * @param instanceDataAPIUrlVariableName the name of the variable holding the address to the instanceDataAPI
-     * @param csarId                         the name of the csar the serviceTemplate belongs to
-     * @param serviceTemplateId              the id of the serviceTemplate
-     * @param responseVariableName           a name of an anyType variable to save the response into
-     * @return a String containing a BPEL4RESTLight POST extension activity
-     * @throws IOException is thrown when reading internal files fail
-     */
-    public String generateBPEL4RESTLightServiceInstancePOST(final String instanceDataAPIUrlVariableName,
-                                                            final String csarId, final QName serviceTemplateId,
-                                                            final String responseVariableName) throws IOException {
-        // tags in xml snippet: $InstanceDataURLVar, $CSARName,
-        // $serviceTemplateId, $ResponseVarName
-
-        String bpel4RestString =
-            ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI_WithBody.xml"));
-
-        bpel4RestString = bpel4RestString.replace("$InstanceDataURLVar", instanceDataAPIUrlVariableName);
-        bpel4RestString = bpel4RestString.replace("$CSARName", csarId);
-        bpel4RestString = bpel4RestString.replace("$serviceTemplateId", serviceTemplateId.toString());
-        bpel4RestString = bpel4RestString.replace("$ResponseVarName", responseVariableName);
-
-        return bpel4RestString;
-    }
-
     public Path getOpenTOSCAAPISchemaFile() throws IOException {
         final URL url = getClass().getClassLoader().getResource("schemas/opentoscaapischema.xsd");
         ResourceAccess resource = new ResourceAccess(Objects.requireNonNull(url, "url may not be null"));
@@ -878,28 +720,6 @@ public class BPELProcessFragments {
         bpel4RestString = bpel4RestString.replace("$ResponseVarName", responseVariableName);
 
         return bpel4RestString;
-    }
-
-    /**
-     * Generates a BPEL POST at the given InstanceDataAPI with the given ServiceTemplate id to create a Service
-     * Instance
-     *
-     * @param instanceDataAPIUrlVariableName the name of the variable holding the address to the instanceDataAPI
-     * @param csarId                         the name of the csar the serviceTemplate belongs to
-     * @param serviceTemplateId              the id of the serviceTemplate
-     * @param responseVariableName           a name of an anyType variable to save the response into
-     * @return a Node containing a BPEL4RESTLight POST extension activity
-     * @throws IOException  is thrown when reading internal files fail
-     * @throws SAXException is thrown when parsing internal files fail
-     */
-    public Node generateBPEL4RESTLightServiceInstancePOSTAsNode(final String instanceDataAPIUrlVariableName,
-                                                                final String csarId, final QName serviceTemplateId,
-                                                                final String responseVariableName) throws IOException,
-        SAXException {
-        final String templateString =
-            this.generateBPEL4RESTLightServiceInstancePOST(instanceDataAPIUrlVariableName, csarId, serviceTemplateId,
-                responseVariableName);
-        return this.transformStringToNode(templateString);
     }
 
     /**

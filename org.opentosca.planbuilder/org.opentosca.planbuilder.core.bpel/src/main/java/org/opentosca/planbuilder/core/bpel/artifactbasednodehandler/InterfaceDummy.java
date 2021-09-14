@@ -3,31 +3,36 @@ package org.opentosca.planbuilder.core.bpel.artifactbasednodehandler;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
+
+import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 /**
  * As some IAs may implement a whole interface we mock the matching of these kind of IAs with this dummy class
  *
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  */
-class InterfaceDummy extends AbstractOperation {
+class InterfaceDummy extends TOperation {
 
-    private final AbstractImplementationArtifact ia;
-    private final AbstractNodeTemplate nodeTemplate;
+    private final TImplementationArtifact ia;
+    private final TNodeTemplate nodeTemplate;
+    private final Csar csar;
 
-    public InterfaceDummy(final AbstractNodeTemplate nodeTemplate, final AbstractImplementationArtifact ia) {
+    public InterfaceDummy(final TNodeTemplate nodeTemplate, final TImplementationArtifact ia, Csar csar) {
         this.ia = ia;
         this.nodeTemplate = nodeTemplate;
+        this.csar = csar;
     }
 
-    public AbstractOperation getOperation(final String opName) {
-        for (final AbstractInterface iface : this.nodeTemplate.getType().getInterfaces()) {
+    public TOperation getOperation(final String opName) {
+        for (final TInterface iface : ModelUtils.findNodeType(this.nodeTemplate, this.csar).getInterfaces()) {
             if (iface.getName().equals(this.ia.getInterfaceName())) {
-                for (final AbstractOperation op : iface.getOperations()) {
+                for (final TOperation op : iface.getOperations()) {
                     if (op.getName().equals(opName)) {
                         return op;
                     }
@@ -38,10 +43,10 @@ class InterfaceDummy extends AbstractOperation {
     }
 
     public List<String> getOperationNames() {
-        for (final AbstractInterface iface : this.nodeTemplate.getType().getInterfaces()) {
+        for (final TInterface iface : ModelUtils.findNodeType(this.nodeTemplate, this.csar).getInterfaces()) {
             if (iface.getName().equals(this.ia.getInterfaceName())) {
                 final List<String> opNames = new ArrayList<>();
-                for (final AbstractOperation op : iface.getOperations()) {
+                for (final TOperation op : iface.getOperations()) {
                     opNames.add(op.getName());
                 }
                 return opNames;
@@ -50,11 +55,11 @@ class InterfaceDummy extends AbstractOperation {
         return new ArrayList<>();
     }
 
-    public AbstractNodeTemplate getNodeTemplate() {
+    public TNodeTemplate getNodeTemplate() {
         return this.nodeTemplate;
     }
 
-    public AbstractImplementationArtifact getIA() {
+    public TImplementationArtifact getIA() {
         return this.ia;
     }
 
@@ -64,18 +69,12 @@ class InterfaceDummy extends AbstractOperation {
     }
 
     @Override
-    public List<AbstractParameter> getInputParameters() {
+    public List<TParameter> getInputParameters() {
         return null;
     }
 
     @Override
-    public List<AbstractParameter> getOutputParameters() {
-        return null;
-    }
-
-    @Override
-    public AbstractInterface getInterface() {
-        // TODO Auto-generated method stub
+    public List<TParameter> getOutputParameters() {
         return null;
     }
 }

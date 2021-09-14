@@ -3,9 +3,9 @@ package org.opentosca.planbuilder.core.plugins.context;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 /**
  * <p>
@@ -27,32 +27,32 @@ public class Property2VariableMapping {
         this.propertyVariables = new HashSet<PropertyVariable>();
     }
 
-    public boolean addPropertyMapping(final AbstractServiceTemplate serviceTemplate,
-                                      final AbstractNodeTemplate nodeTemplate, final String propertyName,
+    public boolean addPropertyMapping(final TServiceTemplate serviceTemplate,
+                                      final TNodeTemplate nodeTemplate, final String propertyName,
                                       final String propertyVariableName) {
 
         return this.propertyVariables.add(new PropertyVariable(serviceTemplate, nodeTemplate, propertyVariableName,
             propertyName));
     }
 
-    public boolean addPropertyMapping(final AbstractServiceTemplate serviceTemplate,
-                                      final AbstractRelationshipTemplate relationshipTemplate,
+    public boolean addPropertyMapping(final TServiceTemplate serviceTemplate,
+                                      final TRelationshipTemplate relationshipTemplate,
                                       final String propertyName, final String propertyVariableName) {
 
         return this.propertyVariables.add(new PropertyVariable(serviceTemplate, relationshipTemplate,
             propertyVariableName, propertyName));
     }
 
-    public Collection<PropertyVariable> getPropertyVariables(AbstractServiceTemplate serviceTemplate,
+    public Collection<PropertyVariable> getPropertyVariables(TServiceTemplate serviceTemplate,
                                                              String templateId) {
         Collection<PropertyVariable> toReturn = new HashSet<PropertyVariable>();
         for (PropertyVariable var : this.propertyVariables) {
-            if (var.getServiceTemplate().equals(serviceTemplate) && var.isNodeTemplatePropertyVariable()
+            if (var.getServiceTemplate().getId().equals(serviceTemplate.getId()) && var.isNodeTemplatePropertyVariable()
                 && var.getNodeTemplate().getId().equals(templateId)) {
                 toReturn.add(var);
             }
 
-            if (var.getServiceTemplate().equals(serviceTemplate) && !var.isNodeTemplatePropertyVariable()
+            if (var.getServiceTemplate().getId().equals(serviceTemplate.getId()) && !var.isNodeTemplatePropertyVariable()
                 && var.getRelationshipTemplate().getId().equals(templateId)) {
                 toReturn.add(var);
             }
@@ -60,13 +60,13 @@ public class Property2VariableMapping {
         return toReturn;
     }
 
-    public Collection<PropertyVariable> getNodePropertyVariables(AbstractServiceTemplate serviceTemplate,
-                                                                 AbstractNodeTemplate nodeTemplate) {
+    public Collection<PropertyVariable> getNodePropertyVariables(TServiceTemplate serviceTemplate,
+                                                                 TNodeTemplate nodeTemplate) {
         Collection<PropertyVariable> toReturn = new HashSet<PropertyVariable>();
 
         for (PropertyVariable variable : this.propertyVariables) {
-            if (variable.isNodeTemplatePropertyVariable() && variable.getServiceTemplate().equals(serviceTemplate)
-                && variable.getNodeTemplate().equals(nodeTemplate)) {
+            if (variable.isNodeTemplatePropertyVariable() && variable.getServiceTemplate().getId().equals(serviceTemplate.getId())
+                && variable.getNodeTemplate().getId().equals(nodeTemplate.getId())) {
                 toReturn.add(variable);
             }
         }
@@ -74,13 +74,13 @@ public class Property2VariableMapping {
         return toReturn;
     }
 
-    public Collection<PropertyVariable> getRelationPropertyVariables(AbstractServiceTemplate serviceTemplate,
-                                                                     AbstractRelationshipTemplate relationshipTemplate) {
+    public Collection<PropertyVariable> getRelationPropertyVariables(TServiceTemplate serviceTemplate,
+                                                                     TRelationshipTemplate relationshipTemplate) {
         Collection<PropertyVariable> toReturn = new HashSet<PropertyVariable>();
 
         for (PropertyVariable variable : this.propertyVariables) {
-            if (!variable.isNodeTemplatePropertyVariable() && variable.getServiceTemplate().equals(serviceTemplate)
-                && variable.getRelationshipTemplate().equals(relationshipTemplate)) {
+            if (!variable.isNodeTemplatePropertyVariable() && variable.getServiceTemplate().getId().equals(serviceTemplate.getId())
+                && variable.getRelationshipTemplate().getId().equals(relationshipTemplate.getId())) {
                 toReturn.add(variable);
             }
         }

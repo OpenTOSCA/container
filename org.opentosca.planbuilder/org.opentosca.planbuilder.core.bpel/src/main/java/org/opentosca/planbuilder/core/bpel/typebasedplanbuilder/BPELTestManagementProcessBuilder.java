@@ -10,7 +10,16 @@ import java.util.Optional;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.AbstractManagementFeaturePlanBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
@@ -30,13 +39,6 @@ import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,9 +91,8 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
         this.finalizer = new BPELFinalizer();
     }
 
-    @Override
-    public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
-                              final AbstractServiceTemplate serviceTemplate) {
+    private BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                               final TServiceTemplate serviceTemplate) {
 
         LOG.debug("Creating Test Management Plan...");
 
@@ -105,7 +106,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
 
         final AbstractPlan abstractTestPlan =
             generateMOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate,
-                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST, ActivityType.TEST, false);
+                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST, ActivityType.TEST, false, csar);
 
         LOG.debug("Generated the following abstract test plan: ");
         LOG.debug(abstractTestPlan.toString());
@@ -114,7 +115,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
         final BPELPlan newTestPlan =
             this.planHandler.createEmptyBPELPlan(processNamespace, processName, abstractTestPlan, "test");
 
-        this.planHandler.initializeBPELSkeleton(newTestPlan, csarName);
+        this.planHandler.initializeBPELSkeleton(newTestPlan, csar);
 
         newTestPlan.setTOSCAInterfaceName("OpenTOSCA-Management-Feature-Interface");
         newTestPlan.setTOSCAOperationname("test");
@@ -147,7 +148,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
             serviceTemplate);
         this.instanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newTestPlan, propMap, serviceTemplate);
 
-        runPlugins(newTestPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csarName);
+        runPlugins(newTestPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csar);
 
         this.correlationHandler.addCorrellationID(newTestPlan);
 
@@ -177,15 +178,15 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
         LOG.debug("Building the Test Management Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
-        for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
+        for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
-            if (containsManagementInterface(serviceTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST)) {
+            if (containsManagementInterface(serviceTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST, csar)) {
                 LOG.debug("ServiceTemplate {} contains NodeTypes with defined test interface.",
                     serviceTemplate.getName());
-                final BPELPlan newTestPlan = buildPlan(csarName, definitions, serviceTemplate);
+                final BPELPlan newTestPlan = buildPlan(csar, definitions, serviceTemplate);
                 if (Objects.nonNull(newTestPlan)) {
                     LOG.debug("Created Test Management Plan "
                         + newTestPlan.getBpelProcessElement().getAttribute("name"));
@@ -196,45 +197,45 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} test management plans for CSAR {}", String.valueOf(plans.size()), csarName);
+            LOG.info("Created {} test management plans for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }
 
     private void runPlugins(final BPELPlan testPlan, final Property2VariableMapping map,
                             final String serviceInstanceUrl, final String serviceInstanceID,
-                            final String serviceTemplateUrl, final String planInstanceUrl, final String csarFileName) {
+                            final String serviceTemplateUrl, final String planInstanceUrl, final Csar csar) {
 
         for (final BPELScope bpelScope : testPlan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(new BPELScopeBuilder(pluginRegistry), testPlan, bpelScope, map, testPlan.getServiceTemplate(),
-                serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csarFileName);
+                serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csar);
             if (Objects.nonNull(bpelScope.getNodeTemplate())) {
 
                 // retrieve NodeTemplate and corresponding test interface
-                final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
-                final AbstractInterface testInterface =
-                    ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST);
+                final TNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
+                final TInterface testInterface =
+                    ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST, csar);
 
                 if (Objects.nonNull(testInterface)) {
 
                     // retrieve input parameters from all nodes which are downwards in the same topology stack
-                    final List<AbstractNodeTemplate> nodesForMatching = new ArrayList<>();
-                    ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodesForMatching);
+                    final List<TNodeTemplate> nodesForMatching = new ArrayList<>();
+                    ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodesForMatching, csar);
 
                     LOG.debug("NodeTemplate {} has {} test operations defined.", nodeTemplate.getName(),
                         testInterface.getOperations().size());
-                    for (final AbstractOperation testOperation : testInterface.getOperations()) {
+                    for (final TOperation testOperation : testInterface.getOperations()) {
 
-                        final Map<AbstractParameter, Variable> inputMapping = new HashMap<>();
-                        final Map<AbstractParameter, Variable> outputMapping = new HashMap<>();
+                        final Map<TParameter, Variable> inputMapping = new HashMap<>();
+                        final Map<TParameter, Variable> outputMapping = new HashMap<>();
 
                         // search for input parameters in the topology stack
                         LOG.debug("Test {} on NodeTemplate {} needs the following input parameters:",
                             testOperation.getName(), nodeTemplate.getName());
-                        for (final AbstractParameter param : testOperation.getInputParameters()) {
+                        for (final TParameter param : testOperation.getInputParameters()) {
                             LOG.debug("Input param: {}", param.getName());
                             found:
-                            for (final AbstractNodeTemplate nodeForMatching : nodesForMatching) {
+                            for (final TNodeTemplate nodeForMatching : nodesForMatching) {
                                 for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
                                     if (param.getName().equals(propName)) {
                                         inputMapping.put(param, context.getPropertyVariable(nodeForMatching, propName));
@@ -245,11 +246,11 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
                         }
 
                         // create output variable if 'Result' is defined as output parameter
-                        final Optional<AbstractParameter> optional =
+                        final Optional<TParameter> optional =
                             testOperation.getOutputParameters().stream()
                                 .filter(param -> param.getName().equals("Result")).findFirst();
                         if (optional.isPresent()) {
-                            final AbstractParameter resultParam = optional.get();
+                            final TParameter resultParam = optional.get();
 
                             final String xsdPrefix = "xsd" + System.currentTimeMillis();
                             final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
@@ -280,7 +281,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
                 }
             } else if (bpelScope.getRelationshipTemplate() != null) {
                 // handling relationshiptemplate
-                final AbstractRelationshipTemplate relationshipTemplate = bpelScope.getRelationshipTemplate();
+                final TRelationshipTemplate relationshipTemplate = bpelScope.getRelationshipTemplate();
 
                 this.bpelPluginHandler.handleActivity(context, bpelScope, relationshipTemplate);
             }

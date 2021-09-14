@@ -6,12 +6,13 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.selection.plugin.firstavailable.core.FirstAvailablePlugin;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -29,7 +30,7 @@ import org.xml.sax.SAXException;
 public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanContext> {
 
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
+    public boolean handle(final BPELPlanContext context, final TNodeTemplate nodeTemplate,
                           final List<String> selectionStrategies) {
 
         // fetch instance variables

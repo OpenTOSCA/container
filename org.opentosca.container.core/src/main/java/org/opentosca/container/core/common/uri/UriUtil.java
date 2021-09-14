@@ -1,8 +1,8 @@
 package org.opentosca.container.core.common.uri;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import javax.ws.rs.core.Link;
@@ -35,11 +35,7 @@ public abstract class UriUtil {
     }
 
     public static String encodePathSegment(final String pathSegment) {
-        try {
-            return URLEncoder.encode(pathSegment, "UTF-8");
-        } catch (final UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        return URLEncoder.encode(pathSegment, StandardCharsets.UTF_8);
     }
 
     public static Link generateSelfLink(final UriInfo uriInfo) {

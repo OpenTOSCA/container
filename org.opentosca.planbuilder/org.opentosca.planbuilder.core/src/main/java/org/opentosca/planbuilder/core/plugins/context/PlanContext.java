@@ -1,48 +1,48 @@
 package org.opentosca.planbuilder.core.plugins.context;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 public abstract class PlanContext {
 
     protected final AbstractPlan plan;
-    protected final AbstractServiceTemplate serviceTemplate;
+    protected final TServiceTemplate serviceTemplate;
     protected final String serviceInstanceURLVarName;
     protected final String serviceInstanceIDVarName;
     protected final String serviceTemplateURLVarName;
     protected final String planInstanceUrlVarName;
-    protected final String csarFileName;
+    protected final Csar csar;
     protected final Property2VariableMapping propertyMap;
 
-    public PlanContext(final AbstractPlan plan, final AbstractServiceTemplate serviceTemplate,
+    public PlanContext(final AbstractPlan plan, final TServiceTemplate serviceTemplate,
                        final Property2VariableMapping map, final String serviceInstanceURLVarName,
                        final String serviceInstanceIDVarName, final String serviceTemplateURLVarName, final String planInstanceUrlVarName,
-                       final String csarFileName) {
+                       final Csar csar) {
         this.plan = plan;
         this.serviceTemplate = serviceTemplate;
         this.serviceInstanceIDVarName = serviceInstanceIDVarName;
         this.serviceTemplateURLVarName = serviceTemplateURLVarName;
         this.serviceInstanceURLVarName = serviceInstanceURLVarName;
         this.planInstanceUrlVarName = planInstanceUrlVarName;
-        this.csarFileName = csarFileName;
+        this.csar = csar;
         this.propertyMap = map;
     }
 
-    public Collection<PropertyVariable> getPropertyVariables(final AbstractNodeTemplate nodeTemplate) {
+    public Collection<PropertyVariable> getPropertyVariables(final TNodeTemplate nodeTemplate) {
         return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, nodeTemplate);
     }
 
-    public AbstractServiceTemplate getServiceTemplate() {
+    public TServiceTemplate getServiceTemplate() {
         return this.serviceTemplate;
     }
 
@@ -78,12 +78,12 @@ public abstract class PlanContext {
      * @param propertyName the name of the searched property
      * @return a Variable object representing the property
      */
-    public PropertyVariable getPropertyVariable(final AbstractNodeTemplate nodeTemplate, final String propertyName) {
+    public PropertyVariable getPropertyVariable(final TNodeTemplate nodeTemplate, final String propertyName) {
         return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, nodeTemplate).stream()
             .filter(var -> var.getPropertyName().equals(propertyName)).findFirst().orElse(null);
     }
 
-    public PropertyVariable getPropertyVariable(final AbstractRelationshipTemplate relationshipTemplate,
+    public PropertyVariable getPropertyVariable(final TRelationshipTemplate relationshipTemplate,
                                                 final String propertyName) {
         return this.propertyMap.getRelationPropertyVariables(this.serviceTemplate, relationshipTemplate).stream()
             .filter(var -> var.getPropertyName().equals(propertyName)).findFirst().orElse(null);
@@ -99,13 +99,13 @@ public abstract class PlanContext {
      */
     public PropertyVariable getPropertyVariable(final String localName) {
         // then on everything else
-        for (final AbstractNodeTemplate infraNode : getNodeTemplates()) {
+        for (final TNodeTemplate infraNode : getNodeTemplates()) {
             if (this.getPropertyVariable(infraNode, localName) != null) {
                 return this.getPropertyVariable(infraNode, localName);
             }
         }
 
-        for (final AbstractRelationshipTemplate infraEdge : getRelationshipTemplates()) {
+        for (final TRelationshipTemplate infraEdge : getRelationshipTemplates()) {
             if (this.getPropertyVariable(infraEdge, localName) != null) {
                 return this.getPropertyVariable(infraEdge, localName);
             }
@@ -119,17 +119,11 @@ public abstract class PlanContext {
      * @return a String with the file name of the CSAR
      */
     public String getCSARFileName() {
-        return this.csarFileName;
+        return this.csar.id().csarName();
     }
 
-    /**
-     * Returns an absolute File for the given AbstractArtifactReference
-     *
-     * @param ref an AbstractArtifactReference
-     * @return a File with an absolute path to the file
-     */
-    public File getFileFromArtifactReference(final AbstractArtifactReference ref) {
-        return this.plan.getDefinitions().getAbsolutePathOfArtifactReference(ref);
+    public Csar getCsar() {
+        return this.csar;
     }
 
     /**
@@ -147,9 +141,9 @@ public abstract class PlanContext {
      * Returns all NodeTemplates that are part of the ServiceTemplate this context belongs to.
      * </p>
      *
-     * @return a List of AbstractNodeTemplate
+     * @return a List of TNodeTemplate
      */
-    public List<AbstractNodeTemplate> getNodeTemplates() {
+    public List<TNodeTemplate> getNodeTemplates() {
         // find the serviceTemplate
         return this.plan.getServiceTemplate().getTopologyTemplate().getNodeTemplates();
     }
@@ -159,14 +153,14 @@ public abstract class PlanContext {
      * Returns all RelationshipTemplates that are part of the ServiceTemplate this context belongs to.
      * </p>
      *
-     * @return a List of AbstractRelationshipTemplate
+     * @return a List of TRelationshipTemplate
      */
-    public List<AbstractRelationshipTemplate> getRelationshipTemplates() {
+    public List<TRelationshipTemplate> getRelationshipTemplates() {
         return this.serviceTemplate.getTopologyTemplate().getRelationshipTemplates();
     }
 
     public QName getServiceTemplateId() {
-        return this.serviceTemplate.getQName();
+        return new QName(this.serviceTemplate.getTargetNamespace(), this.serviceTemplate.getId());
     }
 
     /**
@@ -176,13 +170,13 @@ public abstract class PlanContext {
      * @param propertyName the LocalName of a Template Property
      * @return a String containing the variable name, else null
      */
-    public String getVariableNameOfProperty(final AbstractNodeTemplate templateId, final String propertyName) {
+    public String getVariableNameOfProperty(final TNodeTemplate templateId, final String propertyName) {
         return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, templateId).stream()
             .filter(var -> var.getPropertyName().equals(propertyName)).findFirst()
             .map(var -> var.getVariableName()).orElse(null);
     }
 
-    public String getVariableNameOfProperty(final AbstractRelationshipTemplate templateId, final String propertyName) {
+    public String getVariableNameOfProperty(final TRelationshipTemplate templateId, final String propertyName) {
         return this.propertyMap.getRelationPropertyVariables(this.serviceTemplate, templateId).stream()
             .filter(var -> var.getPropertyName().equals(propertyName)).findFirst()
             .map(var -> var.getVariableName()).orElse(null);

@@ -9,6 +9,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
@@ -17,10 +23,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 /**
@@ -35,24 +37,19 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
         super(pluginRegistry);
     }
 
-    @Override
-    public PlanType createdPlanType() {
-        return PlanType.MANAGEMENT;
-    }
-
-    public AbstractPlan generateSOG(final String id, final AbstractDefinitions defintions,
-                                    final AbstractServiceTemplate serviceTemplate,
-                                    final ScalingPlanDefinition scalingPlanDefinition) {
-        final Map<AbstractNodeTemplate, AbstractActivity> mapping = new HashMap<>();
+    public AbstractPlan generateSOG(final String id, final TDefinitions defintions,
+                                    final TServiceTemplate serviceTemplate,
+                                    final ScalingPlanDefinition scalingPlanDefinition, Csar csar) {
+        final Map<TNodeTemplate, AbstractActivity> mapping = new HashMap<>();
 
         final AbstractPlan abstractScaleOutPlan =
             AbstractBuildPlanBuilder.generatePOG(id, defintions, serviceTemplate, scalingPlanDefinition.nodeTemplates,
-                scalingPlanDefinition.relationshipTemplates);
+                scalingPlanDefinition.relationshipTemplates, csar);
         abstractScaleOutPlan.setType(PlanType.MANAGEMENT);
 
         // add instance selection activties by starting for each node strat selection
         // activity
-        for (final AbstractNodeTemplate stratNodeTemplate : scalingPlanDefinition.selectionStrategy2BorderNodes) {
+        for (final TNodeTemplate stratNodeTemplate : scalingPlanDefinition.selectionStrategy2BorderNodes) {
             final AbstractActivity activity =
                 new NodeTemplateActivity(stratNodeTemplate.getId() + "_strategicselection_activity",
                     ActivityType.STRATEGICSELECTION, stratNodeTemplate) {
@@ -61,13 +58,13 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
             mapping.put(stratNodeTemplate, activity);
 
             // here we create recursive selection activities and connect everything
-            final Collection<List<AbstractRelationshipTemplate>> paths = new HashSet<>();
+            final Collection<List<TRelationshipTemplate>> paths = new HashSet<>();
 
-            findOutgoingInfrastructurePaths(paths, stratNodeTemplate);
+            findOutgoingInfrastructurePaths(paths, stratNodeTemplate, csar);
 
             if (paths.isEmpty()) {
-                Collection<AbstractRelationshipTemplate> ingoingRelations = stratNodeTemplate.getIngoingRelations().stream().filter(x -> scalingPlanDefinition.relationshipTemplates.contains(x)).collect(Collectors.toList());
-                for (final AbstractRelationshipTemplate relation : ingoingRelations) {
+                Collection<TRelationshipTemplate> ingoingRelations = ModelUtils.getIngoingRelations(stratNodeTemplate, csar).stream().filter(x -> scalingPlanDefinition.relationshipTemplates.contains(x)).collect(Collectors.toList());
+                for (final TRelationshipTemplate relation : ingoingRelations) {
                     // only add links for relations which are part of the scale plan definition
                     AbstractActivity trgActivity = abstractScaleOutPlan.findRelationshipTemplateActivity(relation, ActivityType.PROVISIONING);
                     if (Objects.nonNull(trgActivity)) {
@@ -76,18 +73,20 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
                 }
             }
 
-            for (final List<AbstractRelationshipTemplate> path : paths) {
-                for (final AbstractRelationshipTemplate relationshipTemplate : path) {
+            for (final List<TRelationshipTemplate> path : paths) {
+                for (final TRelationshipTemplate relationshipTemplate : path) {
                     final AbstractActivity recursiveRelationActivity =
                         new RelationshipTemplateActivity(relationshipTemplate.getId() + "recursiveselection_activity",
                             ActivityType.RECURSIVESELECTION, relationshipTemplate) {
                         };
+                    TNodeTemplate source = ModelUtils.getSource(relationshipTemplate, csar);
+                    TNodeTemplate target = ModelUtils.getTarget(relationshipTemplate, csar);
                     final AbstractActivity recursiveTargetNodeActivity = new NodeTemplateActivity(
-                        relationshipTemplate.getTarget().getId() + "_recursiveselection_activity",
-                        ActivityType.RECURSIVESELECTION, relationshipTemplate.getTarget());
+                        target.getId() + "_recursiveselection_activity",
+                        ActivityType.RECURSIVESELECTION, target);
                     final AbstractActivity recursiveSourceNodeActivity = new NodeTemplateActivity(
-                        relationshipTemplate.getSource().getId() + "_recursiveselection_activity",
-                        ActivityType.RECURSIVESELECTION, relationshipTemplate.getSource());
+                        source.getId() + "_recursiveselection_activity",
+                        ActivityType.RECURSIVESELECTION, source);
 
                     abstractScaleOutPlan.getActivites().add(recursiveRelationActivity);
                     abstractScaleOutPlan.getActivites().add(recursiveSourceNodeActivity);
@@ -99,10 +98,10 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
                         .add(new Link(recursiveSourceNodeActivity, recursiveRelationActivity));
                 }
 
-                for (final AbstractRelationshipTemplate relationshipTemplate : serviceTemplate.getTopologyTemplate()
+                for (final TRelationshipTemplate relationshipTemplate : serviceTemplate.getTopologyTemplate()
                     .getRelationshipTemplates()) {
-                    if (relationshipTemplate.getSource().equals(stratNodeTemplate)
-                        | relationshipTemplate.getTarget().equals(stratNodeTemplate)) {
+                    if (ModelUtils.getSource(relationshipTemplate, csar).equals(stratNodeTemplate)
+                        | ModelUtils.getTarget(relationshipTemplate, csar).equals(stratNodeTemplate)) {
 
                         AbstractActivity provRelationActivity =
                             abstractScaleOutPlan.findRelationshipTemplateActivity(relationshipTemplate,
@@ -127,15 +126,15 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
         return abstractScaleOutPlan;
     }
 
-    private void findOutgoingInfrastructurePaths(final Collection<List<AbstractRelationshipTemplate>> paths,
-                                                 final AbstractNodeTemplate nodeTemplate) {
-        final List<AbstractRelationshipTemplate> infrastructureEdges = new ArrayList<>();
-        ModelUtils.getInfrastructureEdges(nodeTemplate, infrastructureEdges);
+    private void findOutgoingInfrastructurePaths(final Collection<List<TRelationshipTemplate>> paths,
+                                                 final TNodeTemplate nodeTemplate, Csar csar) {
+        final List<TRelationshipTemplate> infrastructureEdges = new ArrayList<>();
+        ModelUtils.getInfrastructureEdges(nodeTemplate, infrastructureEdges, csar);
 
-        for (final AbstractRelationshipTemplate infrastructureEdge : infrastructureEdges) {
-            List<AbstractRelationshipTemplate> pathToAdd = null;
-            for (final List<AbstractRelationshipTemplate> path : paths) {
-                if (path.get(path.size() - 1).getTarget().equals(infrastructureEdge.getSource())) {
+        for (final TRelationshipTemplate infrastructureEdge : infrastructureEdges) {
+            List<TRelationshipTemplate> pathToAdd = null;
+            for (final List<TRelationshipTemplate> path : paths) {
+                if (ModelUtils.getTarget(path.get(path.size() - 1), csar).equals(ModelUtils.getSource(infrastructureEdge, csar))) {
                     pathToAdd = path;
                     break;
                 }
@@ -149,7 +148,7 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
             }
 
             pathToAdd.add(infrastructureEdge);
-            findOutgoingInfrastructurePaths(paths, infrastructureEdge.getTarget());
+            findOutgoingInfrastructurePaths(paths, ModelUtils.getTarget(infrastructureEdge, csar), csar);
         }
     }
 }

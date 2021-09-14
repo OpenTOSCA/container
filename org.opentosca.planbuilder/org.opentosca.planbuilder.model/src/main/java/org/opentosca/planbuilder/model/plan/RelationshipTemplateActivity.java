@@ -1,18 +1,18 @@
 package org.opentosca.planbuilder.model.plan;
 
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 public class RelationshipTemplateActivity extends AbstractActivity {
 
-    private final AbstractRelationshipTemplate relationshipTemplate;
+    private final TRelationshipTemplate relationshipTemplate;
 
     public RelationshipTemplateActivity(final String id, final ActivityType type,
-                                        final AbstractRelationshipTemplate relationshipTemplate) {
+                                        final TRelationshipTemplate relationshipTemplate) {
         super(id, type);
         this.relationshipTemplate = relationshipTemplate;
     }
 
-    public AbstractRelationshipTemplate getRelationshipTemplate() {
+    public TRelationshipTemplate getRelationshipTemplate() {
         return this.relationshipTemplate;
     }
 }

@@ -42,10 +42,6 @@ public enum TBoolean {
         this.value = v;
     }
 
-    public String value() {
-        return this.value;
-    }
-
     public static TBoolean fromValue(final String v) {
         for (final TBoolean c : TBoolean.values()) {
             if (c.value.equals(v)) {
@@ -53,5 +49,9 @@ public enum TBoolean {
             }
         }
         throw new IllegalArgumentException(v);
+    }
+
+    public String value() {
+        return this.value;
     }
 }

@@ -48,7 +48,6 @@ public class GetResultProcessor implements Processor {
             } else {
                 exchange.getIn().setBody(result);
             }
-
         } else if (!QueueMap.containsID(requestID)) {
             GetResultProcessor.LOG.warn("Unknown RequestID: {}", requestID);
             exchange.getIn().setBody(new Exception("Unknown RequestID: " + requestID));

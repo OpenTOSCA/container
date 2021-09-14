@@ -1,6 +1,6 @@
 package org.opentosca.planbuilder.model.plan;
 
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 
 /**
  * Copyright 2017 IAAS University of Stuttgart <br>
@@ -10,14 +10,14 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
  */
 public class NodeTemplateActivity extends AbstractActivity {
 
-    private final AbstractNodeTemplate nodeTemplate;
+    private final TNodeTemplate nodeTemplate;
 
-    public NodeTemplateActivity(final String id, final ActivityType type, final AbstractNodeTemplate nodeTemplate) {
+    public NodeTemplateActivity(final String id, final ActivityType type, final TNodeTemplate nodeTemplate) {
         super(id, type);
         this.nodeTemplate = nodeTemplate;
     }
 
-    public AbstractNodeTemplate getNodeTemplate() {
+    public TNodeTemplate getNodeTemplate() {
         return this.nodeTemplate;
     }
 }

@@ -12,27 +12,24 @@ import javax.inject.Inject;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TPolicy;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
-import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
-import org.opentosca.planbuilder.core.bpel.handlers.EmptyPropertyToInputHandler;
-import org.opentosca.planbuilder.core.bpel.handlers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.PropertyVariableHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.ServiceTemplateBoundaryPropertyMappingsToOutputHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.SimplePlanBuilderServiceInstanceHandler;
-import org.opentosca.planbuilder.core.bpel.handlers.SituationTriggerRegistration;
-import org.opentosca.planbuilder.core.bpel.typebasednodehandler.BPELPluginHandler;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,16 +58,12 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
     // class for finalizing build plans (e.g when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
-    // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
-    private final BPELPluginHandler bpelPluginHandler;
-    private final EmptyPropertyToInputHandler emptyPropInit;
+
     // class for initializing properties inside the plan
     private PropertyVariableHandler propertyInitializer;
     private SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
     private CorrelationIDInitializer correlationHandler;
-    private SituationTriggerRegistration sitRegistrationPlugin;
     private BPELPlanHandler planHandler;
-    private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
     private BPELProcessFragments fragments;
 
     /**
@@ -81,13 +74,9 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
     @Inject
     public BPELSituationAwareBuildProcessBuilder(PluginRegistry pluginRegistry) {
         super(pluginRegistry);
-        bpelPluginHandler = new BPELPluginHandler(pluginRegistry);
-        emptyPropInit = new EmptyPropertyToInputHandler(new BPELScopeBuilder(pluginRegistry));
         try {
             this.planHandler = new BPELPlanHandler();
             this.serviceInstanceInitializer = new SimplePlanBuilderServiceInstanceHandler();
-            this.nodeRelationInstanceHandler = new NodeRelationInstanceVariablesHandler(this.planHandler);
-            this.sitRegistrationPlugin = new SituationTriggerRegistration();
             this.correlationHandler = new CorrelationIDInitializer();
             this.fragments = new BPELProcessFragments();
             this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
@@ -103,11 +92,10 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.IPlanBuilder#buildPlan(java.lang.String,
-     * org.opentosca.planbuilder.model.tosca.AbstractDefinitions, javax.xml.namespace.QName)
+     * org.opentosca.planbuilder.model.tosca.TDefinitions, javax.xml.namespace.QName)
      */
-    @Override
-    public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
-                              final AbstractServiceTemplate serviceTemplate) {
+    private BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                               final TServiceTemplate serviceTemplate) {
         // create empty plan from servicetemplate and add definitions
 
         String namespace;
@@ -117,13 +105,13 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
             namespace = definitions.getTargetNamespace();
         }
 
-        if (namespace.equals(serviceTemplate.getQName().getNamespaceURI())
-            && serviceTemplate.getId().equals(serviceTemplate.getQName().getLocalPart())) {
+        if (namespace.equals(serviceTemplate.getTargetNamespace())
+            && serviceTemplate.getId().equals(serviceTemplate.getId())) {
 
             final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_sitAwareBuildPlan");
             final String processNamespace = serviceTemplate.getTargetNamespace() + "_sitAwareBuildPlan";
 
-            Map<AbstractNodeTemplate, Collection<AbstractPolicy>> situationPolicies =
+            Map<TNodeTemplate, Collection<TPolicy>> situationPolicies =
                 this.getSituationPolicies(serviceTemplate);
 
             if (situationPolicies.isEmpty()) {
@@ -132,10 +120,10 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
             }
 
             // generate id for each situation policy
-            Map<AbstractPolicy, String> policy2IdMap = this.nodePolicyToId(situationPolicies);
+            Map<TPolicy, String> policy2IdMap = this.nodePolicyToId(situationPolicies);
 
             final AbstractPlan buildPlan =
-                generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
+                generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate, csar);
 
             LOG.debug("Generated the following abstract prov plan: ");
             LOG.debug(buildPlan.toString());
@@ -146,7 +134,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
             newBuildPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
             newBuildPlan.setTOSCAOperationname("initiate");
 
-            this.planHandler.initializeBPELSkeleton(newBuildPlan, csarName);
+            this.planHandler.initializeBPELSkeleton(newBuildPlan, csar);
 
             this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
                 newBuildPlan);
@@ -204,8 +192,8 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
         }
 
         BPELSituationAwareBuildProcessBuilder.LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
-            serviceTemplate.getQName().toString(), definitions.getId(),
-            csarName);
+            serviceTemplate.getId(), definitions.getId(),
+            csar.id().csarName());
         return null;
     }
 
@@ -213,17 +201,17 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.IPlanBuilder#buildPlans(java.lang.String,
-     * org.opentosca.planbuilder.model.tosca.AbstractDefinitions)
+     * org.opentosca.planbuilder.model.tosca.TDefinitions)
      */
     @Override
-    public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
         final List<AbstractPlan> plans = new ArrayList<>();
-        for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
+        for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
-            if (!serviceTemplate.hasBuildPlan()) {
+            if (!ModelUtils.hasBuildPlan(serviceTemplate)) {
                 BPELSituationAwareBuildProcessBuilder.LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan",
-                    serviceTemplate.getQName().toString());
-                final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplate);
+                    serviceTemplate.getId());
+                final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
 
                 if (newBuildPlan != null) {
                     BPELSituationAwareBuildProcessBuilder.LOG.debug("Created BuildPlan "
@@ -232,20 +220,20 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
                 }
             } else {
                 BPELSituationAwareBuildProcessBuilder.LOG.debug("ServiceTemplate {} has BuildPlan, no generation needed",
-                    serviceTemplate.getQName().toString());
+                    serviceTemplate.getId());
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} situation-aware build plans for CSAR {}", String.valueOf(plans.size()), csarName);
+            LOG.info("Created {} situation-aware build plans for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }
 
-    private Map<AbstractPolicy, String> nodePolicyToId(Map<AbstractNodeTemplate, Collection<AbstractPolicy>> situationPolicies) {
-        Map<AbstractPolicy, String> nodePolicyToIdMap = new HashMap<AbstractPolicy, String>();
+    private Map<TPolicy, String> nodePolicyToId(Map<TNodeTemplate, Collection<TPolicy>> situationPolicies) {
+        Map<TPolicy, String> nodePolicyToIdMap = new HashMap<TPolicy, String>();
 
-        for (AbstractNodeTemplate node : situationPolicies.keySet()) {
-            for (AbstractPolicy policy : situationPolicies.get(node)) {
+        for (TNodeTemplate node : situationPolicies.keySet()) {
+            for (TPolicy policy : situationPolicies.get(node)) {
                 String id = node.getId() + "_" + policy.getName();
                 nodePolicyToIdMap.put(policy, id);
             }
@@ -254,20 +242,22 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
         return nodePolicyToIdMap;
     }
 
-    private Map<AbstractNodeTemplate, Collection<AbstractPolicy>> getSituationPolicies(AbstractServiceTemplate serviceTemplate) {
-        Map<AbstractNodeTemplate, Collection<AbstractPolicy>> nodeToPolicies =
-            new HashMap<AbstractNodeTemplate, Collection<AbstractPolicy>>();
+    private Map<TNodeTemplate, Collection<TPolicy>> getSituationPolicies(TServiceTemplate serviceTemplate) {
+        Map<TNodeTemplate, Collection<TPolicy>> nodeToPolicies =
+            new HashMap<TNodeTemplate, Collection<TPolicy>>();
 
-        if (serviceTemplate.getTopologyTemplate()  == null) {
+        if (serviceTemplate.getTopologyTemplate() == null) {
             return nodeToPolicies;
         }
 
-        for (AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
-            Collection<AbstractPolicy> situationPolicies = new HashSet<AbstractPolicy>();
-            for (AbstractPolicy policy : nodeTemplate.getPolicies()) {
-                if (policy.getType().getId().equals(new QName("http://opentosca.org/servicetemplates/policytypes",
-                    "SituationPolicy_w1-wip1"))) {
-                    situationPolicies.add(policy);
+        for (TNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+            Collection<TPolicy> situationPolicies = new HashSet<TPolicy>();
+            if (nodeTemplate.getPolicies() != null) {
+                for (TPolicy policy : nodeTemplate.getPolicies()) {
+                    if (policy.getPolicyType().equals(new QName("http://opentosca.org/servicetemplates/policytypes",
+                        "SituationPolicy_w1-wip1"))) {
+                        situationPolicies.add(policy);
+                    }
                 }
             }
             if (!situationPolicies.isEmpty()) {

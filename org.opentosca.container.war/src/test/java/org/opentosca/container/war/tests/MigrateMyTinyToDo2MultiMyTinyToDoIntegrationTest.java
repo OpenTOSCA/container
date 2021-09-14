@@ -70,7 +70,7 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         TestUtils.generatePlans(this.csarService, myTinyToDoCsar);
         TestUtils.generatePlans(this.csarService, multiMyTinyToDoCsar);
 
-        this.csarService.generateTransformationPlans(myTinyToDoCsar.id(), multiMyTinyToDoCsar.id());
+        this.csarService.generateTransformationPlans(myTinyToDoCsar, multiMyTinyToDoCsar);
 
         TServiceTemplate myTinyToDoServiceTemplate = myTinyToDoCsar.entryServiceTemplate();
         TServiceTemplate multiMyTinyToDoServiceTemplate = multiMyTinyToDoCsar.entryServiceTemplate();

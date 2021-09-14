@@ -53,7 +53,6 @@ public class ExceptionProcessor implements Processor {
 
             QueueMap.finished(requestID);
             ResultMap.put(requestID, errorResponse);
-
         } else {
             ExceptionProcessor.LOG.debug("Exception handling...", requestID);
 

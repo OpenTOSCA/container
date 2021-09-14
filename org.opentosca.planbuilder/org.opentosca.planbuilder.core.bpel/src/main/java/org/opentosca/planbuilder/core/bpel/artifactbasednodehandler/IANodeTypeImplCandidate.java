@@ -3,11 +3,12 @@ package org.opentosca.planbuilder.core.bpel.artifactbasednodehandler;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
+import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
+
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
-import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTypeImplementation;
 
 /**
  * <p>
@@ -20,28 +21,28 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTypeImplementat
  */
 class IANodeTypeImplCandidate {
 
-    AbstractNodeTypeImplementation nodeImpl;
-    List<AbstractImplementationArtifact> ias = new ArrayList<>();
-    List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
+    TNodeTypeImplementation nodeImpl;
+    List<TImplementationArtifact> ias = new ArrayList<>();
+    List<TNodeTemplate> infraNodes = new ArrayList<>();
     List<IPlanBuilderPrePhaseIAPlugin> plugins = new ArrayList<>();
 
-    private AbstractRelationshipTypeImplementation relationImpl;
+    private TRelationshipTypeImplementation relationImpl;
 
     /**
      * Constructor for a NodeTypeImplementation
      *
-     * @param impl a AbstractNodeTypeImplementation which should be used for provisioning
+     * @param impl a TNodeTypeImplementation which should be used for provisioning
      */
-    IANodeTypeImplCandidate(final AbstractNodeTypeImplementation impl) {
+    IANodeTypeImplCandidate(final TNodeTypeImplementation impl) {
         this.nodeImpl = impl;
     }
 
     /**
      * Constructor for a RelationshipTypeImplementation
      *
-     * @param impl a AbstractRelationshipTypeImplementation which should be used for provisioning
+     * @param impl a TRelationshipTypeImplementation which should be used for provisioning
      */
-    IANodeTypeImplCandidate(final AbstractRelationshipTypeImplementation impl) {
+    IANodeTypeImplCandidate(final TRelationshipTypeImplementation impl) {
         this.relationImpl = impl;
     }
 
@@ -52,10 +53,10 @@ class IANodeTypeImplCandidate {
      * @param nodeTemplate the InfrastructureNode to deploy the IA on
      * @param plugin       the PrePhaseIAPlugin which can deploy the IA unto the InfrastructureNode
      */
-    void add(final AbstractImplementationArtifact ia, final AbstractNodeTemplate nodeTemplate,
+    void add(final TImplementationArtifact ia, final TNodeTemplate nodeTemplate,
              final IPlanBuilderPrePhaseIAPlugin plugin) {
 
-        for (final AbstractImplementationArtifact candidateIa : this.ias) {
+        for (final TImplementationArtifact candidateIa : this.ias) {
             if (candidateIa.equals(ia)) {
                 return;
             }
@@ -73,9 +74,9 @@ class IANodeTypeImplCandidate {
     boolean isValid() {
         if (this.nodeImpl != null) {
 
-            for (final AbstractImplementationArtifact ia : this.nodeImpl.getImplementationArtifacts()) {
+            for (final TImplementationArtifact ia : this.nodeImpl.getImplementationArtifacts()) {
                 boolean matched = false;
-                for (final AbstractImplementationArtifact handledIa : this.ias) {
+                for (final TImplementationArtifact handledIa : this.ias) {
                     if (ia.equals(handledIa)) {
                         matched = true;
                     }
@@ -88,9 +89,9 @@ class IANodeTypeImplCandidate {
             return true;
         } else {
 
-            for (final AbstractImplementationArtifact ia : this.relationImpl.getImplementationArtifacts()) {
+            for (final TImplementationArtifact ia : this.relationImpl.getImplementationArtifacts()) {
                 boolean matched = false;
-                for (final AbstractImplementationArtifact handledIa : this.ias) {
+                for (final TImplementationArtifact handledIa : this.ias) {
                     if (ia.equals(handledIa)) {
                         matched = true;
                     }
@@ -112,7 +113,7 @@ class IANodeTypeImplCandidate {
     boolean isValid(final String interfaceName, final String operationName) {
         if (this.nodeImpl != null) {
 
-            for (final AbstractImplementationArtifact ia : this.nodeImpl.getImplementationArtifacts()) {
+            for (final TImplementationArtifact ia : this.nodeImpl.getImplementationArtifacts()) {
                 if (ia.getInterfaceName() != interfaceName) {
                     continue;
                 }
@@ -120,7 +121,7 @@ class IANodeTypeImplCandidate {
                     continue;
                 }
                 boolean matched = false;
-                for (final AbstractImplementationArtifact handledIa : this.ias) {
+                for (final TImplementationArtifact handledIa : this.ias) {
                     if (ia.equals(handledIa)) {
                         matched = true;
                     }
@@ -133,7 +134,7 @@ class IANodeTypeImplCandidate {
             return true;
         } else {
 
-            for (final AbstractImplementationArtifact ia : this.relationImpl.getImplementationArtifacts()) {
+            for (final TImplementationArtifact ia : this.relationImpl.getImplementationArtifacts()) {
                 if (ia.getInterfaceName() != interfaceName) {
                     continue;
                 }
@@ -141,7 +142,7 @@ class IANodeTypeImplCandidate {
                     continue;
                 }
                 boolean matched = false;
-                for (final AbstractImplementationArtifact handledIa : this.ias) {
+                for (final TImplementationArtifact handledIa : this.ias) {
                     if (ia.equals(handledIa)) {
                         matched = true;
                     }

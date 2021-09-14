@@ -6,87 +6,89 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.w3c.dom.Element;
 
 public class ContainerPatternBasedHandler extends PatternBasedHandler {
 
-    public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate, Element elementToAppendTo) {
+    public boolean handleCreate(final BPELPlanContext context, final TNodeTemplate nodeTemplate, Element elementToAppendTo, Csar csar) {
 
-        final AbstractNodeTemplate hostingContainer = getHostingNode(nodeTemplate);
+        final TNodeTemplate hostingContainer = getHostingNode(nodeTemplate, csar);
 
-        final AbstractInterface iface = getContainerPatternInterface(hostingContainer);
-        final AbstractOperation createOperation = getContainerPatternCreateMethod(hostingContainer);
+        final TInterface iface = getContainerPatternInterface(hostingContainer, csar);
+        final TOperation createOperation = getContainerPatternCreateMethod(hostingContainer, csar);
 
-        final Set<AbstractNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate);
+        final Set<TNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate, csar);
 
         return invokeWithMatching(context, hostingContainer, iface, createOperation, nodesForMatching, elementToAppendTo);
     }
 
-    public boolean handleTerminate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate, Element elementToAppendTo) {
+    public boolean handleTerminate(final BPELPlanContext context, final TNodeTemplate nodeTemplate, Element elementToAppendTo, Csar csar) {
 
-        final AbstractNodeTemplate hostingContainer = getHostingNode(nodeTemplate);
+        final TNodeTemplate hostingContainer = getHostingNode(nodeTemplate, csar);
 
-        final AbstractInterface iface = getContainerPatternInterface(hostingContainer);
-        final AbstractOperation terminateOperation = getContainerPatternTerminateMethod(hostingContainer);
+        final TInterface iface = getContainerPatternInterface(hostingContainer, csar);
+        final TOperation terminateOperation = getContainerPatternTerminateMethod(hostingContainer, csar);
 
-        final Set<AbstractNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate);
+        final Set<TNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate, csar);
 
         return invokeWithMatching(context, hostingContainer, iface, terminateOperation, nodesForMatching, elementToAppendTo);
     }
 
-    public boolean isProvisionableByContainerPattern(final AbstractNodeTemplate nodeTemplate) {
+    public boolean isProvisionableByContainerPattern(final TNodeTemplate nodeTemplate, Csar csar) {
         // find hosting node
-        final AbstractNodeTemplate hostingNode = getHostingNode(nodeTemplate);
+        final TNodeTemplate hostingNode = getHostingNode(nodeTemplate, csar);
         if (Objects.isNull(hostingNode)) {
             return false;
         }
 
-        if (!hasContainerPatternCreateMethod(hostingNode)) {
+        if (!hasContainerPatternCreateMethod(hostingNode, csar)) {
             return false;
         }
 
-        final Set<AbstractNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate);
+        final Set<TNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate, csar);
 
-        return hasCompleteMatching(nodesForMatching, getContainerPatternInterface(hostingNode),
-            getContainerPatternCreateMethod(hostingNode));
+        return hasCompleteMatching(nodesForMatching, getContainerPatternInterface(hostingNode, csar),
+            getContainerPatternCreateMethod(hostingNode, csar));
     }
 
-    public boolean isDeprovisionableByContainerPattern(final AbstractNodeTemplate nodeTemplate) {
+    public boolean isDeprovisionableByContainerPattern(final TNodeTemplate nodeTemplate, Csar csar) {
         // find hosting node
-        final AbstractNodeTemplate hostingNode = getHostingNode(nodeTemplate);
+        final TNodeTemplate hostingNode = getHostingNode(nodeTemplate, csar);
         if (Objects.isNull(hostingNode)) {
             return false;
         }
 
-        if (!hasContainerPatternTerminateMethod(hostingNode)) {
+        if (!hasContainerPatternTerminateMethod(hostingNode, csar)) {
             return false;
         }
 
-        final Set<AbstractNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate);
+        final Set<TNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate, csar);
 
-        return hasCompleteMatching(nodesForMatching, getContainerPatternInterface(hostingNode),
-            getContainerPatternTerminateMethod(hostingNode));
+        return hasCompleteMatching(nodesForMatching, getContainerPatternInterface(hostingNode, csar),
+            getContainerPatternTerminateMethod(hostingNode, csar));
     }
 
-    private boolean hasContainerPatternCreateMethod(final AbstractNodeTemplate nodeTemplate) {
-        return Objects.nonNull(getContainerPatternCreateMethod(nodeTemplate));
+    private boolean hasContainerPatternCreateMethod(final TNodeTemplate nodeTemplate, Csar csar) {
+        return Objects.nonNull(getContainerPatternCreateMethod(nodeTemplate, csar));
     }
 
-    private boolean hasContainerPatternTerminateMethod(final AbstractNodeTemplate nodeTemplate) {
-        return Objects.nonNull(getContainerPatternTerminateMethod(nodeTemplate));
+    private boolean hasContainerPatternTerminateMethod(final TNodeTemplate nodeTemplate, Csar csar) {
+        return Objects.nonNull(getContainerPatternTerminateMethod(nodeTemplate, csar));
     }
 
-    protected AbstractOperation getContainerPatternTerminateMethod(final AbstractNodeTemplate nodeTemplate) {
-        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
+    protected TOperation getContainerPatternTerminateMethod(final TNodeTemplate nodeTemplate, Csar csar) {
+        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
             if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN)) {
-                for (final AbstractOperation op : iface.getOperations()) {
+                for (final TOperation op : iface.getOperations()) {
                     if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_TERMINATE)) {
                         return op;
                     }
@@ -94,14 +96,14 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
             }
             // backwards compatibility
             if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER)) {
-                for (final AbstractOperation op : iface.getOperations()) {
+                for (final TOperation op : iface.getOperations()) {
                     if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM)) {
                         return op;
                     }
                 }
             }
             if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE)) {
-                for (final AbstractOperation op : iface.getOperations()) {
+                for (final TOperation op : iface.getOperations()) {
                     if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER)) {
                         return op;
                     }
@@ -111,10 +113,10 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
         return null;
     }
 
-    protected AbstractOperation getContainerPatternCreateMethod(final AbstractNodeTemplate nodeTemplate) {
-        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
+    protected TOperation getContainerPatternCreateMethod(final TNodeTemplate nodeTemplate, Csar csar) {
+        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
             if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN)) {
-                for (final AbstractOperation op : iface.getOperations()) {
+                for (final TOperation op : iface.getOperations()) {
                     if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_CREATE)) {
                         return op;
                     }
@@ -125,8 +127,8 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
         return null;
     }
 
-    private AbstractInterface getContainerPatternInterface(final AbstractNodeTemplate nodeTemplate) {
-        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
+    private TInterface getContainerPatternInterface(final TNodeTemplate nodeTemplate, Csar csar) {
+        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
             if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN)) {
                 return iface;
             }
@@ -141,24 +143,24 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
         return null;
     }
 
-    private Set<AbstractNodeTemplate> calculateNodesForMatching(final AbstractNodeTemplate nodeTemplate) {
-        final Set<AbstractNodeTemplate> nodesForMatching = new HashSet<>();
+    private Set<TNodeTemplate> calculateNodesForMatching(final TNodeTemplate nodeTemplate, Csar csar) {
+        final Set<TNodeTemplate> nodesForMatching = new HashSet<>();
         nodesForMatching.add(nodeTemplate);
 
-        AbstractNodeTemplate hostingNode = getHostingNode(nodeTemplate);
+        TNodeTemplate hostingNode = getHostingNode(nodeTemplate, csar);
         while (Objects.nonNull(hostingNode)) {
             nodesForMatching.add(hostingNode);
-            hostingNode = getHostingNode(hostingNode);
+            hostingNode = getHostingNode(hostingNode, csar);
         }
 
         return nodesForMatching;
     }
 
-    protected AbstractNodeTemplate getHostingNode(final AbstractNodeTemplate nodeTemplate) {
-        for (final AbstractRelationshipTemplate rel : nodeTemplate.getOutgoingRelations()) {
-            for (final QName typeInHierarchy : ModelUtils.getRelationshipTypeHierarchy(rel.getRelationshipType())) {
+    protected TNodeTemplate getHostingNode(final TNodeTemplate nodeTemplate, Csar csar) {
+        for (final TRelationshipTemplate rel : ModelUtils.getOutgoingRelations(nodeTemplate, csar)) {
+            for (final QName typeInHierarchy : ModelUtils.getRelationshipTypeHierarchy(ModelUtils.findRelationshipType(rel, csar), csar)) {
                 if (ModelUtils.isInfrastructureRelationshipType(typeInHierarchy)) {
-                    return rel.getTarget();
+                    return ModelUtils.getTarget(rel, csar);
                 }
             }
         }

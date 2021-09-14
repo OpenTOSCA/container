@@ -1,10 +1,12 @@
 package org.opentosca.planbuilder.type.plugin.mosquittoconnectsto.core;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 /**
@@ -23,10 +25,10 @@ public abstract class ConnectsToTypePlugin<T extends PlanContext> implements IPl
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin#canHandle(org.
-     * opentosca.planbuilder.model.tosca.AbstractNodeTemplate)
+     * opentosca.planbuilder.model.tosca.TNodeTemplate)
      */
     @Override
-    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(Csar csar, final TNodeTemplate nodeTemplate) {
         // we can't handle nodeTemplates
         return false;
     }
@@ -35,10 +37,10 @@ public abstract class ConnectsToTypePlugin<T extends PlanContext> implements IPl
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin#canHandle(org.
-     * opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate)
+     * opentosca.planbuilder.model.tosca.TRelationshipTemplate)
      */
     @Override
-    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(Csar csar, final TRelationshipTemplate relationshipTemplate) {
 
         // check the relationshipType
         if (!relationshipTemplate.getType()
@@ -50,14 +52,14 @@ public abstract class ConnectsToTypePlugin<T extends PlanContext> implements IPl
          * check whether the target is a topic which is on top of an mosquitto node
          */
         // check if this relation is connected to a topic
-        if (!relationshipTemplate.getTarget().getType().getId().equals(ConnectsToTypePluginConstants.TOPIC_NODETYPE)) {
+        if (!ModelUtils.getTarget(relationshipTemplate, csar).getType().equals(ConnectsToTypePluginConstants.TOPIC_NODETYPE)) {
             return false;
         }
 
-        for (final AbstractRelationshipTemplate relation : relationshipTemplate.getTarget().getOutgoingRelations()) {
+        for (final TRelationshipTemplate relation : ModelUtils.getOutgoingRelations(ModelUtils.getTarget(relationshipTemplate, csar), csar)) {
             // cycle trough outgoing hostedOn relations
-            if (ModelUtils.getRelationshipBaseType(relation).equals(Types.hostedOnRelationType)
-                && relation.getTarget().getType().getId().equals(ConnectsToTypePluginConstants.MOSQUITTO_NODETYPE)) {
+            if (ModelUtils.getRelationshipBaseType(relation, csar).equals(Types.hostedOnRelationType)
+                && ModelUtils.getTarget(relation, csar).getType().equals(ConnectsToTypePluginConstants.MOSQUITTO_NODETYPE)) {
                 // found mosquitto -> found stack: topic -hostedOn->
                 // mosquitto
                 return true;

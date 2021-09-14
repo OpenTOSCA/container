@@ -4,53 +4,57 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.convention.Utils;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.w3c.dom.Element;
 
 public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
 
-    public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate, Element elementToAppendTo) {
-        final AbstractInterface iface = getRemoteManagerInterface(nodeTemplate);
-        final AbstractOperation createOperation = getRemoteManagerInstallOperation(nodeTemplate);
+    public boolean handleCreate(final BPELPlanContext context, final TNodeTemplate nodeTemplate, Element elementToAppendTo) {
+        final TInterface iface = getRemoteManagerInterface(nodeTemplate, context.getCsar());
+        final TOperation createOperation = getRemoteManagerInstallOperation(nodeTemplate, context.getCsar());
 
-        final Set<AbstractNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate);
+        final Set<TNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate, context.getCsar());
 
         // For the future we should think about integrating the fileupload plugin into the pattern plugin or refactoring it, cause:
         // The fileupload plugin implicitly works according to the lifecycle/container pattern as in that case it can just traverse the the topology downward along the hostedOn relations.
         // The remote manager pattern uses a dependsOn relation to a managing node which used to find the operation for uploading files/DAs
-        AbstractNodeTemplate infraNode = this.getRemoteManagerNode(nodeTemplate);
-        nodeTemplate.getDeploymentArtifacts().forEach(da -> da.getArtifactRef().getArtifactReferences().forEach(ref -> this.invokeArtifactReferenceUpload(context, ref, infraNode)));
+        TNodeTemplate infraNode = this.getRemoteManagerNode(nodeTemplate, context.getCsar());
+
+        nodeTemplate.getDeploymentArtifacts().forEach(da -> ModelUtils.findArtifactTemplate(da.getArtifactRef(), context.getCsar()).getArtifactReferences().forEach(ref -> this.invokeArtifactReferenceUpload(context, ref, infraNode)));
 
         return invokeWithMatching(context, nodeTemplate, iface, createOperation, nodesForMatching, elementToAppendTo);
     }
 
-    public boolean isProvisionableByRemoteManagerPattern(AbstractNodeTemplate node) {
+    public boolean isProvisionableByRemoteManagerPattern(TNodeTemplate node, Csar csar) {
 
-        if (this.getRemoteManagerInstallOperation(node) == null) {
+        if (this.getRemoteManagerInstallOperation(node, csar) == null) {
             return false;
         }
 
-        return this.getRemoteManagerNode(node) != null;
+        return this.getRemoteManagerNode(node, csar) != null;
     }
 
-    public Set<AbstractNodeTemplate> getNodeDependencies(AbstractNodeTemplate nodeTemplate) {
-        return this.calculateNodesForMatching(nodeTemplate);
+    public Set<TNodeTemplate> getNodeDependencies(TNodeTemplate nodeTemplate, Csar csar) {
+        return this.calculateNodesForMatching(nodeTemplate, csar);
     }
 
-    private Set<AbstractNodeTemplate> calculateNodesForMatching(final AbstractNodeTemplate nodeTemplate) {
-        final Set<AbstractNodeTemplate> nodesForMatching = new HashSet<>();
+    private Set<TNodeTemplate> calculateNodesForMatching(final TNodeTemplate nodeTemplate, Csar csar) {
+        final Set<TNodeTemplate> nodesForMatching = new HashSet<>();
         nodesForMatching.add(nodeTemplate);
 
-        AbstractNodeTemplate mngrNode = getRemoteManagerNode(nodeTemplate);
+        TNodeTemplate mngrNode = getRemoteManagerNode(nodeTemplate, csar);
 
-        for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
-            nodesForMatching.add(relation.getTarget());
+        for (TRelationshipTemplate relation : ModelUtils.getOutgoingRelations(nodeTemplate, csar)) {
+            nodesForMatching.add(ModelUtils.getTarget(relation, csar));
         }
 
         nodesForMatching.add(mngrNode);
@@ -58,12 +62,12 @@ public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
         return nodesForMatching;
     }
 
-    private AbstractNodeTemplate getRemoteManagerNode(AbstractNodeTemplate node) {
+    private TNodeTemplate getRemoteManagerNode(TNodeTemplate node, Csar csar) {
 
-        for (AbstractRelationshipTemplate relation : node.getOutgoingRelations()) {
+        for (TRelationshipTemplate relation : ModelUtils.getOutgoingRelations(node, csar)) {
             if (relation.getType().equals(Types.dependsOnRelationType)) {
-                AbstractNodeTemplate remoteMngrNode = relation.getTarget();
-                if (Utils.isSupportedOSNodeType(remoteMngrNode.getType().getId())) {
+                TNodeTemplate remoteMngrNode = ModelUtils.getTarget(relation, csar);
+                if (Utils.isSupportedOSNodeType(remoteMngrNode.getType())) {
                     return remoteMngrNode;
                 }
             }
@@ -72,10 +76,10 @@ public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
         return null;
     }
 
-    private AbstractOperation getRemoteManagerInstallOperation(AbstractNodeTemplate node) {
-        AbstractInterface iface = this.getRemoteManagerInterface(node);
+    private TOperation getRemoteManagerInstallOperation(TNodeTemplate node, Csar csar) {
+        TInterface iface = this.getRemoteManagerInterface(node, csar);
         if (iface != null) {
-            for (AbstractOperation op : iface.getOperations()) {
+            for (TOperation op : iface.getOperations()) {
                 if (op.getName().equals("install")) {
                     return op;
                 }
@@ -84,10 +88,10 @@ public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
         return null;
     }
 
-    private AbstractOperation getRemoteManagerResetOperation(AbstractNodeTemplate node) {
-        AbstractInterface iface = this.getRemoteManagerInterface(node);
+    private TOperation getRemoteManagerResetOperation(TNodeTemplate node, Csar csar) {
+        TInterface iface = this.getRemoteManagerInterface(node, csar);
         if (iface != null) {
-            for (AbstractOperation op : iface.getOperations()) {
+            for (TOperation op : iface.getOperations()) {
                 if (op.getName().equals("reset")) {
                     return op;
                 }
@@ -96,8 +100,8 @@ public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
         return null;
     }
 
-    private AbstractInterface getRemoteManagerInterface(AbstractNodeTemplate node) {
-        for (AbstractInterface iface : node.getType().getInterfaces()) {
+    private TInterface getRemoteManagerInterface(TNodeTemplate node, Csar csar) {
+        for (TInterface iface : ModelUtils.findNodeType(node, csar).getInterfaces()) {
             if (iface.getName().equals("http://opentosca.org/interfaces/pattern/remotemanager")) {
                 return iface;
             }
@@ -105,27 +109,27 @@ public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
         return null;
     }
 
-    public boolean isDeprovisionableByRemoteManagerPattern(AbstractNodeTemplate nodeTemplate) {
+    public boolean isDeprovisionableByRemoteManagerPattern(TNodeTemplate nodeTemplate) {
         // TODO Auto-generated method stub
         return false;
     }
 
-    public Collection<? extends AbstractNodeTemplate> getMatchedNodesForDeprovisioning(AbstractNodeTemplate nodeTemplate) {
+    public Collection<? extends TNodeTemplate> getMatchedNodesForDeprovisioning(TNodeTemplate nodeTemplate) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate,
+    public boolean handleTerminate(BPELPlanContext templateContext, TNodeTemplate nodeTemplate,
                                    Element provisioningPhaseElement) {
         // TODO Auto-generated method stub
         return false;
     }
 
-    public AbstractOperation getRemoteManagerPatternResetMethod(AbstractNodeTemplate nodeTemplate) {
-        return this.getRemoteManagerResetOperation(nodeTemplate);
+    public TOperation getRemoteManagerPatternResetMethod(TNodeTemplate nodeTemplate, Csar csar) {
+        return this.getRemoteManagerResetOperation(nodeTemplate, csar);
     }
 
-    public AbstractOperation getRemoteManagerPatternInstallMethod(AbstractNodeTemplate nodeTemplate) {
-        return this.getRemoteManagerInstallOperation(nodeTemplate);
+    public TOperation getRemoteManagerPatternInstallMethod(TNodeTemplate nodeTemplate, Csar csar) {
+        return this.getRemoteManagerInstallOperation(nodeTemplate, csar);
     }
 }
