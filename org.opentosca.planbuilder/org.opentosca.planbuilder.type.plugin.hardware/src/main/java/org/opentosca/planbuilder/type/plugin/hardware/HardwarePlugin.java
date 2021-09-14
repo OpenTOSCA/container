@@ -30,8 +30,6 @@ import org.slf4j.LoggerFactory;
 public class HardwarePlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
     IPlanBuilderTypePlugin.NodeDependencyInformationInterface {
 
-    private final static Logger LOG = LoggerFactory.getLogger(HardwarePlugin.class);
-
     private static final String id = "OpenTOSCA PlanBuilder Type Plugin Platform Provisioning";
 
     // INFO: An alternative solution for this plugin would be to implement the lifecycle interface by the node types (install,

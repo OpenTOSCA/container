@@ -140,9 +140,4 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
         }
         return false;
     }
-
-    @Override
-    public PlanType createdPlanType() {
-        return PlanType.BUILD;
-    }
 }

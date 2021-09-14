@@ -81,11 +81,6 @@ public abstract class AbstractTerminationPlanBuilder extends AbstractSimplePlanB
         };
     }
 
-    @Override
-    public PlanType createdPlanType() {
-        return PlanType.TERMINATION;
-    }
-
     protected AbstractPlan generateTOG(final String id, final TDefinitions definitions,
                                        final TServiceTemplate serviceTemplate, Csar csar) {
         return AbstractTerminationPlanBuilder.generateTOG(id, definitions, serviceTemplate,

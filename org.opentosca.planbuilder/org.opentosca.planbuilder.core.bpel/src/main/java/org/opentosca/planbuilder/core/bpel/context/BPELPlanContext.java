@@ -158,22 +158,6 @@ public class BPELPlanContext extends PlanContext {
         return null;
     }
 
-    /**
-     * Returns the variable name of the first occurence of a property with the given Property name of
-     * InfrastructureNodes
-     *
-     * @return a String containing the variable name, else null
-     */
-    public String getVariableNameOfInfraNodeProperty(final String propertyName) {
-        for (final TNodeTemplate infraNode : this.getInfrastructureNodes()) {
-            String varName;
-            if ((varName = this.getVariableNameOfProperty(infraNode, propertyName)) != null) {
-                return varName;
-            }
-        }
-        return null;
-    }
-
     public String getTemplateId() {
         if (getNodeTemplate() != null) {
             return getNodeTemplate().getId();
@@ -362,35 +346,6 @@ public class BPELPlanContext extends PlanContext {
         return result;
     }
 
-    public Variable createVariableWithRandomValue() {
-        final String varName = "randomVar" + getIdForNames();
-        boolean check = this.buildPlanHandler.addStringVariable(varName, this.templateBuildPlan.getBuildPlan());
-        check &= this.buildPlanHandler.assignInitValueToVariable(varName, String.valueOf(System.currentTimeMillis()),
-            this.templateBuildPlan.getBuildPlan());
-        return check ? new Variable(varName) : null;
-    }
-
-    /**
-     * Returns alls InfrastructureEdges of the Template this context belongs to
-     *
-     * @return a List of TRelationshipTemplate which are InfrastructureEdges of the template this context handles
-     */
-    public List<TRelationshipTemplate> getInfrastructureEdges(Csar csar) {
-        final List<TRelationshipTemplate> infraEdges = new ArrayList<>();
-        if (this.templateBuildPlan.getNodeTemplate() != null) {
-            ModelUtils.getInfrastructureEdges(getNodeTemplate(), infraEdges, csar);
-        } else {
-            final TRelationshipTemplate template = this.templateBuildPlan.getRelationshipTemplate();
-            if (ModelUtils.getRelationshipBaseType(template,csar).equals(Types.connectsToRelationType)) {
-                ModelUtils.getInfrastructureEdges(template, infraEdges, true , csar);
-                ModelUtils.getInfrastructureEdges(template, infraEdges, false, csar);
-            } else {
-                ModelUtils.getInfrastructureEdges(template, infraEdges, false, csar);
-            }
-        }
-        return infraEdges;
-    }
-
     /**
      * Returns all InfrastructureNodes of the Template this context belongs to
      *
@@ -411,33 +366,6 @@ public class BPELPlanContext extends PlanContext {
             }
         }
         return infrastructureNodes;
-    }
-
-    /**
-     * Returns all InfrastructureNodes of the Template this context belongs to
-     *
-     * @param forSource whether to look for InfrastructureNodes along the Source relations or Target relations
-     * @return a List of TNodeTemplate which are InfrastructureNodeTemplate of the template this context handles
-     */
-    public List<TNodeTemplate> getInfrastructureNodes(final boolean forSource) {
-        final List<TNodeTemplate> infrastructureNodes = new ArrayList<>();
-        if (this.templateBuildPlan.getNodeTemplate() != null) {
-            ModelUtils.getInfrastructureNodes(getNodeTemplate(), infrastructureNodes, csar);
-        } else {
-            final TRelationshipTemplate template = this.templateBuildPlan.getRelationshipTemplate();
-            ModelUtils.getInfrastructureNodes(template, infrastructureNodes, forSource, csar);
-        }
-        return infrastructureNodes;
-    }
-
-    /**
-     * Returns the localNames defined inside the input message of the buildPlan this context belongs to
-     *
-     * @return a List of Strings representing the XML localNames of the elements inside the input message of the
-     * buildPlan this context belongs to
-     */
-    public List<String> getInputMessageElementNames() {
-        return this.templateBuildPlan.getBuildPlan().getWsdl().getInputMessageLocalNames();
     }
 
     /**
@@ -599,15 +527,6 @@ public class BPELPlanContext extends PlanContext {
     }
 
     /**
-     * Returns the name of variable which is the input message of the buildPlan
-     *
-     * @return a String containing the variable name of the inputmessage of the BuildPlan
-     */
-    public String getPlanRequestMessageName() {
-        return "input";
-    }
-
-    /**
      * Returns the name of variable which is the output message of the buildPlan
      *
      * @return a String containing the variable name of the outputmessage of the BuildPlan
@@ -694,18 +613,6 @@ public class BPELPlanContext extends PlanContext {
     }
 
     /**
-     * Adds the namespace inside the given QName to the buildPlan
-     *
-     * @param qname a QName with set prefix and namespace
-     * @return true if adding the namespace was successful, else false
-     */
-    public boolean addNamespaceToBPELDoc(final QName qname) {
-
-        return this.bpelProcessHandler.addNamespaceToBPELDoc(qname.getPrefix(), qname.getNamespaceURI(),
-            this.templateBuildPlan.getBuildPlan());
-    }
-
-    /**
      * Adds a partnerLink to the TemplateBuildPlan of the Template this context handles
      *
      * @param partnerLinkName       the name of the partnerLink
@@ -727,20 +634,6 @@ public class BPELPlanContext extends PlanContext {
         check &= this.bpelTemplateHandler.addPartnerLink(partnerLinkName, partnerType, myRole, partnerRole,
             initializePartnerRole, this.templateBuildPlan);
         return check;
-    }
-
-    /**
-     * Adds a partnerlinkType to the BuildPlan, which can be used for partnerLinks in the TemplateBuildPlan
-     *
-     * @param partnerLinkTypeName the name of the partnerLinkType
-     * @param roleName            the name of the 1st role
-     * @param portType            the portType of the partnerLinkType
-     * @return true if adding the partnerLinkType was successful, else false
-     */
-    public boolean addPartnerLinkType(final String partnerLinkTypeName, final String roleName, QName portType) {
-        portType = importNamespace(portType);
-        return this.bpelProcessHandler.addPartnerLinkType(partnerLinkTypeName, roleName, portType,
-            this.templateBuildPlan.getBuildPlan());
     }
 
     /**
@@ -920,36 +813,6 @@ public class BPELPlanContext extends PlanContext {
     }
 
     /**
-     * Returns a List of Port which implement the given portType inside the given WSDL File
-     *
-     * @param portType the portType to use
-     * @param wsdlFile the WSDL File to look in
-     * @return a List of Port which implement the given PortType
-     * @throws WSDLException is thrown when the given File is not a WSDL File or initializing the WSDL Factory failed
-     */
-    public List<Port> getPortsInWSDLFileForPortType(final QName portType, final File wsdlFile) throws WSDLException {
-        final List<Port> wsdlPorts = new ArrayList<>();
-        // taken from http://www.java.happycodings.com/Other/code24.html
-        final WSDLFactory factory = WSDLFactory.newInstance();
-        final WSDLReader reader = factory.newWSDLReader();
-        reader.setFeature("javax.wsdl.verbose", false);
-        final Definition wsdlInstance = reader.readWSDL(wsdlFile.getAbsolutePath());
-        final Map<?, ?> services = wsdlInstance.getAllServices();
-        for (final Object key : services.keySet()) {
-            final Service service = (Service) services.get(key);
-            final Map<?, ?> ports = service.getPorts();
-            for (final Object portKey : ports.keySet()) {
-                final Port port = (Port) ports.get(portKey);
-                if (port.getBinding().getPortType().getQName().getNamespaceURI().equals(portType.getNamespaceURI())
-                    && port.getBinding().getPortType().getQName().getLocalPart().equals(portType.getLocalPart())) {
-                    wsdlPorts.add(port);
-                }
-            }
-        }
-        return wsdlPorts;
-    }
-
-    /**
      * Returns the PostPhase Element of the TemplateBuildPlan this context belongs to
      *
      * @return a Element which is the PostPhase Element
@@ -999,16 +862,6 @@ public class BPELPlanContext extends PlanContext {
     }
 
     /**
-     * Returns the name of the TemplateBuildPlan this BPELPlanContext belongs to
-     *
-     * @return a String containing a Name for the TemplateBuildPlan consisting of the Id of the NodeTemplate processed
-     * in that plan
-     */
-    public String getTemplateBuildPlanName() {
-        return this.templateBuildPlan.getBpelScopeElement().getAttribute("name");
-    }
-
-    /**
      * Returns all files of the BuildPlan which have the ending ".wsdl"
      *
      * @return a List of File which have the ending ".wsdl"
@@ -1052,18 +905,6 @@ public class BPELPlanContext extends PlanContext {
      */
     public QName importQName(final QName qname) {
         return importNamespace(qname);
-    }
-
-    /**
-     * Registers the given namespace as extension inside the BuildPlan
-     *
-     * @param namespace      the namespace of the extension
-     * @param mustUnderstand the mustUnderstand attribute
-     * @return true if adding was successful, else false
-     */
-    public boolean registerExtension(final String namespace, final boolean mustUnderstand) {
-        return this.buildPlanHandler.registerExtension(namespace, mustUnderstand,
-            this.templateBuildPlan.getBuildPlan());
     }
 
     /**

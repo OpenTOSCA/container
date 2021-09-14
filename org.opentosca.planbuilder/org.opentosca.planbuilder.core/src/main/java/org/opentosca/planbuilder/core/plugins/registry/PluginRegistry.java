@@ -196,10 +196,6 @@ public class PluginRegistry {
         return choreographyPlugins;
     }
 
-    public boolean canTypePluginHandleCreate(final TNodeTemplate nodeTemplate, Csar csar) {
-        return this.findTypePluginForCreation(nodeTemplate, csar) != null;
-    }
-
     public boolean canTypePluginHandleCreate(final TRelationshipTemplate relationshipTemplate, Csar csar) {
         return this.findTypePluginForCreation(relationshipTemplate, csar) != null;
     }
@@ -256,11 +252,6 @@ public class PluginRegistry {
             }
         }
         return null;
-    }
-
-    public boolean handleCreateWithTypePlugin(final PlanContext context, final TNodeTemplate nodeTemplate,
-                                              IPlanBuilderTypePlugin plugin) {
-        return plugin.handleCreate(context, nodeTemplate);
     }
 
     public boolean handleCreateWithTypePlugin(final PlanContext context,

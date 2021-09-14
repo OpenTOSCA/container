@@ -21,7 +21,7 @@ class InterfaceDummy extends TOperation {
 
     private final TImplementationArtifact ia;
     private final TNodeTemplate nodeTemplate;
-    private Csar csar;
+    private final Csar csar;
 
     public InterfaceDummy(final TNodeTemplate nodeTemplate, final TImplementationArtifact ia, Csar csar) {
         this.ia = ia;

@@ -29,7 +29,6 @@ import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
-import org.opentosca.planbuilder.provphase.plugin.ansibleoperation.core.handler.AnsibleOperationPluginHandler;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -49,7 +48,7 @@ import org.xml.sax.SAXException;
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
  * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
  */
-public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPluginHandler<BPELPlanContext> {
+public class BPELAnsibleOperationPluginHandler {
 
     private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(BPELAnsibleOperationPluginHandler.class);
 
@@ -120,16 +119,6 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         return runShScriptStringVar;
     }
 
-    private Variable appendBPELAssignOperationShScript(final PlanContext templateContext,
-                                                       final TOperation operation,
-                                                       final TArtifactReference reference,
-                                                       final TImplementationArtifact ia,
-                                                       final Map<TParameter, Variable> inputMappings) {
-
-        LOG.error("Not supported!");
-
-        return null;
-    }
 
     /**
      * Append logic for executing a script on a remote machine with the invoker plugin
@@ -234,7 +223,6 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
      * @param ia        the ia that implements the operation
      * @return true iff adding BPEL Fragment was successful
      */
-    @Override
     public boolean handle(final BPELPlanContext templateContext, final TOperation operation,
                           final TImplementationArtifact ia) {
 
@@ -384,7 +372,6 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
             sshUserVariable, sshKeyVariable, serverIpPropWrapper);
     }
 
-    @Override
     public boolean handle(final BPELPlanContext templateContext, final TOperation operation,
                           final TImplementationArtifact ia,
                           final Map<TParameter, Variable> param2propertyMapping) {
@@ -404,8 +391,6 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         if (scriptRef == null) {
             return false;
         }
-        runShScriptStringVar =
-            this.appendBPELAssignOperationShScript(templateContext, operation, scriptRef, ia, param2propertyMapping);
 
         Variable ipStringVariable = null;
         for (final String serverIp : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
@@ -447,27 +432,6 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
             }
         }
         return false;
-    }
-
-    /**
-     * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String variable.
-     *
-     * @param assignName          the name of the BPEL assign
-     * @param xpath2Query the csarEntryPoint XPath query
-     * @param stringVarName       the variable to load the queries results into
-     * @return a DOM Node representing a BPEL assign element
-     * @throws IOException  is thrown when loading internal bpel fragments fails
-     * @throws SAXException is thrown when parsing internal format into DOM fails
-     */
-    public Node loadAssignXpathQueryToStringVarFragmentAsNode(final String assignName, final String xpath2Query,
-                                                              final String stringVarName) throws IOException,
-        SAXException {
-        final String templateString =
-            loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
-        final InputSource is = new InputSource();
-        is.setCharacterStream(new StringReader(templateString));
-        final Document doc = this.docBuilder.parse(is);
-        return doc.getFirstChild();
     }
 
     /**

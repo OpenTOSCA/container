@@ -50,44 +50,6 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         super(pluginRegistry);
     }
 
-    @Override
-    public PlanType createdPlanType() {
-        return PlanType.MANAGEMENT;
-    }
-
-    /**
-     * <p>
-     * Creates a BuildPlan in WS-BPEL 2.0 by using the the referenced source and target service templates as the
-     * transforming function between two models.
-     * </p>
-     *
-     * @param sourceCsar          the name of the source csar
-     * @param sourceDefinitions       the id of the source definitions inside the referenced source csar
-     * @param sourceServiceTemplateId the id of the source service templates inside the referenced definitions
-     * @param targetCsar          the name of the target csar
-     * @param targetDefinitions       the id of the target definitions inside the referenced target csar
-     * @param targetServiceTemplateId the id of the target service templates inside the referenced definitions
-     * @return a single AbstractPlan with a concrete implementation of a transformation function from the source to the
-     * target topology
-     */
-    abstract public AbstractPlan buildPlan(Csar sourceCsar, TDefinitions sourceDefinitions,
-                                           QName sourceServiceTemplateId, Csar targetCsar,
-                                           TDefinitions targetDefinitions, QName targetServiceTemplateId);
-
-    /**
-     * Generates a Set of Plans that is generated based on the given source and target definitions. This generation is
-     * done for each Topology Template defined in both definitions therefore for each combination of source and target
-     * topology template a plan is generated
-     *
-     * @param sourceCsar    the name of the source csar
-     * @param sourceDefinitions the id of the source definitions inside the referenced source csar
-     * @param targetCsar    the name of the target csar
-     * @param targetDefinitions the id of the target definitions inside the referenced target csar
-     * @return a List of AbstractPlans
-     */
-    abstract public List<AbstractPlan> buildPlans(Csar sourceCsar, TDefinitions sourceDefinitions,
-                                                  Csar targetCsar, TDefinitions targetDefinitions);
-
     public AbstractTransformationPlan generateTFOG(Csar sourceCsar, TDefinitions sourceDefinitions,
                                                    TServiceTemplate sourceServiceTemplate,
                                                    Collection<TNodeTemplate> sourceNodeTemplates,
@@ -195,79 +157,6 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
             targetDefinitions, targetServiceTemplate,
             targetServiceTemplate.getTopologyTemplate().getNodeTemplates(),
             targetServiceTemplate.getTopologyTemplate().getRelationshipTemplates(), idSuffix);
-    }
-
-    /**
-     * Generates an abstract order of activities to transform from the source service template to the target service
-     * template
-     *
-     * @param sourceCsarName    the name of the source csar
-     * @param sourceDefinitions the id of the source definitions inside the referenced source csar
-     * @param targetCsarName    the name of the target csar
-     * @param targetDefinitions the id of the target definitions inside the referenced target csar
-     * @return a single AbstractPlan containing abstract activities for a transformation function from the source to the
-     * target topology
-     */
-    public AbstractTransformationPlan _generateTFOG(Csar sourceCsarName, TDefinitions sourceDefinitions,
-                                                    TServiceTemplate sourceServiceTemplate,
-                                                    Csar targetCsarName, TDefinitions targetDefinitions,
-                                                    TServiceTemplate targetServiceTemplate) {
-        TTopologyTemplate sourceTopology = sourceServiceTemplate.getTopologyTemplate();
-        TTopologyTemplate targetTopology = targetServiceTemplate.getTopologyTemplate();
-
-        Set<TNodeTemplate> maxCommonSubgraph =
-            this.getMaxCommonSubgraph(new HashSet<>(sourceTopology.getNodeTemplates()),
-                new HashSet<>(sourceTopology.getNodeTemplates()),
-                new HashSet<>(targetTopology.getNodeTemplates()),
-                new HashSet<>());
-
-        // find valid subset inside common subgraph, i.e.:
-        // any component that is a platform node (every node without outgoing
-        // hostedOn edges), or is a node in the subgraph where its (transitive) platform
-        // nodes are also in the subgraph are valid
-        Set<TNodeTemplate> deployableMaxCommonSubgraph = this.getDeployableSubgraph(maxCommonSubgraph, sourceCsarName, targetCsarName);
-
-        // determine steps which have to be deleted from the original topology
-        Set<TNodeTemplate> nodesToTerminate =
-            new HashSet<>(sourceTopology.getNodeTemplates());
-        //nodesToTerminate.removeAll(deployableMaxCommonSubgraph);
-        nodesToTerminate = this.removeNodesFromList(nodesToTerminate, deployableMaxCommonSubgraph);
-        Collection<TRelationshipTemplate> relationsToTerminate = this.getOutgoingRelations(nodesToTerminate, sourceCsarName);
-
-        AbstractPlan termPlan = AbstractTerminationPlanBuilder.generateTOG("transformTerminate"
-                + sourceDefinitions.getId() + "_to_" + targetDefinitions.getId(), sourceDefinitions, sourceServiceTemplate,
-            nodesToTerminate, relationsToTerminate, sourceCsarName);
-
-        // migrate node instances from old service instance to new service instance
-        AbstractPlan migrateInstancePlan =
-            this.generateInstanceMigrationPlan(deployableMaxCommonSubgraph,
-                this.getConnectingEdges(sourceTopology.getRelationshipTemplates(),
-                    deployableMaxCommonSubgraph, sourceCsarName),
-                sourceDefinitions, targetDefinitions, sourceServiceTemplate,
-                targetServiceTemplate, sourceCsarName);
-
-        // determine steps which have to be start within the new topology
-        Set<TNodeTemplate> nodesToStart = new HashSet<>(targetTopology.getNodeTemplates());
-        nodesToStart = this.removeNodesFromList(nodesToStart, this.getCorrespondingNodes(deployableMaxCommonSubgraph,
-            targetTopology.getNodeTemplates()));
-        //nodesToStart.removeAll(this.getCorrespondingNodes(deployableMaxCommonSubgraph,
-        //    targetTopology.getNodeTemplates()));
-        Collection<TRelationshipTemplate> relationsToStart = this.getOutgoingRelations(nodesToStart, targetCsarName);
-
-        AbstractPlan startPlan =
-            AbstractBuildPlanBuilder.generatePOG("transformStart" + sourceDefinitions.getId() + "_to_"
-                + targetDefinitions.getId(), targetDefinitions, targetServiceTemplate, nodesToStart, relationsToStart, targetCsarName);
-
-        AbstractTransformationPlan transPlan =
-            this.mergePlans("transformationPlan_" + termPlan.getServiceTemplate().getId() + "_to_"
-                + startPlan.getServiceTemplate().getId(), PlanType.TRANSFORMATION, termPlan, migrateInstancePlan);
-
-        transPlan = this.mergePlans(
-            "transformationPlan_" + termPlan.getServiceTemplate().getId() + "_to_"
-                + startPlan.getServiceTemplate().getId(),
-            PlanType.TRANSFORMATION, transPlan, startPlan);
-
-        return transPlan;
     }
 
     private AbstractTransformationPlan generateInstanceMigrationPlan(Collection<TNodeTemplate> nodeTemplates,

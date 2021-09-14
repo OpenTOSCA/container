@@ -2,7 +2,6 @@ package org.opentosca.planbuilder.core.bpel.typebasedplanbuilder;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
@@ -31,7 +30,6 @@ import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
-import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractTransformationPlan;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
@@ -49,7 +47,6 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
     private final PropertyVariableHandler propertyInitializer;
     // class for initializing output with boundarydefinitions of a
     // serviceTemplate
-    private final ServiceTemplateBoundaryPropertyMappingsToOutputHandler propertyOutputInitializer;
     private final BPELScopeBuilder scopeBuilder;
     // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
     // class for finalizing build plans (e.g when some template didn't receive
@@ -78,7 +75,6 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
         }
         // TODO seems ugly
         this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
-        this.propertyOutputInitializer = new ServiceTemplateBoundaryPropertyMappingsToOutputHandler();
         this.finalizer = new BPELFinalizer();
     }
 
@@ -264,7 +260,6 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
         return transformationBPELPlan;
     }
 
-    @Override
     public BPELPlan buildPlan(Csar sourceCsar, TDefinitions sourceDefinitions,
                               QName sourceServiceTemplateId, Csar targetCsar,
                               TDefinitions targetDefinitions, QName targetServiceTemplateId) {
@@ -492,13 +487,6 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
 
         this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlans(plan, sourceServiceTemplate);
         this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlans(plan, targetServiceTemplate);
-    }
-
-    @Override
-    public List<AbstractPlan> buildPlans(Csar sourceCsar, TDefinitions sourceDefinitions,
-                                         Csar targetCsar, TDefinitions targetDefinitions) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     private void runPlugins(final BPELPlan buildPlan, final Property2VariableMapping sourceServiceTemplateMap,

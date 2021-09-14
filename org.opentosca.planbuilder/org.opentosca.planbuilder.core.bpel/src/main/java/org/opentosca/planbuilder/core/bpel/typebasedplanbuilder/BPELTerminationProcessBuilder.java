@@ -74,9 +74,8 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
      * @see org.opentosca.planbuilder.IPlanBuilder#buildPlan(java.lang.String,
      * org.opentosca.planbuilder.model.tosca.TDefinitions, javax.xml.namespace.QName)
      */
-    @Override
-    public BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
-                              final TServiceTemplate serviceTemplate) {
+    private BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                               final TServiceTemplate serviceTemplate) {
 
         final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_terminationPlan");
         final String processNamespace = serviceTemplate.getTargetNamespace() + "_terminationPlan";
@@ -206,7 +205,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} termination plans for CSAR {}", String.valueOf(plans.size()), csar.id().csarName());
+        	LOG.info("Created {} termination plans for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }

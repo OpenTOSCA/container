@@ -32,15 +32,6 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder {
 
     public class PlanbuilderRuntimeException extends RuntimeException {
-
-        public PlanbuilderRuntimeException (Exception e) {
-            super(e);
-        }
-
-        public PlanbuilderRuntimeException (String s) {
-            super(s);
-        }
-
         public PlanbuilderRuntimeException (String s, Exception e) {
             super(s,e);
         }
@@ -127,10 +118,5 @@ public abstract class AbstractBuildPlanBuilder extends AbstractSimplePlanBuilder
                 }
             }
         }
-    }
-
-    @Override
-    public PlanType createdPlanType() {
-        return PlanType.BUILD;
     }
 }

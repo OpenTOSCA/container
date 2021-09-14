@@ -184,15 +184,6 @@ public class BPELPlan extends AbstractPlan {
         return this.templateBuildPlans;
     }
 
-    /**
-     * Sets the TemplateBuildPlans of this BuildPlan
-     *
-     * @param templateBuildPlans a List of TemplateBuildPlan
-     */
-    public void setTemplateBuildPlans(final List<BPELScope> templateBuildPlans) {
-        this.templateBuildPlans = templateBuildPlans;
-    }
-
     public BPELScope getTemplateBuildPlan(TNodeTemplate nodeTemplate) {
         for (BPELScope scope : this.getTemplateBuildPlans()) {
             if (scope.getNodeTemplate() != null && scope.getNodeTemplate().equals(nodeTemplate)) {

@@ -25,14 +25,6 @@ public class AbstractTransformationPlan extends AbstractPlan {
         this.targetServiceTemplate = targetServiceTemplate;
     }
 
-    public TDefinitions getTargetDefinitions() {
-        return this.targetDefinitions;
-    }
-
-    public TServiceTemplate getTargetServiceTemplate() {
-        return this.targetServiceTemplate;
-    }
-
     public Collection<TNodeTemplate> getHandledSourceServiceTemplateNodes() {
         return this.getHandledServiceTemplateNodes(this.getServiceTemplate());
     }

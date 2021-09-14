@@ -43,11 +43,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class Importer extends AbstractImporter {
 
-    final private static Logger LOG = LoggerFactory.getLogger(Importer.class);
-
     @Inject
-    public Importer(PluginRegistry pluginRegistry, CsarStorageService storage) {
-        super(pluginRegistry, storage);
+    public Importer(PluginRegistry pluginRegistry) {
+        super(pluginRegistry);
     }
 
     /**

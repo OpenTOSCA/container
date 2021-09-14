@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.core.bpel.typebasedplanbuilder;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -96,9 +97,8 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
      * @see org.opentosca.planbuilder.IPlanBuilder#buildPlan(java.lang.String,
      * org.opentosca.planbuilder.model.tosca.TDefinitions, javax.xml.namespace.QName)
      */
-    @Override
-    public BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
-                              final TServiceTemplate serviceTemplate) {
+    private BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                               final TServiceTemplate serviceTemplate) {
         LOG.debug("Creating Backup Management Plan...");
 
         if (Objects.isNull(serviceTemplate)) {
@@ -287,7 +287,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
         }
 
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} backup plans for CSAR {}", String.valueOf(plans.size()), csar.id().csarName());
+        	LOG.info("Created {} backup plans for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }
@@ -311,8 +311,8 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
                     + Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT
                     + "']/text(),'/servicetemplates/"
                     + URLEncoder.encode(URLEncoder.encode(serviceTemplateId.getNamespaceURI(),
-                    "UTF-8"),
-                    "UTF-8")
+                        StandardCharsets.UTF_8),
+                        StandardCharsets.UTF_8)
                     + "','/" + serviceTemplateId.getLocalPart()
                     + "','/createnewstatefulversion')");
         assignStatefuleServiceTemplateStorageVar =

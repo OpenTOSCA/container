@@ -81,7 +81,6 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
     private final EmptyPropertyToInputHandler emptyPropInit;
     private SimplePlanBuilderServiceInstanceHandler serviceInstanceHandler;
     private BPELPlanHandler planHandler;
-    private NodeRelationInstanceVariablesHandler instanceInit;
     private CorrelationIDInitializer correlationHandler;
 
     /**
@@ -96,7 +95,6 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
         try {
             this.planHandler = new BPELPlanHandler();
             this.serviceInstanceHandler = new SimplePlanBuilderServiceInstanceHandler();
-            this.instanceInit = new NodeRelationInstanceVariablesHandler(this.planHandler);
             this.correlationHandler = new CorrelationIDInitializer();
         } catch (final ParserConfigurationException e) {
             LOG.error("Error while initializing BuildPlanHandler", e);
@@ -118,9 +116,8 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
      * @see org.opentosca.planbuilder.IPlanBuilder#buildPlan(java.lang.String,
      * org.opentosca.planbuilder.model.tosca.TDefinitions, javax.xml.namespace.QName)
      */
-    @Override
-    public BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
-                              final TServiceTemplate serviceTemplate) {
+    private BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                               final TServiceTemplate serviceTemplate) {
         // create empty plan from servicetemplate and add definitions
 
         final String processName = serviceTemplate.getId() + "_buildPlan";
@@ -240,7 +237,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} policy-aware build plans for CSAR {}", String.valueOf(plans.size()), csar.id().csarName());
+        	LOG.info("Created {} policy-aware build plans for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }

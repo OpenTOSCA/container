@@ -36,11 +36,6 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
         super(pluginRegistry);
     }
 
-    @Override
-    public PlanType createdPlanType() {
-        return PlanType.TERMINATION;
-    }
-
     protected AbstractPlan generateFOG(final String id, final TDefinitions definitions,
                                        final TServiceTemplate serviceTemplate, Csar csar) {
 

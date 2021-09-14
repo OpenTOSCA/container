@@ -44,7 +44,7 @@ import org.xml.sax.SAXException;
  *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
  */
-public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<BPELPlanContext> {
+public class BPELUbuntuVmTypePluginHandler {
 
     public static final QName noPublicAccessPolicyType =
         new QName("http://opentosca.org/policytypes", "NoPublicAccessPolicy");
@@ -219,7 +219,6 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
      * @param nodeTemplate the NodeTemplate on which the fragments are used
      * @return true iff adding the fragments was successful
      */
-    @Override
     public boolean handle(final BPELPlanContext context, final TNodeTemplate nodeTemplate) {
 
         // we check if the ubuntu which must be connected to this node (if not
@@ -430,7 +429,6 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         return false;
     }
 
-    @Override
     public boolean handleCreateWithCloudProviderInterface(final BPELPlanContext context,
                                                           final TNodeTemplate nodeTemplate) {
 
@@ -756,195 +754,6 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
             }
         }
         return portVariables;
-    }
-
-    /**
-     * Provisions a Docker Ubuntu Container on a DockerEngine
-     *
-     * @param context      a BPELPlanContext for a DockerEngine or Ubuntu Node
-     * @param nodeTemplate the NodeTemplate on which the fragments are used
-     * @return true iff provisioning the container was successful
-     */
-    @Override
-    public boolean handleWithDockerEngineInterface(final BPELPlanContext context,
-                                                   final TNodeTemplate nodeTemplate) {
-
-        // search for ubuntu and docker engine nodes
-        final TNodeTemplate ubuntuNodeTemplate = findUbuntuNode(nodeTemplate, context.getCsar());
-        final TNodeTemplate dockerEngineNodeTemplate = findDockerEngineNode(nodeTemplate, context.getCsar());
-
-        if (ubuntuNodeTemplate == null) {
-            LOG.error("Couldn't find Ubuntu Node");
-            return false;
-        }
-
-        if (dockerEngineNodeTemplate == null) {
-            LOG.error("Couldn't find Docker Engine Node");
-            return false;
-        }
-
-        // lookup DockerEngineURL in the docker engine node
-        final PropertyVariable dockerEngineURLVariable =
-            context.getPropertyVariable(dockerEngineNodeTemplate, "DockerEngineURL");
-        if (dockerEngineURLVariable == null) {
-            BPELUbuntuVmTypePluginHandler.LOG.warn("Docker Engine Node doesn't have DockerEngineURL property");
-            return false;
-        }
-
-        if (PluginUtils.isVariableValueEmpty(dockerEngineURLVariable)) {
-            BPELUbuntuVmTypePluginHandler.LOG.debug("Variable value is empty, adding to plan input");
-
-            // add the new property name to input
-            context.addStringValueToPlanRequest("DockerEngineURL");
-            // add an assign from input to internal property variable
-            context.addAssignFromInput2VariableToMainAssign("DockerEngineURL", dockerEngineURLVariable);
-        }
-
-        // lookup DockerEngineCertificate in the docker engine node
-        final PropertyVariable dockerEngineCertificateVariable =
-            context.getPropertyVariable(dockerEngineNodeTemplate, "DockerEngineCertificate");
-        if (dockerEngineCertificateVariable == null) {
-            BPELUbuntuVmTypePluginHandler.LOG.warn("Docker Engine Node doesn't have DockerEngineCertificate property");
-            return false;
-        }
-
-        if (PluginUtils.isVariableValueEmpty(dockerEngineCertificateVariable)) {
-            BPELUbuntuVmTypePluginHandler.LOG.debug("Variable value is empty, adding to plan input");
-
-            // add the new property name to input
-            context.addStringValueToPlanRequest("DockerEngineCertificate");
-            // add an assign from input to internal property variable
-            context.addAssignFromInput2VariableToMainAssign("DockerEngineCertificate", dockerEngineCertificateVariable);
-        }
-
-        // create variable with image --> currently ubuntu 14.04 hard coded
-        // TODO: map ubuntu template name to docker image name
-        final Variable containerImageVariable = context.createGlobalStringVariable("ImageID", "ubuntu:14.04");
-
-        // find ServerIp Property inside ubuntu nodeTemplate
-        Variable serverIpPropWrapper = null;
-        for (final String vmIpName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
-            serverIpPropWrapper = context.getPropertyVariable(ubuntuNodeTemplate, vmIpName);
-            if (serverIpPropWrapper == null) {
-                serverIpPropWrapper = context.getPropertyVariable(vmIpName, true);
-            } else {
-                break;
-            }
-        }
-
-        // find InstanceID Property inside ubuntu nodeTemplate
-        Variable instanceIdPropWrapper = null;
-        for (final String instanceIdName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineInstanceIdPropertyNames()) {
-            instanceIdPropWrapper = context.getPropertyVariable(ubuntuNodeTemplate, instanceIdName);
-            if (instanceIdPropWrapper == null) {
-                instanceIdPropWrapper = context.getPropertyVariable(instanceIdName, true);
-            } else {
-                break;
-            }
-        }
-
-        if (instanceIdPropWrapper == null) {
-            BPELUbuntuVmTypePluginHandler.LOG.warn("Ubuntu Node doesn't have InstanceId property, altough it has the proper NodeType");
-            return false;
-        }
-
-        if (serverIpPropWrapper == null) {
-            BPELUbuntuVmTypePluginHandler.LOG.warn("Ubuntu Node doesn't have ServerIp property, altough it has the proper NodeType");
-            return false;
-        }
-
-        // find sshUser and sshKey
-        PropertyVariable sshUserVariable = null;
-        for (final String userName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
-            sshUserVariable = context.getPropertyVariable(ubuntuNodeTemplate, userName);
-            if (sshUserVariable == null) {
-                sshUserVariable = context.getPropertyVariable(userName, true);
-            } else {
-                break;
-            }
-        }
-
-        // if the variable is null now -> the property isn't set properly
-        if (sshUserVariable == null) {
-            return false;
-        } else {
-            if (PluginUtils.isVariableValueEmpty(sshUserVariable)) {
-                LOG.debug("Adding sshUser field to plan input");
-                context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
-                context.addAssignFromInput2VariableToMainAssign(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME,
-                    sshUserVariable);
-            }
-        }
-
-        PropertyVariable sshKeyVariable = null;
-        for (final String passwordName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
-            sshKeyVariable = context.getPropertyVariable(ubuntuNodeTemplate, passwordName);
-            if (sshKeyVariable == null) {
-                sshKeyVariable = context.getPropertyVariable(passwordName, true);
-            } else {
-                break;
-            }
-        }
-
-        // if variable null now -> the property isn't set according to schema
-        if (sshKeyVariable == null) {
-            return false;
-        } else {
-            if (PluginUtils.isVariableValueEmpty(sshKeyVariable)) {
-                LOG.debug("Adding sshKey field to plan input");
-                context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
-                context.addAssignFromInput2VariableToMainAssign(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD,
-                    sshKeyVariable);
-            }
-        }
-
-        // adds field into plan input message to give the plan it's own address
-        // for the invoker PortType (callback etc.). This is needed as WSO2 BPS
-        // 2.x can't give that at runtime (bug)
-        LOG.debug("Adding plan callback address field to plan input");
-        context.addStringValueToPlanRequest("planCallbackAddress_invoker");
-
-        // add csarEntryPoint to plan input message
-        LOG.debug("Adding csarEntryPoint field to plan input");
-        context.addStringValueToPlanRequest("csarEntrypoint");
-
-        // map properties to input and output parameters
-        final Map<String, Variable> createDEInternalExternalPropsInput = new HashMap<>();
-        final Map<String, Variable> createDEInternalExternalPropsOutput = new HashMap<>();
-
-        createDEInternalExternalPropsInput.put("DockerEngineURL", dockerEngineURLVariable);
-        createDEInternalExternalPropsInput.put("DockerEngineCertificate", dockerEngineCertificateVariable);
-        createDEInternalExternalPropsInput.put("ContainerImage", containerImageVariable);
-
-        createDEInternalExternalPropsOutput.put("ContainerIP", serverIpPropWrapper);
-        createDEInternalExternalPropsOutput.put("ContainerID", instanceIdPropWrapper);
-
-        LOG.debug(dockerEngineNodeTemplate.getId() + " " + dockerEngineNodeTemplate.getType());
-        this.invokerOpPlugin.handle(context, dockerEngineNodeTemplate.getId(), true,
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
-            createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
-            context.getProvisioningPhaseElement());
-
-        /*
-         * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
-         * plugins to wait for SSH to be up
-         */
-        final Map<String, Variable> startRequestInputParams = new HashMap<>();
-        final Map<String, Variable> startRequestOutputParams = new HashMap<>();
-
-        startRequestInputParams.put("VMIP", serverIpPropWrapper);
-        startRequestInputParams.put("VMPrivateKey", sshKeyVariable);
-        startRequestInputParams.put("VMUserName", sshUserVariable);
-
-        startRequestOutputParams.put("WaitResult", context.createGlobalStringVariable("WaitResultDummy", ""));
-
-        this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
-            startRequestOutputParams, context.getProvisioningPhaseElement());
-
-        return true;
     }
 
     public boolean handleWithLocalCloudProviderInterface(final BPELPlanContext context,

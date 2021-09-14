@@ -217,11 +217,6 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     @Override
     public boolean handleSendNotify(final BPELPlanContext context) {
 
-        // Currently stuff like storeSaveEndpoint for freezing is breaking the matching of all possible
-        // operations here, therefore we send all available properties -> TODO/FIXME
-        final Map<String, PropertyVariable> propMatching =
-            this.choreohandler.matchOperationParamertsToProperties(context);
-
         final Collection<PropertyVariable> propertiesToSend = new HashSet<>();
 
         // fetch nodes of the stack of the node inside context

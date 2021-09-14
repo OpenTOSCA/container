@@ -925,10 +925,6 @@ public class Handler {
         return true;
     }
 
-    private void appendGetStateToPrePhase(BPELPlanContext context, String nodeInstanceURLVarName, String stateVarName) {
-        this.appendGetStateToElement(context, nodeInstanceURLVarName, stateVarName, context.getPrePhaseElement());
-    }
-
     private void appendGetStateToPostPhase(BPELPlanContext context, String instanceUrlVar, String stateVarName) {
         this.appendGetStateToElement(context, instanceUrlVar, stateVarName, context.getPostPhaseElement());
     }
@@ -950,11 +946,6 @@ public class Handler {
     private void appendFailedStateToFaultHandler(BPELPlanContext context, String nodeInstanceURLVarName) {
         String stateVarName = this.createStateVar(context, context.getTemplateId());
         this.appendStateUpdateAsChild(context, nodeInstanceURLVarName, stateVarName, "ERROR", context.getProvisioningFaultHandlerPhaseElement());
-    }
-
-    private void appendStateUpdateToPrePhase(BPELPlanContext context, String nodeInstanceURLVarName,
-                                             String stateVarName) {
-        this.appendStateUpdateFromVarToElement(context, nodeInstanceURLVarName, stateVarName, context.getPrePhaseElement());
     }
 
     private void appendStateUpdateToPostPhase(BPELPlanContext context, String nodeInstanceURLVarName,

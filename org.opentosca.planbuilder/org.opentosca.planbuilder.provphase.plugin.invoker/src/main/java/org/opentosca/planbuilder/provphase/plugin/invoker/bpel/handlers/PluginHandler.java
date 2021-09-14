@@ -45,41 +45,6 @@ public class PluginHandler {
         }
     }
 
-    public Node appendLOGMessageActivity(final BPELPlanContext context, final String message) {
-        String logMessageTempStringVarName = null;
-        String logMessageContent = null;
-        logMessageTempStringVarName = "instanceDataLogMsg_" + System.currentTimeMillis();
-        logMessageContent = message;
-
-        // create variables
-        logMessageTempStringVarName =
-            context.createGlobalStringVariable(logMessageTempStringVarName, logMessageContent).getVariableName();
-
-        final String logMessageReqVarName = createLogRequestMsgVar(context);
-        final String planInstanceURLVar = context.getPlanInstanceURLVarName();
-
-        try {
-
-            Node logPOSTNode =
-                new BPELProcessFragments().createBPEL4RESTLightPlanInstanceLOGsPOSTAsNode(planInstanceURLVar,
-                    logMessageTempStringVarName,
-                    logMessageReqVarName);
-            logPOSTNode = context.importNode(logPOSTNode);
-
-            return logPOSTNode;
-        } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public void appendLOGMessageActivity(final BPELPlanContext context, final String message,
                                          Element elementToAppendTo) {
         String logMessageTempStringVarName = null;
@@ -176,38 +141,6 @@ public class PluginHandler {
         }
 
         return logMsgReqVarName;
-    }
-
-    public String findInterfaceForOperation(final BPELPlanContext context, final TOperation operation) {
-        List<TInterface> interfaces = null;
-        if (context.getNodeTemplate() != null) {
-            interfaces = ModelUtils.findNodeType(context.getNodeTemplate(), context.getCsar()).getInterfaces();
-        } else {
-            interfaces = ModelUtils.findRelationshipType(context.getRelationshipTemplate(), context.getCsar()).getSourceInterfaces();
-            interfaces.addAll(ModelUtils.findRelationshipType(context.getRelationshipTemplate(), context.getCsar()).getTargetInterfaces());
-        }
-
-        if (interfaces != null && interfaces.size() > 0) {
-            for (final TInterface iface : interfaces) {
-                for (final TOperation op : iface.getOperations()) {
-                    if (op.equals(operation)) {
-                        return iface.getName();
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    public Variable findVar(final BPELPlanContext context, final String propName) {
-        Variable propWrapper = context.getPropertyVariable(propName);
-        if (propWrapper == null) {
-            propWrapper = context.getPropertyVariable(propName, true);
-            if (propWrapper == null) {
-                propWrapper = context.getPropertyVariable(propName, false);
-            }
-        }
-        return propWrapper;
     }
 
     public Node loadAssignXpathQueryToStringVarFragmentAsNode(final String assignName, final String xpath2Query,

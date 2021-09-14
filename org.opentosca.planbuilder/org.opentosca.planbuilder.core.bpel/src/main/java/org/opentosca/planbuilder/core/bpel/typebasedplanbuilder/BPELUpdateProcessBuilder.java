@@ -79,8 +79,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
         this.finalizer = new BPELFinalizer();
     }
 
-    @Override
-    public BPELPlan buildPlan(Csar csar, TDefinitions definitions, TServiceTemplate serviceTemplate) {
+    private BPELPlan buildPlan(Csar csar, TDefinitions definitions, TServiceTemplate serviceTemplate) {
         final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_updatePlan");
         final String processNamespace = serviceTemplate.getTargetNamespace() + "_updatePlan";
 
@@ -196,7 +195,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} update plans for CSAR {}", String.valueOf(plans.size()), csar.id().csarName());
+        	LOG.info("Created {} update plans for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }

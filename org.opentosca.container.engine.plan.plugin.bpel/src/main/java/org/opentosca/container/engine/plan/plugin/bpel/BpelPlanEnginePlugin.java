@@ -84,8 +84,6 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     private static final String DEFAULT_ENGINE_LANGUAGE = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
 
     private final String processEngine;
-    private final String username;
-    private final String password;
     private final String url;
     private final String servicesUrl;
 
@@ -100,8 +98,6 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         this.processEngine = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.engine", DEFAULT_ENGINE);
         this.url = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.url", DEFAULT_ENGINE_URL);
         this.servicesUrl = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.services.url", DEFAULT_SERVICE_URL);
-        this.username = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.username", "");
-        this.password = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.password", "");
     }
 
     /**

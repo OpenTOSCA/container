@@ -266,10 +266,6 @@ public class GenericWsdlWrapper {
         return new QName(this.getTargetNamespace(), this.processName + "RequestMessage");
     }
 
-    public QName getResponseMessageTypeId() {
-        return new QName(this.getTargetNamespace(), this.processName + "ResponseMessage");
-    }
-
     /**
      * Returns the targetNamespace of this WSDL
      *
@@ -351,15 +347,6 @@ public class GenericWsdlWrapper {
         this.addNamespace(portType1.getNamespaceURI(), portType1.getPrefix());
         this.addNamespace(portType2.getNamespaceURI(), portType2.getPrefix());
         return true;
-    }
-
-    /**
-     * Returns the names of all registered partnerLinkTypes in this WSDL
-     *
-     * @return a List of Strings containing the names of the partnerLinkTypes
-     */
-    public List<String> getPartnerlinkTypeNames() {
-        return this.pltMap.getPartnerLinkTypeNames();
     }
 
     /**

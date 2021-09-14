@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -510,14 +511,10 @@ public class RequestProcessor implements Processor {
 			final String planCorrelationID) {
 
 		String str = Settings.CONTAINER_INSTANCEDATA_API.replace("{csarid}", csarID);
-		try {
-			str = str.replace("{servicetemplateid}",
-					URLEncoder.encode(URLEncoder.encode(serviceTemplateID.getLocalPart(), "UTF-8"), "UTF-8"));
-		} catch (final UnsupportedEncodingException e) {
-			LOG.error("Couldn't encode Service Template URL", e);
-		}
+        str = str.replace("{servicetemplateid}",
+                URLEncoder.encode(URLEncoder.encode(serviceTemplateID.getLocalPart(), StandardCharsets.UTF_8), StandardCharsets.UTF_8));
 
-		final HashMap<String, String> map = new HashMap<>();
+        final HashMap<String, String> map = new HashMap<>();
 		map.put("instanceDataAPIUrl", str);
 		map.put("csarEntrypoint", Settings.OPENTOSCA_CONTAINER_CONTENT_API.replace("{csarid}", csarID));
 		map.put("CorrelationID", planCorrelationID);

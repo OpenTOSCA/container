@@ -154,15 +154,6 @@ public abstract class AbstractPlan {
         return foundActivities;
     }
 
-    public AbstractActivity findNodeTemplateActivity(final TNodeTemplate nodeTemplate, final ActivityType type) {
-        for (final AbstractActivity activity : findNodeTemplateActivities(nodeTemplate)) {
-            if (activity.getType().equals(type)) {
-                return activity;
-            }
-        }
-        return null;
-    }
-
     /**
      * Returns a id for the plugins to make their declarations unique
      *

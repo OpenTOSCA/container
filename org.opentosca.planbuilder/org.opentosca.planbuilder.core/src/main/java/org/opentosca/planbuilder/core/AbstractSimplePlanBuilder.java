@@ -13,27 +13,9 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractSimplePlanBuilder extends AbstractPlanBuilder {
 
-    private final static Logger LOG = LoggerFactory.getLogger(AbstractSimplePlanBuilder.class);
-
     public AbstractSimplePlanBuilder(PluginRegistry pluginRegistry) {
         super(pluginRegistry);
     }
-
-    /**
-     * <p>
-     * Creates a BuildPlan in WS-BPEL 2.0 for the specified values csarName, definitions and serviceTemplateId. Where
-     * csarName denotes the fileName of the CSAR, definitions denotes the Definitions document and serviceTemplateId a
-     * QName denoting the ServiceTemplate inside the Definitions document
-     * </p>
-     *
-     * @param csar          the CSAR
-     * @param definitions       the Definitions document as TDefinitions Object
-     * @param serviceTemplateId a QName denoting a ServiceTemplate inside the Definitions document
-     * @return a complete BuildPlan for the given ServiceTemplate, if the ServiceTemplate denoted by the given QName
-     * isn't found inside the Definitions document null is returned instead
-     */
-    abstract public AbstractPlan buildPlan(Csar csar, TDefinitions definitions,
-                                           TServiceTemplate serviceTemplateId);
 
     /**
      * <p>

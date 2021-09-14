@@ -299,65 +299,6 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
         return planPath;
     }
 
-    private URI searchForEndpoint(final String planName) throws URISyntaxException {
-        URI endpointURI;
-        LOG.debug("Search for Plan Endpoint");
-
-        final String processDefinitions = "http://localhost:8080/engine-rest/process-definition/";
-
-        HttpResponse response;
-        String output = null;
-
-        LOG.debug("Retrieve list of deployed plans");
-        try {
-            response = httpService.Get(processDefinitions);
-            output = EntityUtils.toString(response.getEntity(), "UTF-8");
-            output = output.substring(1, output.length() - 1);
-        } catch (final IOException e) {
-            LOG.error("An error occured while retrieving the deployed plan list from camunda: ",
-                e.getLocalizedMessage());
-            e.printStackTrace();
-            return null;
-        }
-        final String json = output;
-
-        LOG.trace("Response json: {}", json);
-
-        final String[] list = json.split("\\{");
-
-        final HashMap<String, String> ids = new HashMap<>();
-
-        for (final String entry : list) {
-            if (null != entry && !entry.equals("")) {
-                final String[] fields = entry.split(",");
-
-                final String id = fields[0].substring(6, fields[0].length() - 1);
-                final String key = fields[1].substring(7, fields[1].length() - 1);
-
-                ids.put(id, key);
-                LOG.trace("ID {} KEY {}", id, key);
-            }
-        }
-
-        String planID = "";
-
-        if (ids.containsValue(planName)) {
-            for (final String id : ids.keySet()) {
-                if (ids.get(id).equals(planName)) {
-                    planID = ids.get(id);
-                }
-            }
-        }
-
-        if (planID.equals("")) {
-            LOG.warn("No endpoint found for plan {}!", planName);
-            return null;
-        }
-
-        endpointURI = new URI(processDefinitions + "key/" + planID + "/start");
-        return endpointURI;
-    }
-
     @Override
     public String getLanguageUsed() {
         return PlanLanguage.BPMN.toString();

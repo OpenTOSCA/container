@@ -221,7 +221,6 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
                     injectBPELVariables(propertyMapping.getTargetPropertyRef(), propMap, buildPlanServiceTemplate);
             } else {
                 TEntityTemplate.Properties props = null;
-                Element templateElement = null;
 
                 if (getNodeTemplate(buildPlanServiceTemplate, templateId) != null) {
                     props =

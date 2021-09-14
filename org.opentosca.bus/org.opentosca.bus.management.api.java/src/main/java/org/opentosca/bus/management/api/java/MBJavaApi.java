@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -537,12 +538,8 @@ public class MBJavaApi implements IManagementBus {
                     + Settings.CONTAINER_INSTANCEDATA_API + "\".");
                 String str = Settings.CONTAINER_INSTANCEDATA_API;
                 str = str.replace("{csarid}", csarID.csarName());
-                try {
-                    str = str.replace("{servicetemplateid}",
-                        URLEncoder.encode(URLEncoder.encode(serviceTemplateID, "UTF-8"), "UTF-8"));
-                } catch (final UnsupportedEncodingException e) {
-                    LOG.error("Couldn't encode Service Template URL", e);
-                }
+                str = str.replace("{servicetemplateid}",
+                    URLEncoder.encode(URLEncoder.encode(serviceTemplateID, StandardCharsets.UTF_8), StandardCharsets.UTF_8));
                 LOG.debug("instance api: {}", str);
                 map.put(para, str);
             } else if (para.equalsIgnoreCase("csarEntrypoint")) {

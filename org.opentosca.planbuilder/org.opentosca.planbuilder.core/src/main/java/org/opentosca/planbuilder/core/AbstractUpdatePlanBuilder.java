@@ -39,11 +39,6 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
         super(pluginRegistry);
     }
 
-    @Override
-    public PlanType createdPlanType() {
-        return PlanType.MANAGEMENT;
-    }
-
     protected AbstractPlan generateUOG(final String id, final TDefinitions definitions,
                                        final TServiceTemplate serviceTemplate, Csar csar) {
 

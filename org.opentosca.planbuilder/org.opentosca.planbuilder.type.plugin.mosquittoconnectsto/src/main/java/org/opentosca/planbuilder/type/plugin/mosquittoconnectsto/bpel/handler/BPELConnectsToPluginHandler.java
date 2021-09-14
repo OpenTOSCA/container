@@ -24,7 +24,6 @@ import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.core.plugins.utils.PluginUtils;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
-import org.opentosca.planbuilder.type.plugin.mosquittoconnectsto.core.handler.ConnectsToTypePluginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -38,7 +37,7 @@ import org.xml.sax.SAXException;
  *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
  */
-public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<BPELPlanContext> {
+public class BPELConnectsToPluginHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELConnectsToPluginHandler.class);
     private final BPELInvokerPlugin invokerPlugin = new BPELInvokerPlugin();
@@ -57,7 +56,6 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
         this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
-    @Override
     public boolean handle(final BPELPlanContext templateContext) {
         final TRelationshipTemplate relationTemplate = templateContext.getRelationshipTemplate();
         Csar csar = templateContext.getCsar();

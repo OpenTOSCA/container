@@ -32,19 +32,6 @@ public class BPELPrePhasePluginHandler {
 
     private final BPELInvokerPlugin invokerPlugin = new BPELInvokerPlugin();
 
-    private ResourceHandler res;
-
-    /**
-     * Constructor
-     */
-    public BPELPrePhasePluginHandler() {
-        try {
-            this.res = new ResourceHandler();
-        } catch (final ParserConfigurationException e) {
-            BPELPrePhasePluginHandler.LOG.error("Couldn't initialize internal ResourceHandler", e);
-        }
-    }
-
     /**
      * Adds necessary BPEL logic trough the given context that can upload the given DA unto the given
      * InfrastructureNode
@@ -58,23 +45,6 @@ public class BPELPrePhasePluginHandler {
                           final TNodeTemplate infraNodeTemplate) {
         final Collection<TArtifactReference> refs = ModelUtils.findArtifactTemplate(da.getArtifactRef(), context.getCsar()).getArtifactReferences();
         return this.handle(context, refs, da.getName(), infraNodeTemplate);
-    }
-
-    /**
-     * Adds necessary BPEL logic through the given context that can upload the given IA unto the given
-     * InfrastructureNode
-     *
-     * @param context      a TemplateContext
-     * @param ia           the ImplementationArtifact to deploy
-     * @param nodeTemplate the NodeTemplate which is used as InfrastructureNode
-     * @return true iff adding logic was successful
-     */
-    public boolean handle(final BPELPlanContext context, final TImplementationArtifact ia,
-                          final TNodeTemplate nodeTemplate) {
-        // fetch references
-        final Collection<TArtifactReference> refs = ModelUtils.findArtifactTemplate(ia.getArtifactRef(), context.getCsar()).getArtifactReferences();
-        return this.handle(context, refs, ia.getArtifactType().getLocalPart() + "_" + ia.getOperationName() + "_IA",
-            nodeTemplate);
     }
 
     /**

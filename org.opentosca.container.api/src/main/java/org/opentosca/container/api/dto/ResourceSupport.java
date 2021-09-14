@@ -135,7 +135,7 @@ public class ResourceSupport {
 
         @Override
         public void serialize(final List<Link> links, final JsonGenerator json,
-                              final SerializerProvider provider) throws IOException, JsonProcessingException {
+                              final SerializerProvider provider) throws IOException {
             if (links.isEmpty()) {
                 return;
             }

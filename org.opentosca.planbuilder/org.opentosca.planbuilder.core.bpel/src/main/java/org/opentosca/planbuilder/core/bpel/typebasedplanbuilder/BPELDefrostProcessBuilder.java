@@ -74,9 +74,8 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
         this.finalizer = new BPELFinalizer();
     }
 
-    @Override
-    public BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
-                              final TServiceTemplate serviceTemplate) {
+    private BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                               final TServiceTemplate serviceTemplate) {
         BPELDefrostProcessBuilder.LOG.info("Making Concrete Plans");
 
         if (!this.isDefrostable(serviceTemplate, csar)) {
@@ -252,7 +251,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} defrost plan for CSAR {}", String.valueOf(plans.size()), csar.id().csarName());
+        	LOG.info("Created {} defrost plan for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }

@@ -41,12 +41,10 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
  */
 public abstract class AbstractImporter {
 
-    protected final CsarStorageService storage;
     private final PluginRegistry pluginRegistry;
 
-    protected AbstractImporter(PluginRegistry pluginRegistry, CsarStorageService storage) {
+    protected AbstractImporter(PluginRegistry pluginRegistry) {
         this.pluginRegistry = pluginRegistry;
-        this.storage = storage;
     }
 
     protected AbstractPlan buildAdaptationPlan(final Csar csar, final TDefinitions definitions,

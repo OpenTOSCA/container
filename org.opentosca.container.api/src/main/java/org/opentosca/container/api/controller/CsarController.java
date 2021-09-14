@@ -193,19 +193,6 @@ public class CsarController {
         return handleCsarUpload(file.getFileName(), is, applyEnrichment);
     }
 
-    private String extractFileName(MultivaluedMap<String, String> headers) {
-        String[] contentDispostion = headers.getFirst("Content-Disposition").split("\\s*;\\s*");
-        for (String kvPair : contentDispostion) {
-            if (kvPair.startsWith("filename")) {
-                String[] name = kvPair.split("=");
-                String quoted = name[1].trim();
-                // drops the surrounding quotes
-                return quoted.substring(1, quoted.length() - 1);
-            }
-        }
-        return null;
-    }
-
     @POST
     @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})

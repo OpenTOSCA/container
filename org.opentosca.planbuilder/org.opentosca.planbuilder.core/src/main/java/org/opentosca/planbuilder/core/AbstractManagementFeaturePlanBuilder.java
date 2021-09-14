@@ -33,11 +33,6 @@ public abstract class AbstractManagementFeaturePlanBuilder extends AbstractSimpl
         super(pluginRegistry);
     }
 
-    @Override
-    public PlanType createdPlanType() {
-        return PlanType.MANAGEMENT;
-    }
-
     /**
      * Generates the Management Order Graph (MOG) for the given ServiceTemplate and the given Management Interface.
      *

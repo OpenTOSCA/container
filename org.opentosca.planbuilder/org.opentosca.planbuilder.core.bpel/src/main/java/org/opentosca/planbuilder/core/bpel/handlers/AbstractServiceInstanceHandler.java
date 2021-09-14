@@ -19,7 +19,6 @@ public abstract class AbstractServiceInstanceHandler {
     protected static final String ServiceInstanceURLVarKeyword = "OpenTOSCAContainerAPIServiceInstanceURL";
     protected static final String ServiceInstanceIDVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
     protected static final String ServiceTemplateURLVarKeyword = "OpenTOSCAContainerAPIServiceTemplateURL";
-    protected static final String ServiceInstancesURLVarKeyword = "OpenTOSCAContainerAPIServiceInstancesURL";
     protected static final String PlanInstanceURLVarKeyword = "OpenTOSCAContainerAPIPlanInstanceURL";
     protected static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
 
@@ -28,14 +27,12 @@ public abstract class AbstractServiceInstanceHandler {
     protected final BPELPlanHandler bpelProcessHandler;
 
     protected final DocumentBuilderFactory docFactory;
-    protected final DocumentBuilder docBuilder;
 
     public AbstractServiceInstanceHandler() throws ParserConfigurationException {
         this.bpelProcessHandler = new BPELPlanHandler();
         this.fragments = new BPELProcessFragments();
         this.docFactory = DocumentBuilderFactory.newInstance();
         this.docFactory.setNamespaceAware(true);
-        this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
     public String getLowestId(Collection<String> ids, String keyword) {

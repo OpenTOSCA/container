@@ -29,7 +29,7 @@ public class ScalingPlanDefinition {
     // topology
     public String name;
     public TTopologyTemplate topology;
-    private Csar csar;
+    private final Csar csar;
 
     // region
     public List<TNodeTemplate> nodeTemplates;
@@ -41,7 +41,6 @@ public class ScalingPlanDefinition {
     public List<TNodeTemplate> nodeTemplatesRecursiveSelection;
     public List<TRelationshipTemplate> relationshipTemplatesRecursiveSelection;
     // border crossing relations
-    public Set<TRelationshipTemplate> borderCrossingRelations;
 
     public ScalingPlanDefinition(final String name, final TTopologyTemplate topology,
                                  final List<TNodeTemplate> nodeTemplates,
@@ -59,7 +58,6 @@ public class ScalingPlanDefinition {
 
         init();
 
-        this.borderCrossingRelations = calculateBorderCrossingRelations(csar);
     }
 
     private void init() {
@@ -180,13 +178,11 @@ public class ScalingPlanDefinition {
 
         private final Collection<String> annotations;
         private final TNodeTemplate nodeTemplate;
-        private final Csar csar;
 
         public AnnotatedTNodeTemplate(final TNodeTemplate nodeTemplate,
-                                             final Collection<String> annotations, Csar csar) {
+                                             final Collection<String> annotations) {
             this.annotations = annotations;
             this.nodeTemplate = nodeTemplate;
-            this.csar = csar;
         }
 
         public Collection<String> getAnnotations() {

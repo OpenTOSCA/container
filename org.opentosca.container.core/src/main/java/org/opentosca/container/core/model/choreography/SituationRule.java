@@ -4,22 +4,22 @@ import java.net.URL;
 
 public class SituationRule {
 
-    private URL situationRuleUrl;
+    private final URL situationRuleUrl;
 
-    private String situationCompliantPartnerName;
+    private final String situationCompliantPartnerName;
 
-    private URL situationCompliantPartnerUrl;
+    private final URL situationCompliantPartnerUrl;
 
-    private String alternativePartnerName;
+    private final String alternativePartnerName;
 
-    private URL alternativePartnerUrl;
-    
+    private final URL alternativePartnerUrl;
+
     public SituationRule (URL situationRuleUrl, String situationCompliantPartnerName, URL situationCompliantPartnerUrl, String alternativePartnerName, URL alternativePartnerUrl) {
     	this.situationRuleUrl = situationRuleUrl;
     	this.situationCompliantPartnerName = situationCompliantPartnerName;
     	this.situationCompliantPartnerUrl = situationCompliantPartnerUrl;
     	this.alternativePartnerName = alternativePartnerName;
-    	this.alternativePartnerUrl = alternativePartnerUrl;    		    		
+    	this.alternativePartnerUrl = alternativePartnerUrl;
     }
 
 	public String getSituationCompliantPartnerName() {

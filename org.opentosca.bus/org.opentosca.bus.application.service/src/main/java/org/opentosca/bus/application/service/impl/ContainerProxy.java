@@ -126,15 +126,6 @@ public class ContainerProxy {
     }
 
     /**
-     * @return ServiceInstance with specified ID
-     */
-    @Nullable
-    protected ServiceTemplateInstance getServiceInstance(final Integer id) {
-        LOG.trace("Searching ServiceInstance with ID: {}", id);
-        return this.serviceTemplateInstanceRepository.find(Long.valueOf(id)).orElse(null);
-    }
-
-    /**
      * Searches for NodeTypeImplementations and their DeploymentArtifacts as well as their ArtifactTemplates of the
      * specified NodeType. If the needed properties are found, they are returned.
      *
@@ -354,51 +345,6 @@ public class ContainerProxy {
                 }
             }
         }
-        return null;
-    }
-
-    /**
-     * @return name of a NodeTemplate of the specified NodeType inside of the specified serviceTemplate & csar
-     */
-    @Nullable
-    protected String getANodeTemplateNameOfNodeType(final CsarId csarId, final QName serviceTemplateID, final QName nodeTypeQName) {
-
-        LOG.debug("Searching NodeTemplate of NodeType: " + nodeTypeQName + " in the ServiceTemplate: "
-            + serviceTemplateID + " inside the CSAR: " + csarId);
-
-        // get the ServiceTemplate
-        Csar csar = storageService.findById(csarId);
-        final TServiceTemplate serviceTemplate;
-        try {
-            serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateID);
-        } catch (NotFoundException e) {
-            LOG.warn("Could not find containing serviceTemplate for NodeTemplate name request with arguments csarId: {}, serviceTemplateId: {}", csarId, serviceTemplateID);
-            return null;
-        }
-
-        final TTopologyTemplate topologyTemplate = serviceTemplate.getTopologyTemplate();
-        if (topologyTemplate == null) {
-            LOG.warn("Topology template of service template [{}] was null, even though we are not in modeling mode", serviceTemplateID);
-            return null;
-        }
-        for (final TEntityTemplate entity : topologyTemplate.getNodeTemplateOrRelationshipTemplate()) {
-            TNodeTemplate nodeTemplate = new TNodeTemplate();
-            // get NodeTemplate
-            if (!(entity instanceof TNodeTemplate)) {
-                continue;
-            }
-            nodeTemplate = (TNodeTemplate) entity;
-            if (nodeTemplate.getType() == null || !nodeTemplate.getType().equals(nodeTypeQName)) {
-                continue;
-            }
-            final String nodeTemplateID = nodeTemplate.getId();
-            LOG.debug("NodeTemplate of NodeType: " + nodeTypeQName + " in the ServiceTemplate: "
-                + serviceTemplateID + " inside the CSAR: " + csarId + " found. NodeTemplateID: "
-                + nodeTemplateID);
-            return nodeTemplateID;
-        }
-        LOG.debug("No NodeTemplate of NodeType: " + nodeTypeQName + " in the ServiceTemplate: " + serviceTemplateID
-            + " inside the CSAR: " + csarId + " found.");
         return null;
     }
 

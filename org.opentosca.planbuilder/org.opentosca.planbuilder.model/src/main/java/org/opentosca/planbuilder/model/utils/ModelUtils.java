@@ -125,24 +125,6 @@ public class ModelUtils {
     }
 
     /**
-     * Returns true if the given QName type denotes to a NodeType in the type hierarchy of the given NodeTemplate
-     *
-     * @param nodeTemplate an TNodeTemplate
-     * @param type         the Type as a QName to check against
-     * @return true iff the given NodeTemplate contains the given type in its type hierarchy
-     */
-    public static boolean checkForTypeInHierarchy(final TNodeTemplate nodeTemplate, final QName type, Csar csar) {
-        final List<QName> typeHierarchy = ModelUtils.getNodeTypeHierarchy(nodeTemplate.getType(), csar);
-        // as somehow contains won't work here, we must cycle trough
-        for (final QName qname : typeHierarchy) {
-            if (qname.equals(type)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Removes duplicates from the given List
      *
      * @param nodeTemplates a List of TNodeTemplate
@@ -491,27 +473,6 @@ public class ModelUtils {
         } else {
             ModelUtils.getInfrastructureNodes(getTarget(relationshipTemplate, csar), infrastructureNodes, csar);
         }
-    }
-
-    public static List<TRelationshipTemplate> getIngoingRelations(final TNodeTemplate nodeTemplate,
-                                                                         final Collection<QName> relationshipTypes, Csar csar) {
-        final List<TRelationshipTemplate> relations = new ArrayList<>();
-        for (final TRelationshipTemplate relation : getIngoingRelations(nodeTemplate, csar)) {
-            for (final QName relationshipTypeHierarchyMember : ModelUtils.getRelationshipTypeHierarchy(relation.getType(), csar)) {
-                final boolean match = false;
-                for (final QName relationshipType : relationshipTypes) {
-                    if (relationshipTypeHierarchyMember.equals(relationshipType)) {
-                        relations.add(relation);
-                        break;
-                    }
-                }
-                if (match) {
-                    break;
-                }
-            }
-        }
-
-        return relations;
     }
 
     /**

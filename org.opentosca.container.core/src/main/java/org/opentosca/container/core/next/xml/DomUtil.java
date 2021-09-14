@@ -74,46 +74,4 @@ public abstract class DomUtil {
         }
         return "";
     }
-
-    public static String getNodeAttribute(final String tagName, final String attrName, final NodeList nodes) {
-        for (int x = 0; x < nodes.getLength(); x++) {
-            final Node node = nodes.item(x);
-            if (node.getNodeName().equalsIgnoreCase(tagName)) {
-                final NodeList childNodes = node.getChildNodes();
-                for (int y = 0; y < childNodes.getLength(); y++) {
-                    final Node data = childNodes.item(y);
-                    if (data.getNodeType() == Node.ATTRIBUTE_NODE) {
-                        if (data.getNodeName().equalsIgnoreCase(attrName)) {
-                            return data.getNodeValue();
-                        }
-                    }
-                }
-            }
-        }
-        return "";
-    }
-
-    public static String toString(final Document document) {
-        return toString(new DOMSource(document));
-    }
-
-    public static String toString(final Element element) {
-        return toString(new DOMSource(element));
-    }
-
-    public static String toString(final DOMSource source) {
-        try {
-            final StringWriter sw = new StringWriter();
-            final TransformerFactory tf = TransformerFactory.newInstance();
-            final Transformer transformer = tf.newTransformer();
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            transformer.transform(source, new StreamResult(sw));
-            return sw.toString();
-        } catch (final Exception e) {
-            throw new RuntimeException("Error converting XML to String: " + e.getMessage(), e);
-        }
-    }
 }

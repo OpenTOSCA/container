@@ -239,12 +239,6 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
     }
 
     @Override
-    public BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
-                              final TServiceTemplate serviceTemplate) {
-        throw new RuntimeException("A service Template can have multiple scaling plans, this method is not supported");
-    }
-
-    @Override
     public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
         final List<AbstractPlan> plans = new ArrayList<>();
 
@@ -558,7 +552,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
                 } else {
                     final List<String> annot = new ArrayList<>();
                     annot.add(selectionStrategy);
-                    annotNodes.add(new AnnotatedTNodeTemplate(node, annot, csar));
+                    annotNodes.add(new AnnotatedTNodeTemplate(node, annot));
                 }
             }
         }

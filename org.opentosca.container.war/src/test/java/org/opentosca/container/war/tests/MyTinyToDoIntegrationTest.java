@@ -43,8 +43,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @TestPropertySource(properties = "server.port=1337")
 public class MyTinyToDoIntegrationTest {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(MyTinyToDoIntegrationTest.class);
-
     public QName csarId = new QName("http://opentosca.org/servicetemplates", "MyTinyToDo_Bare_Docker");
 
     @Inject

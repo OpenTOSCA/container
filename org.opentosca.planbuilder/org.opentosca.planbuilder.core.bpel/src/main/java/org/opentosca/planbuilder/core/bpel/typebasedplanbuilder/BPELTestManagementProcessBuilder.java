@@ -91,9 +91,8 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
         this.finalizer = new BPELFinalizer();
     }
 
-    @Override
-    public BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
-                              final TServiceTemplate serviceTemplate) {
+    private BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                               final TServiceTemplate serviceTemplate) {
 
         LOG.debug("Creating Test Management Plan...");
 
@@ -198,7 +197,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} test management plans for CSAR {}", String.valueOf(plans.size()), csar.id().csarName());
+        	LOG.info("Created {} test management plans for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }

@@ -67,11 +67,11 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
     private final BPELPluginHandler bpelPluginHandler;
     private final EmptyPropertyToInputHandler emptyPropInit;
     private final ChoreographyBuilder choreoBuilder = new ChoreographyBuilder();
-    private SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
-    private CorrelationIDInitializer correlationHandler;
-    private SituationTriggerRegistration sitRegistrationPlugin;
-    private BPELPlanHandler planHandler;
-    private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
+    private final SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
+    private final CorrelationIDInitializer correlationHandler;
+    private final SituationTriggerRegistration sitRegistrationPlugin;
+    private final BPELPlanHandler planHandler;
+    private final NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 
     /**
      * <p>
@@ -105,9 +105,8 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
      * @see org.opentosca.planbuilder.IPlanBuilder#buildPlan(java.lang.String,
      * org.opentosca.planbuilder.model.tosca.TDefinitions, javax.xml.namespace.QName)
      */
-    @Override
-    public BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
-                              final TServiceTemplate serviceTemplate) {
+    private BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                               final TServiceTemplate serviceTemplate) {
         // create empty plan from servicetemplate and add definitions
         String namespace;
         if (serviceTemplate.getTargetNamespace() != null) {
@@ -222,7 +221,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
             if (!ModelUtils.hasBuildPlan(serviceTemplate)) {
                 LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan",
-                    serviceTemplate.getId().toString());
+                        serviceTemplate.getId());
                 final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
 
                 if (newBuildPlan != null) {
@@ -232,7 +231,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 }
             } else {
                 LOG.debug("ServiceTemplate {} has BuildPlan, no generation needed",
-                    serviceTemplate.getId().toString());
+                        serviceTemplate.getId());
             }
         }
         if (!plans.isEmpty()) {

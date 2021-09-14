@@ -23,14 +23,12 @@ import org.opentosca.planbuilder.core.plugins.utils.PluginUtils;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.BPELDockerContainerTypePlugin;
-import org.opentosca.planbuilder.type.plugin.dockercontainer.core.handler.OpenMTCDockerContainerTypePluginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-public class BPELOpenMTCDockerContainerTypePluginHandler implements
-    OpenMTCDockerContainerTypePluginHandler<BPELPlanContext> {
+public class BPELOpenMTCDockerContainerTypePluginHandler {
     private static final Logger LOG = LoggerFactory.getLogger(BPELOpenMTCDockerContainerTypePluginHandler.class);
     private final BPELInvokerPlugin invokerPlugin = new BPELInvokerPlugin();
     private final QName pyhsicallyConnectedRelationshipType =
@@ -45,7 +43,6 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         }
     }
 
-    @Override
     public boolean handleOpenMTCGateway(final BPELPlanContext templateContext,
                                         final TNodeTemplate backendNodeTemplate) {
         if (templateContext.getNodeTemplate() == null) {
@@ -213,7 +210,6 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
         return baseString.toString();
     }
 
-    @Override
     public boolean handleOpenMTCProtocolAdapter(final BPELPlanContext templateContext,
                                                 final TNodeTemplate openMtcGateway,
                                                 final TNodeTemplate protocolAdapterDeviceNodeTemplate) {

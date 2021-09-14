@@ -127,54 +127,6 @@ public class BPELScopeBuilder {
     }
 
     /**
-     * Creates a ProvisioningChain for the given RelationshipTemplate.
-     *
-     * @param relationshipTemplate an TRelationshipTemplate which should be provisioned
-     * @param forSource            determines whether provisioning is handle on the SourceInterface (set to true) or
-     *                             TargetInterface
-     * @return a ProvisioningChain with complete provisioning Candidates
-     */
-    public OperationChain createOperationChain(BPELPlanContext context, final TRelationshipTemplate relationshipTemplate,
-                                               final boolean forSource) {
-        // get implementations
-        final Collection<TRelationshipTypeImplementation> relationshipTypeImpls =
-            ModelUtils.findRelationshipTypeImplementation(relationshipTemplate, context.getCsar());
-
-        if (relationshipTypeImpls.isEmpty()) {
-            return null;
-        }
-
-        // init chain
-        final OperationChain chain = new OperationChain(relationshipTemplate);
-
-        // calculate infraNodes
-        final List<TNodeTemplate> infraNodes = new ArrayList<>();
-
-        ModelUtils.getInfrastructureNodes(relationshipTemplate, infraNodes, forSource, context.getCsar());
-
-        // check for IA Plugins
-        final List<IPlanBuilderPrePhaseIAPlugin<?>> iaPlugins = pluginRegistry.getIaPlugins();
-        final List<IPlanBuilderPrePhaseIAPlugin<BPELPlanContext>> iaPlugins2 = Lists.newArrayList();
-
-        iaPlugins.forEach(x -> iaPlugins2.add((IPlanBuilderPrePhaseIAPlugin<BPELPlanContext>) x));
-
-        calculateBestImplementationRelationIACandidates(context, relationshipTypeImpls, iaPlugins2, infraNodes,
-            chain, forSource);
-
-        // check for prov plugins
-        final List<IPlanBuilderProvPhaseOperationPlugin<?>> provPlugins =
-            pluginRegistry.getProvPlugins();
-
-        calculateProvPlugins(chain, provPlugins, context.getCsar());
-
-        filterIADACandidatesRelations(chain);
-
-        reorderProvCandidates(chain);
-
-        return chain;
-    }
-
-    /**
      * TODO: We assume that IAs are already provisinoned on IA engine
      *
      * @return OperationChain

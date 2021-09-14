@@ -63,16 +63,12 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
     // class for finalizing build plans (e.g when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
-    // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
-    private final BPELPluginHandler bpelPluginHandler;
-    private final EmptyPropertyToInputHandler emptyPropInit;
+
     // class for initializing properties inside the plan
     private PropertyVariableHandler propertyInitializer;
     private SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
     private CorrelationIDInitializer correlationHandler;
-    private SituationTriggerRegistration sitRegistrationPlugin;
     private BPELPlanHandler planHandler;
-    private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
     private BPELProcessFragments fragments;
 
     /**
@@ -83,13 +79,9 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
     @Inject
     public BPELSituationAwareBuildProcessBuilder(PluginRegistry pluginRegistry) {
         super(pluginRegistry);
-        bpelPluginHandler = new BPELPluginHandler(pluginRegistry);
-        emptyPropInit = new EmptyPropertyToInputHandler(new BPELScopeBuilder(pluginRegistry));
         try {
             this.planHandler = new BPELPlanHandler();
             this.serviceInstanceInitializer = new SimplePlanBuilderServiceInstanceHandler();
-            this.nodeRelationInstanceHandler = new NodeRelationInstanceVariablesHandler(this.planHandler);
-            this.sitRegistrationPlugin = new SituationTriggerRegistration();
             this.correlationHandler = new CorrelationIDInitializer();
             this.fragments = new BPELProcessFragments();
             this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
@@ -107,9 +99,8 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
      * @see org.opentosca.planbuilder.IPlanBuilder#buildPlan(java.lang.String,
      * org.opentosca.planbuilder.model.tosca.TDefinitions, javax.xml.namespace.QName)
      */
-    @Override
-    public BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
-                              final TServiceTemplate serviceTemplate) {
+    private BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                               final TServiceTemplate serviceTemplate) {
         // create empty plan from servicetemplate and add definitions
 
         String namespace;
@@ -238,7 +229,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} situation-aware build plans for CSAR {}", String.valueOf(plans.size()), csar.id().csarName());
+        	LOG.info("Created {} situation-aware build plans for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }

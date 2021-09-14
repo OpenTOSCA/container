@@ -55,12 +55,6 @@ public class FileSystem {
         }
     }
 
-    public static Path unpackToTemp(Path zipFile) throws IOException {
-        Path targetDir = getTemporaryFolder();
-        unzip(zipFile, targetDir);
-        return targetDir;
-    }
-
     public static void zip(Path targetFile, Path... inputFiles) throws IOException {
         if (inputFiles.length == 0) {
             return;
@@ -141,27 +135,5 @@ public class FileSystem {
         } finally {
             zipFs.close();
         }
-    }
-
-    public static void copyDirectory(Path source, Path target) throws IOException {
-        Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes basicFileAttributes) throws IOException {
-                Path targetdir = target.resolve(source.relativize(dir));
-                try {
-                    Files.copy(dir, targetdir);
-                } catch (FileAlreadyExistsException e) {
-                    if (!Files.isDirectory(targetdir))
-                        throw e;
-                }
-                return CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes basicFileAttributes) throws IOException {
-                Files.copy(file, target.resolve(source.relativize(file)));
-                return CONTINUE;
-            }
-        });
     }
 }

@@ -322,26 +322,6 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
      * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String variable.
      *
      * @param assignName    the name of the BPEL assign
-     * @param stringVarName the variable to load the queries results into
-     * @return a DOM Node representing a BPEL assign element
-     * @throws IOException  is thrown when loading internal bpel fragments fails
-     * @throws SAXException is thrown when parsing internal format into DOM fails
-     */
-    public Node loadAssignXpathQueryToStringVarFragmentAsNode(final String assignName, final String xpath2Query,
-                                                              final String stringVarName) throws IOException,
-        SAXException {
-        final String templateString =
-            loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
-        final InputSource is = new InputSource();
-        is.setCharacterStream(new StringReader(templateString));
-        final Document doc = this.docBuilder.parse(is);
-        return doc.getFirstChild();
-    }
-
-    /**
-     * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String variable.
-     *
-     * @param assignName    the name of the BPEL assign
      * @param xpath2Query   the csarEntryPoint XPath query
      * @param stringVarName the variable to load the queries results into
      * @return a String containing a BPEL Assign element

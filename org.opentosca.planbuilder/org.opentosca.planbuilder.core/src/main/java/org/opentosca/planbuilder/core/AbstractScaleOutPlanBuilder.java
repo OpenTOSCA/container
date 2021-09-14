@@ -37,11 +37,6 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractSimplePlanBuil
         super(pluginRegistry);
     }
 
-    @Override
-    public PlanType createdPlanType() {
-        return PlanType.MANAGEMENT;
-    }
-
     public AbstractPlan generateSOG(final String id, final TDefinitions defintions,
                                     final TServiceTemplate serviceTemplate,
                                     final ScalingPlanDefinition scalingPlanDefinition, Csar csar) {
