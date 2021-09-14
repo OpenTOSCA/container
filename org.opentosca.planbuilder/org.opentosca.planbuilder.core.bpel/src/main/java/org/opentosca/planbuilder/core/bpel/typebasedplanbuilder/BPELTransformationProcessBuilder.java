@@ -13,6 +13,7 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import com.google.common.collect.Lists;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractTransformingPlanbuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
@@ -158,9 +159,14 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
 
         // load nodeTemplate properties from source service instance
         Collection<BPELScope> terminationScopes = this.getTerminationScopes(transformationBPELPlan);
+        Collection<BPELScope> migrationScopes = this.getMigrationScopes(transformationBPELPlan);
+        Collection<BPELScope> terminationAndMigrationsScopes = Lists.newArrayList();
+        terminationAndMigrationsScopes.addAll(terminationScopes);
+        terminationAndMigrationsScopes.addAll(migrationScopes);
+
         this.serviceInstanceHandler.appendInitPropertyVariablesFromServiceInstanceData(transformationBPELPlan,
             sourcesProp2VarMap, serviceTemplateURL,
-            terminationScopes,
+            terminationAndMigrationsScopes,
             serviceTemplate, "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
 
         // return created service instance
@@ -190,7 +196,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
             }
         }
 
-        for (BPELScope scope : getMigrationScopes(transformationBPELPlan)) {
+        for (BPELScope scope : migrationScopes) {
             if (scope.getNodeTemplate() != null) {
                 this.nodeRelationInstanceHandler.addNodeInstanceFindLogic(scope, serviceTemplateURL,
                     "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED",
@@ -338,10 +344,15 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
 
         // load nodeTemplate properties from source service instance
         Collection<BPELScope> terminationScopes = this.getTerminationScopes(transformationBPELPlan);
+        Collection<BPELScope> migrationScopes = this.getMigrationScopes(transformationBPELPlan);
+        Collection<BPELScope> terminationAndMigrationsScopes = Lists.newArrayList();
+        terminationAndMigrationsScopes.addAll(terminationScopes);
+        terminationAndMigrationsScopes.addAll(migrationScopes);
+
         this.serviceInstanceHandler.appendInitPropertyVariablesFromServiceInstanceData(transformationBPELPlan,
             sourcePropMap,
             sourceServiceTemplateURL,
-            terminationScopes,
+            terminationAndMigrationsScopes,
             sourceServiceTemplate, "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
 
         // handle target service instance information
@@ -385,7 +396,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
             }
         }
 
-        for (BPELScope scope : getMigrationScopes(transformationBPELPlan)) {
+        for (BPELScope scope : migrationScopes) {
             if (scope.getNodeTemplate() != null) {
                 this.nodeRelationInstanceHandler.addNodeInstanceFindLogic(scope, sourceServiceTemplateURL,
                     "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED",

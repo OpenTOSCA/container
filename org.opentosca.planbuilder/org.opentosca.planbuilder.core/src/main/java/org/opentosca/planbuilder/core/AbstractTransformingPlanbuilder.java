@@ -112,6 +112,16 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         // determine steps which have to be deleted from the original topology
         Set<TNodeTemplate> nodesToTerminate = new HashSet<>(sourceNodeTemplates);
         nodesToTerminate = this.removeNodesFromList(nodesToTerminate, deployableMaxCommonSubgraph);
+
+        // Set<TNodeTemplate> undeployableMaxCommonSubgraph = this.getDeployableSubgraph(nodesToTerminate, sourceCsar, targetCsar);
+        // For each node in nodesToTerminate - undeployablemaxCommonSubgraph we should add recursive instance selection
+        //  OR
+        //  We migrate the nodes first and terminate the nodes
+        // OR which is now implemented, we load all properties of to be migrated and terminated nodes
+        // However: That could be problematic if we handle multiple instances of the same node template
+        // Reason:
+        // we can't terminate node which rely on underlying nodes (hostindOn relations) as we often need props from these (e.g. DockerEngineURL) and these props are not properly loaded for each instance right now...
+
         Collection<TRelationshipTemplate> relationsToTerminate = this.getOutgoingRelations(nodesToTerminate, sourceCsar);
 
         AbstractPlan termPlan = AbstractTerminationPlanBuilder.generateTOG("transformTerminate"
@@ -603,7 +613,7 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
                     boolean matched = false;
                     if (node2.getDeploymentArtifacts() != null) {
                         for (TDeploymentArtifact da2 : node2.getDeploymentArtifacts()) {
-                            if (da.getArtifactType().equals(da.getArtifactType())) {
+                            if (da.getArtifactType().equals(da2.getArtifactType())) {
                                 if (da.getArtifactRef().equals(da2.getArtifactRef())) {
                                     // up to this point only the type and id of the artifact template match, a deeper mathcing
                                     // would really look at the references and stuff, but we assume that artifact template id's
@@ -625,18 +635,24 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
         // This check is pretty heavy if i think about the State Property or changes in
         // values etc.
         // FIXME? Check for values as well?
-        if (!ModelUtils.asMap(node1.getProperties()).keySet().containsAll(ModelUtils.asMap(node2.getProperties()).keySet())) {
+        Set<String> node1props = ModelUtils.asMap(node1.getProperties()).keySet();
+        Set<String> node2props = ModelUtils.asMap(node2.getProperties()).keySet();
+        if (node1props.size() != node2props.size()) {
             return false;
         }
 
-        /* This check here is probably necessary, but pretty constraining as well
+        if (!(node1props.containsAll(node2props) && node2props.containsAll(node1props))) {
+            return false;
+        }
+
+        // This check here is probably necessary, but pretty constraining as well
         if (!ModelUtils.getElementName(node1.getProperties()).equals(ModelUtils.getElementName(node2.getProperties()))) {
             return false;
         }
 
         if (!ModelUtils.getNamespace(node1.getProperties()).equals(ModelUtils.getNamespace(node2.getProperties()))) {
             return false;
-        }*/
+        }
 
         LOG.debug("Matched node {} with node {} ", node1.getId(), node2.getId());
 

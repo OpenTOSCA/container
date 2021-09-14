@@ -14,6 +14,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.common.file.ResourceAccess;
+import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -43,6 +45,69 @@ public class Fragments {
         this.docFactory = DocumentBuilderFactory.newInstance();
         this.docFactory.setNamespaceAware(true);
         this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    }
+
+    /**
+     * Creates a BPEL assign activity that reads the property values from a NodeInstance Property response and sets the
+     * given variables
+     *
+     * @param assignName                          the name of the assign activity
+     * @param nodeInstancePropertyResponseVarName the name of the variable holding the property data
+     * @param propElement2BpelVarNameMap          a Map from DOM Elements (representing Node Properties) to BPEL
+     *                                            variable names
+     * @return a Node containing a BPEL assign activity
+     * @throws IOException  is thrown when reading internal files fail
+     * @throws SAXException is thrown when parsing internal files fail
+     */
+    public Node createAssignFromInstancePropertyToBPELVariableAsNode(final String assignName,
+                                                                     final String nodeInstancePropertyResponseVarName,
+                                                                     final Map<String, String> propElement2BpelVarNameMap, String namespace) throws IOException,
+        SAXException {
+        final String templateString =
+            createAssignFromInstancePropertyToBPELVariableAsString(assignName, nodeInstancePropertyResponseVarName,
+                propElement2BpelVarNameMap, namespace);
+        return this.transformStringToNode(templateString);
+    }
+
+    public Node transformStringToNode(String xmlString) throws SAXException, IOException {
+        final InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(xmlString));
+        final Document doc = this.docBuilder.parse(is);
+        return doc.getFirstChild();
+    }
+
+    /**
+     * Creates a BPEL assign activity that reads the property values from a NodeInstance Property response and sets the
+     * given variables
+     *
+     * @param assignName                          the name of the assign activity
+     * @param nodeInstancePropertyResponseVarName the name of the variable holding the property data
+     * @param propElement2BpelVarNameMap          a Map from DOM Elements (representing Node Properties) to BPEL
+     *                                            variable names
+     * @return a String containing a BPEL assign activity
+     * @throws IOException is thrown when reading internal files fail
+     */
+    public String createAssignFromInstancePropertyToBPELVariableAsString(final String assignName,
+                                                                         final String nodeInstancePropertyResponseVarName,
+                                                                         final Map<String, String> propElement2BpelVarNameMap, String namespace) throws IOException {
+        final String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BpelCopyFromPropertyVarToNodeInstanceProperty.xml"));
+
+        StringBuilder assignString =
+            new StringBuilder("<bpel:assign name=\"" + assignName + "\" xmlns:bpel=\"" + BPELPlan.bpelNamespace + "\" >");
+
+        // <!-- $PropertyVarName, $NodeInstancePropertyRequestVarName,
+        // $NodeInstancePropertyLocalName, $NodeInstancePropertyNamespace -->
+        for (final String propElement : propElement2BpelVarNameMap.keySet()) {
+            String copyString = template.replace("$PropertyVarName", propElement2BpelVarNameMap.get(propElement));
+            copyString = copyString.replace("$NodeInstancePropertyRequestVarName", nodeInstancePropertyResponseVarName);
+            copyString = copyString.replace("$NodeInstancePropertyLocalName", propElement);
+            copyString = copyString.replace("$NodeInstancePropertyNamespace", namespace);
+            assignString.append(copyString);
+        }
+
+        assignString.append("</bpel:assign>");
+
+        return assignString.toString();
     }
 
     /**

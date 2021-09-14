@@ -27,6 +27,7 @@ import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
+import org.opentosca.planbuilder.core.bpel.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
@@ -549,7 +550,7 @@ public class Handler {
 
         /* load properties and state from old instance to new instance */
         if (hasProps) {
-            this.appendUpdatePropertiesFromSourceToTarget(sourceContext, sourceNodeTemplate,
+            this.appendUpdatePropertiesFromSourceToTarget(sourceContext, targetContext, sourceNodeTemplate,
                 sourceNodeInstanceURLVarName, targetNodeInstanceUrlVar,
                 restCallResponseVar, targetContext.getPostPhaseElement());
         }
@@ -1024,7 +1025,7 @@ public class Handler {
         this.invoker.addLogActivity(context, message, PlanContext.Phase.POST);
     }
 
-    public boolean appendUpdatePropertiesFromSourceToTarget(final BPELPlanContext sourceNodeContext,
+    public boolean appendUpdatePropertiesFromSourceToTarget(final BPELPlanContext sourceNodeContext, BPELPlanContext targetNodeContext,
                                                             final TNodeTemplate nodeTemplate,
                                                             final String sourceNodeInstanceURLVarName,
                                                             final String targetNodeInstanceUrlVarName,
@@ -1045,6 +1046,7 @@ public class Handler {
             return false;
         }
 
+
         // assign the values from the property variables into REST/HTTP
         // Request
         // and send
@@ -1059,7 +1061,7 @@ public class Handler {
             // proper format
             Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName,
                 propertyVarNameToDOMMapping);
-            assignNode = sourceNodeContext.importNode(assignNode);
+            assignNode = targetNodeContext.importNode(assignNode);
             appendAsChildElement.appendChild(assignNode);
         } catch (final SAXException e) {
             e.printStackTrace();
@@ -1067,6 +1069,27 @@ public class Handler {
         } catch (final IOException e) {
             e.printStackTrace();
             return false;
+        }
+
+        final Map<String, String> propName2BpelVarNameMap = new HashMap<>();
+
+        Map<String, String> propertiesMap = ModelUtils.asMap(targetNodeContext.getNodeTemplate().getProperties());
+
+        for (PropertyVariable var : targetNodeContext.getPropertyVariables(targetNodeContext.getNodeTemplate())) {
+            if (propertiesMap.containsKey(var.getPropertyName())) {
+                propName2BpelVarNameMap.put(var.getPropertyName(), var.getVariableName());
+            }
+        }
+
+        try {
+            Node assignPropertiesToVariables =
+                this.fragments.createAssignFromInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
+                    + System.currentTimeMillis(), restCallResponseVarName, propName2BpelVarNameMap, ModelUtils.getNamespace(targetNodeContext.getNodeTemplate().getProperties()));
+            assignPropertiesToVariables =
+                targetNodeContext.importNode(assignPropertiesToVariables);
+            targetNodeContext.getPostPhaseElement().appendChild(assignPropertiesToVariables);
+        } catch (final IOException | SAXException e) {
+            throw new RuntimeException(e);
         }
 
         // generate BPEL4RESTLight PUT request to update the instance data
