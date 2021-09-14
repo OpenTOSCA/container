@@ -26,15 +26,7 @@ public class BPELConnectsToPlugin extends ConnectsToPlugin<BPELPlanContext> {
     private final BPELConnectsToPluginHandler handler;
 
     public BPELConnectsToPlugin() {
-        BPELConnectsToPluginHandler safeCreatedHandler;
-        try {
-            safeCreatedHandler = new BPELConnectsToPluginHandler();
-        } catch (ParserConfigurationException e) {
-            // Wow this is bad
-            e.printStackTrace();
-            safeCreatedHandler = null;
-        }
-        handler = safeCreatedHandler;
+        handler = new BPELConnectsToPluginHandler();
     }
 
     /*
