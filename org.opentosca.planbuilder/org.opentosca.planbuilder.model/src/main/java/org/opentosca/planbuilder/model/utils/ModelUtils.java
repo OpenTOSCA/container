@@ -80,7 +80,7 @@ public class ModelUtils {
     public static TOperation findOperation(Csar csar, String interfaceName, String operationName) {
         for (TDefinitions defs : csar.definitions()) {
             for (TNodeType nodeType : defs.getNodeTypes()) {
-                if(Objects.nonNull(nodeType.getInterfaces())) {
+                if (Objects.nonNull(nodeType.getInterfaces())) {
                     for (TInterface iface : nodeType.getInterfaces()) {
                         if (iface.getName().equals(interfaceName)) {
                             for (TOperation op : iface.getOperations()) {
@@ -213,7 +213,7 @@ public class ModelUtils {
             ref = findArtifactType(type.getDerivedFrom().getTypeRef(), artifactTypes);
         }
 
-        while (ref != null) {
+        while (Objects.nonNull(ref) && Objects.nonNull(ref.getDerivedFrom())) {
             qnames.add(ref.getQName());
             ref = findArtifactType(ref.getDerivedFrom().getTypeRef(), artifactTypes);
         }
@@ -358,24 +358,6 @@ public class ModelUtils {
             }
         }
         ModelUtils.cleanDuplicates(infrastructureEdges);
-    }
-
-    /**
-     * Adds the InfrastructureEdges of the given RelationshipTemplate to the given List
-     *
-     * @param relationshipTemplate an TRelationshipTemplate
-     * @param infraEdges           a List of TRelationshipTemplate to add the InfrastructureEdges to
-     * @param forSource            whether to search for InfrastructureEdges along the SourceInterface or
-     *                             TargetInterface
-     */
-    public static void getInfrastructureEdges(final TRelationshipTemplate relationshipTemplate,
-                                              final List<TRelationshipTemplate> infraEdges,
-                                              final boolean forSource, Csar csar) {
-        if (forSource) {
-            ModelUtils.getInfrastructureEdges(getSource(relationshipTemplate, csar), infraEdges, csar);
-        } else {
-            ModelUtils.getInfrastructureEdges(getTarget(relationshipTemplate, csar), infraEdges, csar);
-        }
     }
 
     public static TNodeTemplate getSource(TRelationshipTemplate relationshipTemplate, Csar csar) {
