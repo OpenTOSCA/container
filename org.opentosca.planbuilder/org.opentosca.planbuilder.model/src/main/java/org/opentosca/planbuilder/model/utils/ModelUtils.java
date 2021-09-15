@@ -80,11 +80,13 @@ public class ModelUtils {
     public static TOperation findOperation(Csar csar, String interfaceName, String operationName) {
         for (TDefinitions defs : csar.definitions()) {
             for (TNodeType nodeType : defs.getNodeTypes()) {
-                for (TInterface iface : nodeType.getInterfaces()) {
-                    if (iface.getName().equals(interfaceName)) {
-                        for (TOperation op : iface.getOperations()) {
-                            if (op.getName().equals(operationName)) {
-                                return op;
+                if(Objects.nonNull(nodeType.getInterfaces())) {
+                    for (TInterface iface : nodeType.getInterfaces()) {
+                        if (iface.getName().equals(interfaceName)) {
+                            for (TOperation op : iface.getOperations()) {
+                                if (op.getName().equals(operationName)) {
+                                    return op;
+                                }
                             }
                         }
                     }
