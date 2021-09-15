@@ -209,7 +209,7 @@ public class ModelUtils {
         TArtifactType type = findArtifactType(artifactTemplate.getType(), artifactTypes);
 
         TArtifactType ref = null;
-        if (type.getDerivedFrom() != null) {
+        if (Objects.nonNull(type.getDerivedFrom())) {
             ref = findArtifactType(type.getDerivedFrom().getTypeRef(), artifactTypes);
         }
 
@@ -636,6 +636,10 @@ public class ModelUtils {
     }
 
     public static TNodeType findNodeType(QName id, Collection<TNodeType> nodeTypes) {
+        if (id.equals(new QName("http://opentosca.org/nodetypes", "TOSCAManagmentInfrastructure"))) {
+            return new TNodeType.Builder("TOSCAManagmentInfrastructure").setTargetNamespace("http://opentosca.org/nodetypes").build();
+        }
+
         return nodeTypes.stream().filter(x -> x.getQName().equals(id)).findFirst().orElse(null);
     }
 
