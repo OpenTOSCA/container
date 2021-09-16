@@ -27,6 +27,10 @@ public class BrokerSupport {
     private Server mqttBroker;
 
     public synchronized void start() {
+        if (!Boolean.parseBoolean(Settings.OPENTOSCA_COLLABORATION_MODE)) {
+            LOG.info("Collaboration mode is turned off. Skipping MQTT broker startup.");
+            return;
+        }
         if (mqttBroker != null) {
             LOG.info("Registered attempt to start Broker again. Aborting!");
             return;
