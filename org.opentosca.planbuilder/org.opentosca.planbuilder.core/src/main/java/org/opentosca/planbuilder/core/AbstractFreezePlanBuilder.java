@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -100,7 +101,9 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
     }
 
     private boolean hasPolicy(final TNodeTemplate nodeTemplate, final QName policyType) {
-        return nodeTemplate.getPolicies().stream().filter(policy -> policy.getPolicyType().equals(policyType))
-            .findFirst().isPresent();
+        if (Objects.isNull(nodeTemplate.getPolicies())) {
+            return false;
+        }
+        return nodeTemplate.getPolicies().stream().anyMatch(policy -> policy.getPolicyType().equals(policyType));
     }
 }
