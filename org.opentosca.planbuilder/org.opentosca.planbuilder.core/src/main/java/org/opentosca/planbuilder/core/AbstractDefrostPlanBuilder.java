@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -132,9 +133,11 @@ public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuild
     }
 
     protected static boolean hasFreezeableComponentPolicy(TNodeTemplate nodeTemplate) {
-        for (TPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getPolicyType().equals(AbstractDefrostPlanBuilder.freezableComponentPolicy)) {
-                return true;
+        if (Objects.nonNull(nodeTemplate.getPolicies())) {
+            for (TPolicy policy : nodeTemplate.getPolicies()) {
+                if (policy.getPolicyType().equals(AbstractDefrostPlanBuilder.freezableComponentPolicy)) {
+                    return true;
+                }
             }
         }
         return false;
