@@ -59,7 +59,7 @@ public class WineryConnector {
         } catch (URISyntaxException e) {
             LOG.error("Winery Connector configuration is not valid", e);
         }
-        this.wineryPath = configurationValue;
+        this.wineryPath = configurationValue.endsWith("/") ? configurationValue : configurationValue + "/";;
         LOG.debug("Initialized Winery Connector for endpoint " + this.wineryPath);
     }
 
