@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -575,17 +576,18 @@ public class BPELUbuntuVmTypePluginHandler {
         }
 
         // check if there is an access policy attached
-        for (final TPolicy policy : nodeTemplate.getPolicies()) {
-            if ((policy.getPolicyType().equals(noPublicAccessPolicyType)
-                | policy.getPolicyType().equals(publicAccessPolicyType)) &&
-                (ModelUtils.asMap(policy.getProperties()).get("SecurityGroup") != null)) {
-                String securityGroup = ModelUtils.asMap(policy.getProperties()).get("SecurityGroup");
-                final Variable secGroupVar =
-                    context.createGlobalStringVariable("policyAwareSecurityGroup", securityGroup);
+        if (Objects.nonNull(nodeTemplate.getPolicies())) {
+            for (final TPolicy policy : nodeTemplate.getPolicies()) {
+                if ((policy.getPolicyType().equals(noPublicAccessPolicyType)
+                    | policy.getPolicyType().equals(publicAccessPolicyType)) &&
+                    (ModelUtils.asMap(policy.getProperties()).get("SecurityGroup") != null)) {
+                    String securityGroup = ModelUtils.asMap(policy.getProperties()).get("SecurityGroup");
+                    final Variable secGroupVar =
+                        context.createGlobalStringVariable("policyAwareSecurityGroup", securityGroup);
 
-                createEC2InternalExternalPropsInput.put("VMSecurityGroup", secGroupVar);
-                break;
-
+                    createEC2InternalExternalPropsInput.put("VMSecurityGroup", secGroupVar);
+                    break;
+                }
             }
         }
 
@@ -643,12 +645,14 @@ public class BPELUbuntuVmTypePluginHandler {
 
         this.handleTerminateWithCloudProviderInterface(context, ubuntuNodeTemplate, context.getProvisioningCompensationPhaseElement());
 
-        for (final TPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getPolicyType().equals(onlyModeledPortsPolicyType)) {
-                final List<Variable> modeledPortsVariables = fetchModeledPortsOfInfrastructure(context, nodeTemplate);
-                modeledPortsVariables.add(context.createGlobalStringVariable("vmSshPort", "22"));
-                addIpTablesScriptLogic(context, modeledPortsVariables, serverIpPropWrapper, sshUserVariable,
-                    sshKeyVariable, ubuntuNodeTemplate);
+        if (Objects.nonNull(nodeTemplate.getPolicies())) {
+            for (final TPolicy policy : nodeTemplate.getPolicies()) {
+                if (policy.getPolicyType().equals(onlyModeledPortsPolicyType)) {
+                    final List<Variable> modeledPortsVariables = fetchModeledPortsOfInfrastructure(context, nodeTemplate);
+                    modeledPortsVariables.add(context.createGlobalStringVariable("vmSshPort", "22"));
+                    addIpTablesScriptLogic(context, modeledPortsVariables, serverIpPropWrapper, sshUserVariable,
+                        sshKeyVariable, ubuntuNodeTemplate);
+                }
             }
         }
 
