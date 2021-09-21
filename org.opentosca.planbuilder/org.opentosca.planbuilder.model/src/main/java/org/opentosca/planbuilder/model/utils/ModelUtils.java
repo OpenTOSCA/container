@@ -379,6 +379,7 @@ public class ModelUtils {
     public static TNodeTemplate findNodeTemplate(TCapability cap, Csar csar) {
         return csar.entryServiceTemplate().getTopologyTemplate().getNodeTemplates()
             .stream()
+            .filter(x -> Objects.nonNull(x.getCapabilities()))
             .filter(x -> !x.getCapabilities().stream().filter(y -> y.getId().equals(cap.getId())).collect(Collectors.toList()).isEmpty())
             .findFirst().orElse(null);
     }
@@ -386,6 +387,7 @@ public class ModelUtils {
     public static TNodeTemplate findNodeTemplate(TRequirement req, Csar csar) {
         return csar.entryServiceTemplate().getTopologyTemplate().getNodeTemplates()
             .stream()
+            .filter(x -> Objects.nonNull(x.getRequirements()))
             .filter(x -> !x.getRequirements().stream().filter(y -> y.getId().equals(req.getId())).collect(Collectors.toList()).isEmpty())
             .findFirst().orElse(null);
     }
