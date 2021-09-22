@@ -279,20 +279,6 @@ public final class ToscaEngine {
         return resolveOperation(resolveInterface(nodeType, interfaceName), operationName);
     }
 
-    public static TOperation resolveOperation(TRelationshipType relationshipType, String interfaceName, String operationName) throws NotFoundException {
-        return resolveOperation(resolveInterface(relationshipType, interfaceName), operationName);
-    }
-
-    private static boolean hasInputParameters(TOperation operation) {
-        return Optional.ofNullable(operation.getInputParameters())
-            .isPresent();
-    }
-
-    private static boolean hasOutputParameters(TOperation operation) {
-        return Optional.ofNullable(operation.getOutputParameters())
-            .isPresent();
-    }
-
     public static Optional<TRelationshipTemplate> getRelationshipTemplate(TServiceTemplate serviceTemplate, String localTemplateId) {
         return Objects.isNull(localTemplateId) || Objects.isNull(serviceTemplate) || Objects.isNull(serviceTemplate.getTopologyTemplate())
             ? Optional.empty()
