@@ -283,25 +283,9 @@ public final class ToscaEngine {
         return resolveOperation(resolveInterface(relationshipType, interfaceName), operationName);
     }
 
-    public static boolean operationHasInputParams(TNodeType nodeType, String interfaceName, String operationName) throws NotFoundException {
-        return hasInputParameters(resolveOperation(nodeType, interfaceName, operationName));
-    }
-
-    public static boolean operationHasInputParams(TRelationshipType relationshipType, String interfaceName, String operationName) throws NotFoundException {
-        return hasInputParameters(resolveOperation(relationshipType, interfaceName, operationName));
-    }
-
     private static boolean hasInputParameters(TOperation operation) {
         return Optional.ofNullable(operation.getInputParameters())
             .isPresent();
-    }
-
-    public static boolean operationHasOutputParams(TNodeType nodeType, String interfaceName, String operationName) throws NotFoundException {
-        return hasOutputParameters(resolveOperation(nodeType, interfaceName, operationName));
-    }
-
-    public static boolean operationHasOutputParams(TRelationshipType relationshipType, String interfaceName, String operationName) throws NotFoundException {
-        return hasOutputParameters(resolveOperation(relationshipType, interfaceName, operationName));
     }
 
     private static boolean hasOutputParameters(TOperation operation) {
@@ -409,16 +393,6 @@ public final class ToscaEngine {
         return result;
     }
 
-    @Nullable
-    public static TServiceTemplate getContainingServiceTemplate(Csar csar, TPlan toscaPlan) {
-        // can't obtain serviceTemplateId from the plan, therefore iterate all service templates
-        return csar.serviceTemplates().stream()
-            .filter(st ->
-                st.getPlans() != null && st.getPlans().stream().anyMatch(toscaPlan::equals)
-            ).findFirst()
-            .orElse(null);
-    }
-
     public static TEntityTypeImplementation resolveTypeImplementation(Csar csar, QName typeImplementationQName) throws NotFoundException {
         TEntityTypeImplementation result = (TEntityTypeImplementation) csar.queryRepository(new NodeTypeImplementationId(typeImplementationQName));
         if (result == null) {
@@ -510,15 +484,6 @@ public final class ToscaEngine {
     }
 
     @Nullable
-    public static TExportedOperation getReferencingOperationWithin(TServiceTemplate serviceTemplate, TPlan plan) {
-        return listOperations(serviceTemplate)
-            // winery automatically fills the PlanRef with the TPlan instance
-            .filter(operation -> operation.getPlan().getPlanRef().equals(plan))
-            .findFirst()
-            .orElse(null);
-    }
-
-    @Nullable
     public static TExportedOperation getReferencingOperationWithin(TServiceTemplate serviceTemplate, String planReference) {
         return listOperations(serviceTemplate)
             .filter(operation -> ((TPlan) operation.getPlan().getPlanRef()).getId().equals(planReference))
@@ -540,18 +505,6 @@ public final class ToscaEngine {
             .filter(op -> op.getName().equals(operationName))
             .findFirst()
             .orElseThrow(() -> new NotFoundException(String.format("Could not resolve operation [%s] in interface [%s]", operationName, interfaceName)));
-    }
-
-    @Nullable
-    public static TExportedInterface getReferencingInterfaceWithin(TServiceTemplate serviceTemplate, TExportedOperation operation) {
-        return Optional.of(serviceTemplate)
-            .map(TServiceTemplate::getBoundaryDefinitions)
-            .map(TBoundaryDefinitions::getInterfaces)
-            .orElse(Collections.emptyList())
-            .stream()
-            .filter(iface -> iface.getOperation().contains(operation))
-            .findFirst()
-            .orElse(null);
     }
 
     public static boolean isOperationUniqueInType(Csar csar, TEntityType type, String providedInterface, String neededOperation) {
