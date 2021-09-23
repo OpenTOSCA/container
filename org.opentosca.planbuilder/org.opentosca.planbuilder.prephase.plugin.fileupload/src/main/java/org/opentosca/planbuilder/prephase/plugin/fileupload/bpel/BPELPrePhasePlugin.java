@@ -12,6 +12,7 @@ import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
@@ -147,7 +148,7 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
     private boolean isSupportedDeploymentPair(final QName artifactType, final QName infrastructureNodeType,
                                               final boolean isDA) {
 
-        if (infrastructureNodeType.equals(Types.dockerEngineNodeType)) {
+        if (Utils.isSupportedDockerEngineNodeType(infrastructureNodeType)) {
             return false;
         }
 
