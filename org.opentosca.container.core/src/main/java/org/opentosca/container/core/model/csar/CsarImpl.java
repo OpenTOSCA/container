@@ -81,11 +81,7 @@ public class CsarImpl implements Csar {
     public CsarImpl(@NonNull CsarId id, @NonNull Path location) {
         this.id = id;
         this.saveLocation = location;
-        try {
-            wineryRepo = RepositoryFactory.getRepository(location);
-        } catch (LockFailedException e) {
-            LOGGER.error("LockFailedException thrown while creating Winery repository!");
-        }
+        this.wineryRepo = RepositoryFactory.getRepository(location);
         entryServiceTemplate = readEntryServiceTemplate(location);
     }
 
