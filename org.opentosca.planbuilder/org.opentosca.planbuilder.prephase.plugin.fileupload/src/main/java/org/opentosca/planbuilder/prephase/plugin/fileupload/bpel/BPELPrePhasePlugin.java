@@ -180,6 +180,7 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
             || BPELPrePhasePlugin.sqlArtifactType.equals(artifactType)
             || BPELPrePhasePlugin.configurationArtifactType.equals(artifactType)
             || BPELPrePhasePlugin.dockerContainerArtefactTypeOld.equals(artifactType)
+            || BPELPrePhasePlugin.dockerContainerArtefactType.equals(artifactType)
             || BPELPrePhasePlugin.tdlConfigurationArtifactType.equals(artifactType)
             // We always support state artifacts.
             || BPELPrePhasePlugin.stateArtifactType.equals(artifactType);
