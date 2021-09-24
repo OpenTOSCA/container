@@ -82,7 +82,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
                 try {
                     csars.add(findById(csarId));
                 } catch (NoSuchElementException e) {
-                    LOGGER.warn("Unable to find CSAR with : {}", csarId);
+                    LOGGER.warn("Unable to find CSAR with Id: {}", csarId);
                 }
             }
         } catch (IOException e) {
