@@ -9,7 +9,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -48,6 +50,8 @@ public class CsarStorageServiceImpl implements CsarStorageService {
 
     private final Path basePath;
 
+    private final Map<CsarId, CsarImpl> csarImpls = new HashMap<>();
+
     public CsarStorageServiceImpl() {
         try {
             Files.createDirectories(Settings.CONTAINER_STORAGE_BASEPATH);
@@ -73,9 +77,13 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         LOGGER.debug("Requesting all CSARs");
         final Set<Csar> csars = new HashSet<>();
         try {
-            for (@NonNull Path csarId : Files.newDirectoryStream(basePath, Files::isDirectory)) {
-                // FIXME make CsarId a name and put the path somewhere else
-                csars.add(new CsarImpl(new CsarId(csarId.getFileName().toString()), csarId));
+            for (@NonNull Path csarPath : Files.newDirectoryStream(basePath, Files::isDirectory)) {
+                CsarId csarId = new CsarId(csarPath.getFileName().toString());
+                try {
+                    csars.add(findById(csarId));
+                } catch (NoSuchElementException e) {
+                    LOGGER.warn("Unable to find CSAR with Id: {}", csarId);
+                }
             }
         } catch (IOException e) {
             LOGGER.error("Error when traversing '{}' for CSARs", basePath);
@@ -88,7 +96,10 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     public Csar findById(CsarId id) throws NoSuchElementException {
         Path predictedSaveLocation = basePath.resolve(id.csarName());
         if (Files.exists(predictedSaveLocation)) {
-            return new CsarImpl(id, predictedSaveLocation);
+            if (!csarImpls.containsKey(id)) {
+                csarImpls.put(id, new CsarImpl(id, predictedSaveLocation));
+            }
+            return csarImpls.get(id);
         }
         LOGGER.info("CSAR '{}' could not be found", id.csarName());
         throw new NoSuchElementException();

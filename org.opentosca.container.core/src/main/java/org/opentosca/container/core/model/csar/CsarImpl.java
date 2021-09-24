@@ -80,7 +80,7 @@ public class CsarImpl implements Csar {
     public CsarImpl(@NonNull CsarId id, @NonNull Path location) {
         this.id = id;
         this.saveLocation = location;
-        wineryRepo = RepositoryFactory.getRepository(location);
+        this.wineryRepo = RepositoryFactory.getRepository(location);
         entryServiceTemplate = readEntryServiceTemplate(location);
     }
 
