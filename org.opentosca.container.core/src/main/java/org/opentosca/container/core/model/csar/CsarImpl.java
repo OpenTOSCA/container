@@ -58,6 +58,7 @@ import org.eclipse.winery.repository.export.CsarExporter;
 import org.apache.tika.mime.MediaType;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jgit.errors.LockFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +81,11 @@ public class CsarImpl implements Csar {
     public CsarImpl(@NonNull CsarId id, @NonNull Path location) {
         this.id = id;
         this.saveLocation = location;
-        wineryRepo = RepositoryFactory.getRepository(location);
+        try {
+            wineryRepo = RepositoryFactory.getRepository(location);
+        } catch (LockFailedException e) {
+            LOGGER.error("LockFailedException thrown while creating Winery repository!");
+        }
         entryServiceTemplate = readEntryServiceTemplate(location);
     }
 
