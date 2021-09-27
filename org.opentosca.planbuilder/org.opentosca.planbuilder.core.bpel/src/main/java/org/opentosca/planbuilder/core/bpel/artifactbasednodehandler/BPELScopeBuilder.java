@@ -62,45 +62,6 @@ public class BPELScopeBuilder {
     }
 
     /**
-     * Calculates a list of DA's containing an effective set of DA combining the DA's from the given NodeImplementation
-     * and NodeTemplates according to the TOSCA specification.
-     *
-     * @param nodeTemplate the NodeTemplate the NodeImplementations belongs to
-     * @param nodeImpl     a NodeTypeImplementation for the given NodeTemplate
-     * @return a possibly empty list of TDeploymentArtifacts
-     */
-    static List<TDeploymentArtifact> calculateEffectiveDAs(final TNodeTemplate nodeTemplate,
-                                                           final TNodeTypeImplementation nodeImpl) {
-        final List<TDeploymentArtifact> effectiveDAs = new ArrayList<>();
-
-        final List<TDeploymentArtifact> nodeImplDAs = Lists.newArrayList(nodeImpl.getDeploymentArtifacts());
-        final Collection<TDeploymentArtifact> nodeTemplateDAs = nodeTemplate.getDeploymentArtifacts();
-
-        for (final TDeploymentArtifact templateDa : nodeTemplateDAs) {
-            boolean overridesDA = false;
-            int daIndex = -1;
-            for (int i = 0; i < nodeImplDAs.size(); i++) {
-                final TDeploymentArtifact nodeImplDa = nodeImplDAs.get(i);
-
-                if (nodeImplDa.getName().equals(templateDa.getName())
-                    & nodeImplDa.getArtifactType().equals(nodeImplDa.getArtifactType())) {
-                    overridesDA = true;
-                    daIndex = i;
-                }
-            }
-
-            if (overridesDA) {
-                nodeImplDAs.remove(daIndex);
-            }
-        }
-
-        effectiveDAs.addAll(nodeTemplateDAs);
-        effectiveDAs.addAll(nodeImplDAs);
-
-        return effectiveDAs;
-    }
-
-    /**
      * <p>
      * Filters IA and DA Candidates inside the given ProvisioningChain. Filtering means if there are IA and DACandidates
      * which don't operate on the same Template Implementation they are deleted.
@@ -613,8 +574,7 @@ public class BPELScopeBuilder {
                 nodeTemplate.getId());
             final DANodeTypeImplCandidate candidate = new DANodeTypeImplCandidate(nodeTemplate, impl);
 
-            final List<TDeploymentArtifact> effectiveDAs =
-                calculateEffectiveDAs(nodeTemplate, impl);
+            final List<TDeploymentArtifact> effectiveDAs = ModelUtils.calculateEffectiveDAs(nodeTemplate, impl);
 
             for (final TDeploymentArtifact da : effectiveDAs) {
                 LOG.debug("Checking whether DA {} can be deployed", da.getName());

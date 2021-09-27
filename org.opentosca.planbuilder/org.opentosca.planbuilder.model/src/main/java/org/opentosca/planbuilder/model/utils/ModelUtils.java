@@ -31,6 +31,7 @@ import org.eclipse.winery.model.tosca.TArtifactType;
 import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
 import org.eclipse.winery.model.tosca.TCapability;
 import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TEntityType;
 import org.eclipse.winery.model.tosca.TInterface;
@@ -922,5 +923,37 @@ public class ModelUtils {
             LOG.debug("Unable to find interface {} for NodeTemplate {}", interfaceName, nodeTemplate.getName());
             return null;
         }
+    }
+
+    /**
+     * Calculates a list of DA's containing an effective set of DA combining the DA's from the given NodeImplementation
+     * and NodeTemplates according to the TOSCA specification.
+     *
+     * @param nodeTemplate           the NodeTemplate the NodeImplementations belongs to
+     * @param nodeTypeImplementation a NodeTypeImplementation for the given NodeTemplate
+     * @return a possibly empty list of TDeploymentArtifacts
+     */
+    public static List<TDeploymentArtifact> calculateEffectiveDAs(TNodeTemplate nodeTemplate,
+                                                                  TNodeTypeImplementation nodeTypeImplementation) {
+        List<TDeploymentArtifact> nodeImplementationDAs =
+            nodeTypeImplementation == null || nodeTypeImplementation.getDeploymentArtifacts() == null
+                ? new ArrayList<>()
+                : nodeTypeImplementation.getDeploymentArtifacts();
+        List<TDeploymentArtifact> nodeTemplateDAs =
+            nodeTemplate.getDeploymentArtifacts() == null
+                ? new ArrayList<>()
+                : nodeTemplate.getDeploymentArtifacts();
+
+        // DAs at the Node Template override the Node Type Implementation, if the name is equal.
+        List<TDeploymentArtifact> effectiveDAs = new ArrayList<>(nodeTemplateDAs);
+        nodeImplementationDAs.forEach(nodeTypeImplementationDA -> {
+            if (effectiveDAs.stream()
+                .noneMatch(nodeTemplateDa -> nodeTypeImplementationDA.getName().equals(nodeTypeImplementationDA.getName()))
+            ) {
+                effectiveDAs.add(nodeTypeImplementationDA);
+            }
+        });
+
+        return effectiveDAs;
     }
 }

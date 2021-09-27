@@ -7,7 +7,9 @@ import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 
+import org.bouncycastle.math.raw.Mod;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 /**
  * <p>
@@ -58,6 +60,6 @@ class DANodeTypeImplCandidate {
      * @return true if all DA's of the NodeTypeImplementation can be deployed, else false
      */
     boolean isValid() {
-        return BPELScopeBuilder.calculateEffectiveDAs(this.nodeTemplate, this.impl).size() == this.das.size();
+        return ModelUtils.calculateEffectiveDAs(this.nodeTemplate, this.impl).size() == this.das.size();
     }
 }
