@@ -173,8 +173,7 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
     }
 
     protected boolean isUpdatableComponent(final TNodeTemplate nodeTemplate, Csar csar) {
-        return ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces().stream()
-            .anyMatch(abstractInterface -> abstractInterface.getName().equalsIgnoreCase("UpdateManagementInterface"));
+        return ModelUtils.hasInterface(nodeTemplate, "UpdateManagementInterface", csar);
     }
 
     protected boolean hasUpdatableAncestor(final List<TRelationshipTemplate> relationshipTemplates, final TNodeTemplate nodeTemplate, Csar csar) {
