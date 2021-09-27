@@ -296,49 +296,19 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
     }
 
     protected TInterface getLifecyclePatternInterface(final TNodeTemplate nodeTemplate, Csar csar) {
-        return getLifecyclePatternInterface(csar, ModelUtils.findNodeType(nodeTemplate, csar), null);
-    }
 
-    protected TInterface getLifecyclePatternInterface(Csar csar, TNodeType startingNodeType, TInterface tInterface) {
-
-        // search for a lifecycle interface at the current NodeType
-        TInterface foundLifecycleInterface = null;
-        for (final TInterface iface : startingNodeType.getInterfaces()) {
-            switch (iface.getName()) {
-                case Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE:
-                case Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE2:
-                case Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE3:
-                    foundLifecycleInterface = iface;
-                    break;
-            }
+        // search for all three possible lifecycle interfaces within the NodeType hierarchy
+        TInterface lifecycleInterface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE, csar);
+        if (Objects.nonNull(lifecycleInterface)) {
+            return lifecycleInterface;
         }
 
-        // use the first found lifecycle interface as the base interface
-        if (Objects.nonNull(tInterface)) {
-            tInterface = foundLifecycleInterface;
+        lifecycleInterface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE2, csar);
+        if (Objects.nonNull(lifecycleInterface)) {
+            return lifecycleInterface;
         }
 
-        // add operations from NodeTypes in the hierarchy if they are not already defined
-        if (Objects.nonNull(foundLifecycleInterface)) {
-            for (TOperation operation : foundLifecycleInterface.getOperations()) {
-
-                // check if the operation is overwritten by a deriving NodeType and add operation otherwise
-                if (tInterface.getOperations().stream().noneMatch(op -> op.getName().equals(operation.getName()))) {
-                    tInterface.getOperations().add(operation);
-                }
-            }
-        }
-
-        // check if NodeType has parent and recursively search for further lifecycle interfaces/operations
-        TEntityType.DerivedFrom derivedFrom = startingNodeType.getDerivedFrom();
-        if (Objects.nonNull(derivedFrom)) {
-            TNodeType parentNodeType = csar.nodeTypes().stream().filter(type -> type.getQName().equals(derivedFrom.getTypeRef())).findFirst().orElse(null);
-            if (Objects.nonNull(parentNodeType)) {
-                return getLifecyclePatternInterface(csar, parentNodeType, tInterface);
-            }
-        }
-
-        return tInterface;
+        return ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE3, csar);
     }
 
     protected TOperation getLifecyclePatternStartMethod(final TNodeTemplate nodeTemplate, Csar csar) {
