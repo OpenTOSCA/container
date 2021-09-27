@@ -870,10 +870,13 @@ public class ModelUtils {
     private static TInterface getInterfaceOfNode(Csar csar, TNodeType startingNodeType, String interfaceName, TInterface tInterface) {
 
         // search for the interface at the current NodeType
-        TInterface foundLifecycleInterface = startingNodeType.getInterfaces().stream()
-            .filter(iface -> iface.getName().equals(interfaceName))
-            .findFirst()
-            .orElse(null);
+        TInterface foundLifecycleInterface = null;
+        if (Objects.nonNull(startingNodeType.getInterfaces())) {
+            foundLifecycleInterface = startingNodeType.getInterfaces().stream()
+                .filter(iface -> iface.getName().equals(interfaceName))
+                .findFirst()
+                .orElse(null);
+        }
 
         // use the first found interface as the base interface
         TInterface iface = Objects.nonNull(tInterface) ? tInterface : foundLifecycleInterface;
