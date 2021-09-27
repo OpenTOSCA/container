@@ -105,14 +105,14 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
     private TInterface getContainerPatternInterface(final TNodeTemplate nodeTemplate, Csar csar) {
 
         // search for all three possible container pattern interfaces within the NodeType hierarchy
-        TInterface lifecycleInterface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN, csar);
-        if (Objects.nonNull(lifecycleInterface)) {
-            return lifecycleInterface;
+        TInterface containerInterface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN, csar);
+        if (Objects.nonNull(containerInterface)) {
+            return containerInterface;
         }
 
-        lifecycleInterface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER, csar);
-        if (Objects.nonNull(lifecycleInterface)) {
-            return lifecycleInterface;
+        containerInterface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER, csar);
+        if (Objects.nonNull(containerInterface)) {
+            return containerInterface;
         }
 
         return ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE, csar);
