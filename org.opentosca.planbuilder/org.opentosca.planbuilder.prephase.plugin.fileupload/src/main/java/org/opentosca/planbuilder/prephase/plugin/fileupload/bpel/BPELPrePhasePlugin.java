@@ -180,6 +180,7 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
             || BPELPrePhasePlugin.sqlArtifactType.equals(artifactType)
             || BPELPrePhasePlugin.configurationArtifactType.equals(artifactType)
             || BPELPrePhasePlugin.dockerContainerArtefactTypeOld.equals(artifactType)
+            || BPELPrePhasePlugin.dockerContainerArtefactType.equals(artifactType)
             || BPELPrePhasePlugin.tdlConfigurationArtifactType.equals(artifactType)
             // We always support state artifacts.
             || BPELPrePhasePlugin.stateArtifactType.equals(artifactType);
@@ -208,10 +209,12 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
         final Collection<TNodeTemplate> infraNodes = new HashSet<>();
         ModelUtils.getInfrastructureNodes(nodeToDeploy, infraNodes, csar);
         for (final TNodeTemplate node : infraNodes) {
-            for (final QName artType : ModelUtils.getArtifactTypeHierarchy(ModelUtils.findArtifactTemplate(da.getArtifactRef(), csar), csar)) {
-                for (final QName nodeType : ModelUtils.getNodeTypeHierarchy(node.getType(), csar)) {
-                    if (isSupportedDeploymentPair(artType, nodeType, true)) {
-                        return node;
+            if (!node.getId().equals(nodeToDeploy.getId())) {
+                for (final QName artType : ModelUtils.getArtifactTypeHierarchy(ModelUtils.findArtifactTemplate(da.getArtifactRef(), csar), csar)) {
+                    for (final QName nodeType : ModelUtils.getNodeTypeHierarchy(node.getType(), csar)) {
+                        if (isSupportedDeploymentPair(artType, nodeType, true)) {
+                            return node;
+                        }
                     }
                 }
             }
