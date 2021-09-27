@@ -228,14 +228,8 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
         return Objects.nonNull(op) && Objects.nonNull(getSaveStateParameter(op));
     }
 
-    private TInterface getSaveStateInterface(final TNodeTemplate nodeTemplate, Csar csar) {
-        return ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces().stream()
-            .filter(iface -> iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE))
-            .findFirst().orElse(null);
-    }
-
     private TOperation getSaveStateOperation(final TNodeTemplate nodeTemplate, Csar csar) {
-        final TInterface iface = getSaveStateInterface(nodeTemplate, csar);
+        final TInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE, csar);
         if (iface != null) {
             for (final TOperation op : iface.getOperations()) {
                 if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE)) {
