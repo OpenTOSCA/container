@@ -74,12 +74,7 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 
     public boolean handleUpdate(final BPELPlanContext context, final TNodeTemplate nodeTemplate, Element elementToAppendTo, Csar csar) {
 
-        TInterface iface = null;
-        for (final TInterface ifacei : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
-            if (ifacei.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE)) {
-                iface = ifacei;
-            }
-        }
+        TInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE, csar);
         if (iface == null) return false;
 
         TOperation updateOperation = null;
