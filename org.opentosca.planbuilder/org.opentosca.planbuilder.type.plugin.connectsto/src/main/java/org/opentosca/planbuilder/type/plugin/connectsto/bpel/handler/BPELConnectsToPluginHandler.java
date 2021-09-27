@@ -303,7 +303,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         TNodeType nodeType = ModelUtils.findNodeType(nodeTemplate, csar);
         if (Objects.isNull(nodeType.getInterfaces())) {
             return false;
-        } else{
+        } else {
             return nodeType.getInterfaces().stream().flatMap(inter -> inter.getOperations().stream())
                 .filter(op -> op.getName().equals(operationName)).findFirst().isPresent();
         }
