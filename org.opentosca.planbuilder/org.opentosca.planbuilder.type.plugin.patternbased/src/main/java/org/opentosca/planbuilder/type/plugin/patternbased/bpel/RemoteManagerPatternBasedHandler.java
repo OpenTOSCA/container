@@ -78,7 +78,7 @@ public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
     }
 
     private TOperation getRemoteManagerInstallOperation(TNodeTemplate node, Csar csar) {
-        TInterface iface = ModelUtils.getInterfaceOfNode(node, "http://opentosca.org/interfaces/pattern/remotemanager", csar);
+        TInterface iface = ModelUtils.getInterfaceOfNode(node, Interfaces.OPENTOSCA_INTERFACE_REMOTE_MANAGER, csar);
         if (iface != null) {
             for (TOperation op : iface.getOperations()) {
                 if (op.getName().equals("install")) {
@@ -90,7 +90,7 @@ public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
     }
 
     private TOperation getRemoteManagerResetOperation(TNodeTemplate node, Csar csar) {
-        TInterface iface = ModelUtils.getInterfaceOfNode(node, "http://opentosca.org/interfaces/pattern/remotemanager", csar);
+        TInterface iface = ModelUtils.getInterfaceOfNode(node, Interfaces.OPENTOSCA_INTERFACE_REMOTE_MANAGER, csar);
         if (iface != null) {
             for (TOperation op : iface.getOperations()) {
                 if (op.getName().equals("reset")) {
