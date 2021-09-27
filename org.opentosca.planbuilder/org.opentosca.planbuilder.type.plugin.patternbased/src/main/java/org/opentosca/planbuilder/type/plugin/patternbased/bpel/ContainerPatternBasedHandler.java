@@ -86,45 +86,20 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
     }
 
     protected TOperation getContainerPatternTerminateMethod(final TNodeTemplate nodeTemplate, Csar csar) {
-        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
-            if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN)) {
-                for (final TOperation op : iface.getOperations()) {
-                    if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_TERMINATE)) {
-                        return op;
-                    }
-                }
-            }
-            // backwards compatibility
-            if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER)) {
-                for (final TOperation op : iface.getOperations()) {
-                    if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM)) {
-                        return op;
-                    }
-                }
-            }
-            if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE)) {
-                for (final TOperation op : iface.getOperations()) {
-                    if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER)) {
-                        return op;
-                    }
+        TInterface iface = getContainerPatternInterface(nodeTemplate, csar);
+        if (Objects.nonNull(iface)) {
+            for (final TOperation op : iface.getOperations()) {
+                if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_TERMINATE)) {
+                    return op;
                 }
             }
         }
+
         return null;
     }
 
     protected TOperation getContainerPatternCreateMethod(final TNodeTemplate nodeTemplate, Csar csar) {
-        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
-            if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN)) {
-                for (final TOperation op : iface.getOperations()) {
-                    if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_CREATE)) {
-                        return op;
-                    }
-                }
-            }
-            // possible backwards compatibility through interfaces/operations of Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER and Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE
-        }
-        return null;
+        return ModelUtils.getOperationOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_CREATE, csar);
     }
 
     private TInterface getContainerPatternInterface(final TNodeTemplate nodeTemplate, Csar csar) {
