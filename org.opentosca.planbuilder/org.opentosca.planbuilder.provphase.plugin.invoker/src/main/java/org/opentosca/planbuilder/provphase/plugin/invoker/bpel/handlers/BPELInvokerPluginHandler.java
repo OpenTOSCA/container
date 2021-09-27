@@ -596,7 +596,7 @@ public class BPELInvokerPluginHandler {
                 this.handle(templateContext, infraTemplate.getId(), true,
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE,
                     "ContainerManagementInterface", transferFileRequestInputParams,
-                    new HashMap<String, Variable>(), elementToAppendTo);
+                    new HashMap<>(), elementToAppendTo);
                 break;
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
@@ -612,7 +612,7 @@ public class BPELInvokerPluginHandler {
                 }
                 this.handle(templateContext, infraTemplate.getId(), true, "runScript",
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, runScriptRequestInputParams,
-                    new HashMap<String, Variable>(), elementToAppendTo);
+                    new HashMap<>(), elementToAppendTo);
 
                 // transfer the file
                 if (transferFileInputParams.contains(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP)) {
@@ -627,7 +627,7 @@ public class BPELInvokerPluginHandler {
                 this.handle(templateContext, infraTemplate.getId(), true,
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE,
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, transferFileRequestInputParams,
-                    new HashMap<String, Variable>(), elementToAppendTo);
+                    new HashMap<>(), elementToAppendTo);
                 break;
             default:
                 return false;
