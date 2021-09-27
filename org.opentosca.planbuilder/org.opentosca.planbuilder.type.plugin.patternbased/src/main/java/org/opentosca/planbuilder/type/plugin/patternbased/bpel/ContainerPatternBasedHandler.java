@@ -128,19 +128,19 @@ public class ContainerPatternBasedHandler extends PatternBasedHandler {
     }
 
     private TInterface getContainerPatternInterface(final TNodeTemplate nodeTemplate, Csar csar) {
-        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
-            if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN)) {
-                return iface;
-            }
-            // backwards compatibility
-            if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER)) {
-                return iface;
-            }
-            if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE)) {
-                return iface;
-            }
+
+        // search for all three possible container pattern interfaces within the NodeType hierarchy
+        TInterface lifecycleInterface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN, csar);
+        if (Objects.nonNull(lifecycleInterface)) {
+            return lifecycleInterface;
         }
-        return null;
+
+        lifecycleInterface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER, csar);
+        if (Objects.nonNull(lifecycleInterface)) {
+            return lifecycleInterface;
+        }
+
+        return ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE, csar);
     }
 
     private Set<TNodeTemplate> calculateNodesForMatching(final TNodeTemplate nodeTemplate, Csar csar) {
