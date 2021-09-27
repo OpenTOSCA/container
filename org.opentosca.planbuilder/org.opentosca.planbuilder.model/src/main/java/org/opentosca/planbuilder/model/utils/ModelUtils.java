@@ -878,16 +878,16 @@ public class ModelUtils {
                 .orElse(null);
         }
 
-        // use the first found interface as the base interface
-        TInterface iface = Objects.nonNull(tInterface) ? tInterface : foundLifecycleInterface;
+        // use the interface with the given name at the lowest hierarchy level
+        TInterface baseInterface = Objects.nonNull(tInterface) ? tInterface : foundLifecycleInterface;
 
         // add operations from NodeTypes in the hierarchy if they are not already defined
         if (Objects.nonNull(foundLifecycleInterface)) {
             for (TOperation operation : foundLifecycleInterface.getOperations()) {
 
                 // check if the operation is overwritten by a deriving NodeType and add operation otherwise
-                if (iface.getOperations().stream().noneMatch(op -> op.getName().equals(operation.getName()))) {
-                    iface.getOperations().add(operation);
+                if (baseInterface.getOperations().stream().noneMatch(op -> op.getName().equals(operation.getName()))) {
+                    baseInterface.getOperations().add(operation);
                 }
             }
         }
@@ -897,11 +897,11 @@ public class ModelUtils {
         if (Objects.nonNull(derivedFrom)) {
             TNodeType parentNodeType = csar.nodeTypes().stream().filter(type -> type.getQName().equals(derivedFrom.getTypeRef())).findFirst().orElse(null);
             if (Objects.nonNull(parentNodeType)) {
-                return getInterfaceOfNode(csar, parentNodeType, interfaceName, tInterface);
+                return getInterfaceOfNode(csar, parentNodeType, interfaceName, baseInterface);
             }
         }
 
-        return tInterface;
+        return baseInterface;
     }
 
     /**
