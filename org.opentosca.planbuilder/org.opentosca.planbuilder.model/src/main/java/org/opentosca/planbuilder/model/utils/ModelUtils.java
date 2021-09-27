@@ -866,17 +866,15 @@ public class ModelUtils {
             .orElse(null);
 
         // use the first found interface as the base interface
-        if (Objects.isNull(tInterface)) {
-            tInterface = foundLifecycleInterface;
-        }
+        TInterface iface = Objects.nonNull(tInterface)? tInterface: foundLifecycleInterface;
 
         // add operations from NodeTypes in the hierarchy if they are not already defined
         if (Objects.nonNull(foundLifecycleInterface)) {
             for (TOperation operation : foundLifecycleInterface.getOperations()) {
 
                 // check if the operation is overwritten by a deriving NodeType and add operation otherwise
-                if (tInterface.getOperations().stream().noneMatch(op -> op.getName().equals(operation.getName()))) {
-                    tInterface.getOperations().add(operation);
+                if (iface.getOperations().stream().noneMatch(op -> op.getName().equals(operation.getName()))) {
+                    iface.getOperations().add(operation);
                 }
             }
         }

@@ -5,11 +5,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import org.eclipse.winery.model.tosca.TEntityType;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
-import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TOperation;
 
