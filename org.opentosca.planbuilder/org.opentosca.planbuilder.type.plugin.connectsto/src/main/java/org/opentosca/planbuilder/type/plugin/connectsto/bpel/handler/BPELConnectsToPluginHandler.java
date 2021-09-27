@@ -243,7 +243,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         // if the target has connectTo we execute it
         if (hasOperation(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO, templateContext.getCsar())) {
             // if we can stop and start the node and it is not defined as non interruptive, stop it
-            if (!hasInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
+            if (!ModelUtils.hasInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
                 && startAndStopAvailable(targetNodeTemplate, templateContext.getCsar())) {
                 final String ifaceName =
                     getInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, templateContext.getCsar());
@@ -255,7 +255,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             executeConnectsTo(templateContext, targetNodeTemplate, sourceNodeTemplate, targetNodeTemplate);
 
             // start the node again
-            if (!hasInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
+            if (!ModelUtils.hasInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
                 && startAndStopAvailable(targetNodeTemplate, templateContext.getCsar())) {
                 templateContext.executeOperation(targetNodeTemplate,
                     getInterface(targetNodeTemplate,
@@ -268,7 +268,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         if (hasOperation(sourceNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO, templateContext.getCsar())) {
 
             // if we can stop and start the node and it is not defined as non interruptive, stop it
-            if (!hasInterface(sourceNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
+            if (!ModelUtils.hasInterface(sourceNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
                 && startAndStopAvailable(sourceNodeTemplate, templateContext.getCsar())) {
                 templateContext.executeOperation(sourceNodeTemplate,
                     getInterface(sourceNodeTemplate,
@@ -280,7 +280,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             executeConnectsTo(templateContext, sourceNodeTemplate, sourceNodeTemplate, targetNodeTemplate);
 
             // start the node again
-            if (!hasInterface(sourceNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
+            if (!ModelUtils.hasInterface(sourceNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
                 && startAndStopAvailable(sourceNodeTemplate, templateContext.getCsar())) {
                 templateContext.executeOperation(sourceNodeTemplate,
                     getInterface(sourceNodeTemplate,
@@ -295,11 +295,6 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
     private boolean startAndStopAvailable(final TNodeTemplate nodeTemplate, Csar csar) {
         return hasOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, csar)
             & hasOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, csar);
-    }
-
-    private boolean hasInterface(final TNodeTemplate nodeTemplate, final String interfaceName, Csar csar) {
-        return ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces().stream().filter(inter -> inter.getName().equals(interfaceName))
-            .findFirst().isPresent();
     }
 
     private boolean hasOperation(final TNodeTemplate nodeTemplate, final String operationName, Csar csar) {

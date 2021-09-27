@@ -850,11 +850,25 @@ public class ModelUtils {
      *
      * @param nodeTemplate  the name of the NodeTemplate
      * @param interfaceName the name of the interface
+     * @param csar          the CSAR containing the ServiceTemplate with the given NodeTemplate
      * @return the TInterface if found, <code>null</code> otherwise
      */
     public static TInterface getInterfaceOfNode(final TNodeTemplate nodeTemplate,
                                                 final String interfaceName, Csar csar) {
         return getInterfaceOfNode(csar, findNodeType(nodeTemplate, csar), interfaceName, null);
+    }
+
+    /**
+     * Check whether a given interface is defined for the given NodeTemplate
+     *
+     * @param nodeTemplate  the name of the NodeTemplate
+     * @param interfaceName the name of the interface
+     * @param csar          the CSAR containing the ServiceTemplate with the given NodeTemplate
+     * @return true if the NodeType hierarchy of the given NodeTemplate specifies the given interface
+     */
+    public static Boolean hasInterface(final TNodeTemplate nodeTemplate,
+                                       final String interfaceName, Csar csar) {
+        return Objects.nonNull(getInterfaceOfNode(csar, findNodeType(nodeTemplate, csar), interfaceName, null));
     }
 
     private static TInterface getInterfaceOfNode(Csar csar, TNodeType startingNodeType, String interfaceName, TInterface tInterface) {
@@ -866,7 +880,7 @@ public class ModelUtils {
             .orElse(null);
 
         // use the first found interface as the base interface
-        TInterface iface = Objects.nonNull(tInterface)? tInterface: foundLifecycleInterface;
+        TInterface iface = Objects.nonNull(tInterface) ? tInterface: foundLifecycleInterface;
 
         // add operations from NodeTypes in the hierarchy if they are not already defined
         if (Objects.nonNull(foundLifecycleInterface)) {
