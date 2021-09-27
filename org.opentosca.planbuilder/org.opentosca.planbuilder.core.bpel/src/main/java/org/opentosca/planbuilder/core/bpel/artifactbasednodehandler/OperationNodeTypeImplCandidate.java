@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.core.bpel.artifactbasednodehandler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TInterface;
@@ -73,14 +74,12 @@ class OperationNodeTypeImplCandidate {
                         return true;
                     }
                 } else {
-                    // we have to find the interface and count the
-                    // operations in it
-                    for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
-                        if (iface.getName().equals(ia.getInterfaceName())) {
-                            for (final TOperation op : iface.getOperations()) {
-                                if (op.getName().equals(operationName)) {
-                                    return true;
-                                }
+                    // we have to find the interface and count the operations in it
+                    final TInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, ia.getInterfaceName(), csar);
+                    if (Objects.nonNull(iface) && iface.getName().equals(ia.getInterfaceName())) {
+                        for (final TOperation op : iface.getOperations()) {
+                            if (op.getName().equals(operationName)) {
+                                return true;
                             }
                         }
                     }

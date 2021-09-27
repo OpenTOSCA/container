@@ -3,12 +3,14 @@ package org.opentosca.planbuilder.type.plugin.connectsto.bpel.handler;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
@@ -298,8 +300,13 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
     }
 
     private boolean hasOperation(final TNodeTemplate nodeTemplate, final String operationName, Csar csar) {
-        return ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces().stream().flatMap(inter -> inter.getOperations().stream())
-            .filter(op -> op.getName().equals(operationName)).findFirst().isPresent();
+        TNodeType nodeType = ModelUtils.findNodeType(nodeTemplate, csar);
+        if (Objects.isNull(nodeType.getInterfaces())) {
+            return false;
+        } else {
+            return nodeType.getInterfaces().stream().flatMap(inter -> inter.getOperations().stream())
+                .filter(op -> op.getName().equals(operationName)).findFirst().isPresent();
+        }
     }
 
     /**
