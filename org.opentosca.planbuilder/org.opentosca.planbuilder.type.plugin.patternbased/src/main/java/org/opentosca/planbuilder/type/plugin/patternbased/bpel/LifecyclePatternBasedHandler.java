@@ -338,7 +338,7 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
             }
         }
 
-        return null;
+        return tInterface;
     }
 
     protected TOperation getLifecyclePatternStartMethod(final TNodeTemplate nodeTemplate, Csar csar) {
