@@ -72,6 +72,9 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
     @Override
     public boolean handle(final BPELPlanContext context, final TDeploymentArtifact da,
                           final TNodeTemplate nodeTemplate) {
+        if (da.getArtifactType() == null) {
+            LOG.error("ArtifactType of DA {} is empty!", da.getIdFromIdOrNameField());
+        }
 
         if (da.getArtifactType().equals(dockerContainerArtefactType)
             || da.getArtifactType().equals(dockerContainerArtefactTypeOld)) {

@@ -64,8 +64,8 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
         try {
             return this.handler.handle(context, operation, ia);
         } catch (final Exception e) {
-            LOG.error("Couldn't append logic to provphase of Template: "
-                    + context.getNodeTemplate() != null ? context.getNodeTemplate().getId()
+            LOG.error("Couldn't append logic to provphase of Template: " + context.getNodeTemplate() != null
+                    ? context.getNodeTemplate().getId()
                     : context.getRelationshipTemplate().getId(),
                 e);
             return false;
@@ -94,7 +94,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                inputParams, new HashMap<String, Variable>(), elementToAppendTo);
+                inputParams, new HashMap<>(), elementToAppendTo);
         } catch (final Exception e) {
             e.printStackTrace();
             return false;
@@ -122,7 +122,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                inputParams, new HashMap<String, Variable>(), context.getProvisioningPhaseElement());
+                inputParams, new HashMap<>(), context.getProvisioningPhaseElement());
         } catch (final Exception e) {
             e.printStackTrace();
             return false;
