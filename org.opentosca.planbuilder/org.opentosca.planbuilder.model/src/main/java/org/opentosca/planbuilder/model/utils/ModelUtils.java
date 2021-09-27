@@ -866,7 +866,7 @@ public class ModelUtils {
             .orElse(null);
 
         // use the first found interface as the base interface
-        if (Objects.nonNull(tInterface)) {
+        if (Objects.isNull(tInterface)) {
             tInterface = foundLifecycleInterface;
         }
 
