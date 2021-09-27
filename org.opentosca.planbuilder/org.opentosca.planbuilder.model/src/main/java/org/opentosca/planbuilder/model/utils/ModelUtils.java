@@ -513,8 +513,7 @@ public class ModelUtils {
         for (final TRelationshipTemplate outgoingTemplate : getOutgoingRelations(nodeTemplate, csar)) {
             if (outgoingTemplate.getType().equals(Types.connectsToRelationType)) {
                 // we skip connectTo relations, as they are connecting stacks
-                // and
-                // make the result even more ambigious
+                // and make the result even more ambigious
                 continue;
             }
             ModelUtils.getNodesFromRelationToSink(outgoingTemplate, nodes, csar);
@@ -529,8 +528,7 @@ public class ModelUtils {
             if (ModelUtils.getRelationshipTypeHierarchy(outgoingTemplate.getType(), csar)
                 .contains(relationshipType)) {
                 // we skip connectTo relations, as they are connecting stacks
-                // and
-                // make the result even more ambigious
+                // and make the result even more ambigious
                 ModelUtils.getNodesFromRelationToSink(outgoingTemplate, nodes, csar);
             }
         }
@@ -543,8 +541,7 @@ public class ModelUtils {
         for (final TRelationshipTemplate ingoingTemplate : getIngoingRelations(nodeTemplate, csar)) {
             if (ingoingTemplate.getType().equals(Types.connectsToRelationType)) {
                 // we skip connectTo relations, as they are connecting stacks
-                // and
-                // make the result even more ambigious
+                // and make the result even more ambigious
                 continue;
             }
             ModelUtils.getNodesFromRelationToSources(ingoingTemplate, nodes, csar);
@@ -566,8 +563,7 @@ public class ModelUtils {
         for (final TRelationshipTemplate outgoingTemplate : getOutgoingRelations(nodeTemplate, csar)) {
             if (isCommunicationRelationshipType(outgoingTemplate.getType())) {
                 // we skip connectTo relations, as they are connecting stacks
-                // and
-                // make the result even more ambigious
+                // and make the result even more ambigious
                 continue;
             }
             ModelUtils.getNodesFromRelationToSink(outgoingTemplate, nodes, csar);
@@ -880,7 +876,7 @@ public class ModelUtils {
             .orElse(null);
 
         // use the first found interface as the base interface
-        TInterface iface = Objects.nonNull(tInterface) ? tInterface: foundLifecycleInterface;
+        TInterface iface = Objects.nonNull(tInterface) ? tInterface : foundLifecycleInterface;
 
         // add operations from NodeTypes in the hierarchy if they are not already defined
         if (Objects.nonNull(foundLifecycleInterface)) {
