@@ -51,7 +51,7 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     public boolean handleCreate(final BPELPlanContext templateContext, TNodeTemplate nodeTemplate) {
         LOG.debug("Handling nodeTemplate {} by pattern", nodeTemplate.getId());
         boolean check = true;
-        Map<TOperation, TOperation> usedOps = new HashMap<TOperation, TOperation>();
+        Map<TOperation, TOperation> usedOps = new HashMap<>();
         if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate, templateContext.getCsar())) {
             TOperation createOp = null;
             TOperation terminateOp = null;

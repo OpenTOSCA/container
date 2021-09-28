@@ -27,7 +27,7 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         Set<TNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate, context.getCsar());
         nodesForMatching = this.filterForNodesInCreation(context, nodesForMatching);
 
-        TOperation op = null;
+        TOperation op;
         boolean result = true;
 
         if (((op = this.getLifecyclePatternInstallMethod(nodeTemplate, context.getCsar())) != null)
@@ -127,7 +127,7 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
     }
 
     private Set<TNodeTemplate> getNodesForMatching(TNodeTemplate nodeTemplate, Csar csar) {
-        Set<TNodeTemplate> nodesForMatching = new HashSet<TNodeTemplate>();
+        Set<TNodeTemplate> nodesForMatching = new HashSet<>();
 
         nodesForMatching.add(nodeTemplate);
         ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.dependsOnRelationType, nodesForMatching, csar);
@@ -136,7 +136,7 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
     }
 
     private Set<TNodeTemplate> filterForNodesInCreation(BPELPlanContext context, Set<TNodeTemplate> nodes) {
-        Set<TNodeTemplate> result = new HashSet<TNodeTemplate>();
+        Set<TNodeTemplate> result = new HashSet<>();
         Collection<TNodeTemplate> nodesInCreation = context.getNodesInCreation();
 
         for (TNodeTemplate node : nodes) {

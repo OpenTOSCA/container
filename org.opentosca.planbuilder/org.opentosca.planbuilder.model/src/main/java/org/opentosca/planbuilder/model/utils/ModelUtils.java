@@ -34,6 +34,8 @@ import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TEntityType;
+import org.eclipse.winery.model.tosca.TEntityTypeImplementation;
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
@@ -70,7 +72,7 @@ import org.xml.sax.SAXException;
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  */
-public class ModelUtils {
+public abstract class ModelUtils {
 
     private final static Logger LOG = LoggerFactory.getLogger(ModelUtils.class);
 
@@ -868,19 +870,24 @@ public class ModelUtils {
         return Objects.nonNull(getInterfaceOfNode(csar, findNodeType(nodeTemplate, csar), interfaceName, null));
     }
 
-    private static TInterface getInterfaceOfNode(Csar csar, TNodeType startingNodeType, String interfaceName, TInterface tInterface) {
+    private static TInterface getInterfaceOfNode(Csar csar, TNodeType startingNodeType, String interfaceName, TInterface interfaceOfStartingNodeType) {
 
         // search for the interface at the current NodeType
-        TInterface foundLifecycleInterface = null;
-        if (Objects.nonNull(startingNodeType.getInterfaces())) {
-            foundLifecycleInterface = startingNodeType.getInterfaces().stream()
+        TInterface foundLifecycleInterface = Objects.nonNull(startingNodeType.getInterfaces()) ?
+            startingNodeType.getInterfaces().stream()
                 .filter(iface -> iface.getName().equals(interfaceName))
                 .findFirst()
-                .orElse(null);
-        }
+                .orElse(null)
+            : null;
 
         // use the interface with the given name at the lowest hierarchy level
-        TInterface baseInterface = Objects.nonNull(tInterface) ? tInterface : foundLifecycleInterface;
+        TInterface baseInterface = Objects.nonNull(interfaceOfStartingNodeType)
+            ? interfaceOfStartingNodeType
+            : foundLifecycleInterface;
+        List<TOperation> overriddenOperations = Objects.nonNull(interfaceOfStartingNodeType)
+            // we need a new List, as it is otherwise updated in the loop afterwards
+            ? new ArrayList<>(interfaceOfStartingNodeType.getOperations())
+            : new ArrayList<>();
 
         // add operations from NodeTypes in the hierarchy if they are not already defined
         if (Objects.nonNull(foundLifecycleInterface)) {
@@ -893,7 +900,71 @@ public class ModelUtils {
             }
         }
 
-        // check if NodeType has parent and recursively search for further interfaces/operations
+        if (Objects.nonNull(baseInterface)) {
+            // TODO: add NTI inheritance
+            List<List<TImplementationArtifact>> implementations = csar.nodeTypeImplementations().stream()
+                .filter(implementation -> implementation.getNodeType().equals(startingNodeType.getQName()))
+                .map(TEntityTypeImplementation::getImplementationArtifacts)
+                .collect(Collectors.toList());
+            List<String> notRealizedOperations = new ArrayList<>();
+            List<String> realizedOperations = new ArrayList<>();
+            for (List<TImplementationArtifact> implementationArtifacts : implementations) {
+                if (implementationArtifacts != null) {
+                    if (implementationArtifacts.stream().anyMatch(ia -> ia.getInterfaceName() == null && ia.getOperationName() == null)) {
+                        LOG.debug("Found IA that realizes everything of Node Type {}", startingNodeType.getQName());
+                    } else if (implementationArtifacts.stream()
+                        .anyMatch(ia -> ia.getInterfaceName() != null
+                            && ia.getInterfaceName().equals(interfaceName)
+                            && ia.getOperationName() == null)) {
+                        LOG.debug("Found IA that realizes the whole interface {} of Node Type {}", interfaceName, startingNodeType.getQName());
+                    } else {
+                        List<TOperation> neededOperations = baseInterface.getOperations();
+                        List<String> operationsRealizedInImplementation = implementationArtifacts.stream()
+                            .filter(ia -> ia.getInterfaceName() == null
+                                || (ia.getInterfaceName() != null && ia.getInterfaceName().equals(interfaceName)))
+                            .map(TImplementationArtifact::getOperationName)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList());
+
+                        neededOperations.forEach(neededOperation -> {
+                            if (operationsRealizedInImplementation.stream()
+                                .anyMatch(providedOperation -> providedOperation.equals(neededOperation.getName()))
+                            ) {
+                                notRealizedOperations.remove(neededOperation.getName());
+                                realizedOperations.add(neededOperation.getName());
+                            } else if (!realizedOperations.contains(neededOperation.getName())) {
+                                notRealizedOperations.add(neededOperation.getName());
+                            }
+                        });
+                    }
+                } else {
+                    LOG.warn("No implementation found for interface {} at Node Type {}", interfaceName, startingNodeType.getQName());
+                }
+            }
+
+            notRealizedOperations.removeIf(realizedOperations::contains);
+            if (!realizedOperations.isEmpty()) {
+                LOG.debug("Found operations realized by a Node Type Implementation: {}.",
+                    String.join(", ", realizedOperations));
+            }
+            if (!notRealizedOperations.isEmpty()) {
+                LOG.debug("There are operations that are not realized by a Node Type Implementation: {}. Ignoring them...",
+                    String.join(", ", notRealizedOperations));
+                baseInterface.getOperations()
+                    .removeIf(operation ->
+                        // In case the baseInterface is the foundInterface, we can directly remove the not realized operations
+                        (
+                            baseInterface == foundLifecycleInterface
+                                || overriddenOperations.stream().noneMatch(overriddenOperation -> operation.getName().equals(operation.getName()))
+                        )
+                            && notRealizedOperations.contains(operation.getName())
+                    );
+            } else {
+                LOG.debug("Found all required IAs for interface {} at Node Type {}", interfaceName, startingNodeType.getQName());
+            }
+        }
+
+        // check if NodeType has a parent and recursively search for further interfaces/operations
         TEntityType.DerivedFrom derivedFrom = startingNodeType.getDerivedFrom();
         if (Objects.nonNull(derivedFrom)) {
             TNodeType parentNodeType = csar.nodeTypes().stream().filter(type -> type.getQName().equals(derivedFrom.getTypeRef())).findFirst().orElse(null);
