@@ -64,7 +64,8 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
         try {
             return this.handler.handle(context, operation, ia);
         } catch (final Exception e) {
-            LOG.error("Couldn't append logic to provphase of Template: " + context.getNodeTemplate() != null
+            LOG.error("Couldn't append logic to provisioning phase of Template: {}",
+                context.getNodeTemplate() != null
                     ? context.getNodeTemplate().getId()
                     : context.getRelationshipTemplate().getId(),
                 e);
@@ -77,7 +78,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                           final TImplementationArtifact ia,
                           final Map<TParameter, Variable> param2propertyMapping,
                           Element elementToAppendTo) {
-        String templateId = "";
+        String templateId;
         boolean isNodeTemplate = false;
         if (context.getNodeTemplate() != null) {
             templateId = context.getNodeTemplate().getId();
@@ -105,7 +106,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     public boolean handle(final BPELPlanContext context, final TOperation operation,
                           final TImplementationArtifact ia,
                           final Map<TParameter, Variable> param2propertyMapping) {
-        String templateId = "";
+        String templateId;
         boolean isNodeTemplate = false;
         if (context.getNodeTemplate() != null) {
             templateId = context.getNodeTemplate().getId();
@@ -150,8 +151,9 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
             return this.handler.handle(context, templateId, isNodeTemplate, operationName, interfaceName,
                 internalExternalPropsInput, internalExternalPropsOutput, elementToAppendTo);
         } catch (final Exception e) {
-            LOG.error("Couldn't append logic to provphase of Template: "
-                    + context.getNodeTemplate() != null ? context.getNodeTemplate().getId()
+            LOG.error("Couldn't append logic to provivioning phase of Template: {}",
+                context.getNodeTemplate() != null
+                    ? context.getNodeTemplate().getId()
                     : context.getRelationshipTemplate().getId(),
                 e);
             return false;
@@ -178,8 +180,9 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
             return this.handler.handle(context, operationName, interfaceName, callbackAddressVarName,
                 internalExternalPropsInput, internalExternalPropsOutput, context.getProvisioningPhaseElement());
         } catch (final Exception e) {
-            LOG.error("Couldn't append logic to provphase of Template: "
-                    + context.getNodeTemplate() != null ? context.getNodeTemplate().getId()
+            LOG.error("Couldn't append logic to provisoining phase of Template: {}",
+                context.getNodeTemplate() != null
+                    ? context.getNodeTemplate().getId()
                     : context.getRelationshipTemplate().getId(),
                 e);
             return false;
@@ -231,12 +234,8 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         try {
             return this.choreohandler.handleSendNotify(context, params, context.getProvisioningPhaseElement());
-        } catch (final IOException e) {
-            e.printStackTrace();
-            return false;
-        } catch (final SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (final IOException | SAXException e) {
+            LOG.error("Error while handling send of notification!", e);
             return false;
         }
     }
@@ -251,12 +250,8 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         try {
             return this.choreohandler.handleReceiveNotify(context, params, context.getProvisioningPhaseElement());
-        } catch (final IOException e) {
-            e.printStackTrace();
-            return false;
-        } catch (final SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (final IOException | SAXException e) {
+            LOG.error("Error while handling receive of notification!", e);
             return false;
         }
     }
@@ -282,12 +277,8 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         try {
             return this.choreohandler.handleNotifyPartners(context);
-        } catch (final SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (final SAXException | IOException e) {
+            LOG.error("Error while handling notification of partners!", e);
         }
         return false;
     }
@@ -297,7 +288,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                           final TImplementationArtifact ia,
                           final Map<TParameter, Variable> param2propertyMapping,
                           final Map<TParameter, Variable> param2PropertyOutputMapping) {
-        String templateId = "";
+        String templateId;
         boolean isNodeTemplate = false;
         if (context.getNodeTemplate() != null) {
             templateId = context.getNodeTemplate().getId();
@@ -344,8 +335,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
             return this.handler.handle(context, operation.getName(), ia.getInterfaceName(), null, inputParams,
                 outputParams, elementToAppendTo);
         } catch (final Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.error("Error while handling operation {} with IA {}", operation.getName(), ia.getArtifactRef());
             return false;
         }
     }
@@ -362,8 +352,6 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                           final TOperation compensationOperation,
                           final TImplementationArtifact compensationIa,
                           final Map<TParameter, Variable> compensationParam2VariableMapping) {
-        // TODO Auto-generated method stub
-
         return false;
     }
 
@@ -375,7 +363,6 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                           final TImplementationArtifact compensationIa,
                           final Map<TParameter, Variable> compensationParam2VariableMapping,
                           final BPELScopePhaseType phase) {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -387,7 +374,6 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                           final TOperation compensationOperation,
                           final TImplementationArtifact compensationIa,
                           final Map<TParameter, Variable> compensationParam2VariableMapping) {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -400,7 +386,6 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                           final TImplementationArtifact compensationIa,
                           final Map<TParameter, Variable> compensationParam2VariableMapping,
                           final BPELScopePhaseType phase) {
-        // TODO Auto-generated method stub
         return false;
     }
 
