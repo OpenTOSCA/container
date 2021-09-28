@@ -47,6 +47,7 @@ import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -229,6 +230,24 @@ public class TestUtils {
 
     public static ServiceTemplateInstance runBuildPlanExecution(PlanService planService, InstanceService instanceService, Csar csar, TServiceTemplate serviceTemplate, TPlan buildPlan, List<org.opentosca.container.core.extension.TParameter> buildPlanInputParams) {
         String buildPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, -1L, buildPlan.getId(), buildPlanInputParams, PlanType.BUILD);
+        if(buildPlan.getPlanLanguage().contains("BPMN")){
+            Collection<ServiceTemplateInstance> coll = instanceService.getServiceTemplateInstances(serviceTemplate.getId());
+            ServiceTemplateInstance s = new ServiceTemplateInstance();
+            while(coll.size() != 1){
+                coll = instanceService.getServiceTemplateInstances(serviceTemplate.getId());
+            }
+
+            for(ServiceTemplateInstance serviceTemplateInstance: coll){
+                s = serviceTemplateInstance;
+            }
+            ServiceTemplateInstanceState state = instanceService.getServiceTemplateInstanceState(s.getId());
+
+            while((state != ServiceTemplateInstanceState.CREATED)){
+                state = instanceService.getServiceTemplateInstanceState(s.getId());
+            }
+            return s;
+        }
+
         PlanInstance buildPlanInstance = planService.getPlanInstanceByCorrelationId(buildPlanCorrelationId);
         while (buildPlanInstance == null) {
             buildPlanInstance = planService.getPlanInstanceByCorrelationId(buildPlanCorrelationId);
