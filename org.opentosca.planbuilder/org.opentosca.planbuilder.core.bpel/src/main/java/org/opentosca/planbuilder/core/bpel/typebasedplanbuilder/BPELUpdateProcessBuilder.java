@@ -201,9 +201,13 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
     }
 
     private TInterface getSaveStateInterface(final TNodeTemplate nodeTemplate, Csar csar) {
-        return ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces().stream()
-            .filter(iface -> iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE))
-            .findFirst().orElse(null);
+        List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
+
+        return interfaces != null ?
+            ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces().stream()
+                .filter(iface -> iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE))
+                .findFirst().orElse(null)
+            : null;
     }
 
     private TOperation getSaveStateOperation(final TNodeTemplate nodeTemplate, Csar csar) {

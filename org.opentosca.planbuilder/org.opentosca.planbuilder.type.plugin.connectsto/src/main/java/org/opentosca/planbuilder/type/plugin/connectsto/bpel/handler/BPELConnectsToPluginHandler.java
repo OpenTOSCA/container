@@ -226,10 +226,13 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
     }
 
     private String getInterface(final TNodeTemplate nodeTemplate, final String operationName, Csar csar) {
-        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
-            for (final TOperation op : iface.getOperations()) {
-                if (op.getName().equals(operationName)) {
-                    return iface.getName();
+        List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
+        if (interfaces != null) {
+            for (final TInterface iface : interfaces) {
+                for (final TOperation op : iface.getOperations()) {
+                    if (op.getName().equals(operationName)) {
+                        return iface.getName();
+                    }
                 }
             }
         }

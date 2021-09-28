@@ -1881,14 +1881,17 @@ public class Handler {
         ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes, csar);
 
         for (final TNodeTemplate node : infraNodes) {
-            for (final TInterface iface : ModelUtils.findNodeType(node, csar).getInterfaces()) {
-                if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM)
-                    | iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER)) {
-                    for (final TOperation op : iface.getOperations()) {
-                        if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
-                            | op.getName()
-                            .equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)) {
-                            return node;
+            List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
+            if (interfaces != null) {
+                for (final TInterface iface : interfaces) {
+                    if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM)
+                        | iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER)) {
+                        for (final TOperation op : iface.getOperations()) {
+                            if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
+                                | op.getName()
+                                .equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)) {
+                                return node;
+                            }
                         }
                     }
                 }

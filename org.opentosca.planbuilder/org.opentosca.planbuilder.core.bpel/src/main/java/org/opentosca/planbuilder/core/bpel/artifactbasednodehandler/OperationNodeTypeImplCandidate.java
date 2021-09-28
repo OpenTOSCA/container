@@ -32,7 +32,7 @@ class OperationNodeTypeImplCandidate {
     // positions inside the lists
     List<TOperation> ops = new ArrayList<>();
     List<TImplementationArtifact> ias = new ArrayList<>();
-    List<IPlanBuilderProvPhaseOperationPlugin> plugins = new ArrayList<>();
+    List<IPlanBuilderProvPhaseOperationPlugin<?>> plugins = new ArrayList<>();
 
     /**
      * <p>
@@ -44,7 +44,7 @@ class OperationNodeTypeImplCandidate {
      * @param plugin a ProvPhasePlugin that can execute on the given Operation and ImplementationArtifact
      */
     void add(final TOperation op, final TImplementationArtifact ia,
-             final IPlanBuilderProvPhaseOperationPlugin plugin) {
+             final IPlanBuilderProvPhaseOperationPlugin<?> plugin) {
         this.ops.add(op);
         this.ias.add(ia);
         this.plugins.add(plugin);
@@ -111,9 +111,12 @@ class OperationNodeTypeImplCandidate {
                 } else {
                     // we have to find the interface and count the
                     // operations in it
-                    for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
-                        if (iface.getName().equals(ia.getInterfaceName())) {
-                            implementedOpsByIAsCount += iface.getOperations().size();
+                    List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
+                    if (interfaces != null) {
+                        for (final TInterface iface : interfaces) {
+                            if (iface.getName().equals(ia.getInterfaceName())) {
+                                implementedOpsByIAsCount += iface.getOperations().size();
+                            }
                         }
                     }
                 }
@@ -163,25 +166,20 @@ class OperationNodeTypeImplCandidate {
             relationshipTemplate.getType().toString());
 
         // check if any source interface matches the selected prov plugins
-        for (final TInterface iface : ModelUtils.findRelationshipType(relationshipTemplate, csar).getSourceInterfaces()) {
-            final int interfaceSize = iface.getOperations().size();
-            if (interfaceSize == this.ops.size() && interfaceSize == this.ias.size()
-                && interfaceSize == this.plugins.size()) {
-                int counter = 0;
-                for (final TOperation iFaceOp : iface.getOperations()) {
-                    for (final TOperation op : this.ops) {
-                        if (iFaceOp.equals(op)) {
-                            counter++;
-                        }
-                    }
-                }
-                if (counter == interfaceSize) {
-                    return true;
-                }
-            }
+        List<TInterface> sourceInterfaces = ModelUtils.findRelationshipType(relationshipTemplate, csar).getSourceInterfaces();
+        if (sourceInterfaces != null) {
+            return checkInterfaces(sourceInterfaces);
         }
         // same check for target interfaces
-        for (final TInterface iface : ModelUtils.findRelationshipType(relationshipTemplate, csar).getTargetInterfaces()) {
+        List<TInterface> targetInterfaces = ModelUtils.findRelationshipType(relationshipTemplate, csar).getTargetInterfaces();
+        if (targetInterfaces != null) {
+            return checkInterfaces(targetInterfaces);
+        }
+        return false;
+    }
+
+    private boolean checkInterfaces(List<TInterface> sourceInterfaces) {
+        for (final TInterface iface : sourceInterfaces) {
             final int interfaceSize = iface.getOperations().size();
             if (interfaceSize == this.ops.size() && interfaceSize == this.ias.size()
                 && interfaceSize == this.plugins.size()) {

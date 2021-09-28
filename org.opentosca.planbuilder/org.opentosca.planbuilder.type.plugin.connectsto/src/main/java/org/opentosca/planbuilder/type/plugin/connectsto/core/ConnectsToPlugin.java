@@ -1,5 +1,7 @@
 package org.opentosca.planbuilder.type.plugin.connectsto.core;
 
+import java.util.List;
+
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
@@ -56,11 +58,14 @@ public abstract class ConnectsToPlugin<T extends PlanContext> implements IPlanBu
         // look for a connectTo operation on the source node
         final TNodeTemplate sourceNode = ModelUtils.getSource(relationshipTemplate, csar);
 
-        for (final TInterface iface : ModelUtils.findNodeType(sourceNode, csar).getInterfaces()) {
-            for (final TOperation op : iface.getOperations()) {
-                if (op.getName().equals("connectTo")) {
-                    // found needed operation
-                    return true;
+        List<TInterface> interfaces = ModelUtils.findNodeType(sourceNode, csar).getInterfaces();
+        if (interfaces != null) {
+            for (final TInterface iface : interfaces) {
+                for (final TOperation op : iface.getOperations()) {
+                    if (op.getName().equals("connectTo")) {
+                        // found needed operation
+                        return true;
+                    }
                 }
             }
         }

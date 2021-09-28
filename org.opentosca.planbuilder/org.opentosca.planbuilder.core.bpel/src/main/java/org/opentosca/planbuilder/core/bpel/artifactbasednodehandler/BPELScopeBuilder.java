@@ -115,7 +115,7 @@ public class BPELScopeBuilder {
                     if (plugin.canHandle(ia.getArtifactType())
                         && getOperationForIa(chain.relationshipTemplate, ia, operationName, csar) != null) {
                         provCandidate.add(getOperationForIa(chain.relationshipTemplate, ia,
-                            operationName, csar),
+                                operationName, csar),
                             ia, plugin);
                     }
                 }
@@ -496,11 +496,13 @@ public class BPELScopeBuilder {
         if (ia.getInterfaceName() != null & ia.getOperationName() == null) {
             return new InterfaceDummy(nodeTemplate, ia, csar);
         }
-
-        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
-            for (final TOperation op : iface.getOperations()) {
-                if (op.getName().equals(ia.getOperationName())) {
-                    return op;
+        List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
+        if (interfaces != null) {
+            for (final TInterface iface : interfaces) {
+                for (final TOperation op : iface.getOperations()) {
+                    if (op.getName().equals(ia.getOperationName())) {
+                        return op;
+                    }
                 }
             }
         }

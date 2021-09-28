@@ -487,12 +487,14 @@ public class BPELInvokerPluginHandler {
 
     private List<String> getRunScriptParams(final TNodeTemplate nodeTemplate, Csar csar) {
         final List<String> inputParams = new ArrayList<>();
-
-        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
-            for (final TOperation op : iface.getOperations()) {
-                if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)) {
-                    for (final TParameter param : op.getInputParameters()) {
-                        inputParams.add(param.getName());
+        List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
+        if (interfaces != null) {
+            for (final TInterface iface : interfaces) {
+                for (final TOperation op : iface.getOperations()) {
+                    if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)) {
+                        for (final TParameter param : op.getInputParameters()) {
+                            inputParams.add(param.getName());
+                        }
                     }
                 }
             }
@@ -503,12 +505,14 @@ public class BPELInvokerPluginHandler {
 
     private List<String> getTransferFileParams(final TNodeTemplate nodeTemplate, Csar csar) {
         final List<String> inputParams = new ArrayList<>();
-
-        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
-            for (final TOperation op : iface.getOperations()) {
-                if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
-                    for (final TParameter param : op.getInputParameters()) {
-                        inputParams.add(param.getName());
+        List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
+        if (interfaces != null) {
+            for (final TInterface iface : interfaces) {
+                for (final TOperation op : iface.getOperations()) {
+                    if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
+                        for (final TParameter param : op.getInputParameters()) {
+                            inputParams.add(param.getName());
+                        }
                     }
                 }
             }
