@@ -271,7 +271,7 @@ public class ParameterHandler {
         final TOperation resolvedOperation;
         try {
             TEntityType entityType = ToscaEngine.resolveEntityTypeReference(csar, typeID);
-            TInterface typeInterface = ToscaEngine.resolveInterfaceAbstract(entityType, interfaceName);
+            TInterface typeInterface = ToscaEngine.resolveInterfaceAbstract(csar, entityType, interfaceName);
             resolvedOperation = ToscaEngine.resolveOperation(typeInterface, operationName);
         } catch (NotFoundException e) {
             LOG.warn("Could not resolve Operation {} on Interface {} for Type {}", operationName, interfaceName, typeID);

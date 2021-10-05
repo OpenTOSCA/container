@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.model.utils;
+package org.opentosca.container.core.model;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
@@ -63,15 +62,6 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-/**
- * <p>
- * This class holds utility methods
- * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
- * <br>
- *
- * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- */
 public abstract class ModelUtils {
 
     private final static Logger LOG = LoggerFactory.getLogger(ModelUtils.class);
@@ -85,9 +75,9 @@ public abstract class ModelUtils {
         for (TDefinitions defs : csar.definitions()) {
             for (TNodeType nodeType : defs.getNodeTypes()) {
                 if (Objects.nonNull(nodeType.getInterfaces())) {
-                    for (TInterface iface : nodeType.getInterfaces()) {
-                        if (iface.getName().equals(interfaceName)) {
-                            for (TOperation op : iface.getOperations()) {
+                    for (TInterface anInterface : nodeType.getInterfaces()) {
+                        if (anInterface.getName().equals(interfaceName)) {
+                            for (TOperation op : anInterface.getOperations()) {
                                 if (op.getName().equals(operationName)) {
                                     return op;
                                 }
@@ -100,8 +90,8 @@ public abstract class ModelUtils {
         return null;
     }
 
-    public static boolean hasBuildPlan(TServiceTemplate serviceTemplate) {
-        return hasPlansOfType(serviceTemplate, "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan");
+    public static boolean doesNotHaveBuildPlan(TServiceTemplate serviceTemplate) {
+        return !hasPlansOfType(serviceTemplate, "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan");
     }
 
     public static boolean hasTerminationPlan(TServiceTemplate serviceTemplate) {
@@ -110,22 +100,31 @@ public abstract class ModelUtils {
 
     public static boolean hasPlansOfType(TServiceTemplate serviceTemplate, String planType) {
         if (serviceTemplate.getPlans() != null) {
-            return !serviceTemplate.getPlans().stream().filter(x -> x.getPlanType().equals(planType)).collect(Collectors.toList()).isEmpty();
+            return serviceTemplate.getPlans().stream()
+                .anyMatch(x -> x.getPlanType().equals(planType));
         } else {
             return false;
         }
     }
 
     public static Collection<TRelationshipTemplate> getIngoingRelations(TNodeTemplate nodeTemplate, Csar csar) {
-        return getAllRelationshipTemplates(csar).stream().filter(x -> x.getTargetElement().getRef() instanceof TNodeTemplate && x.getTargetElement().getRef().getId().equals(nodeTemplate.getId())).collect(Collectors.toList());
+        return getAllRelationshipTemplates(csar).stream()
+            .filter(x -> x.getTargetElement().getRef() instanceof TNodeTemplate
+                && x.getTargetElement().getRef().getId().equals(nodeTemplate.getId())
+            ).collect(Collectors.toList());
     }
 
     public static Collection<TRelationshipTemplate> getOutgoingRelations(TNodeTemplate nodeTemplate, Csar csar) {
-        return getAllRelationshipTemplates(csar).stream().filter(x -> x.getSourceElement().getRef() instanceof TNodeTemplate && x.getSourceElement().getRef().getId().equals(nodeTemplate.getId())).collect(Collectors.toList());
+        return getAllRelationshipTemplates(csar).stream()
+            .filter(x -> x.getSourceElement().getRef() instanceof TNodeTemplate
+                && x.getSourceElement().getRef().getId().equals(nodeTemplate.getId())
+            ).collect(Collectors.toList());
     }
 
     public static Collection<TRelationshipTemplate> getAllRelationshipTemplates(Csar csar) {
-        return csar.entryServiceTemplate().getTopologyTemplate().getRelationshipTemplates();
+        return csar.entryServiceTemplate() != null && csar.entryServiceTemplate().getTopologyTemplate() != null
+            ? csar.entryServiceTemplate().getTopologyTemplate().getRelationshipTemplates()
+            : new ArrayList<>();
     }
 
     /**
@@ -206,9 +205,9 @@ public abstract class ModelUtils {
     }
 
     public static List<QName> getArtifactTypeHierarchy(final TArtifactTemplate artifactTemplate, Csar csar) {
-        final List<QName> qnames = new ArrayList<>();
+        final List<QName> qNames = new ArrayList<>();
         final Collection<TArtifactType> artifactTypes = fetchAllArtifactTypes(csar);
-        qnames.add(artifactTemplate.getType());
+        qNames.add(artifactTemplate.getType());
 
         TArtifactType type = findArtifactType(artifactTemplate.getType(), artifactTypes);
 
@@ -218,11 +217,11 @@ public abstract class ModelUtils {
         }
 
         while (Objects.nonNull(ref) && Objects.nonNull(ref.getDerivedFrom())) {
-            qnames.add(ref.getQName());
+            qNames.add(ref.getQName());
             ref = findArtifactType(ref.getDerivedFrom().getTypeRef(), artifactTypes);
         }
 
-        return qnames;
+        return qNames;
     }
 
     public static TArtifactType findArtifactType(QName id, Collection<TArtifactType> artifactTypes) {
@@ -245,14 +244,10 @@ public abstract class ModelUtils {
     }
 
     public static String getNamespace(TEntityTemplate.Properties properties) {
-        boolean isDOM = false;
-        if (properties.getClass().getName().equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl")) {
-            isDOM = true;
-        }
-        boolean isWineryKV = false;
-        if (properties.getClass().getName().equals(TEntityTemplate.WineryKVProperties.class.getName())) {
-            isWineryKV = true;
-        }
+        boolean isDOM = properties.getClass().getName()
+            .equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl");
+        boolean isWineryKV = properties.getClass().getName()
+            .equals(TEntityTemplate.WineryKVProperties.class.getName());
 
         if (isDOM) {
             return ((Element) properties).getNamespaceURI();
@@ -266,14 +261,10 @@ public abstract class ModelUtils {
     }
 
     public static String getElementName(TEntityTemplate.Properties properties) {
-        boolean isDOM = false;
-        if (properties.getClass().getName().equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl")) {
-            isDOM = true;
-        }
-        boolean isWineryKV = false;
-        if (properties.getClass().getName().equals(TEntityTemplate.WineryKVProperties.class.getName())) {
-            isWineryKV = true;
-        }
+        boolean isDOM = properties.getClass().getName()
+            .equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl");
+        boolean isWineryKV = properties.getClass().getName()
+            .equals(TEntityTemplate.WineryKVProperties.class.getName());
 
         if (isDOM) {
             return ((Element) properties).getLocalName();
@@ -287,41 +278,26 @@ public abstract class ModelUtils {
     }
 
     public static Map<String, String> asMap(TBoundaryDefinitions.Properties properties) {
-        boolean isDOM = false;
-        if (properties.getClass().getName().equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl")) {
-            isDOM = true;
-        }
+        boolean isDOM = properties.getClass().getName().equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl");
 
         if (isDOM) {
             final PropertyParser parser = new PropertyParser();
-            Map<String, String> props = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
             final Element element = (Element) properties;
-            if (element != null) {
-                props = parser.parse(element);
-            }
-            return props;
+            return parser.parse(element);
         }
         return new HashMap<>();
     }
 
     public static Map<String, String> asMap(TEntityTemplate.Properties properties) {
-        boolean isDOM = false;
-        if (properties.getClass().getName().equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl")) {
-            isDOM = true;
-        }
-        boolean isWineryKV = false;
-        if (properties.getClass().getName().equals(TEntityTemplate.WineryKVProperties.class.getName())) {
-            isWineryKV = true;
-        }
+        boolean isDOM = properties.getClass().getName()
+            .equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl");
+        boolean isWineryKV = properties.getClass().getName()
+            .equals(TEntityTemplate.WineryKVProperties.class.getName());
 
         if (isDOM) {
             final PropertyParser parser = new PropertyParser();
-            Map<String, String> props = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
             final Element element = (Element) properties;
-            if (element != null) {
-                props = parser.parse(element);
-            }
-            return props;
+            return parser.parse(element);
         }
         if (isWineryKV) {
             return ((TEntityTemplate.WineryKVProperties) properties).getKVProperties();
@@ -384,16 +360,18 @@ public abstract class ModelUtils {
         return csar.entryServiceTemplate().getTopologyTemplate().getNodeTemplates()
             .stream()
             .filter(x -> Objects.nonNull(x.getCapabilities()))
-            .filter(x -> !x.getCapabilities().stream().filter(y -> y.getId().equals(cap.getId())).collect(Collectors.toList()).isEmpty())
-            .findFirst().orElse(null);
+            .filter(x -> x.getCapabilities().stream().anyMatch(y -> y.getId().equals(cap.getId())))
+            .findFirst()
+            .orElse(null);
     }
 
     public static TNodeTemplate findNodeTemplate(TRequirement req, Csar csar) {
         return csar.entryServiceTemplate().getTopologyTemplate().getNodeTemplates()
             .stream()
             .filter(x -> Objects.nonNull(x.getRequirements()))
-            .filter(x -> !x.getRequirements().stream().filter(y -> y.getId().equals(req.getId())).collect(Collectors.toList()).isEmpty())
-            .findFirst().orElse(null);
+            .filter(x -> x.getRequirements().stream().anyMatch(y -> y.getId().equals(req.getId())))
+            .findFirst()
+            .orElse(null);
     }
 
     /**
@@ -401,8 +379,8 @@ public abstract class ModelUtils {
      *
      * @param nodeTemplate        TNodeTemplate from where the search for Infrastructure Nodes begin
      * @param infrastructureNodes a List of TNodeTemplates which represent Infrastructure Nodes of the given
-     *                            NodeTemplate (including itself when applicable as an infrastructure node)
-     * @Info the infrastructureNodes List must be empty
+     *                            NodeTemplate (including itself when applicable as an infrastructure node). Note: the
+     *                            infrastructureNodes List must be empty.
      */
     public static void getInfrastructureNodes(final TNodeTemplate nodeTemplate,
                                               final Collection<TNodeTemplate> infrastructureNodes, Csar csar) {
@@ -495,7 +473,7 @@ public abstract class ModelUtils {
                 return type;
             }
         }
-        // FIXME: when there are no basetypes we're screwed
+        // FIXME: when there are no base types we're screwed
         return typeHierarchy.get(typeHierarchy.size() - 1);
     }
 
@@ -597,13 +575,12 @@ public abstract class ModelUtils {
      * the list.
      */
     public static List<QName> getNodeTypeHierarchy(final TNodeType nodeType, Csar csar) {
-        ModelUtils.LOG.debug("Beginning calculating NodeType Hierarchy for: " + nodeType.getQName().toString());
+        ModelUtils.LOG.debug("Beginning calculating NodeType Hierarchy for: " + nodeType.getQName());
         final List<QName> typeHierarchy = new ArrayList<>();
         typeHierarchy.add(nodeType.getQName());
 
         boolean wasNotNull = true;
-        // changed from search with qname to search with abstract classes and
-        // typeref
+        // changed from search with qname to search with abstract classes and type ref
         TNodeType lastFoundNodeType = nodeType;
         while (wasNotNull) {
 
@@ -616,7 +593,7 @@ public abstract class ModelUtils {
             if (referencedNodeType == null) {
                 wasNotNull = false;
             } else {
-                ModelUtils.LOG.debug("Found referenced NodeType: " + referencedNodeType.getQName().toString());
+                ModelUtils.LOG.debug("Found referenced NodeType: " + referencedNodeType.getQName());
                 typeHierarchy.add(referencedNodeType.getQName());
                 lastFoundNodeType = referencedNodeType;
             }
@@ -672,15 +649,11 @@ public abstract class ModelUtils {
 
         for (final TRelationshipTemplate relation : getOutgoingRelations(nodeTemplate, csar)) {
             for (final QName relationshipTypeHierarchyMember : ModelUtils.getRelationshipTypeHierarchy(relation.getType(), csar)) {
-                final boolean match = false;
                 for (final QName relationshipType : relationshipTypes) {
                     if (relationshipTypeHierarchyMember.equals(relationshipType)) {
                         relations.add(relation);
                         break;
                     }
-                }
-                if (match) {
-                    break;
                 }
             }
         }
@@ -854,7 +827,7 @@ public abstract class ModelUtils {
      */
     public static TInterface getInterfaceOfNode(final TNodeTemplate nodeTemplate,
                                                 final String interfaceName, Csar csar) {
-        return getInterfaceOfNode(csar, findNodeType(nodeTemplate, csar), interfaceName, null);
+        return getInterfaceOfNodeType(csar, findNodeType(nodeTemplate, csar), interfaceName, null);
     }
 
     /**
@@ -867,15 +840,19 @@ public abstract class ModelUtils {
      */
     public static Boolean hasInterface(final TNodeTemplate nodeTemplate,
                                        final String interfaceName, Csar csar) {
-        return Objects.nonNull(getInterfaceOfNode(csar, findNodeType(nodeTemplate, csar), interfaceName, null));
+        return Objects.nonNull(getInterfaceOfNodeType(csar, findNodeType(nodeTemplate, csar), interfaceName, null));
     }
 
-    private static TInterface getInterfaceOfNode(Csar csar, TNodeType startingNodeType, String interfaceName, TInterface interfaceOfStartingNodeType) {
+    public static TInterface getInterfaceOfNodeType(Csar csar, TNodeType startingNodeType, String interfaceName) {
+        return getInterfaceOfNodeType(csar, startingNodeType, interfaceName, null);
+    }
+
+    private static TInterface getInterfaceOfNodeType(Csar csar, TNodeType startingNodeType, String interfaceName, TInterface interfaceOfStartingNodeType) {
 
         // search for the interface at the current NodeType
         TInterface foundLifecycleInterface = Objects.nonNull(startingNodeType.getInterfaces()) ?
             startingNodeType.getInterfaces().stream()
-                .filter(iface -> iface.getName().equals(interfaceName))
+                .filter(anInterface -> anInterface.getName().equals(interfaceName))
                 .findFirst()
                 .orElse(null)
             : null;
@@ -969,7 +946,7 @@ public abstract class ModelUtils {
         if (Objects.nonNull(derivedFrom)) {
             TNodeType parentNodeType = csar.nodeTypes().stream().filter(type -> type.getQName().equals(derivedFrom.getTypeRef())).findFirst().orElse(null);
             if (Objects.nonNull(parentNodeType)) {
-                return getInterfaceOfNode(csar, parentNodeType, interfaceName, baseInterface);
+                return getInterfaceOfNodeType(csar, parentNodeType, interfaceName, baseInterface);
             }
         }
 

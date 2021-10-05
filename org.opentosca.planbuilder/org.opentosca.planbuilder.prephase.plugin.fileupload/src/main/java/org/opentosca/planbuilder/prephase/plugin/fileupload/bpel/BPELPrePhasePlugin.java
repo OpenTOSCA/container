@@ -18,7 +18,7 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPrePhasePlugin;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.prephase.plugin.fileupload.bpel.handler.BPELPrePhasePluginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

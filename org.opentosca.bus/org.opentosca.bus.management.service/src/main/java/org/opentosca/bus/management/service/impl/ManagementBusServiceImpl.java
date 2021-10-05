@@ -417,12 +417,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         // check whether operation has output parameters
         final boolean hasOutputParams;
         try {
-            final TInterface nodeTypeInterface = ToscaEngine.resolveInterfaceAbstract(type, neededInterface);
+            final TInterface nodeTypeInterface = ToscaEngine.resolveInterfaceAbstract(csar, type, neededInterface);
             final TOperation operation = ToscaEngine.resolveOperation(nodeTypeInterface, neededOperation);
             hasOutputParams = operation.getOutputParameters() != null
                 && !operation.getOutputParameters().isEmpty();
         } catch (final NotFoundException notFound) {
-            LOG.warn("Tried to invoke an unknown operation on an IA");
+            LOG.error("Tried to invoke unknown operation '{}' in interface '{}!", neededOperation, neededInterface);
             return;
         }
         message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), hasOutputParams);
@@ -558,7 +558,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                 final Optional<WSDLEndpoint> currentEndpoint =
                     endpoints.stream().filter(wsdlEndpoint -> wsdlEndpoint.getServiceTemplateInstanceID()
-                        .equals(serviceTemplateInstanceID))
+                            .equals(serviceTemplateInstanceID))
                         .findFirst();
 
                 if (!currentEndpoint.isPresent()) {
@@ -1177,7 +1177,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 // get number of endpoints for the same IA
                 final int count =
                     this.endpointService.getWSDLEndpointsForNTImplAndIAName(triggeringContainer, deploymentLocation,
-                        typeImpl, iaName)
+                            typeImpl, iaName)
                         .size();
 
                 // only undeploy the IA if this is the only endpoint

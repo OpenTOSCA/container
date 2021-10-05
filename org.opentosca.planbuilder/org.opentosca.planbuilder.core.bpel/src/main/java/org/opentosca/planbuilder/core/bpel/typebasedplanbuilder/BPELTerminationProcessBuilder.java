@@ -27,7 +27,7 @@ import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -189,7 +189,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
-            if (!ModelUtils.hasBuildPlan(serviceTemplate)) {
+            if (ModelUtils.doesNotHaveBuildPlan(serviceTemplate)) {
                 LOG.debug("ServiceTemplate {} has no TerminationPlan, generating TerminationPlan",
                     serviceTemplate.getId());
                 final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);

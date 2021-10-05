@@ -46,6 +46,7 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.container.core.common.NotFoundException;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,23 +59,23 @@ import org.w3c.dom.Element;
  * passed to it are assumed to be set to a valid reference.
  * </p><p>
  * As a convention, methods beginning with <code>get</code> are not guaranteed to return a result. They default to
- * returning <code>null</code> or an empty {@link Optional}, if the request is not fulfillable. If a Collection type is
+ * returning <code>null</code> or an empty {@link Optional}, if the request is unfulfillable. If a Collection type is
  * expected as result, an empty Collection is returned.
  * </p><p>
  * Likewise, methods beginning with <code>resolve</code> are guaranteed to return a result and throw a {@link
- * NotFoundException} in case the request is not fulfillable.
+ * NotFoundException} in case the request is unfulfillable.
  * </p><p>
  * Methods that return some kind of {@link Collection} will return an empty collection as the default. They may throw
  * {@link NotFoundException} if a component prerequisite is not met.
  * </p>
  */
 //@NonNullByDefault
-public final class ToscaEngine {
+public abstract class ToscaEngine {
 
     private static final Logger LOG = LoggerFactory.getLogger(ToscaEngine.class);
 
     /**
-     * Gets a serviceTemplate from a csar by it's QName.
+     * Gets a serviceTemplate from a csar by its QName.
      *
      * @return null, if the service template could not be found, the {@link TServiceTemplate} otherwise.
      */
@@ -84,16 +85,16 @@ public final class ToscaEngine {
     }
 
     /**
-     * Resolves a serviceTemplate from a csar by it's fully qualified QName. If no matching serviceTemplate can be
-     * found, an Exception is thrown.
+     * Resolves a serviceTemplate from a csar by its fully qualified QName. If no matching serviceTemplate can be found,
+     * an Exception is thrown.
      *
-     * @return A {@link TServiceTemplate} instance matching the passed QName as it's id. Guaranteed to not be
+     * @return A {@link TServiceTemplate} instance matching the passed QName as its id. Guaranteed to not be
      * <tt>null</tt>.
      */
     public static TServiceTemplate resolveServiceTemplate(Csar csar, QName serviceTemplateId) throws NotFoundException {
         TServiceTemplate serviceTemplate = getServiceTemplate(csar, serviceTemplateId);
         if (serviceTemplate == null) {
-            throw new NotFoundException("Service template \"" + serviceTemplate + "\" could not be found");
+            throw new NotFoundException("Service template \"" + serviceTemplateId + "\" could not be found");
         }
         return serviceTemplate;
     }
@@ -108,7 +109,7 @@ public final class ToscaEngine {
      * parameter given to this method.
      */
     public static TServiceTemplate resolveServiceTemplate(Csar csar, String serviceTemplateId) throws NotFoundException {
-        // Iterate service templates here to allow resolving service templates by name without knowing their fully qualified Id
+        // Iterate service templates here to allow resolving service templates by name without knowing their fully qualified ID
         return csar.serviceTemplates()
             .stream()
             .filter(st -> serviceTemplateId.equals(st.getIdFromIdOrNameField()))
@@ -146,8 +147,8 @@ public final class ToscaEngine {
     public static boolean isOperationBoundToSourceNode(final TRelationshipType relationshipType, final String interfaceName, final String operationName) {
         return Optional.ofNullable(relationshipType.getSourceInterfaces())
             .orElse(Collections.emptyList()).stream()
-            .filter(iface -> interfaceName == null || iface.getName().equals(interfaceName))
-            .flatMap(iface -> iface.getOperations().stream())
+            .filter(anInterface -> interfaceName == null || anInterface.getName().equals(interfaceName))
+            .flatMap(anInterface -> anInterface.getOperations().stream())
             .anyMatch(op -> op.getName().equals(operationName));
     }
 
@@ -242,11 +243,12 @@ public final class ToscaEngine {
         return typeRefs;
     }
 
-    public static TInterface resolveInterfaceAbstract(TEntityType type, String interfaceName) throws NotFoundException {
+    public static TInterface resolveInterfaceAbstract(Csar csar, TEntityType type, String interfaceName) throws NotFoundException {
         if (type instanceof TRelationshipType) {
+            // This is only required in YAML mode which is not yet supported in the container...
             return resolveInterface((TRelationshipType) type, interfaceName);
         } else if (type instanceof TNodeType) {
-            return resolveInterface((TNodeType) type, interfaceName);
+            return ModelUtils.getInterfaceOfNodeType(csar, (TNodeType) type, interfaceName);
         } else {
             throw new NotFoundException("The given EntityType was not a RelationshipType or NodeType");
         }
@@ -263,13 +265,13 @@ public final class ToscaEngine {
     private static TInterface resolveInterface(List<TInterface> interfaces, String interfaceName) throws NotFoundException {
         return Stream.of(Optional.ofNullable(interfaces))
             .flatMap(opt -> opt.orElse(Collections.emptyList()).stream())
-            .filter(iface -> iface.getName().equals(interfaceName))
+            .filter(anInterface -> anInterface.getName().equals(interfaceName))
             .findFirst()
             .orElseThrow(() -> new NotFoundException("Interface [" + interfaceName + "] was not found in the given EntityType"));
     }
 
-    public static TOperation resolveOperation(TInterface iface, String operationName) throws NotFoundException {
-        return iface.getOperations().stream()
+    public static TOperation resolveOperation(TInterface tInterface, String operationName) throws NotFoundException {
+        return tInterface.getOperations().stream()
             .filter(op -> op.getName().equals(operationName))
             .findFirst()
             .orElseThrow(() -> new NotFoundException("Operation [" + operationName + "] was not found on the given Interface"));
@@ -313,7 +315,7 @@ public final class ToscaEngine {
         // FIXME this is a bit weird, because it resolves the implementations of the whole type hierarchy,
         //  but that matches the previous implementation, soo ...
 
-        // keep NodeTypeImplementations in hierarchy order to avoid using an overwritten implementation
+        // keep NodeTypeImplementations in hierarchy order avoiding using an overwritten implementation
         List<TNodeTypeImplementation> result = new ArrayList<>();
         for (TNodeType hierarchyNodeType : hierarchy) {
             result.addAll(csar.nodeTypeImplementations().stream().filter(impl -> {
@@ -352,14 +354,13 @@ public final class ToscaEngine {
     @NonNull
     public static TPlan resolvePlanReference(Csar csar, QName planId) throws NotFoundException {
         // can't reformulate using queryRepository because PlanId requires a PlansId as parent for resolution
-        TPlan plan = csar.serviceTemplates().stream()
+        return csar.serviceTemplates().stream()
             .flatMap(st ->
                 st.getPlans() == null ? Stream.empty() : st.getPlans().stream()
             )
             .filter(tPlan -> tPlan.getId().equals(planId.getLocalPart()))
             .findFirst()
             .orElseThrow(() -> new NotFoundException("No plan matching " + planId + " was found in csar" + csar.id().csarName()));
-        return plan;
     }
 
     @NonNull
@@ -374,7 +375,7 @@ public final class ToscaEngine {
     public static TArtifactType resolveArtifactType(Csar csar, QName artifactTypeId) throws NotFoundException {
         TArtifactType result = (TArtifactType) csar.queryRepository(new ArtifactTypeId(artifactTypeId));
         if (result == null) {
-            throw new NotFoundException(String.format("Csar [{}] does not contain the ArtifacType [{}]", csar.id().csarName(), artifactTypeId));
+            throw new NotFoundException(String.format("Csar [{}] does not contain the ArtifactType [{}]", csar.id().csarName(), artifactTypeId));
         }
         return result;
     }
@@ -483,7 +484,7 @@ public final class ToscaEngine {
             .map(TBoundaryDefinitions::getInterfaces)
             .orElse(Collections.emptyList())
             .stream()
-            .filter(iface -> iface.getName().equals(interfaceName))
+            .filter(anInterface -> anInterface.getName().equals(interfaceName))
             .findFirst()
             .map(TExportedInterface::getOperation)
             .orElse(Collections.emptyList())

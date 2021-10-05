@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -95,7 +94,7 @@ public class MBUtils {
             }
             // nodeType was not an OS node type, therefore traverse the Graph "downwards"
             ToscaEngine.getRelatedNodeTemplates(serviceTemplate, current,
-                Types.hostedOnRelationType, Types.deployedOnRelationType, Types.dependsOnRelationType)
+                    Types.hostedOnRelationType, Types.deployedOnRelationType, Types.dependsOnRelationType)
                 // avoid cycles in the graph
                 .filter(t -> !traversedTemplates.contains(t))
                 .forEach(nodeTemplateGraph::add);
@@ -122,12 +121,12 @@ public class MBUtils {
         }
         LOG.debug("Found instanceRef Property with value: {}", propMap.get(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF));
         /*
-         * values are sent from fontend delimited by "," in the following format:
+         * values are sent from frontend delimited by "," in the following format:
          * service-template-instance-id,node-template-id
          */
         final String[] values = propMap.get(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF).split(",");
         if (values.length != 2) {
-            LOG.warn("input format for instanceref was incorrect. Received value {}", values);
+            LOG.warn("input format for instance reference was incorrect. Received value {}", values);
             // to avoid messing this up
             return nodeTemplateInstance;
         }
@@ -141,7 +140,7 @@ public class MBUtils {
     /**
      * Checks if the specified NodeType is the OperatingSystem NodeType.
      *
-     * @return true if the specified NodeType is one of the OperatingSystem NodeTypes. Otherwise false.
+     * @return true if the specified NodeType is one of the OperatingSystem NodeTypes. Otherwise, false.
      */
     private static boolean isOperatingSystemNodeType(final TNodeType nodeType) {
         if (nodeType.getInterfaces() == null) {
@@ -328,7 +327,7 @@ public class MBUtils {
 
         Optional<NodeTemplateInstance> nextNode = getConnectedNodeTemplateInstance(currentNode, Types.hostedOnRelationType);
 
-        if (!nextNode.isPresent()) {
+        if (nextNode.isEmpty()) {
             nextNode = getConnectedNodeTemplateInstance(currentNode, Types.deployedOnRelationType);
         }
 
@@ -384,9 +383,14 @@ public class MBUtils {
         }
     }
 
-    public static QName findPlanByOperation(Csar csar, String ifaceName, String opName) {
-        TExportedOperation op = csar.entryServiceTemplate().getBoundaryDefinitions().getInterfaces().stream().filter(iface -> iface.getName().equals(ifaceName)).collect(Collectors.toList())
-            .stream().flatMap(iface -> iface.getOperation().stream()).filter(ope -> ope.getName().equals(opName)).findFirst().orElse(null);
+    @Nullable
+    public static QName findPlanByOperation(Csar csar, String interfaceName, String opName) {
+        TExportedOperation op = csar.entryServiceTemplate().getBoundaryDefinitions().getInterfaces().stream()
+            .filter(anInterface -> anInterface.getName().equals(interfaceName))
+            .flatMap(anInterface -> anInterface.getOperation().stream())
+            .filter(ope -> ope.getName().equals(opName))
+            .findFirst()
+            .orElse(null);
         if (op != null) {
             return new QName(csar.entryServiceTemplate().getTargetNamespace(), ((TPlan) op.getPlan().getPlanRef()).getId());
         }
@@ -397,11 +401,11 @@ public class MBUtils {
     /**
      * Transfers the properties document to a map.
      *
-     * @param propertiesDocument to be transfered to a map.
-     * @return transfered map.
+     * @param propertiesDocument to be transferred to a map.
+     * @return transferred map.
      */
     public static HashMap<String, String> docToMap(final Document propertiesDocument, final boolean allowEmptyEntries) {
-        final HashMap<String, String> reponseMap = new HashMap<>();
+        final HashMap<String, String> responseMap = new HashMap<>();
 
         final DocumentTraversal traversal = (DocumentTraversal) propertiesDocument;
         final NodeIterator iterator =
@@ -420,15 +424,15 @@ public class MBUtils {
             }
 
             if (allowEmptyEntries) {
-                reponseMap.put(name, content.toString());
+                responseMap.put(name, content.toString());
             } else {
                 if (!content.toString().trim().isEmpty()) {
-                    reponseMap.put(name, content.toString());
+                    responseMap.put(name, content.toString());
                 }
             }
         }
 
-        return reponseMap;
+        return responseMap;
     }
 
     /**
@@ -436,32 +440,33 @@ public class MBUtils {
      *
      * @return the created Document.
      */
+    @Nullable
     public static Document mapToDoc(final String rootElementNamespaceURI, final String rootElementName,
                                     final HashMap<String, String> paramsMap) {
         LOG.debug("Mapping to doc for element {} and namespace {}.", rootElementName, rootElementNamespaceURI);
-        Document document;
+        Document document = null;
 
         final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = null;
+        DocumentBuilder documentBuilder;
         try {
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            document = documentBuilder.newDocument();
+
+            final Element rootElement = document.createElementNS(rootElementNamespaceURI, rootElementName);
+            document.appendChild(rootElement);
+
+            Element mapElement;
+            for (final Entry<String, String> entry : paramsMap.entrySet()) {
+                mapElement = document.createElement(entry.getKey());
+                mapElement.setTextContent(entry.getValue());
+                rootElement.appendChild(mapElement);
+            }
+
+            return document;
         } catch (final ParserConfigurationException e) {
-            LOG.error("Some error occured.");
-            e.printStackTrace();
+            LOG.error("Some error occurred.", e);
         }
 
-        document = documentBuilder.newDocument();
-
-        final Element rootElement = document.createElementNS(rootElementNamespaceURI, rootElementName);
-        document.appendChild(rootElement);
-
-        Element mapElement;
-        for (final Entry<String, String> entry : paramsMap.entrySet()) {
-            mapElement = document.createElement(entry.getKey());
-            mapElement.setTextContent(entry.getValue());
-            rootElement.appendChild(mapElement);
-        }
-
-        return document;
+        return null;
     }
 }
