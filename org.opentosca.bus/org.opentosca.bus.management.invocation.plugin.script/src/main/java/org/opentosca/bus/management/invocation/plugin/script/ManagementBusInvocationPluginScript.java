@@ -117,16 +117,20 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
             final TRelationshipTemplate relationshipTemplate = ToscaEngine.getRelationshipTemplate(serviceTemplate, relationshipTemplateID).orElse(null);
             final TNodeTemplate nodeTemplate = getNodeTemplate(message, csar, relationshipTemplate, serviceTemplate, interfaceName, operationName);
             final TNodeType nodeType = ToscaEngine.resolveNodeTypeReference(csar, nodeTemplate.getType());
-            final TOperation operation = ToscaEngine.resolveOperation(nodeType, interfaceName, operationName);
+            final TOperation operation = ToscaEngine.resolveOperation(csar, nodeType, interfaceName, operationName);
 
-            return handleExchangeInternal(exchange, message, csarID, serviceTemplateID, csar, serviceTemplate, artifactTemplate, artifactType, nodeTemplate, nodeType, operation);
+            return handleExchangeInternal(exchange, message, csarID, serviceTemplateID, csar, serviceTemplate,
+                artifactTemplate, artifactType, nodeTemplate, nodeType, operation);
         } catch (NotFoundException e) {
             LOG.warn("Failed to resolve a strongly typed CSAR content reference, invocation failed!", e);
             return exchange;
         }
     }
 
-    private Exchange handleExchangeInternal(Exchange exchange, Message message, CsarId csarID, QName serviceTemplateID, Csar csar, TServiceTemplate serviceTemplate, TArtifactTemplate artifactTemplate, TArtifactType artifactType, TNodeTemplate nodeTemplate, TNodeType nodeType, TOperation operation) throws NotFoundException {
+    private Exchange handleExchangeInternal(Exchange exchange, Message message, CsarId csarID, QName serviceTemplateID,
+                                            Csar csar, TServiceTemplate serviceTemplate, TArtifactTemplate artifactTemplate,
+                                            TArtifactType artifactType, TNodeTemplate nodeTemplate, TNodeType nodeType,
+                                            TOperation operation) throws NotFoundException {
         if (artifactType == null || nodeTemplate == null) {
             LOG.warn("Could not determine ArtifactType of ArtifactTemplate: {}!", artifactTemplate.getId());
             return exchange;
@@ -173,7 +177,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
         headers.put(MBHeader.CSARID.toString(), csarID);
         headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
         headers.put(MBHeader.NODETEMPLATEID_STRING.toString(), osNodeTemplate.getIdFromIdOrNameField());
-        headers.put(MBHeader.INTERFACENAME_STRING.toString(), MBUtils.getInterfaceForOperatingSystemNodeType(osNodeType));
+        headers.put(MBHeader.INTERFACENAME_STRING.toString(), MBUtils.getInterfaceForOperatingSystemNodeType(csar, osNodeType));
         headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceID);
         headers.put(MBHeader.NODEINSTANCEID_STRING.toString(), nodeInstanceID);
 

@@ -243,7 +243,7 @@ public abstract class ToscaEngine {
         return typeRefs;
     }
 
-    public static TInterface resolveInterfaceAbstract(Csar csar, TEntityType type, String interfaceName) throws NotFoundException {
+    public static TInterface resolveInterface(Csar csar, TEntityType type, String interfaceName) throws NotFoundException {
         if (type instanceof TRelationshipType) {
             // This is only required in YAML mode which is not yet supported in the container...
             return resolveInterface((TRelationshipType) type, interfaceName);
@@ -256,10 +256,6 @@ public abstract class ToscaEngine {
 
     public static TInterface resolveInterface(TRelationshipType relationshipType, String interfaceName) throws NotFoundException {
         return resolveInterface(relationshipType.getInterfaces(), interfaceName);
-    }
-
-    public static TInterface resolveInterface(TNodeType nodeType, String interfaceName) throws NotFoundException {
-        return resolveInterface(nodeType.getInterfaces(), interfaceName);
     }
 
     private static TInterface resolveInterface(List<TInterface> interfaces, String interfaceName) throws NotFoundException {
@@ -277,8 +273,8 @@ public abstract class ToscaEngine {
             .orElseThrow(() -> new NotFoundException("Operation [" + operationName + "] was not found on the given Interface"));
     }
 
-    public static TOperation resolveOperation(TNodeType nodeType, String interfaceName, String operationName) throws NotFoundException {
-        return resolveOperation(resolveInterface(nodeType, interfaceName), operationName);
+    public static TOperation resolveOperation(Csar csar, TNodeType nodeType, String interfaceName, String operationName) throws NotFoundException {
+        return resolveOperation(ModelUtils.getInterfaceOfNodeType(csar, nodeType, interfaceName), operationName);
     }
 
     public static Optional<TRelationshipTemplate> getRelationshipTemplate(TServiceTemplate serviceTemplate, String localTemplateId) {

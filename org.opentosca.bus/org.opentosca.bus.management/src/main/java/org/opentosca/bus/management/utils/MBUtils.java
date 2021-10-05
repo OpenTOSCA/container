@@ -158,9 +158,14 @@ public class MBUtils {
         return isOs || isDocker;
     }
 
-    private static boolean doesInterfaceContainOperation(TNodeType nodeType, String interfaceName, String operationName) {
+    private static boolean doesInterfaceContainOperation(Csar csar, TNodeType nodeType, String interfaceName, String operationName) {
         try {
-            return doesInterfaceContainOperation(ToscaEngine.resolveInterface(nodeType, interfaceName), operationName);
+            TInterface tInterface = ToscaEngine.resolveInterface(csar, nodeType, interfaceName);
+            if (tInterface == null) {
+                return false;
+            }
+
+            return doesInterfaceContainOperation(tInterface, operationName);
         } catch (NotFoundException e) {
             return false;
         }
@@ -177,12 +182,12 @@ public class MBUtils {
      * @return a String containing the name of the OS interface, or if the given Node Type is not an OS Node Type null
      */
     @Nullable
-    public static String getInterfaceForOperatingSystemNodeType(final TNodeType nodeType) {
-        if (doesInterfaceContainOperation(nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
-            && doesInterfaceContainOperation(nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
+    public static String getInterfaceForOperatingSystemNodeType(Csar csar, final TNodeType nodeType) {
+        if (doesInterfaceContainOperation(csar, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
+            && doesInterfaceContainOperation(csar, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
             return Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM;
-        } else if (doesInterfaceContainOperation(nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
-            && doesInterfaceContainOperation(nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE)) {
+        } else if (doesInterfaceContainOperation(csar, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
+            && doesInterfaceContainOperation(csar, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE)) {
             return Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER;
         }
         return null;

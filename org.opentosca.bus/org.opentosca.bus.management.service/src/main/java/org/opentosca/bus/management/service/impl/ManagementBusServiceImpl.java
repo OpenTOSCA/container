@@ -417,7 +417,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         // check whether operation has output parameters
         final boolean hasOutputParams;
         try {
-            final TInterface nodeTypeInterface = ToscaEngine.resolveInterfaceAbstract(csar, type, neededInterface);
+            final TInterface nodeTypeInterface = ToscaEngine.resolveInterface(csar, type, neededInterface);
             final TOperation operation = ToscaEngine.resolveOperation(nodeTypeInterface, neededOperation);
             hasOutputParams = operation.getOutputParameters() != null
                 && !operation.getOutputParameters().isEmpty();
