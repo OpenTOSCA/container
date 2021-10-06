@@ -125,7 +125,7 @@ public class MBUtils {
          */
         final String[] values = propMap.get(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF).split(",");
         if (values.length != 2) {
-            LOG.warn("input format for instance reference was incorrect. Received value {}", values);
+            LOG.warn("input format for instance reference was incorrect. Received value {}", String.join(", ", values));
             // to avoid messing this up
             return nodeTemplateInstance;
         }
@@ -158,7 +158,8 @@ public class MBUtils {
     }
 
     private static boolean doesInterfaceContainOperation(Csar csar, TNodeType nodeType, String interfaceName, String operationName) {
-        return ToscaEngine.resolveInterface(csar, nodeType, interfaceName) != null;
+        TInterface tInterface = ToscaEngine.resolveInterface(csar, nodeType, interfaceName);
+        return tInterface != null && doesInterfaceContainOperation(tInterface, operationName);
     }
 
     private static boolean doesInterfaceContainOperation(TInterface tInterface, String operationName) {
