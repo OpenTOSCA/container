@@ -96,7 +96,6 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
 
         ServiceTemplateInstance serviceTemplateInstance = this.instanceService.createServiceTemplateInstance(csar.id().csarName(), serviceTemplate.getId());
         assertNotNull(serviceTemplateInstance);
-        assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
 
         serviceTemplateInstance = TestUtils.runAdaptationPlanExecution(this.planService, this.instanceService, csar, serviceTemplate, serviceTemplateInstance, buildPlan, this.getBuildPlanInputParameters(TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString())));
         assertNotNull(serviceTemplateInstance);
