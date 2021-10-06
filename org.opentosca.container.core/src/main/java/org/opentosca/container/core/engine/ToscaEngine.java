@@ -243,27 +243,27 @@ public abstract class ToscaEngine {
         return typeRefs;
     }
 
-    public static TInterface resolveInterface(Csar csar, TEntityType type, String interfaceName) throws NotFoundException {
+    public static TInterface resolveInterface(Csar csar, TEntityType type, String interfaceName) {
         if (type instanceof TRelationshipType) {
             // This is only required in YAML mode which is not yet supported in the container...
             return resolveInterface((TRelationshipType) type, interfaceName);
         } else if (type instanceof TNodeType) {
             return ModelUtils.getInterfaceOfNodeType(csar, (TNodeType) type, interfaceName);
-        } else {
-            throw new NotFoundException("The given EntityType was not a RelationshipType or NodeType");
         }
+        LOG.error("The given EntityType was not a RelationshipType or NodeType!");
+        return null;
     }
 
-    public static TInterface resolveInterface(TRelationshipType relationshipType, String interfaceName) throws NotFoundException {
+    public static TInterface resolveInterface(TRelationshipType relationshipType, String interfaceName) {
         return resolveInterface(relationshipType.getInterfaces(), interfaceName);
     }
 
-    private static TInterface resolveInterface(List<TInterface> interfaces, String interfaceName) throws NotFoundException {
+    private static TInterface resolveInterface(List<TInterface> interfaces, String interfaceName) {
         return Stream.of(Optional.ofNullable(interfaces))
             .flatMap(opt -> opt.orElse(Collections.emptyList()).stream())
             .filter(anInterface -> anInterface.getName().equals(interfaceName))
             .findFirst()
-            .orElseThrow(() -> new NotFoundException("Interface [" + interfaceName + "] was not found in the given EntityType"));
+            .orElse(null);
     }
 
     public static TOperation resolveOperation(TInterface tInterface, String operationName) throws NotFoundException {
@@ -308,8 +308,6 @@ public abstract class ToscaEngine {
             LOG.warn("Could not resolve type hierarchy for known NodeType");
             return Collections.emptyList();
         }
-        // FIXME this is a bit weird, because it resolves the implementations of the whole type hierarchy,
-        //  but that matches the previous implementation, soo ...
 
         // keep NodeTypeImplementations in hierarchy order avoiding using an overwritten implementation
         List<TNodeTypeImplementation> result = new ArrayList<>();
@@ -371,7 +369,7 @@ public abstract class ToscaEngine {
     public static TArtifactType resolveArtifactType(Csar csar, QName artifactTypeId) throws NotFoundException {
         TArtifactType result = (TArtifactType) csar.queryRepository(new ArtifactTypeId(artifactTypeId));
         if (result == null) {
-            throw new NotFoundException(String.format("Csar [{}] does not contain the ArtifactType [{}]", csar.id().csarName(), artifactTypeId));
+            throw new NotFoundException(String.format("Csar [%s] does not contain the ArtifactType [%s]", csar.id().csarName(), artifactTypeId));
         }
         return result;
     }

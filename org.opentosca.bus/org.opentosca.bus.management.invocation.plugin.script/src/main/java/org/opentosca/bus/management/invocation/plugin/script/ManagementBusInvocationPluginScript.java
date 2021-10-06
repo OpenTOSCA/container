@@ -150,12 +150,14 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
 
         if (osNodeTemplate.getType().equals(Types.abstractOperatingSystemNodeType)) {
             final NodeTemplateInstance abstractOSInstance = MBUtils.getNodeTemplateInstance(serviceTemplateInstanceId, osNodeTemplate);
-            final NodeTemplateInstance replacementInstance = MBUtils.getAbstractOSReplacementInstance(abstractOSInstance);
-            if (replacementInstance != null) {
-                // overwrite computed intermediate result based on replacement
-                csar = storage.findById(replacementInstance.getServiceTemplateInstance().getCsarId());
-                serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, replacementInstance.getServiceTemplateInstance().getTemplateId());
-                osNodeTemplate = ToscaEngine.resolveNodeTemplate(serviceTemplate, replacementInstance.getTemplateId());
+            if (abstractOSInstance != null) {
+                final NodeTemplateInstance replacementInstance = MBUtils.getAbstractOSReplacementInstance(abstractOSInstance);
+                if (replacementInstance != null) {
+                    // overwrite computed intermediate result based on replacement
+                    csar = storage.findById(replacementInstance.getServiceTemplateInstance().getCsarId());
+                    serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, replacementInstance.getServiceTemplateInstance().getTemplateId());
+                    osNodeTemplate = ToscaEngine.resolveNodeTemplate(serviceTemplate, replacementInstance.getTemplateId());
+                }
             }
         }
         final TNodeType osNodeType = ToscaEngine.resolveNodeTypeReference(csar, osNodeTemplate.getType());
@@ -215,7 +217,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
             final String fileNameWithE = FilenameUtils.getName(targetFilePath);
             final String fileNameWithoutE = FilenameUtils.getBaseName(targetFilePath);
 
-            String artifactTypeSpecificCommand = createArtifactTypeSpecificCommandString(csar, artifactType, artifactTemplate, params);
+            String artifactTypeSpecificCommand = createArtifactTypeSpecificCommandString(artifactType, artifactTemplate, params);
             LOG.debug("Replacing further generic placeholder...");
             // replace placeholders
             artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_TARGET_FILE_PATH, targetFilePath);
@@ -226,7 +228,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
                 createDANamePathMapEnvVar(csar, nodeType, nodeTemplate) + " CSAR='" + csarID + "' NodeInstanceID='" + nodeInstanceID + "' ServiceInstanceID='" + serviceInstanceID + "' ");
             artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_DA_INPUT_PARAMETER, createParamsString(params));
 
-            if (!Boolean.valueOf(Settings.OPENTOSCA_ENGINE_IA_KEEPFILES)) {
+            if (!Boolean.parseBoolean(Settings.OPENTOSCA_ENGINE_IA_KEEPFILES)) {
                 // delete the uploaded file on the remote site to save resources
                 final String deleteFileCommand = "; rm -f " + targetFilePath;
                 artifactTypeSpecificCommand = artifactTypeSpecificCommand + deleteFileCommand;
@@ -241,7 +243,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
             addOutputParametersToResultMap(resultMap, result, operation);
         }
 
-        if (!Boolean.valueOf(Settings.OPENTOSCA_ENGINE_IA_KEEPFILES)) {
+        if (!Boolean.parseBoolean(Settings.OPENTOSCA_ENGINE_IA_KEEPFILES)) {
             // remove the created directories
             LOG.debug("Deleting directories...");
             final String deleteDirsCommand = "find " + targetBasePath + " -empty -type d -delete";
@@ -263,7 +265,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
         String nodeTemplateID = message.getHeader(MBHeader.NODETEMPLATEID_STRING.toString(), String.class);
         LOG.debug("NodeTemplateID: {}", nodeTemplateID);
         if (nodeTemplateID == null && relationshipTemplate != null) {
-            // backfill the node template from the relationship template
+            // fill the node template from the relationship template
             final TRelationshipType relationshipType = ToscaEngine.resolveRelationshipTypeReference(csar, relationshipTemplate.getType());
             final boolean isBoundToSourceNode = ToscaEngine.isOperationBoundToSourceNode(relationshipType, interfaceName, operationName);
             return isBoundToSourceNode
@@ -274,7 +276,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
     }
 
     /**
-     * Check if the output parameters for this script service operation are returned in the script result and add them
+     * Check if the output parameters for this script service operation are returned to the script result and add them
      * to the result map.
      *
      * @param resultMap The result map which is returned for the invocation of the script service operation
@@ -306,7 +308,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
         final String scriptResultString = scriptResult.toString();
         LOG.debug("{}: {}", ManagementBusInvocationPluginScript.RUN_SCRIPT_OUTPUT_PARAMETER_NAME, scriptResultString);
 
-        // split result on line breaks as every parameter is returned in a separate "echo" command
+        // split result in line breaks as every parameter is returned in a separate "echo" command
         final String[] resultParameters = scriptResultString.split("[\\r\\n]+");
 
         // add each parameter that is defined in the operation and passed back
@@ -366,10 +368,10 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
                 }
             }
         }
-        String daEnvMap = "";
+        StringBuilder daEnvMap = new StringBuilder();
         if (!daNameReferenceMapping.isEmpty()) {
             LOG.debug("NodeTemplate {} has {} DAs.", nodeTemplate.getName(), daNameReferenceMapping.size());
-            daEnvMap += "DAs=\"";
+            daEnvMap.append("DAs=\"");
             for (final Entry<String, List<String>> da : daNameReferenceMapping.entrySet()) {
                 final String daName = da.getKey();
                 final List<String> daRefs = da.getValue();
@@ -378,15 +380,15 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
                     if (!daRef.startsWith("/")) {
                         daRef = "/" + daRef;
                     }
-                    daEnvMap += daName + "," + daRef + ";";
+                    daEnvMap.append(daName).append(",").append(daRef).append(";");
                 }
             }
-            daEnvMap += "\" ";
+            daEnvMap.append("\" ");
             LOG.debug("Created DA-DANamePathMapEnvVar for NodeTemplate {} : {}",
                 nodeTemplate.getName(), daEnvMap);
         }
 
-        return daEnvMap;
+        return daEnvMap.toString();
     }
 
     /**
@@ -396,7 +398,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
     private void installPackages(final TArtifactType artifactType, final Map<String, Object> headers) {
         final List<String> requiredPackages = typesHandler.getRequiredPackages(artifactType.getQName());
         if (requiredPackages.isEmpty()) {
-            LOG.debug("ArtifactType: {} needs no packages to install.", requiredPackages, artifactType);
+            LOG.debug("ArtifactType: {} needs no packages to install.", artifactType);
             return;
         }
 
@@ -450,8 +452,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
      *
      * @return the created command
      */
-    private String createArtifactTypeSpecificCommandString(final Csar csar,
-                                                           final TArtifactType artifactType,
+    private String createArtifactTypeSpecificCommandString(final TArtifactType artifactType,
                                                            final TArtifactTemplate artifactTemplate,
                                                            final Object params) {
         LOG.debug("Creating ArtifactType specific command for artifactType {}:...", artifactType);
@@ -503,17 +504,17 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
             paramsMap = MBUtils.docToMap(paramsDoc, true);
         }
 
-        String paramsString = "";
+        StringBuilder paramsString = new StringBuilder();
         for (final Entry<String, String> param : paramsMap.entrySet()) {
             // info:
             // https://stackoverflow.com/questions/3005963/how-can-i-have-a-newline-in-a-string-in-sh
             // https://stackoverflow.com/questions/1250079/how-to-escape-single-quotes-within-single-quoted-strings
             // we have to escape single quotes in the parameter values and properly pipe newlines
-            // TODO(?) There is still the issue if you use commands in scipt which don't interpret backslashes
-            paramsString += param.getKey() + "=$'" + escapeSpecialCharacters(param.getValue()) + "' ";
+            // TODO(?) There is still the issue if you use commands in script which don't interpret backslashes
+            paramsString.append(param.getKey()).append("=$'").append(escapeSpecialCharacters(param.getValue())).append("' ");
         }
 
-        return paramsString;
+        return paramsString.toString();
     }
 
     /**
@@ -524,8 +525,8 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
      *
      * @return a String with escaped singles quotes
      */
-    private String escapeSpecialCharacters(final String unenscapedString) {
-        return unenscapedString.replace("'", "'\"'\"'")
+    private String escapeSpecialCharacters(final String unescapedString) {
+        return unescapedString.replace("'", "'\"'\"'")
             .replace("\n", "'\"\\n\"'")
             .replace("\t", "'\"\\t\"'")
             .replace(" ", "'\" \"'");

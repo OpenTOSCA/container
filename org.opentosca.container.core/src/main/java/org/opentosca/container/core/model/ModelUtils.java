@@ -418,7 +418,7 @@ public abstract class ModelUtils {
     }
 
     /**
-     * Adds InfrastructureNodes of the given RelaitonshipTemplate to the given List of NodeTemplates
+     * Adds InfrastructureNodes of the given RelationshipTemplate to the given List of NodeTemplates
      *
      * @param relationshipTemplate an TRelationshipTemplate to search its InfrastructureNodes
      * @param infrastructureNodes  a List of TNodeTemplate where the InfrastructureNodes will be added
@@ -443,7 +443,7 @@ public abstract class ModelUtils {
      * @return a QName which represents the baseType of the given NodeTemplate
      */
     public static QName getNodeBaseType(final TNodeTemplate nodeTemplate, Csar csar) {
-        ModelUtils.LOG.debug("Beginning search for basetype of: " + nodeTemplate.getId());
+        ModelUtils.LOG.debug("Beginning search for base type of: " + nodeTemplate.getId());
         final List<QName> typeHierarchy = ModelUtils.getNodeTypeHierarchy(nodeTemplate.getType(), csar);
         for (final QName type : typeHierarchy) {
             ModelUtils.LOG.debug("Checking Type in Hierarchy, type: " + type.toString());
@@ -453,12 +453,12 @@ public abstract class ModelUtils {
                 return type;
             }
         }
-        // FIXME: when there are no basetypes we're screwed
+        // FIXME: when there are no base types we're screwed
         return typeHierarchy.get(typeHierarchy.size() - 1);
     }
 
     public static TNodeType getNodeBaseType(Csar csar, final TNodeTemplate nodeTemplate) {
-        LOG.debug("Beginning search for basetype of: " + nodeTemplate.getId());
+        LOG.debug("Beginning search for base type of: " + nodeTemplate.getId());
         final List<TNodeType> typeHierarchy;
         try {
             typeHierarchy = ToscaEngine.resolveNodeTypeHierarchy(csar, nodeTemplate);
@@ -494,7 +494,7 @@ public abstract class ModelUtils {
         for (final TRelationshipTemplate outgoingTemplate : getOutgoingRelations(nodeTemplate, csar)) {
             if (outgoingTemplate.getType().equals(Types.connectsToRelationType)) {
                 // we skip connectTo relations, as they are connecting stacks
-                // and make the result even more ambigious
+                // and make the result even more ambitious
                 continue;
             }
             ModelUtils.getNodesFromRelationToSink(outgoingTemplate, nodes, csar);
@@ -509,7 +509,7 @@ public abstract class ModelUtils {
             if (ModelUtils.getRelationshipTypeHierarchy(outgoingTemplate.getType(), csar)
                 .contains(relationshipType)) {
                 // we skip connectTo relations, as they are connecting stacks
-                // and make the result even more ambigious
+                // and make the result even more ambitious
                 ModelUtils.getNodesFromRelationToSink(outgoingTemplate, nodes, csar);
             }
         }
@@ -522,7 +522,7 @@ public abstract class ModelUtils {
         for (final TRelationshipTemplate ingoingTemplate : getIngoingRelations(nodeTemplate, csar)) {
             if (ingoingTemplate.getType().equals(Types.connectsToRelationType)) {
                 // we skip connectTo relations, as they are connecting stacks
-                // and make the result even more ambigious
+                // and make the result even more ambitious
                 continue;
             }
             ModelUtils.getNodesFromRelationToSources(ingoingTemplate, nodes, csar);
@@ -531,7 +531,7 @@ public abstract class ModelUtils {
     }
 
     /**
-     * Returns all NodeTemplates from the given RelationshipTemplate going along all occuring Relationships using the
+     * Returns all NodeTemplates from the given RelationshipTemplate going along all occurring Relationships using the
      * Target
      *
      * @param relationshipTemplate an TRelationshipTemplate
@@ -544,7 +544,7 @@ public abstract class ModelUtils {
         for (final TRelationshipTemplate outgoingTemplate : getOutgoingRelations(nodeTemplate, csar)) {
             if (isCommunicationRelationshipType(outgoingTemplate.getType())) {
                 // we skip connectTo relations, as they are connecting stacks
-                // and make the result even more ambigious
+                // and make the result even more ambitious
                 continue;
             }
             ModelUtils.getNodesFromRelationToSink(outgoingTemplate, nodes, csar);
@@ -668,7 +668,7 @@ public abstract class ModelUtils {
      * @return a QName representing the baseType of the given RelationshipTemplate
      */
     public static QName getRelationshipBaseType(final TRelationshipTemplate relationshipTemplate, Csar csar) {
-        ModelUtils.LOG.debug("Beginning search for basetype of: " + relationshipTemplate.getId());
+        ModelUtils.LOG.debug("Beginning search for base type of: " + relationshipTemplate.getId());
         final List<QName> typeHierarchy =
             ModelUtils.getRelationshipTypeHierarchy(relationshipTemplate.getType(), csar);
         for (final QName type : typeHierarchy) {
@@ -683,12 +683,12 @@ public abstract class ModelUtils {
                 return type;
             }
         }
-        // FIXME: when there are no basetypes we're screwed
+        // FIXME: when there are no base types we're screwed
         return typeHierarchy.get(typeHierarchy.size() - 1);
     }
 
     /**
-     * Returns a ordered list of QNames. The order represents the inheritance of RelationshipTypes defining the given
+     * Returns an ordered list of QNames. The order represents the inheritance of RelationshipTypes defining the given
      * RelationshipType. E.g. Relationship "someRelationType" and it inherits properties from "someOtherRelationType".
      * The returns list would have {someNs}someRelationType,{someNs}someOtherRelationType inside, in the exact same
      * order. Var
@@ -741,21 +741,21 @@ public abstract class ModelUtils {
     }
 
     /**
-     * Looks for a childelement with an attribute with the given name and value
+     * Looks for a child element with an attribute with the given name and value
      *
      * @param element        the element to look in
      * @param attributeName  the name of the attribute
      * @param attributeValue the value of the attribute
-     * @return true if the given element has a child element with an attribute where attrname.equals(attributeName) &
-     * attr.value(attributeValue), else false
+     * @return true if the given element has a child element with an attribute where attributeName.equals(attributeName) &
+     * attribute.value.equals(attributeValue), else false
      */
     public static boolean hasChildElementWithAttribute(final Element element, final String attributeName,
                                                        final String attributeValue) {
         if (element == null) {
             return false;
         }
-        for (int i = 0; i < element.getChildNodes().getLength(); i++) {
-            final Node child = element.getChildNodes().item(i);
+        for (int index = 0; index < element.getChildNodes().getLength(); index++) {
+            final Node child = element.getChildNodes().item(index);
             if (child.getAttributes().getNamedItem(attributeName) != null
                 && child.getAttributes().getNamedItem(attributeName).getNodeValue().equals(attributeValue)) {
                 return true;
@@ -770,8 +770,8 @@ public abstract class ModelUtils {
 
     public static boolean isInfrastructureRelationshipType(final QName relationshipType) {
         return relationshipType.equals(Types.dependsOnRelationType)
-            | relationshipType.equals(Types.hostedOnRelationType)
-            | relationshipType.equals(Types.deployedOnRelationType);
+            || relationshipType.equals(Types.hostedOnRelationType)
+            || relationshipType.equals(Types.deployedOnRelationType);
     }
 
     public static Collection<String> getPropertyNames(final TNodeTemplate nodeTemplate) {
@@ -848,8 +848,7 @@ public abstract class ModelUtils {
     }
 
     private static TInterface getInterfaceOfNodeType(Csar csar, TNodeType startingNodeType, String interfaceName, TInterface interfaceOfStartingNodeType) {
-
-        // search for the interface at the current NodeType
+        // Search for the interface at the current NodeType
         TInterface foundLifecycleInterface = Objects.nonNull(startingNodeType.getInterfaces()) ?
             startingNodeType.getInterfaces().stream()
                 .filter(anInterface -> anInterface.getName().equals(interfaceName))
@@ -857,19 +856,18 @@ public abstract class ModelUtils {
                 .orElse(null)
             : null;
 
-        // use the interface with the given name at the lowest hierarchy level
+        // Use the interface with the given name at the lowest hierarchy level
         TInterface baseInterface = Objects.nonNull(interfaceOfStartingNodeType)
             ? interfaceOfStartingNodeType
             : foundLifecycleInterface;
         List<TOperation> overriddenOperations = Objects.nonNull(interfaceOfStartingNodeType)
-            // we need a new List, as it is otherwise updated in the loop afterwards
+            // We need a new List, as it is otherwise updated in the loop afterwards
             ? new ArrayList<>(interfaceOfStartingNodeType.getOperations())
             : new ArrayList<>();
 
         // add operations from NodeTypes in the hierarchy if they are not already defined
         if (Objects.nonNull(foundLifecycleInterface)) {
             for (TOperation operation : foundLifecycleInterface.getOperations()) {
-
                 // check if the operation is overwritten by a deriving NodeType and add operation otherwise
                 if (baseInterface.getOperations().stream().noneMatch(op -> op.getName().equals(operation.getName()))) {
                     baseInterface.getOperations().add(operation);
@@ -885,6 +883,7 @@ public abstract class ModelUtils {
                 .collect(Collectors.toList());
             List<String> notRealizedOperations = new ArrayList<>();
             List<String> realizedOperations = new ArrayList<>();
+
             for (List<TImplementationArtifact> implementationArtifacts : implementations) {
                 if (implementationArtifacts != null) {
                     if (implementationArtifacts.stream().anyMatch(ia -> ia.getInterfaceName() == null && ia.getOperationName() == null)) {
@@ -941,10 +940,13 @@ public abstract class ModelUtils {
             }
         }
 
-        // check if NodeType has a parent and recursively search for further interfaces/operations
+        // Check if NodeType has a parent and recursively search for further interfaces/operations
         TEntityType.DerivedFrom derivedFrom = startingNodeType.getDerivedFrom();
         if (Objects.nonNull(derivedFrom)) {
-            TNodeType parentNodeType = csar.nodeTypes().stream().filter(type -> type.getQName().equals(derivedFrom.getTypeRef())).findFirst().orElse(null);
+            TNodeType parentNodeType = csar.nodeTypes().stream()
+                .filter(type -> type.getQName().equals(derivedFrom.getTypeRef()))
+                .findFirst()
+                .orElse(null);
             if (Objects.nonNull(parentNodeType)) {
                 return getInterfaceOfNodeType(csar, parentNodeType, interfaceName, baseInterface);
             }
@@ -963,9 +965,9 @@ public abstract class ModelUtils {
      */
     public static TOperation getOperationOfNode(final TNodeTemplate nodeTemplate,
                                                 final String interfaceName, final String operationName, Csar csar) {
-        final TInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, interfaceName, csar);
-        if (Objects.nonNull(iface)) {
-            return iface.getOperations().stream().filter(op -> op.getName().equals(operationName)).findFirst()
+        final TInterface tInterface = ModelUtils.getInterfaceOfNode(nodeTemplate, interfaceName, csar);
+        if (Objects.nonNull(tInterface)) {
+            return tInterface.getOperations().stream().filter(op -> op.getName().equals(operationName)).findFirst()
                 .orElse(null);
         } else {
             LOG.debug("Unable to find interface {} for NodeTemplate {}", interfaceName, nodeTemplate.getName());

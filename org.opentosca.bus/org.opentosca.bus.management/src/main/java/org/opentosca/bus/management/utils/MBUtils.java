@@ -27,7 +27,6 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Properties;
 import org.opentosca.container.core.convention.Types;
@@ -159,16 +158,7 @@ public class MBUtils {
     }
 
     private static boolean doesInterfaceContainOperation(Csar csar, TNodeType nodeType, String interfaceName, String operationName) {
-        try {
-            TInterface tInterface = ToscaEngine.resolveInterface(csar, nodeType, interfaceName);
-            if (tInterface == null) {
-                return false;
-            }
-
-            return doesInterfaceContainOperation(tInterface, operationName);
-        } catch (NotFoundException e) {
-            return false;
-        }
+        return ToscaEngine.resolveInterface(csar, nodeType, interfaceName) != null;
     }
 
     private static boolean doesInterfaceContainOperation(TInterface tInterface, String operationName) {
@@ -419,14 +409,7 @@ public class MBUtils {
         for (Node node = iterator.nextNode(); node != null; node = iterator.nextNode()) {
 
             final String name = node.getLocalName();
-            final StringBuilder content = new StringBuilder();
-            final NodeList children = node.getChildNodes();
-            for (int i = 0; i < children.getLength(); i++) {
-                final Node child = children.item(i);
-                if (child.getNodeType() == Node.TEXT_NODE) {
-                    content.append(child.getTextContent());
-                }
-            }
+            final StringBuilder content = createStringFromNode(node);
 
             if (allowEmptyEntries) {
                 responseMap.put(name, content.toString());
@@ -440,6 +423,18 @@ public class MBUtils {
         return responseMap;
     }
 
+    public static StringBuilder createStringFromNode(Node node) {
+        final StringBuilder content = new StringBuilder();
+        final NodeList children = node.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            final Node child = children.item(i);
+            if (child.getNodeType() == Node.TEXT_NODE) {
+                content.append(child.getTextContent());
+            }
+        }
+        return content;
+    }
+
     /**
      * Transfers the paramsMap into a Document.
      *
@@ -449,7 +444,7 @@ public class MBUtils {
     public static Document mapToDoc(final String rootElementNamespaceURI, final String rootElementName,
                                     final HashMap<String, String> paramsMap) {
         LOG.debug("Mapping to doc for element {} and namespace {}.", rootElementName, rootElementNamespaceURI);
-        Document document = null;
+        Document document;
 
         final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder documentBuilder;
