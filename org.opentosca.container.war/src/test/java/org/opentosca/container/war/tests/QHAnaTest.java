@@ -1,5 +1,9 @@
 package org.opentosca.container.war.tests;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -72,6 +76,25 @@ public class QHAnaTest {
 
         assertNotNull(serviceTemplateInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
+
+        HttpClient httpClient = HttpClient.newHttpClient();
+        HttpResponse<String> uiResponse = httpClient.sendAsync(
+                HttpRequest.newBuilder(URI.create("http://localhost:9999")).build(),
+                HttpResponse.BodyHandlers.ofString())
+            .join();
+        assertEquals(200, uiResponse.statusCode());
+
+        HttpResponse<String> backendResponse = httpClient.sendAsync(
+                HttpRequest.newBuilder(URI.create("http://localhost:9998")).build(),
+                HttpResponse.BodyHandlers.ofString())
+            .join();
+        assertEquals(200, backendResponse.statusCode());
+
+        HttpResponse<String> pluginRunnerResponse = httpClient.sendAsync(
+                HttpRequest.newBuilder(URI.create("http://localhost:9997")).build(),
+                HttpResponse.BodyHandlers.ofString())
+            .join();
+        assertEquals(200, pluginRunnerResponse.statusCode());
     }
 
     private List<TParameter> getBuildPlanInputParameters() {
