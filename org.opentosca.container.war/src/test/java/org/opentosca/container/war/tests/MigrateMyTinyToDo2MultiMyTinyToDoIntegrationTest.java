@@ -27,6 +27,7 @@ import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.war.Application;
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
@@ -114,15 +116,18 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         assertNotNull("TerminationPlan not found", multiTinyTerminationPlan);
 
         ServiceTemplateInstance myTinyToDoServiceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoBuildPlan, this.getMyTinyToDoBuildPlanInputParameters());
+        assertNotNull(myTinyToDoServiceTemplateInstance);
+        assertEquals(ServiceTemplateInstanceState.CREATED, myTinyToDoServiceTemplateInstance.getState());
         String myTinyToDoServiceInstanceUrl = TestUtils.createServiceInstanceUrl(myTinyToDoCsar.id().csarName(), myTinyToDoServiceTemplate.getId(), myTinyToDoServiceTemplateInstance.getId().toString());
         this.checkStateAfterBuild(myTinyToDoServiceTemplateInstance);
 
         ServiceTemplateInstance multiInstance = this.runTransformationPlan(this.planService, this.instanceService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoServiceTemplateInstance, myTinyToMultiTinyTransformationPlan, this.getTransformationPlanInputParameters(myTinyToDoServiceInstanceUrl));
         assertNotNull(multiInstance);
-        String multMyTinyToDoServiceInstanceUrl = TestUtils.createServiceInstanceUrl(multiMyTinyToDoCsar.id().csarName(), multiMyTinyToDoServiceTemplate.getId(), multiInstance.getId().toString());
+        assertEquals(ServiceTemplateInstanceState.CREATED, multiInstance.getState());
+        String multiMyTinyToDoServiceInstanceUrl = TestUtils.createServiceInstanceUrl(multiMyTinyToDoCsar.id().csarName(), multiMyTinyToDoServiceTemplate.getId(), multiInstance.getId().toString());
         this.checkStateAfterMigration(multiInstance);
 
-        TestUtils.runTerminationPlanExecution(this.planService, multiMyTinyToDoCsar, multMyTinyToDoServiceInstanceUrl, multiMyTinyToDoServiceTemplate, multiInstance, multiTinyTerminationPlan);
+        TestUtils.runTerminationPlanExecution(this.planService, multiMyTinyToDoCsar, multiMyTinyToDoServiceInstanceUrl, multiMyTinyToDoServiceTemplate, multiInstance, multiTinyTerminationPlan);
 
         TestUtils.clearContainer(this.storage, this.control);
     }

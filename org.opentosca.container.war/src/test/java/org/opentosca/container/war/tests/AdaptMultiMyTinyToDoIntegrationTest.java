@@ -23,12 +23,14 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.war.Application;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
@@ -94,6 +96,7 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
 
         ServiceTemplateInstance serviceTemplateInstance = this.instanceService.createServiceTemplateInstance(csar.id().csarName(), serviceTemplate.getId());
         assertNotNull(serviceTemplateInstance);
+        assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
 
         serviceTemplateInstance = TestUtils.runAdaptationPlanExecution(this.planService, this.instanceService, csar, serviceTemplate, serviceTemplateInstance, buildPlan, this.getBuildPlanInputParameters(TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString())));
         assertNotNull(serviceTemplateInstance);
@@ -114,8 +117,8 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
         Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
         Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
 
-        Assert.assertEquals(4, nodeTemplateInstances.size());
-        Assert.assertEquals(3, relationshipTemplateInstances.size());
+        assertEquals(4, nodeTemplateInstances.size());
+        assertEquals(3, relationshipTemplateInstances.size());
 
         int foundDockerEngine = 0;
         int foundTinyToDo = 0;
@@ -128,8 +131,8 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
             }
         }
 
-        Assert.assertEquals(1, foundDockerEngine);
-        Assert.assertEquals(3, foundTinyToDo);
+        assertEquals(1, foundDockerEngine);
+        assertEquals(3, foundTinyToDo);
 
         TestUtils.checkViaHTTPGET("http://localhost:9990", 200, "My Tiny Todolist");
         TestUtils.checkViaHTTPGET("http://localhost:9991", 200, "My Tiny Todolist");

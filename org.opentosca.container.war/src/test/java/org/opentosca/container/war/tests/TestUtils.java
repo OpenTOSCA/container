@@ -47,13 +47,16 @@ import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestUtils {
+public abstract class TestUtils {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(TestUtils.class);
 
     public static Csar setupCsarTestRepository(QName csarId, CsarStorageService storage) throws Exception {
+        return setupCsarTestRepository(csarId, storage, Settings.OPENTOSCA_TEST_REMOTE_REPOSITORY_URL);
+    }
+
+    public static Csar setupCsarTestRepository(QName csarId, CsarStorageService storage, String testRemoteRepositoryUrl) throws Exception {
         String testLocalRepositoryPath = Settings.OPENTOSCA_TEST_LOCAL_REPOSITORY_PATH;
-        String testRemoteRepositoryUrl = Settings.OPENTOSCA_TEST_REMOTE_REPOSITORY_URL;
 
         Path repositoryPath;
         if (testLocalRepositoryPath != null && !testLocalRepositoryPath.isEmpty()) {
