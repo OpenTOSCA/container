@@ -3,19 +3,14 @@ package org.opentosca.container.war.tests;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
-import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -24,8 +19,6 @@ import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.control.OpenToscaControlService;
-import org.opentosca.container.core.common.SystemException;
-import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.PlanInstance;
@@ -41,6 +34,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = {Application.class})
@@ -64,7 +59,7 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
     public InstanceService instanceService;
 
     @Test
-    public void test() throws InterruptedException, ExecutionException, RepositoryCorruptException, IOException, SystemException, AccountabilityException, UserException, GitAPIException {
+    public void test() throws Exception {
         Csar myTinyToDoCsar = TestUtils.setupCsarTestRepository(this.myTinyToDocsarId, this.storage);
         Csar multiMyTinyToDoCsar = TestUtils.setupCsarTestRepository(this.multiMyTinyToDoCsarId, this.storage);
         TestUtils.generatePlans(this.csarService, myTinyToDoCsar);
@@ -82,9 +77,12 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         TPlan myTinyToMultiTinyTransformationPlan = null;
         TPlan multiTinyTerminationPlan = null;
 
+        assertNotNull(myTinyToDoServiceTemplate);
+        assertNotNull(multiMyTinyToDoServiceTemplate);
         List<TPlan> myTinyToDoPlans = myTinyToDoServiceTemplate.getPlans();
         List<TPlan> multiMyTinyToDoPlans = multiMyTinyToDoServiceTemplate.getPlans();
 
+        assertNotNull(myTinyToDoPlans);
         for (TPlan plan : myTinyToDoPlans) {
             PlanType type = PlanType.fromString(plan.getPlanType());
             switch (type) {
@@ -101,28 +99,26 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
             }
         }
 
+        assertNotNull(multiMyTinyToDoPlans);
         for (TPlan plan : multiMyTinyToDoPlans) {
             PlanType type = PlanType.fromString(plan.getPlanType());
-            switch (type) {
-                case TERMINATION:
-                    if (!plan.getId().toLowerCase().contains("freeze")) {
-                        multiTinyTerminationPlan = plan;
-                    }
-                    break;
-                default:
-                    break;
+            if (type == PlanType.TERMINATION) {
+                if (!plan.getId().toLowerCase().contains("freeze")) {
+                    multiTinyTerminationPlan = plan;
+                }
             }
         }
 
-        Assert.assertNotNull("BuildPlan not found", myTinyToDoBuildPlan);
-        Assert.assertNotNull("TransformationPlan not found", myTinyToMultiTinyTransformationPlan);
-        Assert.assertNotNull("TerminationPlan not found", multiTinyTerminationPlan);
+        assertNotNull("BuildPlan not found", myTinyToDoBuildPlan);
+        assertNotNull("TransformationPlan not found", myTinyToMultiTinyTransformationPlan);
+        assertNotNull("TerminationPlan not found", multiTinyTerminationPlan);
 
         ServiceTemplateInstance myTinyToDoServiceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoBuildPlan, this.getMyTinyToDoBuildPlanInputParameters());
         String myTinyToDoServiceInstanceUrl = TestUtils.createServiceInstanceUrl(myTinyToDoCsar.id().csarName(), myTinyToDoServiceTemplate.getId(), myTinyToDoServiceTemplateInstance.getId().toString());
         this.checkStateAfterBuild(myTinyToDoServiceTemplateInstance);
 
         ServiceTemplateInstance multiInstance = this.runTransformationPlan(this.planService, this.instanceService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoServiceTemplateInstance, myTinyToMultiTinyTransformationPlan, this.getTransformationPlanInputParameters(myTinyToDoServiceInstanceUrl));
+        assertNotNull(multiInstance);
         String multMyTinyToDoServiceInstanceUrl = TestUtils.createServiceInstanceUrl(multiMyTinyToDoCsar.id().csarName(), multiMyTinyToDoServiceTemplate.getId(), multiInstance.getId().toString());
         this.checkStateAfterMigration(multiInstance);
 
@@ -166,9 +162,7 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
             transformationPlanInstance = planService.getPlanInstance(transformationPlanInstance.getId());
         }
 
-        Iterator<PlanInstanceOutput> iter = transformationPlanInstance.getOutputs().iterator();
-        while (iter.hasNext()) {
-            PlanInstanceOutput output = iter.next();
+        for (PlanInstanceOutput output : transformationPlanInstance.getOutputs()) {
             if (output.getName().equals("instanceId")) {
                 String serviceInstanceId = output.getValue();
                 return instanceService.getServiceTemplateInstance(Long.valueOf(serviceInstanceId), false);
@@ -181,8 +175,8 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
         Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
 
-        Assert.assertTrue(nodeTemplateInstances.size() == 2);
-        Assert.assertTrue(relationshipTemplateInstances.size() == 1);
+        Assert.assertEquals(2, nodeTemplateInstances.size());
+        Assert.assertEquals(1, relationshipTemplateInstances.size());
 
         int foundDockerEngine = 0;
         int foundTinyToDo = 0;
@@ -195,8 +189,8 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
             }
         }
 
-        Assert.assertTrue(foundDockerEngine == 1);
-        Assert.assertTrue(foundTinyToDo == 1);
+        Assert.assertEquals(1, foundDockerEngine);
+        Assert.assertEquals(1, foundTinyToDo);
 
         TestUtils.checkViaHTTPGET("http://localhost:9990", 200, "My Tiny Todolist");
     }
