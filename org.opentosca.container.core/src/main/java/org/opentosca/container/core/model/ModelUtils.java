@@ -160,7 +160,7 @@ public abstract class ModelUtils {
      * @param doc a DOM Document
      * @return a String representation of the complete Document given
      */
-    public static String getStringFromDoc(final org.w3c.dom.Document doc) {
+    public static String getStringFromDoc(final Document doc) {
         try {
             final DOMSource domSource = new DOMSource(doc);
             final StringWriter writer = new StringWriter();
@@ -317,8 +317,7 @@ public abstract class ModelUtils {
         final List<TNodeTemplate> infraNodes = new ArrayList<>();
         ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes, csar);
 
-        // check all outgoing edges on those nodes, if they are infrastructure
-        // edges
+        // check all outgoing edges on those nodes, if they are infrastructure edges
         for (final TNodeTemplate infraNode : infraNodes) {
             for (final TRelationshipTemplate outgoingEdge : getOutgoingRelations(infraNode, csar)) {
 
@@ -330,7 +329,6 @@ public abstract class ModelUtils {
         }
 
         // check outgoing edges of given node
-
         for (final TRelationshipTemplate outgoingEdge : getOutgoingRelations(nodeTemplate, csar)) {
             if (isInfrastructureRelationshipType(outgoingEdge.getType())) {
                 infrastructureEdges.add(outgoingEdge);
