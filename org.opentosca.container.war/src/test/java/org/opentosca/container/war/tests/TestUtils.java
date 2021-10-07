@@ -71,6 +71,7 @@ public abstract class TestUtils {
             }
             repositoryPath = Paths.get(System.getProperty("java.io.tmpdir"))
                 .resolve("opentosca-test-repository-" + repoSuffix);
+            LOGGER.info("Using repository path '{}'", repositoryPath);
         }
 
         String remoteUrl;
@@ -86,7 +87,7 @@ public abstract class TestUtils {
     public static Csar fetchCSARFromRepository(RepositoryConfigurationObject.RepositoryProvider provider, QName serviceTemplateId,
                                                CsarStorageService storage, Path repositoryPath, String remoteUrl)
         throws Exception {
-        LOGGER.debug("Testing with repository directory {}", repositoryPath);
+        LOGGER.info("Testing with repository directory '{}'", repositoryPath);
 
         if (!Files.exists(repositoryPath)) {
             Files.createDirectory(repositoryPath);
