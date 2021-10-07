@@ -141,6 +141,9 @@ public abstract class TestUtils {
     }
 
     private static void cloneRepo(Path repositoryPath, String remoteUrl) throws IOException, GitAPIException {
+        if (!Files.exists(repositoryPath)) {
+            Files.createDirectory(repositoryPath);
+        }
         FileUtils.cleanDirectory(repositoryPath.toFile());
 
         Git.cloneRepository()
