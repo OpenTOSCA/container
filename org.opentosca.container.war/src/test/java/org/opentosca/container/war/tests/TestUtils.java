@@ -29,6 +29,7 @@ import org.eclipse.winery.repository.export.CsarExporter;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
@@ -62,16 +63,7 @@ public abstract class TestUtils {
         if (testLocalRepositoryPath != null && !testLocalRepositoryPath.isEmpty()) {
             repositoryPath = Paths.get(testLocalRepositoryPath);
         } else {
-            String repoSuffix = "";
-            if (testRemoteRepositoryUrl != null) {
-                String[] split = testRemoteRepositoryUrl.split("/");
-                if (split.length > 0) {
-                    repoSuffix = split[split.length - 1];
-                }
-            }
-            repositoryPath = Paths.get(System.getProperty("java.io.tmpdir"))
-                .resolve("opentosca-test-repository-" + repoSuffix);
-            LOGGER.info("Using repository path '{}'", repositoryPath);
+            repositoryPath = getRepositoryPath(testRemoteRepositoryUrl);
         }
 
         String remoteUrl;
@@ -82,6 +74,21 @@ public abstract class TestUtils {
         }
 
         return TestUtils.fetchCSARFromRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, csarId, storage, repositoryPath, remoteUrl);
+    }
+
+    private static Path getRepositoryPath(String testRemoteRepositoryUrl) {
+        Path repositoryPath;
+        String repoSuffix = "";
+        if (testRemoteRepositoryUrl != null) {
+            String[] split = testRemoteRepositoryUrl.split("/");
+            if (split.length > 0) {
+                repoSuffix = split[split.length - 1];
+            }
+        }
+        repositoryPath = Paths.get(System.getProperty("java.io.tmpdir"))
+            .resolve("opentosca-test-repository-" + repoSuffix);
+        LOGGER.info("Using repository path '{}'", repositoryPath);
+        return repositoryPath;
     }
 
     public static Csar fetchCSARFromRepository(RepositoryConfigurationObject.RepositoryProvider provider, QName serviceTemplateId,
@@ -95,16 +102,16 @@ public abstract class TestUtils {
 
         if (!Files.exists(repositoryPath.resolve(".git"))) {
             LOGGER.info("No git repository found, cloning repository from " + remoteUrl);
-            FileUtils.cleanDirectory(repositoryPath.toFile());
-
-            Git.cloneRepository()
-                .setURI(remoteUrl)
-                .setBare(false)
-                .setCloneAllBranches(true)
-                .setDirectory(repositoryPath.toFile())
-                .call();
+            cloneRepo(repositoryPath, remoteUrl);
         } else {
             LOGGER.info("Found git repository under " + repositoryPath);
+            if (!Git.open(repositoryPath.toFile())
+                .getRepository()
+                .getRemoteNames()
+                .contains(remoteUrl)) {
+                repositoryPath = getRepositoryPath(remoteUrl);
+                cloneRepo(repositoryPath, remoteUrl);
+            }
         }
 
         // inject the current path to the repository factory
@@ -131,6 +138,17 @@ public abstract class TestUtils {
             storage.storeCSAR(csarFilePath);
         }
         return storage.findById(csarId);
+    }
+
+    private static void cloneRepo(Path repositoryPath, String remoteUrl) throws IOException, GitAPIException {
+        FileUtils.cleanDirectory(repositoryPath.toFile());
+
+        Git.cloneRepository()
+            .setURI(remoteUrl)
+            .setBare(false)
+            .setCloneAllBranches(true)
+            .setDirectory(repositoryPath.toFile())
+            .call();
     }
 
     public static void generatePlans(CsarService csarService, Csar csar) {
