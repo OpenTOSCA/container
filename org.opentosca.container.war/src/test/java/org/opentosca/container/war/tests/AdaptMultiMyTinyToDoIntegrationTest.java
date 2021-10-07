@@ -116,6 +116,7 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
         Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
         Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
 
+        assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
         assertEquals(4, nodeTemplateInstances.size());
         assertEquals(3, relationshipTemplateInstances.size());
 

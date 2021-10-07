@@ -62,7 +62,15 @@ public abstract class TestUtils {
         if (testLocalRepositoryPath != null && !testLocalRepositoryPath.isEmpty()) {
             repositoryPath = Paths.get(testLocalRepositoryPath);
         } else {
-            repositoryPath = Paths.get(System.getProperty("java.io.tmpdir")).resolve("opentosca-test-repository");
+            String repoSuffix = "";
+            if (testRemoteRepositoryUrl != null) {
+                String[] split = testRemoteRepositoryUrl.split("/");
+                if (split.length > 0) {
+                    repoSuffix = split[split.length - 1];
+                }
+            }
+            repositoryPath = Paths.get(System.getProperty("java.io.tmpdir"))
+                .resolve("opentosca-test-repository-" + repoSuffix);
         }
 
         String remoteUrl;
