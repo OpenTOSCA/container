@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.common.configuration.FileBasedRepositoryConfiguration;
+import org.eclipse.winery.common.configuration.GitBasedRepositoryConfiguration;
 import org.eclipse.winery.common.configuration.RepositoryConfigurationObject;
 import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.tosca.TPlan;
@@ -47,6 +48,8 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.eclipse.winery.common.Constants.DEFAULT_LOCAL_REPO_NAME;
 
 public abstract class TestUtils {
 
@@ -105,19 +108,37 @@ public abstract class TestUtils {
             cloneRepo(repositoryPath, remoteUrl);
         } else {
             LOGGER.info("Found git repository under " + repositoryPath);
-            if (!Git.open(repositoryPath.toFile())
-                .getRepository()
-                .getRemoteNames()
-                .contains(remoteUrl)) {
+            boolean isCorrectRepository;
+            try {
+                isCorrectRepository = Git.open(repositoryPath.toFile())
+                    .remoteList().call()
+                    .stream().anyMatch(remote ->
+                        remote.getURIs().stream().anyMatch(uri -> uri.toASCIIString().equals(remoteUrl))
+                    );
+            } catch (Exception e) {
+                try {
+                    LOGGER.error("Error while checking Git Repository!", e);
+                    isCorrectRepository = Git.open(repositoryPath.resolve(DEFAULT_LOCAL_REPO_NAME).toFile())
+                        .remoteList().call()
+                        .stream().anyMatch(remote ->
+                            remote.getURIs().stream().anyMatch(uri -> uri.toASCIIString().equals(remoteUrl))
+                        );
+                } catch (Exception e1) {
+                    LOGGER.error("Something went badly wrong!", e);
+                    isCorrectRepository = false;
+                }
+            }
+            if (!isCorrectRepository) {
                 repositoryPath = getRepositoryPath(remoteUrl);
                 cloneRepo(repositoryPath, remoteUrl);
             }
         }
 
         // inject the current path to the repository factory
-        IRepository repository = RepositoryFactory.getRepository(
-            new FileBasedRepositoryConfiguration(repositoryPath, provider)
+        RepositoryFactory.reconfigure(
+            new GitBasedRepositoryConfiguration(false, new FileBasedRepositoryConfiguration(repositoryPath, provider))
         );
+        IRepository repository = RepositoryFactory.getRepository();
 
         LOGGER.debug("Initialized test repository");
 
