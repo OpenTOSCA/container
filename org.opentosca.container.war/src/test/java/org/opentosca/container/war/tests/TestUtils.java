@@ -95,8 +95,9 @@ public abstract class TestUtils {
     }
 
     public static Csar fetchCSARFromRepository(RepositoryConfigurationObject.RepositoryProvider provider, QName serviceTemplateId,
-                                               CsarStorageService storage, Path repositoryPath, String remoteUrl)
+                                               CsarStorageService storage, Path repositoryInputPath, String remoteUrl)
         throws Exception {
+        Path repositoryPath = repositoryInputPath;
         LOGGER.info("Testing with repository directory '{}'", repositoryPath);
 
         if (!Files.exists(repositoryPath)) {
@@ -128,7 +129,7 @@ public abstract class TestUtils {
                     isCorrectRepository = false;
                 }
             }
-            if (!isCorrectRepository) {
+            if (!isCorrectRepository && remoteUrl != null && !remoteUrl.isEmpty()) {
                 repositoryPath = getRepositoryPath(remoteUrl);
                 cloneRepo(repositoryPath, remoteUrl);
             }

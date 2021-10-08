@@ -12,7 +12,6 @@ import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opentosca.container.api.service.CsarService;
@@ -104,10 +103,8 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         assertNotNull(multiMyTinyToDoPlans);
         for (TPlan plan : multiMyTinyToDoPlans) {
             PlanType type = PlanType.fromString(plan.getPlanType());
-            if (type == PlanType.TERMINATION) {
-                if (!plan.getId().toLowerCase().contains("freeze")) {
-                    multiTinyTerminationPlan = plan;
-                }
+            if (type == PlanType.TERMINATION && !plan.getId().toLowerCase().contains("freeze")) {
+                multiTinyTerminationPlan = plan;
             }
         }
 
@@ -138,12 +135,12 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
     }
 
     private void checkStateAfterMigration(ServiceTemplateInstance serviceInstance) throws IOException {
-        Assert.assertEquals(4, serviceInstance.getNodeTemplateInstances().size());
-        Assert.assertEquals(3, serviceInstance.getRelationshipTemplateInstances().size());
+        assertEquals(4, serviceInstance.getNodeTemplateInstances().size());
+        assertEquals(3, serviceInstance.getRelationshipTemplateInstances().size());
 
-        Assert.assertEquals(3, serviceInstance.getNodeTemplateInstances().stream().filter(x -> x.getTemplateType().toString().toLowerCase().contains("mytiny")).count());
-        Assert.assertEquals(1, serviceInstance.getNodeTemplateInstances().stream().filter(x -> x.getTemplateType().toString().toLowerCase().contains("dockerengine")).count());
-        Assert.assertEquals(3, serviceInstance.getRelationshipTemplateInstances().stream().filter(x -> x.getTemplateType().toString().toLowerCase().contains("hostedon")).count());
+        assertEquals(3, serviceInstance.getNodeTemplateInstances().stream().filter(x -> x.getTemplateType().toString().toLowerCase().contains("mytiny")).count());
+        assertEquals(1, serviceInstance.getNodeTemplateInstances().stream().filter(x -> x.getTemplateType().toString().toLowerCase().contains("dockerengine")).count());
+        assertEquals(3, serviceInstance.getRelationshipTemplateInstances().stream().filter(x -> x.getTemplateType().toString().toLowerCase().contains("hostedon")).count());
 
         TestUtils.checkViaHTTPGET("http://localhost:9991", 200, "My Tiny Todolist");
         TestUtils.checkViaHTTPGET("http://localhost:9992", 200, "My Tiny Todolist");
@@ -180,8 +177,8 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
         Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
 
-        Assert.assertEquals(2, nodeTemplateInstances.size());
-        Assert.assertEquals(1, relationshipTemplateInstances.size());
+        assertEquals(2, nodeTemplateInstances.size());
+        assertEquals(1, relationshipTemplateInstances.size());
 
         int foundDockerEngine = 0;
         int foundTinyToDo = 0;
@@ -194,8 +191,8 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
             }
         }
 
-        Assert.assertEquals(1, foundDockerEngine);
-        Assert.assertEquals(1, foundTinyToDo);
+        assertEquals(1, foundDockerEngine);
+        assertEquals(1, foundTinyToDo);
 
         TestUtils.checkViaHTTPGET("http://localhost:9990", 200, "My Tiny Todolist");
     }

@@ -12,7 +12,6 @@ import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opentosca.container.api.service.CsarService;
@@ -33,6 +32,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = {Application.class})
@@ -122,8 +122,8 @@ public class MyTinyToDoIntegrationTest {
         Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstanceUpdated.getNodeTemplateInstances();
         Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstanceUpdated.getRelationshipTemplateInstances();
 
-        Assert.assertEquals(3, nodeTemplateInstances.size());
-        Assert.assertEquals(2, relationshipTemplateInstances.size());
+        assertEquals(3, nodeTemplateInstances.size());
+        assertEquals(2, relationshipTemplateInstances.size());
 
         TestUtils.checkViaHTTPGET("http://localhost:9991", 200, "My Tiny Todolist");
     }
@@ -132,8 +132,8 @@ public class MyTinyToDoIntegrationTest {
         Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
         Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
 
-        Assert.assertEquals(2, nodeTemplateInstances.size());
-        Assert.assertEquals(1, relationshipTemplateInstances.size());
+        assertEquals(2, nodeTemplateInstances.size());
+        assertEquals(1, relationshipTemplateInstances.size());
 
         boolean foundDockerEngine = false;
         boolean foundTinyToDo = false;
@@ -146,8 +146,8 @@ public class MyTinyToDoIntegrationTest {
             }
         }
 
-        Assert.assertTrue(foundDockerEngine);
-        Assert.assertTrue(foundTinyToDo);
+        assertTrue(foundDockerEngine);
+        assertTrue(foundTinyToDo);
 
         TestUtils.checkViaHTTPGET("http://localhost:9990", 200, "My Tiny Todolist");
     }
