@@ -55,7 +55,7 @@ public class MyTinyToDoBPMNIntegrationTest {
     public InstanceService instanceService;
 
     @Test
-    public void test() throws InterruptedException, ExecutionException, RepositoryCorruptException, IOException, SystemException, AccountabilityException, UserException, GitAPIException {
+    public void test() throws Exception {
         Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage);
         TestUtils.generatePlans(this.csarService, csar);
 
