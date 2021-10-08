@@ -29,6 +29,8 @@ public class Interfaces {
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE = "UpdateManagementInterface";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE_RUNUPDATE = "update";
 
+    public static final String OPENTOSCA_INTERFACE_REMOTE_MANAGER = "http://opentosca.org/interfaces/pattern/remotemanager";
+
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_STATE = "http://opentosca.org/interfaces/state";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE = "freeze";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT = "StoreStateServiceEndpoint";
