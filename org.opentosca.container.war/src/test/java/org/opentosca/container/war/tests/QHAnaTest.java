@@ -56,6 +56,7 @@ public class QHAnaTest {
     public void testDeployment() throws Exception {
         Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage,
             QcApplicationsRepository);
+        TestUtils.generatePlans(this.csarService, csar);
 
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
         assertNotNull(serviceTemplate);
@@ -69,6 +70,8 @@ public class QHAnaTest {
             .findFirst()
             .orElse(null);
         assertNotNull(buildPlan);
+
+        TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
 
         ServiceTemplateInstance serviceTemplateInstance = TestUtils.runBuildPlanExecution(
             this.planService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters()
