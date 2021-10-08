@@ -6,5 +6,7 @@ services:
       - '8099:8080'
   engine-plan:
     image: opentosca/ode:latest
+    environment:
+      _JAVA_OPTIONS: "-Xmx3048m -Xms512m -Xss4m"
     ports:
       - '9763:9763'

@@ -26,7 +26,7 @@ import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTransformati
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELUpdateProcessBuilder;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 
 /**
  * <p>
@@ -134,7 +134,7 @@ public abstract class AbstractImporter {
 
         TServiceTemplate servTemplate = defs.getServiceTemplates().iterator().next();
 
-        if (!ModelUtils.hasBuildPlan(servTemplate) | !ModelUtils.hasTerminationPlan(servTemplate)) {
+        if (ModelUtils.doesNotHaveBuildPlan(servTemplate) | !ModelUtils.hasTerminationPlan(servTemplate)) {
             plans.addAll(scalingPlanBuilder.buildPlans(csar, defs));
             plans.addAll(buildPlanBuilder.buildPlans(csar, defs));
             plans.addAll(terminationPlanBuilder.buildPlans(csar, defs));

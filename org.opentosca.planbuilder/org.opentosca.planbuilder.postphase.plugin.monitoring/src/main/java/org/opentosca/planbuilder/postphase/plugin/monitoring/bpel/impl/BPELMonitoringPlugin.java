@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.postphase.plugin.monitoring.bpel.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import javax.xml.namespace.QName;
 
@@ -18,7 +19,7 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 
 /**
@@ -78,12 +79,11 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
         // <Interface name="Monitor">
         // <Operation name="deployAgent"/>
         // </Interface>
-        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, context.getCsar()).getInterfaces()) {
-            if (iface.getName().equals(this.monitoringInterfaceName)) {
-                for (final TOperation op : iface.getOperations()) {
-                    if (op.getName().equals(this.monitoringOperationName)) {
-                        return true;
-                    }
+        TInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, this.monitoringInterfaceName, context.getCsar());
+        if (Objects.nonNull(iface)) {
+            for (final TOperation op : iface.getOperations()) {
+                if (op.getName().equals(this.monitoringOperationName)) {
+                    return true;
                 }
             }
         }

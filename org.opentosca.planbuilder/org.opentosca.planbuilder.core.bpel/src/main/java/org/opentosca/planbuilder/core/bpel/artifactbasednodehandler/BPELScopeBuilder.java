@@ -29,7 +29,7 @@ import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhase
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPlugin;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -59,45 +59,6 @@ public class BPELScopeBuilder {
     @Inject
     public BPELScopeBuilder(PluginRegistry pluginRegistry) {
         this.pluginRegistry = pluginRegistry;
-    }
-
-    /**
-     * Calculates a list of DA's containing an effective set of DA combining the DA's from the given NodeImplementation
-     * and NodeTemplates according to the TOSCA specification.
-     *
-     * @param nodeTemplate the NodeTemplate the NodeImplementations belongs to
-     * @param nodeImpl     a NodeTypeImplementation for the given NodeTemplate
-     * @return a possibly empty list of TDeploymentArtifacts
-     */
-    static List<TDeploymentArtifact> calculateEffectiveDAs(final TNodeTemplate nodeTemplate,
-                                                           final TNodeTypeImplementation nodeImpl) {
-        final List<TDeploymentArtifact> effectiveDAs = new ArrayList<>();
-
-        final List<TDeploymentArtifact> nodeImplDAs = Lists.newArrayList(nodeImpl.getDeploymentArtifacts());
-        final Collection<TDeploymentArtifact> nodeTemplateDAs = nodeTemplate.getDeploymentArtifacts();
-
-        for (final TDeploymentArtifact templateDa : nodeTemplateDAs) {
-            boolean overridesDA = false;
-            int daIndex = -1;
-            for (int i = 0; i < nodeImplDAs.size(); i++) {
-                final TDeploymentArtifact nodeImplDa = nodeImplDAs.get(i);
-
-                if (nodeImplDa.getName().equals(templateDa.getName())
-                    & nodeImplDa.getArtifactType().equals(nodeImplDa.getArtifactType())) {
-                    overridesDA = true;
-                    daIndex = i;
-                }
-            }
-
-            if (overridesDA) {
-                nodeImplDAs.remove(daIndex);
-            }
-        }
-
-        effectiveDAs.addAll(nodeTemplateDAs);
-        effectiveDAs.addAll(nodeImplDAs);
-
-        return effectiveDAs;
     }
 
     /**
@@ -154,7 +115,7 @@ public class BPELScopeBuilder {
                     if (plugin.canHandle(ia.getArtifactType())
                         && getOperationForIa(chain.relationshipTemplate, ia, operationName, csar) != null) {
                         provCandidate.add(getOperationForIa(chain.relationshipTemplate, ia,
-                            operationName, csar),
+                                operationName, csar),
                             ia, plugin);
                     }
                 }
@@ -535,11 +496,13 @@ public class BPELScopeBuilder {
         if (ia.getInterfaceName() != null & ia.getOperationName() == null) {
             return new InterfaceDummy(nodeTemplate, ia, csar);
         }
-
-        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
-            for (final TOperation op : iface.getOperations()) {
-                if (op.getName().equals(ia.getOperationName())) {
-                    return op;
+        List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
+        if (interfaces != null) {
+            for (final TInterface iface : interfaces) {
+                for (final TOperation op : iface.getOperations()) {
+                    if (op.getName().equals(ia.getOperationName())) {
+                        return op;
+                    }
                 }
             }
         }
@@ -613,8 +576,7 @@ public class BPELScopeBuilder {
                 nodeTemplate.getId());
             final DANodeTypeImplCandidate candidate = new DANodeTypeImplCandidate(nodeTemplate, impl);
 
-            final List<TDeploymentArtifact> effectiveDAs =
-                calculateEffectiveDAs(nodeTemplate, impl);
+            final List<TDeploymentArtifact> effectiveDAs = ModelUtils.calculateEffectiveDAs(nodeTemplate, impl);
 
             for (final TDeploymentArtifact da : effectiveDAs) {
                 LOG.debug("Checking whether DA {} can be deployed", da.getName());
