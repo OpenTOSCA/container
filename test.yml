@@ -4,9 +4,13 @@ services:
     image: opentosca/engine-ia:latest
     ports:
       - '8099:8080'
+    extra_hosts:
+     - "host.docker.internal:172.17.0.1"
   engine-plan:
     image: opentosca/ode:latest
     environment:
       _JAVA_OPTIONS: "-Xmx3048m -Xms512m -Xss4m"
     ports:
       - '9763:9763'
+    extra_hosts:
+     - "host.docker.internal:172.17.0.1"

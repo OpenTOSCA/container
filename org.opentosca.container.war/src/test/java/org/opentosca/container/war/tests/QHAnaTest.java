@@ -107,7 +107,7 @@ public class QHAnaTest {
         dockerInDocker.setName("DockerEngineURL");
         dockerInDocker.setRequired(true);
         dockerInDocker.setType("String");
-        dockerInDocker.setValue("tcp://dind:2375");
+        dockerInDocker.setValue("tcp://host.docker.internal:2375");
         baseInputParams.add(dockerInDocker);
 
         TParameter ibmQToken = new TParameter();
