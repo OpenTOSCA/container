@@ -197,7 +197,7 @@ public class MultiMyTinyToDoIntegrationTest {
         dockerEngineUrl.setName("DockerEngineURL");
         dockerEngineUrl.setRequired(true);
         dockerEngineUrl.setType("String");
-        dockerEngineUrl.setValue("tcp://172.17.0.1:2375");
+        dockerEngineUrl.setValue("tcp://dind:2375");
 
         org.opentosca.container.core.extension.TParameter applicationPort = new org.opentosca.container.core.extension.TParameter();
         applicationPort.setName("ApplicationPort");
