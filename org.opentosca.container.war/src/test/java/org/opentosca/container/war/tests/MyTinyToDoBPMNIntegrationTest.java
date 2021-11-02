@@ -4,17 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
-
-import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
-import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
-
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,8 +16,6 @@ import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.control.OpenToscaControlService;
-import org.opentosca.container.core.common.SystemException;
-import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.PlanType;
@@ -80,7 +71,7 @@ public class MyTinyToDoBPMNIntegrationTest {
         }
 
         Assert.assertNotNull("BuildPlan not found", buildPlan);
-        ServiceTemplateInstance serviceTemplateInstance =TestUtils.runBuildPlanExecution(this.planService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
+        ServiceTemplateInstance serviceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
         this.checkStateAfterBuild(serviceTemplateInstance);
         TestUtils.clearContainer(this.storage, this.control);
     }
@@ -113,7 +104,6 @@ public class MyTinyToDoBPMNIntegrationTest {
         TestUtils.checkViaHTTPGET("http://localhost:9990", 200, "My Tiny Todolist");
     }
 
-
     private List<org.opentosca.container.core.extension.TParameter> getBuildPlanInputParameters() {
         List<org.opentosca.container.core.extension.TParameter> inputParams = new ArrayList<>();
 
@@ -137,4 +127,3 @@ public class MyTinyToDoBPMNIntegrationTest {
         return inputParams;
     }
 }
-
