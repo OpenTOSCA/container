@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -31,6 +30,7 @@ import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Properties;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
@@ -83,7 +83,7 @@ public class MBUtils {
                 continue;
             }
             final TNodeType currentNodeType = ToscaEngine.resolveNodeType(csar, current);
-            if (isOperatingSystemNodeType(currentNodeType)) {
+            if (isOperatingSystemNodeType(csar, currentNodeType)) {
                 // just return the first result if we don't need to check for a node instance
                 if (!mustHaveNodeInstance) {
                     return current;
@@ -141,19 +141,21 @@ public class MBUtils {
      *
      * @return true if the specified NodeType is one of the OperatingSystem NodeTypes. Otherwise, false.
      */
-    private static boolean isOperatingSystemNodeType(final TNodeType nodeType) {
+    private static boolean isOperatingSystemNodeType(Csar csar, final TNodeType nodeType) {
         if (nodeType.getInterfaces() == null) {
             return false;
         }
-        List<TInterface> exposedInterfaces = nodeType.getInterfaces();
-        boolean isOs = exposedInterfaces.stream()
-            .filter(tInterface -> Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM.equals(tInterface.getName()))
-            .anyMatch(os -> doesInterfaceContainOperation(os, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
-                && doesInterfaceContainOperation(os, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE));
-        boolean isDocker = exposedInterfaces.stream()
-            .filter(tInterface -> Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER.equals(tInterface.getName()))
-            .anyMatch(os -> doesInterfaceContainOperation(os, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
-                && doesInterfaceContainOperation(os, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE));
+
+        TInterface interfaceOfNodeType = ModelUtils.getInterfaceOfNodeType(csar, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM);
+        boolean isOs = interfaceOfNodeType != null
+            && doesInterfaceContainOperation(interfaceOfNodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
+            && doesInterfaceContainOperation(interfaceOfNodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE);
+
+        interfaceOfNodeType = ModelUtils.getInterfaceOfNodeType(csar, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER);
+        boolean isDocker = interfaceOfNodeType != null
+            && doesInterfaceContainOperation(interfaceOfNodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
+            && doesInterfaceContainOperation(interfaceOfNodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE);
+
         return isOs || isDocker;
     }
 
@@ -163,7 +165,7 @@ public class MBUtils {
     }
 
     private static boolean doesInterfaceContainOperation(TInterface tInterface, String operationName) {
-        return tInterface.getOperations().stream().anyMatch(op -> operationName.equals(op.getName()));
+        return tInterface.getOperations().stream().anyMatch(op -> operationName.equalsIgnoreCase(op.getName()));
     }
 
     /**
