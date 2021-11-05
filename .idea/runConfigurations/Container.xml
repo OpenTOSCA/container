@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Container" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat" ALTERNATIVE_JRE_ENABLED="true" ALTERNATIVE_JRE_PATH="11">
+  <configuration default="false" name="Container" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat Container" ALTERNATIVE_JRE_ENABLED="true" ALTERNATIVE_JRE_PATH="11">
     <option name="OPEN_IN_BROWSER" value="false" />
     <option name="UPDATING_POLICY" value="restart-server" />
     <deployment>
@@ -86,6 +86,10 @@
       <option name="BuildArtifacts" enabled="true">
         <artifact name="org.opentosca.container.war:war exploded" />
       </option>
+      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_Remove Files in Tomcat temp" />
+      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_remove tmp contents" />
+      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_Shutdown opentosca-docker" />
+      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_Start opentosca-docker" />
     </method>
   </configuration>
 </component>

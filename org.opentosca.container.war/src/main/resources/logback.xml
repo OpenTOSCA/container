@@ -12,6 +12,10 @@
     <logger name="org.opentosca.container.core.plan" level="DEBUG"/>
     <logger name="org.opentosca.bus.management" level="INFO"/>
     <logger name="org.opentosca.container.connector.winery" level="DEBUG"/>
+    <logger name="org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTestManagementProcessBuilder"
+            level="DEBUG"/>
+    <logger name="org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELUpdateProcessBuilder"
+            level="DEBUG"/>
 
     <!-- Reducing logging noise  -->
     <logger name="com.predic8" level="WARN"/>

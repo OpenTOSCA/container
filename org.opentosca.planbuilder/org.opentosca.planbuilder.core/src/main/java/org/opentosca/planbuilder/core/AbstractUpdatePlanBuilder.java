@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
@@ -28,7 +30,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
-import org.opentosca.container.core.model.ModelUtils;
 
 public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilder {
 
@@ -202,7 +203,8 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
     }
 
     private boolean hasPolicy(final TNodeTemplate nodeTemplate, final QName policyType) {
-        return nodeTemplate.getPolicies().stream()
+        return Optional.ofNullable(nodeTemplate.getPolicies()).stream()
+            .flatMap(Collection::stream)
             .anyMatch(policy -> policy.getPolicyType().equals(policyType));
     }
 }

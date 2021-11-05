@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TInterface;
@@ -14,11 +15,11 @@ import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 
 import org.opentosca.container.core.convention.Utils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.w3c.dom.Element;
 
@@ -86,17 +87,36 @@ public abstract class PatternBasedHandler {
                                          final TInterface iface, final TOperation op,
                                          final Set<TNodeTemplate> nodesForMatching, Element elementToAppendTo) {
         final ConcreteOperationMatching matching =
-            createConcreteOperationMatching(context, createPropertyToParameterMatching(nodesForMatching, iface, op));
+            createConcreteOperationMatching(context, createPropertyToParameterMatching(nodesForMatching, iface, op), nodesForMatching);
         return invokeOperation(context, matching, nodeTemplate, elementToAppendTo);
     }
 
     protected ConcreteOperationMatching createConcreteOperationMatching(final PlanContext context,
-                                                                        final OperationMatching abstractMatching) {
+                                                                        final OperationMatching abstractMatching,
+                                                                        Set<TNodeTemplate> nodesForMatching) {
 
         final ConcreteOperationMatching matching =
             new ConcreteOperationMatching(abstractMatching.interfaceName, abstractMatching.operationName);
 
         matching.matchedNodes = abstractMatching.matchedNodes;
+        TOperation operation = matching.operationName;
+
+        if (operation.getInputParameters() != null) {
+            Set<TParameter> unmappedInputParams =
+                operation
+                .getInputParameters()
+                .stream()
+                .filter(tParameter -> !abstractMatching.inputMatching.containsKey(tParameter)).collect(Collectors.toSet());
+
+            for (TParameter unmappedInputParam : unmappedInputParams) {
+                for (TNodeTemplate nodeToMatch : nodesForMatching) {
+                    PropertyVariable propVar = context.getPropertyVariable(nodeToMatch, unmappedInputParam.getName());
+                    if (propVar != null) {
+                        matching.inputMatching.put(unmappedInputParam, propVar);
+                    }
+                }
+            }
+        }
 
         for (final TParameter param : abstractMatching.inputMatching.keySet()) {
             boolean added = false;
@@ -111,6 +131,23 @@ public abstract class PatternBasedHandler {
                 }
                 if (added) {
                     break;
+                }
+            }
+        }
+
+        if (operation.getOutputParameters() != null) {
+            Set<TParameter> unmappedOutputParams =
+                operation
+                    .getOutputParameters()
+                    .stream()
+                    .filter(tParameter -> !abstractMatching.outputMatching.containsKey(tParameter)).collect(Collectors.toSet());
+
+            for (TParameter unmappedOutputParam : unmappedOutputParams) {
+                for (TNodeTemplate nodeToMatch : nodesForMatching) {
+                    PropertyVariable propVar = context.getPropertyVariable(nodeToMatch, unmappedOutputParam.getName());
+                    if (propVar != null) {
+                        matching.outputMatching.put(unmappedOutputParam, propVar);
+                    }
                 }
             }
         }
