@@ -8,6 +8,7 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
+import org.opentosca.container.core.model.ModelUtils;
 
 /**
  * <p>
@@ -25,7 +26,7 @@ class DANodeTypeImplCandidate {
     final List<TDeploymentArtifact> das = new ArrayList<>();
     final TNodeTypeImplementation impl;
     final List<TNodeTemplate> infraNodes = new ArrayList<>();
-    final List<IPlanBuilderPrePhaseDAPlugin> plugins = new ArrayList<>();
+    final List<IPlanBuilderPrePhaseDAPlugin<?>> plugins = new ArrayList<>();
     final TNodeTemplate nodeTemplate;
 
     /**
@@ -46,7 +47,7 @@ class DANodeTypeImplCandidate {
      * @param plugin       the PrePhaseDAPlugin which can deploy the DA unto the given NodeTemplate
      */
     void add(final TDeploymentArtifact da, final TNodeTemplate nodeTemplate,
-             final IPlanBuilderPrePhaseDAPlugin plugin) {
+             final IPlanBuilderPrePhaseDAPlugin<?> plugin) {
         this.das.add(da);
         this.infraNodes.add(nodeTemplate);
         this.plugins.add(plugin);
@@ -58,6 +59,6 @@ class DANodeTypeImplCandidate {
      * @return true if all DA's of the NodeTypeImplementation can be deployed, else false
      */
     boolean isValid() {
-        return BPELScopeBuilder.calculateEffectiveDAs(this.nodeTemplate, this.impl).size() == this.das.size();
+        return ModelUtils.calculateEffectiveDAs(this.nodeTemplate, this.impl).size() == this.das.size();
     }
 }

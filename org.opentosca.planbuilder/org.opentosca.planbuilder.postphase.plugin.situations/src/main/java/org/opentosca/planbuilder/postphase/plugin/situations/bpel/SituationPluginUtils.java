@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,7 +23,7 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -46,7 +47,7 @@ public class SituationPluginUtils {
         // in some cases plugins use operations of other node templates (e.g. docker containers and docker
         // engines or VM's and cloud providers)
         // therefore we have to find those node templates here
-        Collection<TNodeTemplate> nodes = new ArrayList<TNodeTemplate>();
+        Collection<TNodeTemplate> nodes = new ArrayList<>();
 
         Element provPhaseElement = context.getProvisioningPhaseElement();
         XPath xpath = XPathFactory.newInstance().newXPath();
@@ -72,18 +73,21 @@ public class SituationPluginUtils {
     }
 
     public static Collection<TNodeTemplate> findUsedNodes(BPELPlanContext context) {
-        Set<TNodeTemplate> nodes = new HashSet<TNodeTemplate>();
+        Set<TNodeTemplate> nodes = new HashSet<>();
         nodes.add(context.getNodeTemplate());
         return nodes;
     }
 
     public static Collection<TNodeTemplate> findUsedNodes(BPELPlanContext context, TOperation op) {
-        Set<TNodeTemplate> nodes = new HashSet<TNodeTemplate>();
+        Set<TNodeTemplate> nodes = new HashSet<>();
         for (TNodeTemplate node : context.getNodeTemplates()) {
-            for (TInterface iface : ModelUtils.findNodeType(node, context.getCsar()).getInterfaces()) {
-                for (TOperation o : iface.getOperations()) {
-                    if (op != null && op.equals(o)) {
-                        nodes.add(node);
+            List<TInterface> interfaces = ModelUtils.findNodeType(node, context.getCsar()).getInterfaces();
+            if (interfaces != null) {
+                for (TInterface iface : interfaces) {
+                    for (TOperation o : iface.getOperations()) {
+                        if (op != null && op.equals(o)) {
+                            nodes.add(node);
+                        }
                     }
                 }
             }
@@ -117,7 +121,7 @@ public class SituationPluginUtils {
     }
 
     public static Collection<TPolicy> getSituationPolicies(TNodeTemplate nodeTemplate) {
-        Set<TPolicy> policies = new HashSet<TPolicy>();
+        Set<TPolicy> policies = new HashSet<>();
 
         if (nodeTemplate.getPolicies() == null) {
             return policies;
@@ -132,7 +136,7 @@ public class SituationPluginUtils {
     }
 
     public static Collection<TPolicy> getSituationPolicies(Collection<TNodeTemplate> nodeTemplates) {
-        Set<TPolicy> policies = new HashSet<TPolicy>();
+        Set<TPolicy> policies = new HashSet<>();
         for (TNodeTemplate node : nodeTemplates) {
             policies.addAll(SituationPluginUtils.getSituationPolicies(node));
         }
@@ -153,9 +157,7 @@ public class SituationPluginUtils {
                             .getVariableName());
                 fetchSituationState = context.importNode(fetchSituationState);
                 elementToAppendTo.appendChild(fetchSituationState);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (SAXException e) {
+            } catch (IOException | SAXException e) {
                 e.printStackTrace();
             }
         }
@@ -289,9 +291,8 @@ public class SituationPluginUtils {
     public static Node createIfXPathExprTrueThrowError(String xpathQuery, TNodeTemplate nodeTemplate,
                                                        BPELProcessFragments mainFragments, String faultMessageVariableName) {
 
-        Node node = mainFragments.createIfTrueThrowsError(xpathQuery, new QName("http://opentosca.org/situations",
+        return mainFragments.createIfTrueThrowsError(xpathQuery, new QName("http://opentosca.org/situations",
             "SituationsNotActive_AbortError_" + nodeTemplate.getId()), faultMessageVariableName);
-        return node;
     }
 
     public static Element createOnAlarmEventHandler(BPELPlanContext context, String durationExpression) {
@@ -313,7 +314,7 @@ public class SituationPluginUtils {
     }
 
     public static Collection<TPolicy> getOperationExecutionTimePolicies(Collection<TNodeTemplate> nodeTemplates) {
-        Set<TPolicy> policies = new HashSet<TPolicy>();
+        Set<TPolicy> policies = new HashSet<>();
         for (TNodeTemplate node : nodeTemplates) {
             policies.addAll(getOperationExecutionTimePolicies(node));
         }
@@ -321,7 +322,7 @@ public class SituationPluginUtils {
     }
 
     public static Collection<TPolicy> getOperationExecutionTimePolicies(TNodeTemplate nodeTemplate) {
-        Set<TPolicy> policies = new HashSet<TPolicy>();
+        Set<TPolicy> policies = new HashSet<>();
 
         for (TPolicy policy : nodeTemplate.getPolicies()) {
             if (policy.getPolicyType().getLocalPart().contains("ExecutionTimePolicy")) {
@@ -333,24 +334,25 @@ public class SituationPluginUtils {
     }
 
     public static String getSituationDataEvaluationQuery(Map<TPolicy, Variable> situationPolicies2DataVariables) {
-        String xpathQuery = "";
+        StringBuilder xpathQuery = new StringBuilder();
         for (Variable situationDataVar : situationPolicies2DataVariables.values()) {
-            xpathQuery += "count($" + situationDataVar.getVariableName()
-                + "/*[local-name()='Active' and text()='true']) = 1 and ";
+            xpathQuery.append("count($").append(situationDataVar.getVariableName())
+                .append("/*[local-name()='Active' and text()='true']) = 1 and ");
         }
-        xpathQuery = xpathQuery.substring(0, xpathQuery.length() - " and ".length());
-        return xpathQuery;
+        xpathQuery = new StringBuilder(xpathQuery.substring(0, xpathQuery.length() - " and ".length()));
+        return xpathQuery.toString();
     }
 
     public static String getSituationMinActiveTimeEvaluationQuery(Map<TPolicy, Variable> situationPolicies2DataVariables) {
-        String xpathQuery = "min((";
+        StringBuilder xpathQuery = new StringBuilder("min((");
 
         for (Variable situationDataVar : situationPolicies2DataVariables.values()) {
-            xpathQuery += "number($" + situationDataVar.getVariableName() + "/*[local-name()='EventTime']), ";
+            xpathQuery.append("number($").append(situationDataVar.getVariableName())
+                .append("/*[local-name()='EventTime']), ");
         }
-        xpathQuery = xpathQuery.substring(0, xpathQuery.length() - ", ".length());
-        xpathQuery += "))";
+        xpathQuery = new StringBuilder(xpathQuery.substring(0, xpathQuery.length() - ", ".length()));
+        xpathQuery.append("))");
 
-        return xpathQuery;
+        return xpathQuery.toString();
     }
 }

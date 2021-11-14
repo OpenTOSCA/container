@@ -9,16 +9,16 @@ import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
+import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
-import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPrePhasePlugin;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.prephase.plugin.fileupload.bpel.handler.BPELPrePhasePluginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +72,9 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
     @Override
     public boolean handle(final BPELPlanContext context, final TDeploymentArtifact da,
                           final TNodeTemplate nodeTemplate) {
+        if (da.getArtifactType() == null) {
+            LOG.error("ArtifactType of DA {} is empty!", da.getIdFromIdOrNameField());
+        }
 
         if (da.getArtifactType().equals(dockerContainerArtefactType)
             || da.getArtifactType().equals(dockerContainerArtefactTypeOld)) {
@@ -226,11 +229,12 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
     public boolean handleCreate(final BPELPlanContext context, final TNodeTemplate nodeTemplate) {
         boolean handle = true;
 
-        if (nodeTemplate.getDeploymentArtifacts() == null) {
-            return handle;
-        }
+        TNodeTypeImplementation nodeTypeImplementation = context.getCsar().nodeTypeImplementations().stream()
+            .filter(implementation -> implementation.getNodeType().equals(nodeTemplate.getType()))
+            .findFirst()
+            .orElse(null);
 
-        for (final TDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
+        for (final TDeploymentArtifact da : ModelUtils.calculateEffectiveDAs(nodeTemplate, nodeTypeImplementation)) {
             final TNodeTemplate infraNode = getDeployableInfrastructureNode(nodeTemplate, da, context.getCsar());
             handle &= this.handler.handle(context, da, infraNode);
         }
