@@ -101,7 +101,7 @@ public class MyTinyToDoBPMNIntegrationTest {
         Assert.assertTrue(foundDockerEngine);
         Assert.assertTrue(foundTinyToDo);
 
-        TestUtils.checkViaHTTPGET("http://localhost:9990", 200, "My Tiny Todolist");
+        TestUtils.checkViaHTTPGET("http://localhost:9993", 200, "My Tiny Todolist");
     }
 
     private List<org.opentosca.container.core.extension.TParameter> getBuildPlanInputParameters() {
@@ -116,7 +116,7 @@ public class MyTinyToDoBPMNIntegrationTest {
         org.opentosca.container.core.extension.TParameter applicationPort = new org.opentosca.container.core.extension.TParameter();
         applicationPort.setName("ApplicationPort");
         applicationPort.setType("String");
-        applicationPort.setValue("80->9990;");
+        applicationPort.setValue("80->9993;");
         applicationPort.setRequired(true);
 
         inputParams.add(dockerEngineUrl);
