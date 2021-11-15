@@ -79,7 +79,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                     // check if all input params (or at least all required input params) can be matched with properties
                     if (param2propertyMapping.size() != op.getInputParameters().size()
                         && !allRequiredParamsAreMatched(op.getInputParameters(), param2propertyMapping)) {
-                        BPELConnectsToPluginHandler.LOG.info("Didn't find necessary matchings from parameter to property. Can't initialize connectsTo relationship.");
+                        BPELConnectsToPluginHandler.LOG.warn("Didn't find necessary matchings from parameter to property. Can't initialize connectsTo relationship.");
                     } else {
                         // executable operation found
                         connectsToIface = iface;
@@ -247,7 +247,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
 
         // if the target has connectTo we execute it
         if (hasOperation(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO, templateContext.getCsar())) {
-            // if we can stop and start the node and it is not defined as non interruptive, stop it
+            // if we can stop and start the node, and it is not defined as non-interruptive, stop it
             if (!ModelUtils.hasInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
                 && startAndStopAvailable(targetNodeTemplate, templateContext.getCsar())) {
                 final String ifaceName =

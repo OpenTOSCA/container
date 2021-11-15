@@ -238,7 +238,7 @@ public class PluginRegistry {
     public IPlanBuilderTypePlugin<?> findTypePluginForUpdate(final TNodeTemplate nodeTemplate, Csar csar) {
         return getTypePlugins().stream()
             .filter(p -> p.canHandleUpdate(csar, nodeTemplate))
-            // sort highest priority first
+            // sort the highest priority first
             .sorted(Comparator.comparingInt(IPlanBuilderPlugin::getPriority).reversed())
             .findFirst()
             .orElse(null);
