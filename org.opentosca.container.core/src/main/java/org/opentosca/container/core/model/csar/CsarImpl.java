@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import org.eclipse.winery.model.ids.definitions.DefinitionsChildId;
 import org.eclipse.winery.model.ids.definitions.NodeTypeId;
 import org.eclipse.winery.model.ids.definitions.NodeTypeImplementationId;
 import org.eclipse.winery.model.ids.definitions.PolicyTemplateId;
+import org.eclipse.winery.model.ids.definitions.PolicyTypeId;
 import org.eclipse.winery.model.ids.definitions.RelationshipTypeId;
 import org.eclipse.winery.model.ids.definitions.RelationshipTypeImplementationId;
 import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
@@ -42,6 +44,7 @@ import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPolicyTemplate;
+import org.eclipse.winery.model.tosca.TPolicyType;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
@@ -69,8 +72,18 @@ public class CsarImpl implements Csar {
     @NonNull
     private final CsarId id;
     private final Optional<ServiceTemplateId> entryServiceTemplate;
-    // TODO evaluate putting the savelocation into an additional field here!
+    // TODO evaluate putting the save-location into an additional field here!
     private final IRepository wineryRepo;
+
+    private final Map<QName, TArtifactTemplate> artifactTemplates;
+    private final Map<QName, TArtifactType> artifactTypes;
+    private final Map<QName, TNodeType> nodeTypes;
+    private final Map<QName, TNodeTypeImplementation> nodeTypeImplementations;
+    private final Map<QName, TPolicyTemplate> policyTemplates;
+    private final Map<QName, TPolicyType> policyTypes;
+    private final Map<QName, TRelationshipType> relationshipTypes;
+    private final Map<QName, TRelationshipTypeImplementation> relationshipTypeImplementations;
+    private final Map<QName, TServiceTemplate> serviceTemplates;
 
     // this is just for bridging purposes
     @Deprecated
@@ -82,6 +95,15 @@ public class CsarImpl implements Csar {
         this.saveLocation = location;
         this.wineryRepo = RepositoryFactory.getRepository(location);
         entryServiceTemplate = readEntryServiceTemplate(location);
+        this.artifactTemplates = this.wineryRepo.getQNameToElementMapping(ArtifactTemplateId.class);
+        this.artifactTypes = this.wineryRepo.getQNameToElementMapping(ArtifactTypeId.class);
+        this.nodeTypes = this.wineryRepo.getQNameToElementMapping(NodeTypeId.class);
+        this.nodeTypeImplementations = this.wineryRepo.getQNameToElementMapping(NodeTypeImplementationId.class);
+        this.policyTemplates = this.wineryRepo.getQNameToElementMapping(PolicyTemplateId.class);
+        this.policyTypes = this.wineryRepo.getQNameToElementMapping(PolicyTypeId.class);
+        this.relationshipTypes = this.wineryRepo.getQNameToElementMapping(RelationshipTypeId.class);
+        this.relationshipTypeImplementations = this.wineryRepo.getQNameToElementMapping(RelationshipTypeImplementationId.class);
+        this.serviceTemplates = this.wineryRepo.getQNameToElementMapping(ServiceTemplateId.class);
     }
 
     private Optional<ServiceTemplateId> readEntryServiceTemplate(Path csarLocation) {
@@ -102,9 +124,7 @@ public class CsarImpl implements Csar {
 
     @Override
     public List<TArtifactTemplate> artifactTemplates() {
-        return wineryRepo.getAllDefinitionsChildIds(ArtifactTemplateId.class).stream()
-            .map(wineryRepo::getElement)
-            .collect(Collectors.toList());
+        return new ArrayList<>(this.artifactTemplates.values());
     }
 
     public void addArtifactTemplate(InputStream inputStream, ServiceTemplateId serviceTemplateId, String nodeTemplateId) throws IOException {
@@ -156,6 +176,14 @@ public class CsarImpl implements Csar {
                 break;
             }
         }
+
+        // update the ArtifactTemplates list
+        this.artifactTemplates.putAll(this.wineryRepo.getQNameToElementMapping(ArtifactTemplateId.class));
+    }
+
+    @Override
+    public Map<QName, TArtifactType> artifactTypesMap() {
+        return this.artifactTypes;
     }
 
     @Override
@@ -167,9 +195,7 @@ public class CsarImpl implements Csar {
 
     @Override
     public List<TPolicyTemplate> policyTemplates() {
-        return wineryRepo.getAllDefinitionsChildIds(PolicyTemplateId.class).stream()
-            .map(wineryRepo::getElement)
-            .collect(Collectors.toList());
+        return new ArrayList<>(this.policyTemplates.values());
     }
 
     @Override
@@ -221,30 +247,32 @@ public class CsarImpl implements Csar {
 
     @Override
     public List<TNodeType> nodeTypes() {
-        return wineryRepo.getAllDefinitionsChildIds(NodeTypeId.class).stream()
-            .map(wineryRepo::getElement)
-            .collect(Collectors.toList());
+        return new ArrayList<>(this.nodeTypes.values());
+    }
+
+    @Override
+    public Map<QName, TNodeType> nodeTypesMap() {
+        return this.nodeTypes;
     }
 
     @Override
     public List<TNodeTypeImplementation> nodeTypeImplementations() {
-        return wineryRepo.getAllDefinitionsChildIds(NodeTypeImplementationId.class).stream()
-            .map(wineryRepo::getElement)
-            .collect(Collectors.toList());
+        return new ArrayList<>(this.nodeTypeImplementations.values());
+    }
+
+    @Override
+    public Map<QName, TNodeTypeImplementation> nodeTypeImplementationsMap() {
+        return this.nodeTypeImplementations;
     }
 
     @Override
     public List<TRelationshipType> relationshipTypes() {
-        return wineryRepo.getAllDefinitionsChildIds(RelationshipTypeId.class).stream()
-            .map(wineryRepo::getElement)
-            .collect(Collectors.toList());
+        return new ArrayList<>(this.relationshipTypes.values());
     }
 
     @Override
     public List<TRelationshipTypeImplementation> relationshipTypeImplementations() {
-        return wineryRepo.getAllDefinitionsChildIds(RelationshipTypeImplementationId.class).stream()
-            .map(wineryRepo::getElement)
-            .collect(Collectors.toList());
+        return new ArrayList<>(this.relationshipTypeImplementations.values());
     }
 
     @Override
