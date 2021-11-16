@@ -25,7 +25,6 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
-@NonNullByDefault
 public interface Csar {
 
     CsarId id();

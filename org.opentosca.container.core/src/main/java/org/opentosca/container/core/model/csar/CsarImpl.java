@@ -3,7 +3,6 @@ package org.opentosca.container.core.model.csar;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -13,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -26,7 +26,6 @@ import org.eclipse.winery.model.ids.definitions.DefinitionsChildId;
 import org.eclipse.winery.model.ids.definitions.NodeTypeId;
 import org.eclipse.winery.model.ids.definitions.NodeTypeImplementationId;
 import org.eclipse.winery.model.ids.definitions.PolicyTemplateId;
-import org.eclipse.winery.model.ids.definitions.PolicyTypeId;
 import org.eclipse.winery.model.ids.definitions.RelationshipTypeId;
 import org.eclipse.winery.model.ids.definitions.RelationshipTypeImplementationId;
 import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
@@ -44,7 +43,6 @@ import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPolicyTemplate;
-import org.eclipse.winery.model.tosca.TPolicyType;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
@@ -80,19 +78,11 @@ public class CsarImpl implements Csar {
     private final Map<QName, TNodeType> nodeTypes;
     private final Map<QName, TNodeTypeImplementation> nodeTypeImplementations;
     private final Map<QName, TPolicyTemplate> policyTemplates;
-    private final Map<QName, TPolicyType> policyTypes;
     private final Map<QName, TRelationshipType> relationshipTypes;
     private final Map<QName, TRelationshipTypeImplementation> relationshipTypeImplementations;
-    private final Map<QName, TServiceTemplate> serviceTemplates;
-
-    // this is just for bridging purposes
-    @Deprecated
-    private @NonNull
-    final Path saveLocation;
 
     public CsarImpl(@NonNull CsarId id, @NonNull Path location) {
         this.id = id;
-        this.saveLocation = location;
         this.wineryRepo = RepositoryFactory.getRepository(location);
         entryServiceTemplate = readEntryServiceTemplate(location);
         this.artifactTemplates = this.wineryRepo.getQNameToElementMapping(ArtifactTemplateId.class);
@@ -100,21 +90,19 @@ public class CsarImpl implements Csar {
         this.nodeTypes = this.wineryRepo.getQNameToElementMapping(NodeTypeId.class);
         this.nodeTypeImplementations = this.wineryRepo.getQNameToElementMapping(NodeTypeImplementationId.class);
         this.policyTemplates = this.wineryRepo.getQNameToElementMapping(PolicyTemplateId.class);
-        this.policyTypes = this.wineryRepo.getQNameToElementMapping(PolicyTypeId.class);
         this.relationshipTypes = this.wineryRepo.getQNameToElementMapping(RelationshipTypeId.class);
         this.relationshipTypeImplementations = this.wineryRepo.getQNameToElementMapping(RelationshipTypeImplementationId.class);
-        this.serviceTemplates = this.wineryRepo.getQNameToElementMapping(ServiceTemplateId.class);
     }
 
     private Optional<ServiceTemplateId> readEntryServiceTemplate(Path csarLocation) {
         String qname = null;
         try {
-            qname = new String(Files.readAllBytes(csarLocation.resolve(ENTRY_SERVICE_TEMPLATE_LOCATION)), StandardCharsets.UTF_8);
+            qname = Files.readString(csarLocation.resolve(ENTRY_SERVICE_TEMPLATE_LOCATION));
         } catch (IOException e) {
             // Swallow, no helping this
         }
         return qname == null ? Optional.empty()
-            : Optional.ofNullable(new ServiceTemplateId(QName.valueOf(qname)));
+            : Optional.of(new ServiceTemplateId(QName.valueOf(qname)));
     }
 
     @Override
@@ -138,22 +126,19 @@ public class CsarImpl implements Csar {
         final QName artifactTemplateQName = new QName(artifactTemplateNamespace, artifactTemplateName);
 
         // ArtifactType handling
-        TArtifactType artifactType = new TArtifactType();
-        artifactType.setId(artifactTypeName);
-        artifactType.setTargetNamespace(artifactTypeNamespace);
+        TArtifactType artifactType = new TArtifactType.Builder(artifactTypeName)
+            .setTargetNamespace(artifactTypeNamespace)
+            .build();
         ArtifactTypeId artTypeId = new ArtifactTypeId(artifactType.getQName());
 
         this.wineryRepo.setElement(artTypeId, artifactType);
 
         // ArtifactTemplate handling
-        TArtifactTemplate artifactTemplate = new TArtifactTemplate();
-
-        artifactTemplate.setId(artifactTemplateName);
-        artifactTemplate.setName(artifactTemplateName);
+        TArtifactTemplate artifactTemplate =
+            new TArtifactTemplate.Builder(artifactTemplateName, artifactType.getQName())
+                .setName(artifactTemplateName)
+                .build();
         ArtifactTemplateId artTemplateId = new ArtifactTemplateId(artifactTemplateQName);
-
-        // hier artifactType verwenden
-        artifactTemplate.setType(new QName(artifactTypeNamespace, artifactTypeName));
 
         this.wineryRepo.setElement(artTemplateId, artifactTemplate);
         ArtifactTemplateFilesDirectoryId artFileId = new ArtifactTemplateFilesDirectoryId(artTemplateId);
@@ -162,15 +147,18 @@ public class CsarImpl implements Csar {
         BackendUtils.synchronizeReferences(this.wineryRepo, artTemplateId);
 
         TServiceTemplate servTemp = this.wineryRepo.getElement(serviceTemplateId);
-        for (TNodeTemplate allNestedNodeTemplate : BackendUtils.getAllNestedNodeTemplates(servTemp)) {
-            if (allNestedNodeTemplate.getId().equals(nodeTemplateId)) {
-                TDeploymentArtifact deplArt = new TDeploymentArtifact();
-                // von oben
-                deplArt.setArtifactType(artifactType.getQName());
-                deplArt.setArtifactRef(artTemplateId.getQName());
+        for (TNodeTemplate nestedNodeTemplate : BackendUtils.getAllNestedNodeTemplates(servTemp)) {
+            if (nestedNodeTemplate.getId().equals(nodeTemplateId)) {
+                TDeploymentArtifact deploymentArtifact =
+                    new TDeploymentArtifact.Builder(nodeTemplateId + "_StateArtifact", artifactType.getQName())
+                        .setArtifactRef(artTemplateId.getQName())
+                        .setArtifactRef(artTemplateId.getQName())
+                        .build();
 
-                deplArt.setId(nodeTemplateId + "_StateArtifact");
-                allNestedNodeTemplate.getDeploymentArtifacts().add(deplArt);
+                if (nestedNodeTemplate.getDeploymentArtifacts() == null) {
+                    nestedNodeTemplate.setDeploymentArtifacts(new ArrayList<>());
+                }
+                nestedNodeTemplate.getDeploymentArtifacts().add(deploymentArtifact);
 
                 this.wineryRepo.setElement(serviceTemplateId, servTemp);
                 break;
@@ -182,19 +170,19 @@ public class CsarImpl implements Csar {
     }
 
     @Override
-    public Map<QName, TArtifactType> artifactTypesMap() {
+    public @NonNull Map<QName, TArtifactType> artifactTypesMap() {
         return this.artifactTypes;
     }
 
     @Override
-    public List<TServiceTemplate> serviceTemplates() {
+    public @NonNull List<TServiceTemplate> serviceTemplates() {
         return wineryRepo.getAllDefinitionsChildIds(ServiceTemplateId.class).stream()
             .map(wineryRepo::getElement)
             .collect(Collectors.toList());
     }
 
     @Override
-    public List<TPolicyTemplate> policyTemplates() {
+    public @NonNull List<TPolicyTemplate> policyTemplates() {
         return new ArrayList<>(this.policyTemplates.values());
     }
 
@@ -208,16 +196,17 @@ public class CsarImpl implements Csar {
     }
 
     @Override
-    public List<TDefinitions> definitions() {
+    public @NonNull List<TDefinitions> definitions() {
         return wineryRepo.getAllDefinitionsChildIds().stream()
             .map(wineryRepo::getDefinitions)
             .collect(Collectors.toList());
     }
 
     @Override
-    public List<TExportedOperation> exportedOperations() {
+    public @NonNull List<TExportedOperation> exportedOperations() {
         return serviceTemplates().stream()
             .map(TServiceTemplate::getBoundaryDefinitions)
+            .filter(Objects::nonNull)
             .map(TBoundaryDefinitions::getInterfaces)
             .flatMap(Collection::stream)
             .map(TExportedInterface::getOperation)
@@ -226,19 +215,17 @@ public class CsarImpl implements Csar {
     }
 
     @Override
-    public List<TPlan> plans() {
-        @SuppressWarnings("null")
-        List<TPlan> plans = Optional.ofNullable(entryServiceTemplate())
+    public @NonNull List<TPlan> plans() {
+        return Optional.ofNullable(entryServiceTemplate())
             .map(TServiceTemplate::getPlans)
             .orElse(Collections.emptyList());
-        return plans;
     }
 
     @Override
     @Nullable
     public Application selfserviceMetadata() {
         // FIXME stop bridging optional to null
-        if (!entryServiceTemplate.isPresent()) {
+        if (this.entryServiceTemplate.isEmpty()) {
             return null;
         }
         SelfServiceMetaDataId metadata = new SelfServiceMetaDataId(entryServiceTemplate.get());
@@ -246,48 +233,48 @@ public class CsarImpl implements Csar {
     }
 
     @Override
-    public List<TNodeType> nodeTypes() {
+    public @NonNull List<TNodeType> nodeTypes() {
         return new ArrayList<>(this.nodeTypes.values());
     }
 
     @Override
-    public Map<QName, TNodeType> nodeTypesMap() {
+    public @NonNull Map<QName, TNodeType> nodeTypesMap() {
         return this.nodeTypes;
     }
 
     @Override
-    public List<TNodeTypeImplementation> nodeTypeImplementations() {
+    public @NonNull List<TNodeTypeImplementation> nodeTypeImplementations() {
         return new ArrayList<>(this.nodeTypeImplementations.values());
     }
 
     @Override
-    public Map<QName, TNodeTypeImplementation> nodeTypeImplementationsMap() {
+    public @NonNull Map<QName, TNodeTypeImplementation> nodeTypeImplementationsMap() {
         return this.nodeTypeImplementations;
     }
 
     @Override
-    public List<TRelationshipType> relationshipTypes() {
+    public @NonNull List<TRelationshipType> relationshipTypes() {
         return new ArrayList<>(this.relationshipTypes.values());
     }
 
     @Override
-    public List<TRelationshipTypeImplementation> relationshipTypeImplementations() {
+    public @NonNull List<TRelationshipTypeImplementation> relationshipTypeImplementations() {
         return new ArrayList<>(this.relationshipTypeImplementations.values());
     }
 
     @Override
-    public TExtensibleElements queryRepository(DefinitionsChildId id) {
+    public TExtensibleElements queryRepository(@NonNull DefinitionsChildId id) {
         return wineryRepo.getElement(id);
     }
 
     @Override
-    public String description() {
+    public @NonNull String description() {
         Application metadata = selfserviceMetadata();
         return metadata == null ? "" : metadata.getDescription();
     }
 
     @Override
-    public void exportTo(Path targetPath) throws IOException {
+    public void exportTo(@NonNull Path targetPath) throws IOException {
         CsarExporter exporter = new CsarExporter(this.wineryRepo);
         Map<String, Object> exportConfiguration = new HashMap<>();
         // Do not check hashes and do not store immutably => don't put anything into the export configuration
@@ -303,11 +290,11 @@ public class CsarImpl implements Csar {
 
     @Override
     public @NonNull Path getSaveLocation() {
-        return this.saveLocation;
+        return this.wineryRepo.getRepositoryRoot();
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return id().csarName();
     }
 }
