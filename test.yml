@@ -10,3 +10,7 @@ services:
       _JAVA_OPTIONS: "-Xmx3048m -Xms512m -Xss4m"
     ports:
       - '9763:9763'
+  engine-plan-bpmn:
+    image: opentosca/camunda-bpmn:latest
+    ports:
+      - '8092:8080'
