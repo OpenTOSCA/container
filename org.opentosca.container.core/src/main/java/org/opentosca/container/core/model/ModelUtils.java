@@ -1039,7 +1039,15 @@ public abstract class ModelUtils {
      * @return a possibly empty list of TDeploymentArtifacts
      */
     public static List<TDeploymentArtifact> calculateEffectiveDAs(TNodeTemplate nodeTemplate,
-                                                                  TNodeTypeImplementation nodeTypeImplementation) {
+                                                                  TNodeTypeImplementation nodeTypeImplementation,
+                                                                  Csar csar) {
+        return calculateEffectiveDAs(nodeTemplate, nodeTypeImplementation, csar, true);
+    }
+
+    private static List<TDeploymentArtifact> calculateEffectiveDAs(TNodeTemplate nodeTemplate,
+                                                                   TNodeTypeImplementation nodeTypeImplementation,
+                                                                   Csar csar,
+                                                                   boolean traceHierarchy) {
         List<TDeploymentArtifact> nodeImplementationDAs =
             nodeTypeImplementation == null || nodeTypeImplementation.getDeploymentArtifacts() == null
                 ? new ArrayList<>()
@@ -1053,11 +1061,29 @@ public abstract class ModelUtils {
         List<TDeploymentArtifact> effectiveDAs = new ArrayList<>(nodeTemplateDAs);
         nodeImplementationDAs.forEach(nodeTypeImplementationDA -> {
             if (effectiveDAs.stream()
-                .noneMatch(nodeTemplateDa -> nodeTypeImplementationDA.getName().equals(nodeTypeImplementationDA.getName()))
+                .noneMatch(nodeTemplateDa -> nodeTemplateDa.getName().equals(nodeTypeImplementationDA.getName()))
             ) {
                 effectiveDAs.add(nodeTypeImplementationDA);
             }
         });
+
+        if (traceHierarchy) {
+            TNodeType nodeType = csar.nodeTypesMap().get(nodeTemplate.getType());
+            List<QName> nodeTypeHierarchy = ModelUtils.getNodeTypeHierarchy(nodeType, csar);
+            // >1 since the hierarchy always contains the type itself at place 0.
+            for (int index = 1; index < nodeTypeHierarchy.size(); index++) {
+                QName parentType = nodeTypeHierarchy.get(index);
+                csar.nodeTypeImplementations().stream()
+                    .filter(implementation -> implementation.getNodeType().equals(parentType))
+                    .forEach(parentImplementation ->
+                        calculateEffectiveDAs(nodeTemplate, parentImplementation, csar, false).forEach(da -> {
+                            if (!effectiveDAs.contains(da)) {
+                                effectiveDAs.add(da);
+                            }
+                        })
+                    );
+            }
+        }
 
         return effectiveDAs;
     }
