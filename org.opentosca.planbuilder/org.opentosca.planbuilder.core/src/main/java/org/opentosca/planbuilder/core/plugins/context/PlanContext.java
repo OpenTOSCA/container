@@ -44,11 +44,14 @@ public abstract class PlanContext {
     }
 
     public Collection<PropertyVariable> getPropertyVariables(final TNodeTemplate nodeTemplate) {
+        return new HashSet<>(this.propertyMap.getNodePropertyVariables(this.serviceTemplate, nodeTemplate));
+    }
+
+    public Collection<PropertyVariable> getDeployTechDescriptorVariables(final TNodeTemplate nodeTemplate) {
         Set<PropertyVariable> vars = new HashSet<>();
         if (this.descriptorMapping != null) {
             vars.addAll(this.descriptorMapping.getVariablesByNode(nodeTemplate));
         }
-        vars.addAll(this.propertyMap.getNodePropertyVariables(this.serviceTemplate, nodeTemplate));
         return vars;
     }
 
@@ -93,8 +96,19 @@ public abstract class PlanContext {
             .stream()
             .filter(var -> var.getPropertyName().equals(propertyName))
             .findFirst()
-            .or(() -> Optional.ofNullable(this.descriptorMapping)
-                .flatMap(map -> map.getVariableByNodeAndProp(nodeTemplate, propertyName)))
+            .orElse(null);
+    }
+
+    /**
+     * Returns a Variable object that represents a property with the given name inside the deployment technology
+     * descriptor that is associated with the given node template.
+     *
+     * @param nodeTemplate a nodeTemplate specifying the deployment descriptor to look in
+     * @param propertyName the name of the searched property
+     * @return a Variable object representing the property
+     */
+    public PropertyVariable getDeployTechDescriptorVariable(final TNodeTemplate nodeTemplate, final String propertyName) {
+        return Optional.ofNullable(this.descriptorMapping).flatMap(map -> map.getVariableByNodeAndProp(nodeTemplate, propertyName))
             .orElse(null);
     }
 
