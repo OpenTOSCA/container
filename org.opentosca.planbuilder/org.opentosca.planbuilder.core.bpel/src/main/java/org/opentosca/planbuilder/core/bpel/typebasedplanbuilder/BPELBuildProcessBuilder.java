@@ -1,10 +1,15 @@
 package org.opentosca.planbuilder.core.bpel.typebasedplanbuilder;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -12,6 +17,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
 import org.opentosca.planbuilder.core.ChoreographyBuilder;
@@ -33,7 +39,6 @@ import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlu
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -197,6 +202,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             this.sitRegistrationPlugin.handle(serviceTemplate, newBuildPlan);
 
             this.finalizer.finalize(newBuildPlan);
+            writeXML(newBuildPlan);
             return newBuildPlan;
         }
 
@@ -205,6 +211,21 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
         return null;
     }
 
+    public void writeXML(BPELPlan newBuildPlan){
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = null;
+        try {
+            transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(newBuildPlan.getBpelDocument());
+            StreamResult result = new StreamResult(new File("C:\\Users\\User\\Downloads\\bpel2.xml"));
+            transformer.transform(source, result);
+            // Output to console for testing
+            StreamResult consoleResult = new StreamResult(System.out);
+            transformer.transform(source, consoleResult);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     /*
      * (non-Javadoc)
      *

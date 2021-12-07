@@ -14,6 +14,7 @@
 
   <modules>
     <module>org.opentosca.planbuilder.core</module>
+    <module>org.opentosca.planbuilder.core.bpmn</module>
     <module>org.opentosca.planbuilder.core.bpel</module>
     <module>org.opentosca.planbuilder.integration</module>
     <module>org.opentosca.planbuilder.model</module>

@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.core.bpel.handlers;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,6 +15,13 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.ode.schemas.dd._2007._03.ObjectFactory;
 import org.apache.ode.schemas.dd._2007._03.TDeployment;
@@ -925,6 +933,7 @@ public class BPELPlanHandler {
 
         for (final AbstractActivity activity : plan.getActivites()) {
             BPELScope newEmpty3SequenceScopeBPELActivity = null;
+
             if (activity instanceof NodeTemplateActivity) {
                 final NodeTemplateActivity ntActivity = (NodeTemplateActivity) activity;
                 newEmpty3SequenceScopeBPELActivity = this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan, "");
@@ -1103,6 +1112,20 @@ public class BPELPlanHandler {
             .createElementNS(BPELPlan.bpelNamespace,
                 "invoke"));
         newBuildPlan.getBpelMainSequenceElement().appendChild(newBuildPlan.getBpelMainSequenceCallbackInvokeElement());
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = null;
+        try {
+            transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(newBuildPlan.getBpelDocument());
+            StreamResult result = new StreamResult(new File("C:\\Users\\User\\Downloads\\bpel.xml"));
+            transformer.transform(source, result);
+            // Output to console for testing
+            StreamResult consoleResult = new StreamResult(System.out);
+            transformer.transform(source, consoleResult);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
