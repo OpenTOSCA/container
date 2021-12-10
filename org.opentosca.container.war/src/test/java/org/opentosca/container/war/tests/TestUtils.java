@@ -29,6 +29,7 @@ import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.export.CsarExporter;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
@@ -257,6 +258,15 @@ public abstract class TestUtils {
         inputParams.add(containerApiAddress);
 
         return inputParams;
+    }
+
+    public static String getDockerHost() {
+        String os = SystemUtils.OS_NAME;
+        if (os.toLowerCase().contains("windows")) {
+            return "host.docker.internal";
+        } else {
+            return "172.17.0.1";
+        }
     }
 
     public static ServiceTemplateInstance runAdaptationPlanExecution(PlanService planService, InstanceService instanceService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan adaptPlan, List<org.opentosca.container.core.extension.TParameter> adaptPlanInputParams) {
