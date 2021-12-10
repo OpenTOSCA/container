@@ -574,9 +574,9 @@ public class BPELScopeBuilder {
         for (final TNodeTypeImplementation impl : impls) {
             LOG.debug("Checking DAs of NodeTypeImpl {} and NodeTemplate {}", impl.getName(),
                 nodeTemplate.getId());
-            final DANodeTypeImplCandidate candidate = new DANodeTypeImplCandidate(nodeTemplate, impl);
+            final DANodeTypeImplCandidate candidate = new DANodeTypeImplCandidate(nodeTemplate, impl, context.getCsar());
 
-            final List<TDeploymentArtifact> effectiveDAs = ModelUtils.calculateEffectiveDAs(nodeTemplate, impl);
+            final List<TDeploymentArtifact> effectiveDAs = ModelUtils.calculateEffectiveDAs(nodeTemplate, impl, context.getCsar());
 
             for (final TDeploymentArtifact da : effectiveDAs) {
                 LOG.debug("Checking whether DA {} can be deployed", da.getName());

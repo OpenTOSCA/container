@@ -489,8 +489,8 @@ public class BPELInvokerPluginHandler {
         final List<String> inputParams = new ArrayList<>();
         List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
         if (interfaces != null) {
-            for (final TInterface iface : interfaces) {
-                for (final TOperation op : iface.getOperations()) {
+            for (final TInterface tInterface : interfaces) {
+                for (final TOperation op : tInterface.getOperations()) {
                     if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)) {
                         for (final TParameter param : op.getInputParameters()) {
                             inputParams.add(param.getName());
@@ -507,8 +507,8 @@ public class BPELInvokerPluginHandler {
         final List<String> inputParams = new ArrayList<>();
         List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
         if (interfaces != null) {
-            for (final TInterface iface : interfaces) {
-                for (final TOperation op : iface.getOperations()) {
+            for (final TInterface tInterface : interfaces) {
+                for (final TOperation op : tInterface.getOperations()) {
                     if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
                         for (final TParameter param : op.getInputParameters()) {
                             inputParams.add(param.getName());
@@ -534,7 +534,7 @@ public class BPELInvokerPluginHandler {
         }
 
         /*
-         * Contruct all needed data (paths, url, scripts)
+         * Construct all needed data (paths, url, scripts)
          */
         // TODO /home/ec2-user/ or ~ is a huge assumption
         // the path to the file on the ubuntu vm being uploaded

@@ -30,7 +30,7 @@ public class BPELPrePhasePluginHandler {
     private final BPELInvokerPlugin invokerPlugin = new BPELInvokerPlugin();
 
     /**
-     * Adds necessary BPEL logic trough the given context that can upload the given DA unto the given
+     * Adds necessary BPEL logic through the given context that can upload the given DA unto the given
      * InfrastructureNode
      *
      * @param context           a TemplateContext
@@ -58,9 +58,9 @@ public class BPELPrePhasePluginHandler {
                            final String artifactName, final TNodeTemplate infraTemplate) {
 
         LOG.debug("Handling DA upload with");
-        String refsString = "";
+        StringBuilder refsString = new StringBuilder();
         for (final TArtifactReference ref : refs) {
-            refsString += ref.getReference() + ", ";
+            refsString.append(ref.getReference()).append(", ");
         }
         LOG.debug("Refs:" + refsString.substring(0, refsString.lastIndexOf(",")));
         LOG.debug("ArtifactName: " + artifactName);

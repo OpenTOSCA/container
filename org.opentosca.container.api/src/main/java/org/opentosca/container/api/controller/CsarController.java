@@ -2,6 +2,7 @@ package org.opentosca.container.api.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -18,6 +19,7 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -97,7 +99,7 @@ public class CsarController {
                 csar.setId(id);
                 csar.setDescription(csarContent.description());
                 csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                    .path(CsarController.class, "getCsar").build(id))
+                        .path(CsarController.class, "getCsar").build(id))
                     .rel("self").build());
                 list.add(csar);
             }
@@ -149,15 +151,15 @@ public class CsarController {
             );
 
             csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                .path(CsarController.class, "getContent").build(id))
+                    .path(CsarController.class, "getContent").build(id))
                 .rel("content").baseUri(this.uriInfo.getBaseUri()).build(id));
             csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                .path(CsarController.class, "getCsar").build(id))
+                    .path(CsarController.class, "getCsar").build(id))
                 .rel("self").build());
 
             csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(ServiceTemplateController.class)
-                .path(ServiceTemplateController.class, "getServiceTemplate")
-                .build(id, UriUtil.encodePathSegment(entryServiceTemplate.getId())))
+                    .path(ServiceTemplateController.class, "getServiceTemplate")
+                    .build(id, UriUtil.encodePathSegment(entryServiceTemplate.getId())))
                 .rel("servicetemplate").baseUri(this.uriInfo.getBaseUri()).build());
 
             return Response.ok(csar).build();
@@ -196,7 +198,7 @@ public class CsarController {
     @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Handles an upload request for a CSAR file")
-    public Response uploadCsar(@ApiParam(required = true) final CsarUploadRequest request) {
+    public Response uploadCsar(@ApiParam(required = true) final CsarUploadRequest request, @HeaderParam("Authorization") String authorizationString) {
         logger.debug("Invoking uploadCsar");
         if (request == null) {
             return Response.status(Status.BAD_REQUEST).build();
@@ -212,8 +214,14 @@ public class CsarController {
 
         try {
             final URL url = new URL(request.getUrl());
+            HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
 
-            return handleCsarUpload(filename, url.openStream(), request.getEnrich());
+            if (authorizationString != null && !authorizationString.isEmpty()) {
+                httpConnection.setRequestProperty("Authorization", authorizationString);
+                httpConnection.setRequestProperty("Accept", "*");
+            }
+
+            return handleCsarUpload(filename, httpConnection.getInputStream(), request.getEnrich());
         } catch (final Exception e) {
             logger.error("Error uploading CSAR: {}", e.getMessage(), e);
             return Response.serverError().build();
@@ -230,7 +238,7 @@ public class CsarController {
         WineryConnector wc = new WineryConnector();
         doApplyEnrichment(wc, tempFile, applyEnrichment);
 
-        CsarId csarId = null;
+        CsarId csarId;
         try {
             csarId = storage.storeCSAR(tempFile);
         } catch (UserException e) {
