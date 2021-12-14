@@ -19,10 +19,16 @@ public class BPMNPlan extends AbstractPlan{
     private String toscaInterfaceName = null;
     private String toscaOperationName = null;
     // xml document
+
+    // bpmn -> process = main sequence, subprozess = process element
+    // process -> 'main' sequence / flow
     private Document bpmnProcessDocument;
     private Element bpmnDefinitionElement;
     private Element bpmnProcessElement;
     private Element bpmnMainSequenceElement;
+    private Element bpmnStartEvent;
+    private Element bpmnEndEvent;
+
     private String csarName = null;
     private List<BPMNScope> templateBuildPlans = new ArrayList<>();
 
@@ -56,6 +62,23 @@ public class BPMNPlan extends AbstractPlan{
         return this.bpmnDefinitionElement;
     }
 
+    public void setBpmnStartEvent(final Element bpmnStartEvent) {
+        this.bpmnStartEvent = bpmnStartEvent;
+    }
+
+    public Element getBpmnEndEvent() {
+        return this.bpmnEndEvent;
+    }
+
+    public void setBpmnEndEvent(final Element bpmnEndEvent) {
+        this.bpmnEndEvent = bpmnEndEvent;
+    }
+
+    public Element getBpmnStartEvent() {
+        return this.bpmnStartEvent;
+    }
+
+
     public Element getBpmnMainSequenceElement() {
         return this.bpmnMainSequenceElement;
     }
@@ -65,9 +88,11 @@ public class BPMNPlan extends AbstractPlan{
      *
      * @param bpmnMainSequenceElement a DOM Element
      */
+
     public void setBpmnMainSequenceElement(final Element bpmnMainSequenceElement) {
         this.bpmnMainSequenceElement = bpmnMainSequenceElement;
     }
+
     public String getTOSCAInterfaceName() {
         if (this.toscaInterfaceName != null) {
             return this.toscaInterfaceName;

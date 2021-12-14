@@ -31,18 +31,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
+import org.opentosca.planbuilder.core.bpmn.fragments.BPMNProcessFragments;
+
 public class BPMNPlanHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPMNPlanHandler.class);
     private final DocumentBuilderFactory documentBuilderFactory;
     private final DocumentBuilder documentBuilder;
     private final BPMNScopeHandler bpmnScopeHandler;
+    private final BPMNProcessFragments fragmentclass;
 
     public BPMNPlanHandler() throws ParserConfigurationException{
         this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
         this.documentBuilderFactory.setNamespaceAware(true);
         this.documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
         this.bpmnScopeHandler = new BPMNScopeHandler();
+        // test
+        this.fragmentclass = new BPMNProcessFragments();
     }
     public BPMNPlan createEmptyBPMNPlan(final String processNamespace, final String processName,
                                         final AbstractPlan abstractPlan, final String inputOperationName) {
@@ -74,6 +79,14 @@ public class BPMNPlanHandler {
         newBuildPlan.getBpmnProcessElement().setAttribute("id", "Process_Random");
         newBuildPlan.getBpmnProcessElement().setAttribute("isExecutable", "true");
         newBuildPlan.getBpmnDefinitionElement().appendChild(newBuildPlan.getBpmnProcessElement());
+
+        // create start event from fragment -> just a test, has to be done by plugin!
+        try{
+            newBuildPlan.setBpmnStartEvent( (Element) fragmentclass.createBPMNStartEventAsNode("lustigerEventName", "tollerFlow"));
+            newBuildPlan.getBpmnProcessElement().appendChild(newBuildPlan.getBpmnStartEvent());
+        }catch (Exception e){
+            BPMNPlanHandler.LOG.debug("error with fragments:", e);
+        }
         // write the content into xml file
 
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
