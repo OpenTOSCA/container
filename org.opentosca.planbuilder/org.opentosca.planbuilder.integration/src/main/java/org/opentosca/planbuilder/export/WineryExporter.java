@@ -44,8 +44,10 @@ import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.export.exporters.SimpleFileExporter;
 import org.opentosca.planbuilder.integration.layer.AbstractExporter;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
+import org.opentosca.planbuilder.model.plan.AbstractTransformationPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -78,15 +80,18 @@ public class WineryExporter extends AbstractExporter {
     }
 
     public PlanExportResult exportToCSAR(final List<AbstractPlan> plans, final CsarId csarId, IRepository repository, CsarStorageService storage) {
-        final List<BPELPlan> bpelPlans = new ArrayList<>();
-
+        List<AbstractPlan> bpmnBpelPlans = new ArrayList<>();
         for (final AbstractPlan plan : plans) {
             if (plan instanceof BPELPlan) {
-                bpelPlans.add((BPELPlan) plan);
+                bpmnBpelPlans.add(plan);
+            }
+
+            if (plan instanceof BPMNPlan) {
+                bpmnBpelPlans.add(plan);
             }
         }
 
-        return exportBPELToCSAR(bpelPlans, csarId, repository, storage);
+        return exportBPELToCSAR(bpmnBpelPlans, csarId, repository, storage);
     }
 
     private org.eclipse.winery.model.tosca.TDefinitions getEntryDefs(Csar csar, IRepository repo) {
@@ -104,7 +109,7 @@ public class WineryExporter extends AbstractExporter {
         return null;
     }
 
-    public PlanExportResult exportBPELToCSAR(final List<BPELPlan> plans, final CsarId csarId, IRepository repository, CsarStorageService storage) {
+    public PlanExportResult exportBPELToCSAR(final List<AbstractPlan> plans, final CsarId csarId, IRepository repository, CsarStorageService storage) {
         Csar csar = storage.findById(csarId);
         Collection<String> exportedBpelPlanIds = new ArrayList<String>();
         final TDefinitions defs = this.getEntryDefs(csar, repository);
@@ -116,7 +121,7 @@ public class WineryExporter extends AbstractExporter {
 
         try {
 
-            final List<BPELPlan> plansToExport = new ArrayList<>();
+            final List<AbstractPlan> plansToExport = new ArrayList<>();
 
             // add plans element to servicetemplates
             List<TPlan> planList = serviceTemplate.getPlans();
@@ -141,102 +146,131 @@ public class WineryExporter extends AbstractExporter {
                 boundary.setInterfaces(ifaces);
             }
 
-            for (final BPELPlan plan : plans) {
-                if (new QName(plan.getServiceTemplate().getTargetNamespace(), plan.getServiceTemplate().getId()).equals(buildQName(defs, serviceTemplate))) {
+            for (final AbstractPlan plan : plans) {
+                if (plan instanceof BPELPlan) {
+                    if (new QName(plan.getServiceTemplate().getTargetNamespace(), plan.getServiceTemplate().getId()).equals(buildQName(defs, serviceTemplate))) {
+                        final TPlan generatedPlanElement = generateTPlanElement((BPELPlan) plan, repository, new ServiceTemplateId(new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId())));
+                        exportedBpelPlanIds.add(generatedPlanElement.getId());
+                        planList.add(generatedPlanElement);
+                        plansToExport.add(plan);
+                        TExportedInterface exportedIface = null;
 
-                    final TPlan generatedPlanElement = generateTPlanElement(plan, repository, new ServiceTemplateId(new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId())));
-                    exportedBpelPlanIds.add(generatedPlanElement.getId());
-                    planList.add(generatedPlanElement);
-                    plansToExport.add(plan);
-                    TExportedInterface exportedIface = null;
+                        // find already set openTOSCA lifecycle interface
+                        for (final TExportedInterface exIface : ifaces) {
+                            if (exIface.getName() != null && exIface.getName().equals(((BPELPlan) plan).getTOSCAInterfaceName())) {
+                                exportedIface = exIface;
+                            }
+                        }
 
-                    // find already set openTOSCA lifecycle interface
-                    for (final TExportedInterface exIface : ifaces) {
-                        if (exIface.getName() != null && exIface.getName().equals(plan.getTOSCAInterfaceName())) {
-                            exportedIface = exIface;
+                        if (exportedIface == null) {
+                            exportedIface = new TExportedInterface();
+                            exportedIface.setName(((BPELPlan) plan).getTOSCAInterfaceName());
+                            ifaces.add(exportedIface);
+                        }
+
+                        boolean alreadySpecified = false;
+                        for (final TExportedOperation op : exportedIface.getOperation()) {
+                            if (op.getName().equals(((BPELPlan) plan).getTOSCAOperationName())) {
+                                alreadySpecified = true;
+                            }
+                        }
+
+                        if (!alreadySpecified) {
+                            final TExportedOperation newOp = new TExportedOperation();
+                            newOp.setName(((BPELPlan) plan).getTOSCAOperationName());
+                            final TExportedOperation.Plan newPlanRefElement =
+                                new TExportedOperation.Plan();
+                            newPlanRefElement.setPlanRef(generatedPlanElement);
+                            newOp.setPlan(newPlanRefElement);
+                            exportedIface.getOperation().add(newOp);
                         }
                     }
 
-                    if (exportedIface == null) {
-                        exportedIface = new TExportedInterface();
-                        exportedIface.setName(plan.getTOSCAInterfaceName());
-                        ifaces.add(exportedIface);
-                    }
+                serviceTemplate.setBoundaryDefinitions(boundary);
 
-                    boolean alreadySpecified = false;
-                    for (final TExportedOperation op : exportedIface.getOperation()) {
-                        if (op.getName().equals(plan.getTOSCAOperationName())) {
-                            alreadySpecified = true;
-                        }
-                    }
+                ServiceTemplateId id = BackendUtils.getDefinitionsChildId(ServiceTemplateId.class, serviceTemplate.getTargetNamespace(), serviceTemplate.getId(), false);
+                BackendUtils.persist(repository, id, defs);
 
-                    if (!alreadySpecified) {
-                        final TExportedOperation newOp = new TExportedOperation();
-                        newOp.setName(plan.getTOSCAOperationName());
-                        final TExportedOperation.Plan newPlanRefElement =
-                            new TExportedOperation.Plan();
-                        newPlanRefElement.setPlanRef(generatedPlanElement);
-                        newOp.setPlan(newPlanRefElement);
-                        exportedIface.getOperation().add(newOp);
-                    }
-                }
-            }
-            serviceTemplate.setBoundaryDefinitions(boundary);
+                // Check if selfservice is already available
+                final Path selfServiceDir = tempDir.resolve("SELFSERVICE-Metadata");
+                final Path selfServiceDataXml = selfServiceDir.resolve("data.xml");
+                final JAXBContext jaxbContextWineryApplication = JAXBContext.newInstance(Application.class);
 
-            ServiceTemplateId id = BackendUtils.getDefinitionsChildId(ServiceTemplateId.class, serviceTemplate.getTargetNamespace(), serviceTemplate.getId(), false);
-            BackendUtils.persist(repository, id, defs);
+                if (Files.exists(selfServiceDir) && Files.exists(selfServiceDataXml)) {
+                    final Unmarshaller u = jaxbContextWineryApplication.createUnmarshaller();
+                    final Application appDesc = (Application) u.unmarshal(selfServiceDataXml.toFile());
 
-            // Check if selfservice is already available
-            final Path selfServiceDir = tempDir.resolve("SELFSERVICE-Metadata");
-            final Path selfServiceDataXml = selfServiceDir.resolve("data.xml");
-            final JAXBContext jaxbContextWineryApplication = JAXBContext.newInstance(Application.class);
-
-            if (Files.exists(selfServiceDir) && Files.exists(selfServiceDataXml)) {
-                final Unmarshaller u = jaxbContextWineryApplication.createUnmarshaller();
-                final Application appDesc = (Application) u.unmarshal(selfServiceDataXml.toFile());
-
-                if (appDesc.getOptions() != null) {
-                    // check if planInput etc. is set properly
-                    final List<BPELPlan> exportedPlans = new ArrayList<>();
-                    for (final ApplicationOption option : appDesc.getOptions().getOption()) {
-                        for (final BPELPlan plan : plansToExport) {
-                            if (option.getPlanServiceName()
-                                .equals(getBuildPlanServiceName(plan.getDeploymentDeskriptor()).getLocalPart())) {
-                                final Path planInputFile = selfServiceDir.resolve(option.getPlanInputMessageUrl());
-                                if (!Files.exists(planInputFile)) {
-                                    // the planinput file is defined in the xml, but no file exists in the csar -> write one
-                                    writePlanInputMessageInstance(plan, planInputFile.toFile());
-                                    exportedPlans.add(plan);
+                    if (appDesc.getOptions() != null) {
+                        // check if planInput etc. is set properly
+                        final List<AbstractPlan> exportedPlans = new ArrayList<>();
+                        for (final ApplicationOption option : appDesc.getOptions().getOption()) {
+                            for (final AbstractPlan planToExport : plansToExport) {
+                                if (option.getPlanServiceName()
+                                    .equals(getBuildPlanServiceName(((BPELPlan) plan).getDeploymentDeskriptor()).getLocalPart())) {
+                                    final Path planInputFile = selfServiceDir.resolve(option.getPlanInputMessageUrl());
+                                    if (!Files.exists(planInputFile)) {
+                                        // the planinput file is defined in the xml, but no file exists in the csar -> write one
+                                        writePlanInputMessageInstance((BPELPlan) plan, planInputFile.toFile());
+                                        exportedPlans.add(planToExport);
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    if (exportedPlans.size() != plansToExport.size()) {
-                        int optionCounter = 1 + appDesc.getOptions().getOption().size();
-                        for (final BPELPlan plan : plansToExport) {
-                            if (exportedPlans.contains(plan)) {
-                                continue;
+                        if (exportedPlans.size() != plansToExport.size()) {
+                            int optionCounter = 1 + appDesc.getOptions().getOption().size();
+                            for (final AbstractPlan planToExport : plansToExport) {
+                                if (exportedPlans.contains(planToExport)) {
+                                    continue;
+                                }
+
+                                final ApplicationOption option = createApplicationOption((BPELPlan) planToExport, optionCounter);
+                                writePlanInputMessageInstance((BPELPlan) planToExport,
+                                    selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
+
+                                appDesc.getOptions().getOption().add(option);
+                                optionCounter++;
                             }
 
-                            final ApplicationOption option = createApplicationOption(plan, optionCounter);
-                            writePlanInputMessageInstance(plan,
-                                selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
-
-                            appDesc.getOptions().getOption().add(option);
-                            optionCounter++;
+                            final Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
+                            wineryAppMarshaller.marshal(appDesc, selfServiceDataXml.toFile());
                         }
+                    } else {
+                        int optionCounter = 1;
+                        final Application.Options options = new Application.Options();
+
+                        for (final AbstractPlan planToExport : plansToExport) {
+                            final ApplicationOption option = createApplicationOption((BPELPlan) plan, optionCounter);
+                            writePlanInputMessageInstance((BPELPlan) plan,
+                                selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
+                            optionCounter++;
+                            options.getOption().add(option);
+                        }
+                        appDesc.setOptions(options);
 
                         final Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
                         wineryAppMarshaller.marshal(appDesc, selfServiceDataXml.toFile());
                     }
                 } else {
+                    // write SELFSERVICE-Metadata folder and files
+                    Files.createDirectories(selfServiceDir);
+                    // safeguard against an exception by checking whether the thing exists before trying to create it
+                    if (!Files.exists(selfServiceDataXml)) {
+                        Files.createFile(selfServiceDataXml);
+                    }
+                    final Application appDesc = new Application();
+
+                    appDesc.setDisplayName(csarName);
+                    appDesc.setDescription("No description available. This application was partially generated");
+                    appDesc.setIconUrl("");
+                    appDesc.setImageUrl("");
+
                     int optionCounter = 1;
                     final Application.Options options = new Application.Options();
 
-                    for (final BPELPlan plan : plansToExport) {
-                        final ApplicationOption option = createApplicationOption(plan, optionCounter);
-                        writePlanInputMessageInstance(plan,
+                    for (final AbstractPlan planToExport : plansToExport) {
+                        final ApplicationOption option = createApplicationOption((BPELPlan) planToExport, optionCounter);
+                        writePlanInputMessageInstance((BPELPlan) planToExport,
                             selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
                         optionCounter++;
                         options.getOption().add(option);
@@ -246,37 +280,72 @@ public class WineryExporter extends AbstractExporter {
                     final Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
                     wineryAppMarshaller.marshal(appDesc, selfServiceDataXml.toFile());
                 }
-            } else {
-                // write SELFSERVICE-Metadata folder and files
-                Files.createDirectories(selfServiceDir);
-                // safeguard against an exception by checking whether the thing exists before trying to create it
-                if (!Files.exists(selfServiceDataXml)) {
-                    Files.createFile(selfServiceDataXml);
-                }
-                final Application appDesc = new Application();
 
-                appDesc.setDisplayName(csarName);
-                appDesc.setDescription("No description available. This application was partially generated");
-                appDesc.setIconUrl("");
-                appDesc.setImageUrl("");
-
-                int optionCounter = 1;
-                final Application.Options options = new Application.Options();
-
-                for (final BPELPlan plan : plansToExport) {
-                    final ApplicationOption option = createApplicationOption(plan, optionCounter);
-                    writePlanInputMessageInstance(plan,
-                        selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
-                    optionCounter++;
-                    options.getOption().add(option);
-                }
-                appDesc.setOptions(options);
-
-                final Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
-                wineryAppMarshaller.marshal(appDesc, selfServiceDataXml.toFile());
+                FileSystem.zip(repackagedCsar, tempDir);
             }
 
-            FileSystem.zip(repackagedCsar, tempDir);
+                if (plan instanceof BPMNPlan) {
+                    if (new QName(plan.getServiceTemplate().getTargetNamespace(), plan.getServiceTemplate().getId()).equals(buildQName(defs, serviceTemplate))) {
+                        final TPlan generatedPlanElement = generateTPlanElement((BPMNPlan) plan, repository, new ServiceTemplateId(new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId())));
+                        exportedBpelPlanIds.add(generatedPlanElement.getId());
+                        planList.add(generatedPlanElement);
+                        plansToExport.add(plan);
+                        TExportedInterface exportedIface = null;
+
+                        // find already set openTOSCA lifecycle interface
+                        for (final TExportedInterface exIface : ifaces) {
+                            if (exIface.getName() != null && exIface.getName().equals(((BPMNPlan) plan).getTOSCAInterfaceName())) {
+                                exportedIface = exIface;
+                            }
+                        }
+
+                        if (exportedIface == null) {
+                            exportedIface = new TExportedInterface();
+                            exportedIface.setName(((BPMNPlan) plan).getTOSCAInterfaceName());
+                            ifaces.add(exportedIface);
+                        }
+
+                        boolean alreadySpecified = false;
+                        for (final TExportedOperation op : exportedIface.getOperation()) {
+                            if (op.getName().equals(((BPMNPlan) plan).getTOSCAOperationName())) {
+                                alreadySpecified = true;
+                            }
+                        }
+
+                        if (!alreadySpecified) {
+                            final TExportedOperation newOp = new TExportedOperation();
+                            newOp.setName(((BPMNPlan) plan).getTOSCAOperationName());
+                            final TExportedOperation.Plan newPlanRefElement =
+                                new TExportedOperation.Plan();
+                            newPlanRefElement.setPlanRef(generatedPlanElement);
+                            newOp.setPlan(newPlanRefElement);
+                            exportedIface.getOperation().add(newOp);
+                        }
+                    }
+                    // Check if selfservice is already available
+                    final Path selfServiceDir = tempDir.resolve("SELFSERVICE-Metadata");
+                    final Path selfServiceDataXml = selfServiceDir.resolve("data.xml");
+                    final JAXBContext jaxbContextWineryApplication = JAXBContext.newInstance(Application.class);
+                    // write SELFSERVICE-Metadata folder and files
+                    Files.createDirectories(selfServiceDir);
+                    // safeguard against an exception by checking whether the thing exists before trying to create it
+                    if (!Files.exists(selfServiceDataXml)) {
+                        Files.createFile(selfServiceDataXml);
+                    }
+                    final Application appDesc = new Application();
+
+                    appDesc.setDisplayName(csarName);
+                    appDesc.setDescription("No description available. This application was partially generated");
+                    appDesc.setIconUrl("");
+                    appDesc.setImageUrl("");
+
+                    int optionCounter = 1;
+                    final Application.Options options = new Application.Options();
+
+
+                }
+
+            }
         } catch (final IOException e) {
             WineryExporter.LOG.error("Some IO Exception occured", e);
         } catch (final JAXBException e) {
@@ -332,7 +401,7 @@ public class WineryExporter extends AbstractExporter {
      * @param generatedPlan a Plan
      * @return a JAXB TPlan Object which represents the given BuildPlan
      */
-    private org.eclipse.winery.model.tosca.TPlan generateTPlanElement(final BPELPlan generatedPlan, IRepository repo, ServiceTemplateId servId) throws IOException, JAXBException {
+    private org.eclipse.winery.model.tosca.TPlan generateTPlanElement(final AbstractPlan generatedPlan, IRepository repo, ServiceTemplateId servId) throws IOException, JAXBException {
         final TPlan plan = new TPlan();
         final TPlan.PlanModelReference ref = new TPlan.PlanModelReference();
         final List<TParameter> inputParams = new ArrayList<>();
@@ -343,29 +412,34 @@ public class WineryExporter extends AbstractExporter {
         WineryExporter.LOG.debug(planPath.toString());
         Files.createDirectories(planPath.getParent());
         Files.createFile(planPath);
-        this.simpleExporter.export(planPath.toUri(), generatedPlan);
 
-        PlansId plansId = new PlansId(servId);
+        if (generatedPlan instanceof BPELPlan) {
+            this.simpleExporter.export(planPath.toUri(), (BPELPlan) generatedPlan);
 
-        PlanId planId = new PlanId(plansId, new XmlId(QName.valueOf(generatedPlan.getId()).getLocalPart(), false));
-        RepositoryFileReference fileRef = new RepositoryFileReference(planId, planPath.getFileName().toString());
-        repo.putContentToFile(fileRef, Files.newInputStream(planPath), MediaType.APPLICATION_ZIP);
+            PlansId plansId = new PlansId(servId);
 
-        ref.setReference(repo.id2RelativePath(planId).resolve(planPath.getFileName()).toString());
+            PlanId planId = new PlanId(plansId, new XmlId(QName.valueOf(generatedPlan.getId()).getLocalPart(), false));
+            RepositoryFileReference fileRef = new RepositoryFileReference(planId, planPath.getFileName().toString());
+            repo.putContentToFile(fileRef, Files.newInputStream(planPath), MediaType.APPLICATION_ZIP);
 
-        plan.setPlanModelReference(ref);
+            ref.setReference(repo.id2RelativePath(planId).resolve(planPath.getFileName()).toString());
 
-        for (final String paramName : generatedPlan.getWsdl().getInputMessageLocalNames()) {
-            // the builder supports only string types
-            final TParameter param = new TParameter.Builder(paramName, "String", true).build();
-            inputParams.add(param);
+            plan.setPlanModelReference(ref);
+
+            for (final String paramName : ((BPELPlan) generatedPlan).getWsdl().getInputMessageLocalNames()) {
+                // the builder supports only string types
+                final TParameter param = new TParameter.Builder(paramName, "String", true).build();
+                inputParams.add(param);
+            }
+
+            for (final String paramName : ((BPELPlan) generatedPlan).getWsdl().getOuputMessageLocalNames()) {
+                final TParameter param = new TParameter.Builder(paramName, "String", true).build();
+                outputParams.add(param);
+            }
+
+            plan.setId(QName.valueOf(generatedPlan.getId()).getLocalPart());
+            plan.setPlanLanguage(BPELPlan.bpelNamespace);
         }
-
-        for (final String paramName : generatedPlan.getWsdl().getOuputMessageLocalNames()) {
-            final TParameter param = new TParameter.Builder(paramName, "String", true).build();
-            outputParams.add(param);
-        }
-
         plan.setInputParameters(inputParams);
         plan.setOutputParameters(outputParams);
 
@@ -386,9 +460,11 @@ public class WineryExporter extends AbstractExporter {
                 break;
         }
 
-        plan.setId(QName.valueOf(generatedPlan.getId()).getLocalPart());
-        plan.setPlanLanguage(BPELPlan.bpelNamespace);
-
+        if (generatedPlan instanceof BPMNPlan) {
+            //this.simpleExporter.exportOfBPMN(planPath.toUri(), (BPMNPlan) generatedPlan);
+            plan.setId(QName.valueOf(generatedPlan.getId()).getLocalPart());
+            plan.setPlanLanguage(BPMNPlan.bpmnNamespace);
+        }
         return plan;
     }
 
@@ -398,8 +474,12 @@ public class WineryExporter extends AbstractExporter {
      * @param buildPlan the BuildPlan to get the path for
      * @return a relative Path to be used inside a CSAR
      */
-    private String generateRelativePlanPath(final BPELPlan buildPlan) {
-        return "Plans/" + buildPlan.getBpelProcessElement().getAttribute("name") + ".zip";
+    private String generateRelativePlanPath(final AbstractPlan buildPlan) {
+        if (buildPlan instanceof BPELPlan) {
+            return "Plans/" + ((BPELPlan) buildPlan).getBpelProcessElement().getAttribute("name") + ".zip";
+        }else{
+            return "Plans/" + ((BPMNPlan) buildPlan).getBpmnProcessElement().getAttribute("id") + ".zip";
+        }
     }
 
     private QName getBuildPlanServiceName(final Deploy deploy) {

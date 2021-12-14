@@ -15,7 +15,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class BPMNPlan extends AbstractPlan{
-    public static final String bpmnNamespace = "http://docs.oasis-open.org/BPMN/2.0";
+    public static final String bpmnNamespace = "http://www.omg.org/spec/BPMN/20100524/MODEL";
     private String toscaInterfaceName = null;
     private String toscaOperationName = null;
     // xml document
@@ -68,9 +68,24 @@ public class BPMNPlan extends AbstractPlan{
     public void setBpmnMainSequenceElement(final Element bpmnMainSequenceElement) {
         this.bpmnMainSequenceElement = bpmnMainSequenceElement;
     }
+    public String getTOSCAInterfaceName() {
+        if (this.toscaInterfaceName != null) {
+            return this.toscaInterfaceName;
+        } else {
+            return this.bpmnProcessElement.getAttribute("name");
+        }
+    }
 
     public void setTOSCAInterfaceName(String name) {
         this.toscaOperationName = name;
+    }
+
+    public String getTOSCAOperationName() {
+        if (this.toscaOperationName != null) {
+            return this.toscaOperationName;
+        } else{
+            return null;
+        }
     }
 
     public void setTOSCAOperationname(String initiate) {
