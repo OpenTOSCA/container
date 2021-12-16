@@ -17,6 +17,7 @@ import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.AbstractUpdatePlanBuilder;
@@ -26,10 +27,12 @@ import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
+import org.opentosca.planbuilder.core.bpel.handlers.DeployTechDescriptorHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.PropertyVariableHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.core.bpel.typebasednodehandler.BPELPluginHandler;
+import org.opentosca.planbuilder.core.plugins.context.DeployTechDescriptorMapping;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
@@ -37,7 +40,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -48,6 +50,8 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
     private final static Logger LOG = LoggerFactory.getLogger(BPELUpdateProcessBuilder.class);
     // class for initializing properties inside the build plan
     private final PropertyVariableHandler propertyInitializer;
+    // class for initializing deployment technology properties in the build plan
+    private final DeployTechDescriptorHandler deployTechDescriptorHandler;
     // class for finalizing build plans (e.g when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
@@ -77,6 +81,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
         }
         this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
         this.finalizer = new BPELFinalizer();
+        this.deployTechDescriptorHandler = new DeployTechDescriptorHandler(this.planHandler);
     }
 
     private BPELPlan buildPlan(Csar csar, TDefinitions definitions, TServiceTemplate serviceTemplate) {
@@ -102,6 +107,9 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
 
         final Property2VariableMapping propMap =
             this.propertyInitializer.initializePropertiesAsVariables(newUpdatePlan, serviceTemplate);
+
+        DeployTechDescriptorMapping descriptorMap =
+            this.deployTechDescriptorHandler.initializeDescriptorsAsVariables(newUpdatePlan, serviceTemplate);
 
         // instanceDataAPI handling is done solely trough this extension
         this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
@@ -137,7 +145,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
         this.instanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newUpdatePlan, propMap,
             serviceTemplate);
 
-        runPlugins(newUpdatePlan, propMap, csar);
+        runPlugins(newUpdatePlan, propMap, descriptorMap, csar);
 
         final String serviceInstanceURLVarName =
             this.serviceInstanceVarsHandler.findServiceInstanceUrlVariableName(newUpdatePlan);
@@ -238,7 +246,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
      * @param csar    the csar
      */
     private void runPlugins(final BPELPlan plan, final Property2VariableMapping propMap,
-                            final Csar csar) {
+                            final DeployTechDescriptorMapping descriptorMap, final Csar csar) {
 
         final String serviceInstanceUrl = this.serviceInstanceVarsHandler.findServiceInstanceUrlVariableName(plan);
         final String serviceInstanceId = this.serviceInstanceVarsHandler.findServiceInstanceIdVarName(plan);
@@ -246,7 +254,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
         final String planInstanceUrl = this.serviceInstanceVarsHandler.findPlanInstanceUrlVariableName(plan);
 
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
-            final BPELPlanContext context = new BPELPlanContext(new BPELScopeBuilder(pluginRegistry), plan, templatePlan, propMap, plan.getServiceTemplate(),
+            final BPELPlanContext context = new BPELPlanContext(new BPELScopeBuilder(pluginRegistry), plan, templatePlan, propMap, descriptorMap, plan.getServiceTemplate(),
                 serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csar);
             if (templatePlan.getNodeTemplate() != null) {
 
@@ -290,39 +298,6 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE, inputs);
                 }
 
-                // TODO add termination logic
-
-                /*
-                 * generic save state code
-                 */
-                final TOperation updateOp =
-                    ModelUtils.getOperationOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE,
-                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE_RUNUPDATE, csar);
-                if (this.isUpdatableComponent(nodeTemplate, csar) && updateOp != null) {
-
-                    final Map<TParameter, Variable> inputs = new HashMap<>();
-
-                    // retrieve input parameters from all nodes which are downwards in the same topology stack
-                    final List<TNodeTemplate> nodesForMatching = new ArrayList<>();
-                    ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodesForMatching, csar);
-
-                    LOG.debug("Update on NodeTemplate {} needs the following input parameters:",
-                        nodeTemplate.getName());
-                    for (final TParameter param : updateOp.getInputParameters()) {
-                        LOG.debug("Input param: {}", param.getName());
-                        found:
-                        for (final TNodeTemplate nodeForMatching : nodesForMatching) {
-                            for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
-                                if (param.getName().equals(propName)) {
-                                    inputs.put(param, context.getPropertyVariable(nodeForMatching, propName));
-                                    break found;
-                                }
-                            }
-                        }
-                    }
-
-                    LOG.debug("Found {} of {} input parameters.", inputs.size(), updateOp.getInputParameters().size());
-                }
                 this.bpelPluginHandler.handleActivity(context, templatePlan, nodeTemplate);
             }
         }
