@@ -69,6 +69,8 @@ public class BPMNPlanHandler {
         // declare xml schema namespace
         newBuildPlan.getBpmnDefinitionElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:bpmn",
             "http://www.omg.org/spec/BPMN/20100524/MODEL");
+        newBuildPlan.getBpmnDefinitionElement().setAttributeNS("", "targetNamespace",
+            "http://bpmn.io/schema/bpmn");
         newBuildPlan.getBpmnDefinitionElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:camunda","http://camunda.org/schema/1.0/bpmn");
         // initialize and append extensions element to process
         newBuildPlan.setBpmnProcessElement((newBuildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace,

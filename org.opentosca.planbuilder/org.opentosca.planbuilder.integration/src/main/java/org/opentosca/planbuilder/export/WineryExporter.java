@@ -223,13 +223,14 @@ public class WineryExporter extends AbstractExporter {
                                 if (exportedPlans.contains(planToExport)) {
                                     continue;
                                 }
+                                if(planToExport instanceof BPELPlan){
+                                    final ApplicationOption option = createApplicationOption((BPELPlan) planToExport, optionCounter);
+                                    writePlanInputMessageInstance((BPELPlan) planToExport,
+                                        selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
 
-                                final ApplicationOption option = createApplicationOption((BPELPlan) planToExport, optionCounter);
-                                writePlanInputMessageInstance((BPELPlan) planToExport,
-                                    selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
-
-                                appDesc.getOptions().getOption().add(option);
-                                optionCounter++;
+                                    appDesc.getOptions().getOption().add(option);
+                                    optionCounter++;
+                                }
                             }
 
                             final Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
@@ -240,11 +241,13 @@ public class WineryExporter extends AbstractExporter {
                         final Application.Options options = new Application.Options();
 
                         for (final AbstractPlan planToExport : plansToExport) {
-                            final ApplicationOption option = createApplicationOption((BPELPlan) plan, optionCounter);
-                            writePlanInputMessageInstance((BPELPlan) plan,
-                                selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
-                            optionCounter++;
-                            options.getOption().add(option);
+                            if(planToExport instanceof BPELPlan) {
+                                final ApplicationOption option = createApplicationOption((BPELPlan) plan, optionCounter);
+                                writePlanInputMessageInstance((BPELPlan) plan,
+                                    selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
+                                optionCounter++;
+                                options.getOption().add(option);
+                            }
                         }
                         appDesc.setOptions(options);
 
@@ -269,11 +272,13 @@ public class WineryExporter extends AbstractExporter {
                     final Application.Options options = new Application.Options();
 
                     for (final AbstractPlan planToExport : plansToExport) {
-                        final ApplicationOption option = createApplicationOption((BPELPlan) planToExport, optionCounter);
-                        writePlanInputMessageInstance((BPELPlan) planToExport,
-                            selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
-                        optionCounter++;
-                        options.getOption().add(option);
+                        if(planToExport instanceof BPELPlan) {
+                            final ApplicationOption option = createApplicationOption((BPELPlan) planToExport, optionCounter);
+                            writePlanInputMessageInstance((BPELPlan) planToExport,
+                                selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
+                            optionCounter++;
+                            options.getOption().add(option);
+                        }
                     }
                     appDesc.setOptions(options);
 
@@ -286,6 +291,7 @@ public class WineryExporter extends AbstractExporter {
 
                 if (plan instanceof BPMNPlan) {
                     if (new QName(plan.getServiceTemplate().getTargetNamespace(), plan.getServiceTemplate().getId()).equals(buildQName(defs, serviceTemplate))) {
+                        LOG.info(""+ ((BPMNPlan) plan).getBpmnDocument());
                         final TPlan generatedPlanElement = generateTPlanElement((BPMNPlan) plan, repository, new ServiceTemplateId(new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId())));
                         exportedBpelPlanIds.add(generatedPlanElement.getId());
                         planList.add(generatedPlanElement);
@@ -341,8 +347,7 @@ public class WineryExporter extends AbstractExporter {
 
                     int optionCounter = 1;
                     final Application.Options options = new Application.Options();
-
-
+                    FileSystem.zip(repackagedCsar, tempDir);
                 }
 
             }
@@ -440,6 +445,24 @@ public class WineryExporter extends AbstractExporter {
             plan.setId(QName.valueOf(generatedPlan.getId()).getLocalPart());
             plan.setPlanLanguage(BPELPlan.bpelNamespace);
         }
+        if (generatedPlan instanceof BPMNPlan) {
+            LOG.info(""+((BPMNPlan) generatedPlan).getBpmnDocument());
+            //this.simpleExporter.exportOfBPMN(planPath.toUri(), (BPMNPlan) generatedPlan);
+            this.simpleExporter.export(planPath.toUri(), (BPMNPlan) generatedPlan);
+
+            PlansId plansId = new PlansId(servId);
+
+            PlanId planId = new PlanId(plansId, new XmlId(QName.valueOf(generatedPlan.getId()).getLocalPart(), false));
+            RepositoryFileReference fileRef = new RepositoryFileReference(planId, planPath.getFileName().toString());
+            repo.putContentToFile(fileRef, Files.newInputStream(planPath), MediaType.APPLICATION_ZIP);
+
+            ref.setReference(repo.id2RelativePath(planId).resolve(planPath.getFileName()).toString());
+
+            plan.setPlanModelReference(ref);
+
+            plan.setId(QName.valueOf(generatedPlan.getId()).getLocalPart());
+            plan.setPlanLanguage(BPMNPlan.bpmnNamespace);
+        }
         plan.setInputParameters(inputParams);
         plan.setOutputParameters(outputParams);
 
@@ -460,11 +483,7 @@ public class WineryExporter extends AbstractExporter {
                 break;
         }
 
-        if (generatedPlan instanceof BPMNPlan) {
-            //this.simpleExporter.exportOfBPMN(planPath.toUri(), (BPMNPlan) generatedPlan);
-            plan.setId(QName.valueOf(generatedPlan.getId()).getLocalPart());
-            plan.setPlanLanguage(BPMNPlan.bpmnNamespace);
-        }
+
         return plan;
     }
 

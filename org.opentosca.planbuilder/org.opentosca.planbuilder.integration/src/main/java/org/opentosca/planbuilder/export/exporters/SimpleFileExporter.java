@@ -41,6 +41,7 @@ import org.opentosca.container.core.impl.service.FileSystem;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -160,6 +161,62 @@ public class SimpleFileExporter {
             this.writeBPELDocToFile(bpelFile, buildPlan.getBpelDocument());
         } catch (final TransformerException e) {
             LOG.error("Error while writing BPEL Document to a file", e);
+            return false;
+        }
+
+        Collection<Path> files = Files.walk(tempFolder, 1)
+            .filter(Files::isRegularFile)
+            .collect(Collectors.toList());
+
+        FileSystem.zip(new File(destination).toPath(), files.toArray(new Path[files.size()]));
+
+        // package temp dir and move to destination URI
+        //ZipManager.getInstance().zip(tempFolder.toFile(), new File(destination));
+        return true;
+    }
+
+    public boolean export(final URI destination, final BPMNPlan buildPlan) throws IOException, JAXBException {
+        if (!new File(destination).getName().contains("zip")) {
+            return false;
+        }
+
+        // fetch wsdl
+        //final GenericWsdlWrapper wsdl = buildPlan.getWsdl();
+
+        // generate temp folder
+        final Path tempFolder = Files.createTempDirectory(Long.toString(System.currentTimeMillis()));
+        LOG.debug("Trying to write files to temp folder: " + tempFolder.toAbsolutePath());
+
+        final List<Path> exportedFiles = new ArrayList<>();
+
+        // match importedFiles with importElements, to change temporary paths
+        // inside import elements to relative paths inside the generated zip
+        LOG.debug("Exported files:" + exportedFiles);
+
+        // write deploy.xml
+        LOG.debug("Starting marshalling");
+
+        final File deployXmlFile = tempFolder.resolve("deploy.xml").toFile();
+        deployXmlFile.createNewFile();
+        final JAXBContext jaxbContext = JAXBContext.newInstance(Deploy.class);
+        final Marshaller m = jaxbContext.createMarshaller();
+        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        // output to console uncomment this: m.marshal(deployment, System.out);
+        //m.marshal(deployment, deployXmlFile);
+
+        // save wsdl in tempfolder
+       // final File wsdlFile = tempFolder.resolve(wsdl.getFileName()).toFile();
+        //FileUtils.writeStringToFile(wsdlFile, wsdl.getFinalizedWsdlAsString());
+
+        // save bpel file in tempfolder
+        final File bpmnFile = tempFolder.resolve(deployXmlFile.getAbsolutePath().replace(".xml", ".bpmn")).toFile();
+        try {
+            LOG.info(""+ bpmnFile);
+
+            LOG.info(""+buildPlan.getBpmnDocument());
+           this.writeBPELDocToFile(bpmnFile, buildPlan.getBpmnDocument());
+        } catch (final TransformerException e) {
+           LOG.error("Error while writing BPMN Document to a file", e);
             return false;
         }
 
@@ -312,6 +369,7 @@ public class SimpleFileExporter {
         final DOMSource source = new DOMSource(doc);
         final StreamResult result = new StreamResult(new FileOutputStream(destination));
         transformer.transform(source, result);
+
     }
 
     // wrapper class for the rewriting of service names in WSDL's

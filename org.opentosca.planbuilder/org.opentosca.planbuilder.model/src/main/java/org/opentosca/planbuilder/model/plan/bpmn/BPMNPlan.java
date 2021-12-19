@@ -1,8 +1,10 @@
 package org.opentosca.planbuilder.model.plan.bpmn;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
@@ -18,6 +20,8 @@ public class BPMNPlan extends AbstractPlan{
     public static final String bpmnNamespace = "http://www.omg.org/spec/BPMN/20100524/MODEL";
     private String toscaInterfaceName = null;
     private String toscaOperationName = null;
+    // imported files of the whole buildplan, to keep track for export
+    private Set<Path> importedFiles;
     // xml document
 
     // bpmn -> process = main sequence, subprozess = process element
@@ -121,5 +125,36 @@ public class BPMNPlan extends AbstractPlan{
     }
     public void setCsarName(final String csarName) {
         this.csarName = csarName;
+    }
+    public String getCsarName()  {
+        return csarName;
+    }
+
+    /**
+     * Returns all files this bBuildPlan has imported
+     *
+     * @return a List of File
+     */
+    public Set<Path> getImportedFiles() {
+        return this.importedFiles;
+    }
+
+    /**
+     * Sets the imported files of this BuildPlan
+     *
+     * @param files a List of File
+     */
+    public void setImportedFiles(final Set<Path> files) {
+        this.importedFiles = files;
+    }
+
+    /**
+     * Adds a file to the imported files of this BuildPlan
+     *
+     * @param file the File to add as imported file
+     * @return true iff adding was successful
+     */
+    public boolean addImportedFile(final Path file) {
+        return this.importedFiles.add(file);
     }
 }

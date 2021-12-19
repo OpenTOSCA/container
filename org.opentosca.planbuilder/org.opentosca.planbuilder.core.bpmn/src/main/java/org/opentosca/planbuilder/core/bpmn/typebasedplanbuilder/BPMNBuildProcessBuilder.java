@@ -93,8 +93,8 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
         if (namespace.equals(serviceTemplateQname.getNamespaceURI())
             && serviceTemplate.getId().equals(serviceTemplateQname.getLocalPart())) {
 
-            final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_bpmn_buildPlan");
-            final String processNamespace = serviceTemplate.getTargetNamespace() + "_bpmn_buildPlan";
+            final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_buildPlan2");
+            final String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan2";
 
             AbstractPlan buildPlan =
                 AbstractBuildPlanBuilder.generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate, csar);
