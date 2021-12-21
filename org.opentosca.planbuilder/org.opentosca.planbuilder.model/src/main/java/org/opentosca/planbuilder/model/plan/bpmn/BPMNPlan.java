@@ -16,6 +16,8 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import org.w3c.dom.Node;
+
 public class BPMNPlan extends AbstractPlan{
     public static final String bpmnNamespace = "http://www.omg.org/spec/BPMN/20100524/MODEL";
     private String toscaInterfaceName = null;
@@ -30,7 +32,7 @@ public class BPMNPlan extends AbstractPlan{
     private Element bpmnDefinitionElement;
     private Element bpmnProcessElement;
     private Element bpmnMainSequenceElement;
-    private Element bpmnStartEvent;
+    private Node bpmnStartEvent;
     private Element bpmnEndEvent;
 
     private String csarName = null;
@@ -66,21 +68,22 @@ public class BPMNPlan extends AbstractPlan{
         return this.bpmnDefinitionElement;
     }
 
-    public void setBpmnStartEvent(final Element bpmnStartEvent) {
+    public void setBpmnStartEvent(final Node bpmnStartEvent) {
         this.bpmnStartEvent = bpmnStartEvent;
     }
 
-    public Element getBpmnEndEvent() {
-        return this.bpmnEndEvent;
+    public Node getBpmnStartEvent() {
+        return this.bpmnStartEvent;
     }
 
     public void setBpmnEndEvent(final Element bpmnEndEvent) {
         this.bpmnEndEvent = bpmnEndEvent;
     }
 
-    public Element getBpmnStartEvent() {
-        return this.bpmnStartEvent;
+    public Element getBpmnEndEvent() {
+        return this.bpmnEndEvent;
     }
+
 
 
     public Element getBpmnMainSequenceElement() {

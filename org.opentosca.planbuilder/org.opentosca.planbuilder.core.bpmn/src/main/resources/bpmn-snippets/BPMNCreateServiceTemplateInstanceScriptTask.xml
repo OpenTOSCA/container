@@ -1,4 +1,4 @@
-<bpmn:scriptTask id="ServiceTemplateInstance_IdToReplace" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" name="Create ServiceTemplate Instance" scriptFormat="groovy" camunda:resultVariable="ServiceInstanceURL" camunda:resource="deployment://CreateServiceInstance.groovy" qa:ntype="ServiceTemplateInstance" qa:State="CREATING">
+<bpmn:scriptTask id="ServiceTemplateInstance_IdToReplace" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" name="NameToSet" scriptFormat="groovy" camunda:resultVariable="ResultVariableToSet" camunda:resource="deployment://CreateServiceInstance.groovy">
     <bpmn:extensionElements>
         <camunda:inputOutput>
             <camunda:inputParameter name="State">StateToSet</camunda:inputParameter>

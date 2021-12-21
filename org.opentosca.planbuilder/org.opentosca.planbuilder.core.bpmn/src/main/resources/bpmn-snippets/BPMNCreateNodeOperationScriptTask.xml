@@ -1,0 +1,33 @@
+<bpmn:scriptTask id="CallNodeOperation_IdToReplace" name="NameToSet" scriptFormat="groovy" camunda:resource="deployment://CallNodeOperation.groovy" qa:ntype="CallNodeOperation" qa:serviceinstanceID="ServiceInstanceURL" qa:CSARID="MyTinyToDo_Bare_Docker_BPMN.csar" qa:servicetemplateID="{http://opentosca.org/servicetemplates}MyTinyToDo_Bare_Docker_BPMN" qa:NodeTemplate="DockerEngine_0" qa:interface="InterfaceDockerEngine" qa:operation="startContainer" qa:options="" qa:inputParams="ContainerPorts,xs:string" qa:nameInput="ContainerPorts" qa:type2Input="String" qa:typeInput="String" qa:outputParams="" qa:dataObject="none" qa:deploymentArtifact="MyTinyToDo_DA" qa:saveValueCheckbox="false" qa:dataObject2="" qa:valueInput="${ApplicationPort}" qa:dataObjectProperties="DockerEngineURL" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:camunda="http://camunda.org/schema/1.0/bpmn">
+    <bpmn:extensionElements>
+        <camunda:inputOutput>
+            <camunda:inputParameter name="ServiceInstanceID">${ServiceInstanceURLToSet}</camunda:inputParameter>
+            <camunda:inputParameter name="CsarID">CsarToSet</camunda:inputParameter>
+            <camunda:inputParameter name="ServiceTemplateID">{http://opentosca.org/servicetemplates}MyTinyToDo_Bare_Docker_BPMN</camunda:inputParameter>
+            <camunda:inputParameter name="NodeTemplate">NodeTemplateToSet</camunda:inputParameter>
+            <camunda:inputParameter name="Interface">InterfaceToSet</camunda:inputParameter>
+            <camunda:inputParameter name="Operation">OperationToSet</camunda:inputParameter>
+            <camunda:inputParameter name="InputParamNames">InputParamNamesToSet</camunda:inputParameter>
+            <camunda:inputParameter name="InputParamValues">InputParamValuesToSet</camunda:inputParameter>
+            <camunda:inputParameter name="OutputParamNames">OutputParamNamesToSet</camunda:inputParameter>
+            <camunda:inputParameter name="Input_DockerEngineURL">InputURLToSet, eventuell alles mit input unnötig</camunda:inputParameter>
+            <camunda:inputParameter name="Input_DockerEngineCertificate" />
+            <camunda:inputParameter name="Input_ContainerImage" />
+            <camunda:inputParameter name="Input_ContainerPorts">String!${ApplicationPort}</camunda:inputParameter>
+            <camunda:inputParameter name="Input_ContainerEnv" />
+            <camunda:inputParameter name="Input_Devices" />
+            <camunda:inputParameter name="Input_Links" />
+            <camunda:inputParameter name="Input_RemoteVolumeData" />
+            <camunda:inputParameter name="Input_HostVolumeData" />
+            <camunda:inputParameter name="Input_ContainerMountPath" />
+            <camunda:inputParameter name="Input_VMIP" />
+            <camunda:inputParameter name="Input_VMPrivateKey" />
+            <camunda:inputParameter name="Input_ImageLocation">DA!MyTinyToDo_DA#tinytodo.zip</camunda:inputParameter>
+            <camunda:outputParameter name="Output_ContainerPorts" />
+            <camunda:outputParameter name="Output_ContainerID" />
+            <camunda:outputParameter name="Output_ContainerIP" />
+        </camunda:inputOutput>
+    </bpmn:extensionElements>
+    <bpmn:incoming>IncomingFlowToReplace</bpmn:incoming>
+    <bpmn:outgoing>OutgoingFlowToReplace</bpmn:outgoing>
+</bpmn:scriptTask>

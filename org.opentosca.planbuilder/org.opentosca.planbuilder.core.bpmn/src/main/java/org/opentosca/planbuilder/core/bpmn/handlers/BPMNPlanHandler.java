@@ -29,7 +29,7 @@ import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import org.opentosca.planbuilder.core.bpmn.fragments.BPMNProcessFragments;
 
@@ -83,9 +83,18 @@ public class BPMNPlanHandler {
         newBuildPlan.getBpmnDefinitionElement().appendChild(newBuildPlan.getBpmnProcessElement());
 
         // create start event from fragment -> just a test, has to be done by plugin!
+        // does only work if node is actually imported via importNode !!!
+        // get node type -> integer gibt node type
+        // eventuell qa komplett raus wenns nicht benötigt wird, ansonsten namespace dafür hinzufügen sonst gehts nicht!
         try{
-            newBuildPlan.setBpmnStartEvent( (Element) fragmentclass.createBPMNStartEventAsNode("lustigerEventName", "tollerFlow"));
-            newBuildPlan.getBpmnProcessElement().appendChild(newBuildPlan.getBpmnStartEvent());
+            System.out.println("trystart");
+            Node testnode = newBuildPlan.getBpmnDocument().importNode(fragmentclass.createBPMNStartEventAsNode("lustigerEventName", "tollerFlow"), true);
+            System.out.println("mittendrin");
+            newBuildPlan.getBpmnProcessElement().appendChild(testnode);
+
+            newBuildPlan.getBpmnProcessElement().appendChild(newBuildPlan.getBpmnDocument().importNode(fragmentclass.createServiceTemplateInstanceAsNode(
+                "ieineactivity", "Creat ServiceTemplate Instance", "tollerincomingFlow",
+                "tolleroutgoingFlow", "CREATEING", "ServiceInstanceURL"), true));
         }catch (Exception e){
             BPMNPlanHandler.LOG.debug("error with fragments:", e);
         }
@@ -100,6 +109,7 @@ public class BPMNPlanHandler {
             transformer.transform(source, result);
             // Output to console for testing
             StreamResult consoleResult = new StreamResult(System.out);
+            System.out.println("bpmn_done");
             transformer.transform(source, consoleResult);
         } catch (Exception e) {
             e.printStackTrace();

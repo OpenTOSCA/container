@@ -1,0 +1,12 @@
+<bpmn:scriptTask id="RelationshipTemplate_IdToReplace" name="NameToSet" scriptFormat="groovy" camunda:resultVariable="ResultVariableToSet" camunda:resource="deployment://CreateRelationshipInstance.groovy" qa:ntype="RelationshipInstance" qa:State="CREATED" qa:RelationshipTemplate="con_HostedOn_0" qa:SourceURL="MyTinyToDoDockerContainerNodeInstanceURL" qa:TargetURL="DockerEngineNodeInstanceURL" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:camunda="http://camunda.org/schema/1.0/bpmn">
+    <bpmn:extensionElements>
+        <camunda:inputOutput>
+            <camunda:inputParameter name="State">StateToSet</camunda:inputParameter>
+            <camunda:inputParameter name="RelationshipTemplate">RelationshipTemplateToSet</camunda:inputParameter>
+            <camunda:inputParameter name="SourceURL">${SourceURLToSet}</camunda:inputParameter>
+            <camunda:inputParameter name="TargetURL">${TargetURLToSet}</camunda:inputParameter>
+        </camunda:inputOutput>
+    </bpmn:extensionElements>
+    <bpmn:incoming>IncomingFlowToReplace</bpmn:incoming>
+    <bpmn:outgoing>OutgoingFlowToReplace</bpmn:outgoing>
+</bpmn:scriptTask>

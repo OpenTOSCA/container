@@ -59,19 +59,83 @@ public class BPMNProcessFragments {
         return template;
     }
 
-    public String createServiceTemplateInstance(String ServiceTemplateInstanceID, String incomingFlowName,
-                                                String outgoingFlowName, String state) throws IOException{
-        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNEndEvent.xml"));
+    public String createBPMNSequenceFlow(String FlowID, String incomingFlowName, String outgoingFlowName) throws IOException{
+        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNSequenceFlow.xml"));
+        template = template.replaceAll("Flow_IdToReplace", FlowID);
+        template = template.replaceAll("SourceToReplace", incomingFlowName);
+        template = template.replaceAll("TargetToReplace", outgoingFlowName);
+        return template;
+    }
+
+    public String createServiceTemplateInstance(String ServiceTemplateInstanceID, String name, String incomingFlowName,
+                                                String outgoingFlowName, String state, String resultVariable) throws IOException{
+        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateServiceTemplateInstanceScriptTask.xml"));
         template = template.replaceAll("ServiceTemplateInstance_IdToReplace", ServiceTemplateInstanceID);
-        template = template.replaceAll("incomingFlowToReplace", incomingFlowName);
-        template = template.replaceAll("outgoingFlowToReplace", outgoingFlowName);
+        template = template.replaceAll("IncomingFlowToReplace", incomingFlowName);
+        template = template.replaceAll("OutgoingFlowToReplace", outgoingFlowName);
         template = template.replaceAll("StateToSet", state);
+        template = template.replaceAll("NameToSet", name);
+        template = template.replaceAll("ResultVariableToSet", resultVariable);
+        return template;
+    }
+
+    public String createNodeTemplateInstance(String NodeTemplateInstanceID, String name, String NodeTemplate, String incomingFlowName,
+                                                String outgoingFlowName, String state, String resultVariable) throws IOException{
+        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateNodeTemplateInstanceScriptTask.xml"));
+        template = template.replaceAll("NodeTemplateInstance_IdToReplace", NodeTemplateInstanceID);
+        template = template.replaceAll("IncomingFlowToReplace", incomingFlowName);
+        template = template.replaceAll("OutgoingFlowToReplace", outgoingFlowName);
+        template = template.replaceAll("StateToSet", state);
+        template = template.replaceAll("NameToSet", name);
+        template = template.replaceAll("NodeTemplateToSet", NodeTemplate);
+        template = template.replaceAll("ResultVariableToSet", resultVariable);
+        return template;
+    }
+
+    public String createRelationshipTemplateInstance(String RelationshipTemplateInstanceID, String name, String RelationshipTemplate,
+                                                     String source, String target, String incomingFlowName,
+                                                     String outgoingFlowName, String state, String resultVariable) throws IOException{
+        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateRelationshipTemplateInstanceScriptTask.xml"));
+        template = template.replaceAll("RelationshipTemplate_IdToReplace", RelationshipTemplateInstanceID);
+        template = template.replaceAll("IncomingFlowToReplace", incomingFlowName);
+        template = template.replaceAll("OutgoingFlowToReplace", outgoingFlowName);
+        template = template.replaceAll("StateToSet", state);
+        template = template.replaceAll("NameToSet", name);
+        template = template.replaceAll("RelationshipTemplateToSet", RelationshipTemplate);
+        template = template.replaceAll("SourceURLToSet", source);
+        template = template.replaceAll("TargetURLToSet", target);
+        template = template.replaceAll("ResultVariableToSet", resultVariable);
+        return template;
+    }
+
+    public String createNodeOperation(String name, String ServiceInstanceURL, String incomingFlowName, String outgoingFlowName,
+                                      String csar, String ServiceTemplateId, String NodeTemplate, String Interface, String Operation,
+                                      String InputParamNames, String InputParamValues, String OutputParamNames) throws IOException {
+        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateNodeOperationScriptTask.xml"));
+        template = template.replaceAll("ServiceInstanceURLToSet", ServiceInstanceURL);
+        template = template.replaceAll("IncomingFlowToReplace", incomingFlowName);
+        template = template.replaceAll("OutgoingFlowToReplace", outgoingFlowName);
+        template = template.replaceAll("CsarToSet", csar);
+        template = template.replaceAll("NameToSet", name);
+        template = template.replaceAll("Wasauchimmerhierreinkommt", ServiceTemplateId); // !!!!!!!!!!!!!!!!!!!!!!
+        template = template.replaceAll("NodeTemplateToSet", NodeTemplate);
+        template = template.replaceAll("InerfaceToSet", Interface);
+        template = template.replaceAll("OperationToSet", Operation);
+        template = template.replaceAll("InputParamNamesToSet", InputParamNames);
+        template = template.replaceAll("InputParamValuesToSet", InputParamValues);
+        template = template.replaceAll("OutputParamNamesToSet", OutputParamNames);
         return template;
     }
 
     // noch zu testen!
     public Node createBPMNStartEventAsNode(String EventID, String outgoingFlowName) throws IOException, SAXException {
         final String templateString = createBPMNStartEvent(EventID, outgoingFlowName);
+        return this.transformStringToNode(templateString);
+    }
+
+    public Node createServiceTemplateInstanceAsNode(String ServiceTemplateInstanceID, String name, String incomingFlowName,
+                                                    String outgoingFlowName, String state, String resultVariable) throws IOException, SAXException {
+        final String templateString = createServiceTemplateInstance(ServiceTemplateInstanceID, name, incomingFlowName, outgoingFlowName, state, resultVariable);
         return this.transformStringToNode(templateString);
     }
 
