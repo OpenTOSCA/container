@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.winery.model.tosca.TDefinitions;
@@ -18,7 +19,7 @@ import org.w3c.dom.Element;
 
 import org.w3c.dom.Node;
 
-public class BPMNPlan extends AbstractPlan{
+public class BPMNPlan extends AbstractPlan {
     public static final String bpmnNamespace = "http://www.omg.org/spec/BPMN/20100524/MODEL";
     private String toscaInterfaceName = null;
     private String toscaOperationName = null;
@@ -29,19 +30,21 @@ public class BPMNPlan extends AbstractPlan{
     // bpmn -> process = main sequence, subprozess = process element
     // process -> 'main' sequence / flow
     private Document bpmnProcessDocument;
+    private ArrayList<String> bpmnScript;
     private Element bpmnDefinitionElement;
     private Element bpmnProcessElement;
     private Element bpmnMainSequenceElement;
     private Node bpmnStartEvent;
     private Element bpmnEndEvent;
 
+    private Map<AbstractActivity, BPMNScope> abstract2bpmnMap;
+
     private String csarName = null;
     private List<BPMNScope> templateBuildPlans = new ArrayList<>();
 
-
-
     public BPMNPlan(String id, PlanType type, TDefinitions definitions, TServiceTemplate serviceTemplate, Collection<AbstractActivity> activities, Collection<AbstractPlan.Link> links) {
-        super(id, type, definitions, serviceTemplate, activities, links);;
+        super(id, type, definitions, serviceTemplate, activities, links);
+        ;
     }
 
     public void setBpmnDocument(final Document bpmnProcessDocument) {
@@ -50,6 +53,14 @@ public class BPMNPlan extends AbstractPlan{
 
     public Document getBpmnDocument() {
         return this.bpmnProcessDocument;
+    }
+
+    public ArrayList<String> getBpmnScripts() {
+        return this.bpmnScript;
+    }
+
+    public void setBpmnScript(final ArrayList<String> bpmnScript) {
+        this.bpmnScript = bpmnScript;
     }
 
     public void setBpmnProcessElement(final Element bpmnProcessElement) {
@@ -84,8 +95,6 @@ public class BPMNPlan extends AbstractPlan{
         return this.bpmnEndEvent;
     }
 
-
-
     public Element getBpmnMainSequenceElement() {
         return this.bpmnMainSequenceElement;
     }
@@ -115,7 +124,7 @@ public class BPMNPlan extends AbstractPlan{
     public String getTOSCAOperationName() {
         if (this.toscaOperationName != null) {
             return this.toscaOperationName;
-        } else{
+        } else {
             return null;
         }
     }
@@ -123,13 +132,23 @@ public class BPMNPlan extends AbstractPlan{
     public void setTOSCAOperationname(String initiate) {
     }
 
+    public void setAbstract2BPMNMapping(final Map<AbstractActivity, BPMNScope> abstract2bpmnMap) {
+        this.abstract2bpmnMap = abstract2bpmnMap;
+    }
+
+    public Map<AbstractActivity, BPMNScope> getAbstract2BPMN() {
+        return this.abstract2bpmnMap;
+    }
+
     public boolean addTemplateBuildPlan(final BPMNScope template) {
         return this.templateBuildPlans.add(template);
     }
+
     public void setCsarName(final String csarName) {
         this.csarName = csarName;
     }
-    public String getCsarName()  {
+
+    public String getCsarName() {
         return csarName;
     }
 

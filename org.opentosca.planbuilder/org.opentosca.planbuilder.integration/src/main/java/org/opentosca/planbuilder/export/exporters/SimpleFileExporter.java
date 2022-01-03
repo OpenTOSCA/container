@@ -5,8 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -25,6 +27,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -37,6 +41,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
+import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.impl.service.FileSystem;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
@@ -205,18 +210,31 @@ public class SimpleFileExporter {
         //m.marshal(deployment, deployXmlFile);
 
         // save wsdl in tempfolder
-       // final File wsdlFile = tempFolder.resolve(wsdl.getFileName()).toFile();
+        // final File wsdlFile = tempFolder.resolve(wsdl.getFileName()).toFile();
         //FileUtils.writeStringToFile(wsdlFile, wsdl.getFinalizedWsdlAsString());
 
+        // write scripts
+        String[] scriptNames = {"CreateServiceInstance", "CreateNodeInstance", "CreateRelationshipInstance", "DataObject", "SetProperties", "SetState"};
+        int i = 0;
+        for(String script: buildPlan.getBpmnScripts()){
+            final File scriptFile = tempFolder.resolve(scriptNames[i]+".groovy").toFile();
+            scriptFile.createNewFile();
+            Files.writeString(Paths.get(scriptFile.getAbsolutePath()), script);
+            i++;
+        }
         // save bpel file in tempfolder
         final File bpmnFile = tempFolder.resolve(deployXmlFile.getAbsolutePath().replace(".xml", ".bpmn")).toFile();
         try {
-            LOG.info(""+ bpmnFile);
-
-            LOG.info(""+buildPlan.getBpmnDocument());
-           this.writeBPELDocToFile(bpmnFile, buildPlan.getBpmnDocument());
-        } catch (final TransformerException e) {
-           LOG.error("Error while writing BPMN Document to a file", e);
+            this.writeBPELDocToFile(bpmnFile, buildPlan.getBpmnDocument());
+            //LOG.info("" + bpmnFile);
+            //LOG.info("" + buildPlan.getBpmnDocument());
+            //ClassLoader classLoader = getClass().getClassLoader();
+            //Path path = ResourceAccess.resolveUrl(getClass().getClassLoader().getResource("scripts/CallNodeOperation.groovy"));
+            //String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("scripts/CallNodeOperation.groovy"));
+            //File file = new File(path.toAbsolutePath().toString());
+            //this.writeBPELDocToFile(script, buildPlan.getBpmnCallNodeOperationDocument());
+        } catch (Exception e) {
+            LOG.error("Error while writing BPMN Document to a file", e);
             return false;
         }
 
@@ -369,7 +387,6 @@ public class SimpleFileExporter {
         final DOMSource source = new DOMSource(doc);
         final StreamResult result = new StreamResult(new FileOutputStream(destination));
         transformer.transform(source, result);
-
     }
 
     // wrapper class for the rewriting of service names in WSDL's

@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder.core.bpmn.handlers;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +18,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.ode.schemas.dd._2007._03.ObjectFactory;
+import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
@@ -29,9 +32,11 @@ import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import org.opentosca.planbuilder.core.bpmn.fragments.BPMNProcessFragments;
+import org.xml.sax.SAXException;
 
 public class BPMNPlanHandler {
 
@@ -41,7 +46,7 @@ public class BPMNPlanHandler {
     private final BPMNScopeHandler bpmnScopeHandler;
     private final BPMNProcessFragments fragmentclass;
 
-    public BPMNPlanHandler() throws ParserConfigurationException{
+    public BPMNPlanHandler() throws ParserConfigurationException {
         this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
         this.documentBuilderFactory.setNamespaceAware(true);
         this.documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
@@ -49,6 +54,7 @@ public class BPMNPlanHandler {
         // test
         this.fragmentclass = new BPMNProcessFragments();
     }
+
     public BPMNPlan createEmptyBPMNPlan(final String processNamespace, final String processName,
                                         final AbstractPlan abstractPlan, final String inputOperationName) {
         BPMNPlanHandler.LOG.debug("Creating BuildPlan for ServiceTemplate {}",
@@ -58,7 +64,25 @@ public class BPMNPlanHandler {
             new BPMNPlan(abstractPlan.getId(), abstractPlan.getType(), abstractPlan.getDefinitions(),
                 abstractPlan.getServiceTemplate(), abstractPlan.getActivites(), abstractPlan.getLinks());
         initializeXMLElements(buildPlan);
+        initializeScriptDocuments(buildPlan);
+
         return buildPlan;
+    }
+
+    public void initializeScriptDocuments(final BPMNPlan newBuildPlan) {
+        ArrayList<String> scripts = new ArrayList<>();
+        newBuildPlan.setBpmnScript(scripts);
+        String script = "";
+        try {
+            String[] scriptNames = {"CreateServiceInstance", "CreateNodeInstance", "CreateRelationshipInstance", "DataObject", "SetProperties", "SetState"};
+            for (String name : scriptNames) {
+                script = fragmentclass.createScript(name);
+                scripts.add(script);
+            }
+            newBuildPlan.setBpmnScript(scripts);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void initializeXMLElements(final BPMNPlan newBuildPlan) {
@@ -71,7 +95,7 @@ public class BPMNPlanHandler {
             "http://www.omg.org/spec/BPMN/20100524/MODEL");
         newBuildPlan.getBpmnDefinitionElement().setAttributeNS("", "targetNamespace",
             "http://bpmn.io/schema/bpmn");
-        newBuildPlan.getBpmnDefinitionElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:camunda","http://camunda.org/schema/1.0/bpmn");
+        newBuildPlan.getBpmnDefinitionElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:camunda", "http://camunda.org/schema/1.0/bpmn");
         // initialize and append extensions element to process
         newBuildPlan.setBpmnProcessElement((newBuildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace,
             "process")));
@@ -86,7 +110,7 @@ public class BPMNPlanHandler {
         // does only work if node is actually imported via importNode !!!
         // get node type -> integer gibt node type
         // eventuell qa komplett raus wenns nicht benötigt wird, ansonsten namespace dafür hinzufügen sonst gehts nicht!
-        try{
+        try {
             System.out.println("trystart");
             Node testnode = newBuildPlan.getBpmnDocument().importNode(fragmentclass.createBPMNStartEventAsNode("lustigerEventName", "tollerFlow"), true);
             System.out.println("mittendrin");
@@ -94,9 +118,11 @@ public class BPMNPlanHandler {
 
             newBuildPlan.getBpmnProcessElement().appendChild(newBuildPlan.getBpmnDocument().importNode(fragmentclass.createServiceTemplateInstanceAsNode(
                 "ieineactivity", "Creat ServiceTemplate Instance", "tollerincomingFlow",
-                "tolleroutgoingFlow", "CREATEING", "ServiceInstanceURL"), true));
-        }catch (Exception e){
-            BPMNPlanHandler.LOG.debug("error with fragments:", e);
+                "tolleroutgoingFlow", "CREATING", "ServiceInstanceURL"), true));
+            newBuildPlan.setBpmnStartEvent((Element) fragmentclass.createBPMNStartEventAsNode("lustigerEventName", "tollerFlow"));
+            newBuildPlan.getBpmnProcessElement().appendChild(newBuildPlan.getBpmnStartEvent());
+        } catch (Exception f) {
+            BPMNPlanHandler.LOG.debug("error with fragments:", f);
         }
         // write the content into xml file
 
@@ -111,15 +137,15 @@ public class BPMNPlanHandler {
             StreamResult consoleResult = new StreamResult(System.out);
             System.out.println("bpmn_done");
             transformer.transform(source, consoleResult);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception f) {
+            f.printStackTrace();
         }
     }
 
     public void initializeBPMNSkeleton(final BPMNPlan plan, final Csar csar) {
         plan.setCsarName(csar.id().csarName());
 
-        final Map<AbstractActivity, BPMNScope> abstract2bpelMap = new HashMap<>();
+        final Map<AbstractActivity, BPMNScope> abstract2bpmnMap = new HashMap<>();
 
         for (final AbstractActivity activity : plan.getActivites()) {
             BPMNScope newEmpty3SequenceScopeBPELActivity = null;
@@ -128,44 +154,44 @@ public class BPMNPlanHandler {
                 final NodeTemplateActivity ntActivity = (NodeTemplateActivity) activity;
                 newEmpty3SequenceScopeBPELActivity = this.bpmnScopeHandler.createTemplateBuildPlan(ntActivity, plan, "");
                 plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
-                abstract2bpelMap.put(ntActivity, newEmpty3SequenceScopeBPELActivity);
+                abstract2bpmnMap.put(ntActivity, newEmpty3SequenceScopeBPELActivity);
 
                 //final BPMNScope newFaultHandlerScope =
-                  //  this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan, "fault");
+                //  this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan, "fault");
                 //newEmpty3SequenceScopeBPELActivity.setBpelFaultHandlerScope(newFaultHandlerScope);
 
                 //final BPELScope newCompensationHandlerScope =
-                  //  this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan, "compensation");
+                //  this.bpelScopeHandler.createTemplateBuildPlan(ntActivity, plan, "compensation");
                 //newEmpty3SequenceScopeBPELActivity.setBpelCompensationHandlerScope(newCompensationHandlerScope);
             } else if (activity instanceof RelationshipTemplateActivity) {
                 final RelationshipTemplateActivity rtActivity = (RelationshipTemplateActivity) activity;
                 newEmpty3SequenceScopeBPELActivity = this.bpmnScopeHandler.createTemplateBuildPlan(rtActivity, plan, "");
                 plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
-                abstract2bpelMap.put(rtActivity, newEmpty3SequenceScopeBPELActivity);
+                abstract2bpmnMap.put(rtActivity, newEmpty3SequenceScopeBPELActivity);
 
                 //final BPELScope newFaultHandlerScope =
-                  //  this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan, "fault");
+                //  this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan, "fault");
                 //newEmpty3SequenceScopeBPELActivity.setBpelFaultHandlerScope(newFaultHandlerScope);
 
                 //BPELScope newCompensationHandlerScope =
-                  //  this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan, "compensation");
+                //  this.bpelScopeHandler.createTemplateBuildPlan(rtActivity, plan, "compensation");
                 //newEmpty3SequenceScopeBPELActivity.setBpelCompensationHandlerScope(newCompensationHandlerScope);
             } else {
                 newEmpty3SequenceScopeBPELActivity = this.bpmnScopeHandler.createTemplateBuildPlan(activity, plan, "");
                 plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
-                abstract2bpelMap.put(activity, newEmpty3SequenceScopeBPELActivity);
+                abstract2bpmnMap.put(activity, newEmpty3SequenceScopeBPELActivity);
 
                 //final BPELScope newFaultHandlerScope =
-                  //  this.bpelScopeHandler.createTemplateBuildPlan(activity, plan, "fault");
+                //  this.bpelScopeHandler.createTemplateBuildPlan(activity, plan, "fault");
                 //newEmpty3SequenceScopeBPELActivity.setBpelFaultHandlerScope(newFaultHandlerScope);
 
                 //final BPELScope newCompensationHandlerScope =
-                  //  this.bpelScopeHandler.createTemplateBuildPlan(activity, plan, "compensation");
+                //  this.bpelScopeHandler.createTemplateBuildPlan(activity, plan, "compensation");
                 //newEmpty3SequenceScopeBPELActivity.setBpelCompensationHandlerScope(newCompensationHandlerScope);
             }
         }
 
-        //plan.setAbstract2BPELMapping(abstract2bpelMap);
+        plan.setAbstract2BPMNMapping(abstract2bpmnMap);
 
         // connect the templates
         //initializeConnectionsAsLinkInBPELPlan(plan);

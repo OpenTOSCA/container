@@ -45,21 +45,26 @@ public class BPMNProcessFragments {
         return doc.getFirstChild();
     }
 
-    public String createBPMNStartEvent(String EventID, String outgoingFlowName) throws IOException{
+    public String createScript(String scriptName) throws IOException {
+        String script = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("scripts/" + scriptName + ".groovy"));
+        return script;
+    }
+
+    public String createBPMNStartEvent(String EventID, String outgoingFlowName) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNStartEvent.xml"));
         template = template.replaceAll("Event_IdToReplace", EventID);
         template = template.replaceAll("FlowToReplace", outgoingFlowName);
         return template;
     }
 
-    public String createBPMNEndEvent(String EventID, String incomingFlowName) throws IOException{
+    public String createBPMNEndEvent(String EventID, String incomingFlowName) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNEndEvent.xml"));
         template = template.replaceAll("Event_IdToReplace", EventID);
         template = template.replaceAll("FlowToReplace", incomingFlowName);
         return template;
     }
 
-    public String createBPMNSequenceFlow(String FlowID, String incomingFlowName, String outgoingFlowName) throws IOException{
+    public String createBPMNSequenceFlow(String FlowID, String incomingFlowName, String outgoingFlowName) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNSequenceFlow.xml"));
         template = template.replaceAll("Flow_IdToReplace", FlowID);
         template = template.replaceAll("SourceToReplace", incomingFlowName);
@@ -68,7 +73,7 @@ public class BPMNProcessFragments {
     }
 
     public String createServiceTemplateInstance(String ServiceTemplateInstanceID, String name, String incomingFlowName,
-                                                String outgoingFlowName, String state, String resultVariable) throws IOException{
+                                                String outgoingFlowName, String state, String resultVariable) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateServiceTemplateInstanceScriptTask.xml"));
         template = template.replaceAll("ServiceTemplateInstance_IdToReplace", ServiceTemplateInstanceID);
         template = template.replaceAll("IncomingFlowToReplace", incomingFlowName);
@@ -80,7 +85,7 @@ public class BPMNProcessFragments {
     }
 
     public String createNodeTemplateInstance(String NodeTemplateInstanceID, String name, String NodeTemplate, String incomingFlowName,
-                                                String outgoingFlowName, String state, String resultVariable) throws IOException{
+                                             String outgoingFlowName, String state, String resultVariable) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateNodeTemplateInstanceScriptTask.xml"));
         template = template.replaceAll("NodeTemplateInstance_IdToReplace", NodeTemplateInstanceID);
         template = template.replaceAll("IncomingFlowToReplace", incomingFlowName);
@@ -94,7 +99,7 @@ public class BPMNProcessFragments {
 
     public String createRelationshipTemplateInstance(String RelationshipTemplateInstanceID, String name, String RelationshipTemplate,
                                                      String source, String target, String incomingFlowName,
-                                                     String outgoingFlowName, String state, String resultVariable) throws IOException{
+                                                     String outgoingFlowName, String state, String resultVariable) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateRelationshipTemplateInstanceScriptTask.xml"));
         template = template.replaceAll("RelationshipTemplate_IdToReplace", RelationshipTemplateInstanceID);
         template = template.replaceAll("IncomingFlowToReplace", incomingFlowName);
@@ -138,5 +143,4 @@ public class BPMNProcessFragments {
         final String templateString = createServiceTemplateInstance(ServiceTemplateInstanceID, name, incomingFlowName, outgoingFlowName, state, resultVariable);
         return this.transformStringToNode(templateString);
     }
-
 }

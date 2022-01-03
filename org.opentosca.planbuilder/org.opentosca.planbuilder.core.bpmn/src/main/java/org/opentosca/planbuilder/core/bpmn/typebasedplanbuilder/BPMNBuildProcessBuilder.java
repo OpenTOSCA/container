@@ -108,8 +108,8 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             newBuildPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
             newBuildPlan.setTOSCAOperationname("initiate");
 
-            //this.planHandler.initializeBPMNSkeleton(newBuildPlan, csar);
-            // newBuildPlan.setCsarName(csarName);
+            this.planHandler.initializeBPMNSkeleton(newBuildPlan, csar);
+            //newBuildPlan.setCsarName(csarName);
 
             return newBuildPlan;
         }
