@@ -10,6 +10,7 @@ import java.util.Set;
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
@@ -33,18 +34,29 @@ public class BPMNPlan extends AbstractPlan {
     private ArrayList<String> bpmnScript;
     private Element bpmnDefinitionElement;
     private Element bpmnProcessElement;
-    private Element bpmnMainSequenceElement;
-    private Node bpmnStartEvent;
+    private Element bpmnDiagramElement;
+    private Element bpmnStartEvent;
     private Element bpmnEndEvent;
 
     private Map<AbstractActivity, BPMNScope> abstract2bpmnMap;
+
+    // the localNames inside the input and output message
+    // TODO: be reviewed
+    private final List<String> inputMessageLocalNames = new ArrayList<>();
+    private final List<String> outputMessageLocalNames = new ArrayList<>();
+
+    // variables associated with the bpel xml document itself
+    private List<Element> bpmnImportElements;
 
     private String csarName = null;
     private List<BPMNScope> templateBuildPlans = new ArrayList<>();
 
     public BPMNPlan(String id, PlanType type, TDefinitions definitions, TServiceTemplate serviceTemplate, Collection<AbstractActivity> activities, Collection<AbstractPlan.Link> links) {
         super(id, type, definitions, serviceTemplate, activities, links);
-        ;
+        this.setLanguage(PlanLanguage.BPMN);
+        // TODO: is it necessary to have imported files and elements
+        // this.setImportedFiles(new HashSet<>());
+        this.setBpmnImportElements(new ArrayList<>());
     }
 
     public void setBpmnDocument(final Document bpmnProcessDocument) {
@@ -79,34 +91,28 @@ public class BPMNPlan extends AbstractPlan {
         return this.bpmnDefinitionElement;
     }
 
-    public void setBpmnStartEvent(final Node bpmnStartEvent) {
+    public void setBpmnStartEvent(final Element bpmnStartEvent) {
         this.bpmnStartEvent = bpmnStartEvent;
-    }
-
-    public Node getBpmnStartEvent() {
-        return this.bpmnStartEvent;
-    }
-
-    public void setBpmnEndEvent(final Element bpmnEndEvent) {
-        this.bpmnEndEvent = bpmnEndEvent;
     }
 
     public Element getBpmnEndEvent() {
         return this.bpmnEndEvent;
     }
 
-    public Element getBpmnMainSequenceElement() {
-        return this.bpmnMainSequenceElement;
+    public void setBpmnEndEvent(final Element bpmnEndEvent) {
+        this.bpmnEndEvent = bpmnEndEvent;
     }
 
-    /**
-     * Sets the main BPEL Sequence element of this BuildPlan
-     *
-     * @param bpmnMainSequenceElement a DOM Element
-     */
+    public Element getBpmnStartEvent() {
+        return this.bpmnStartEvent;
+    }
 
-    public void setBpmnMainSequenceElement(final Element bpmnMainSequenceElement) {
-        this.bpmnMainSequenceElement = bpmnMainSequenceElement;
+    public Element getBpmnDiagramElement() {
+        return bpmnDiagramElement;
+    }
+
+    public void setBpmnDiagramElement(Element bpmnDiagramElement) {
+        this.bpmnDiagramElement = bpmnDiagramElement;
     }
 
     public String getTOSCAInterfaceName() {
@@ -178,5 +184,21 @@ public class BPMNPlan extends AbstractPlan {
      */
     public boolean addImportedFile(final Path file) {
         return this.importedFiles.add(file);
+    }
+
+    public List<Element> getBpmnImportElements() {
+        return bpmnImportElements;
+    }
+
+    public void setBpmnImportElements(List<Element> bpmnImportElements) {
+        this.bpmnImportElements = bpmnImportElements;
+    }
+
+    public List<String> getInputMessageLocalNames() {
+        return this.inputMessageLocalNames;
+    }
+
+    public List<String> getOutputMessageLocalNames() {
+        return this.outputMessageLocalNames;
     }
 }

@@ -17,6 +17,7 @@ import org.opentosca.planbuilder.export.VinothekKnownParameters;
 import org.opentosca.planbuilder.export.WineryExporter;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 
 /**
  * Copyright 2015 IAAS University of Stuttgart <br>
@@ -46,6 +47,27 @@ public class Util {
         return new SelfServiceOptionWrapper(option, planInputMessageFile);
     }
 
+    public static SelfServiceOptionWrapper generateSelfServiceOptionBPMN(final BPMNPlan buildPlan) throws IOException {
+        final String id = String.valueOf(System.currentTimeMillis());
+        final ApplicationOption option = new ApplicationOption();
+
+        final File tmpDir = FileSystem.getTemporaryFolder().toFile();
+        tmpDir.mkdir();
+
+        final File planInputMessageFile = new File(tmpDir, "plan.input.default." + id + ".xml");
+
+        // TODO: implement getBuildPlanServiceName for BPMN
+        // option.setName(Util.getBuildPlanServiceName(buildPlan.getDeploymentDeskriptor()).getLocalPart());
+        option.setId(id);
+        option.setIconUrl("");
+        option.setDescription("N/A");
+        // option.setPlanServiceName(Util.getBuildPlanServiceName(buildPlan.getDeploymentDeskriptor()).getLocalPart());
+        option.setPlanInputMessageUrl("plan.input.default." + id + ".xml");
+        // Util.writePlanInputMessageInstance(buildPlan, planInputMessageFile);
+
+        return new SelfServiceOptionWrapper(option, planInputMessageFile);
+    }
+
     /**
      * Writes given BuildPlan to temporary folder.
      *
@@ -71,6 +93,29 @@ public class Util {
             return null;
         }
     }
+
+    // TODO: consider merge with writePlan2TmpFolder() method
+    // remain seperated to avoid break current code because there are no UT for BPEL
+    public static File writeBPMNPlan2TmpFolder(final BPMNPlan buildPlan) {
+        final WineryExporter planBuilderExporter = new WineryExporter();
+        try {
+            final File tmpDir = FileSystem.getTemporaryFolder().toFile();
+            tmpDir.mkdir();
+
+            final File uploadFile = new File(tmpDir.getAbsoluteFile() + System.getProperty("file.separator")
+                + buildPlan.getBpmnProcessElement().getAttribute("name") + ".zip");
+            planBuilderExporter.exportToPlanFile(uploadFile.toURI(), buildPlan);
+            return uploadFile;
+        } catch (final IOException e) {
+            e.printStackTrace();
+            return null;
+        } catch (final JAXBException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
 
     private static QName getBuildPlanServiceName(final Deploy deploy) {
         // generated buildplans have only one process!

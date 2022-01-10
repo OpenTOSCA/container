@@ -35,11 +35,13 @@ import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.IHTTPService;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,11 +175,16 @@ public class PlanbuilderWorker {
         state.currentMessage = "Stored and generated Plans";
         LOG.debug("Stored and generated Plans");
 
-        final Map<BPELPlan, File> plansToUpload = new HashMap<>();
+        final Map<AbstractPlan, File> plansToUpload = new HashMap<>();
 
         for (final AbstractPlan buildPlan : buildPlans) {
-            final File planTmpFile = Util.writePlan2TmpFolder((BPELPlan) buildPlan);
-            plansToUpload.put((BPELPlan) buildPlan, planTmpFile);
+            final File planTmpFile;
+            if (buildPlan.getLanguage() != null && buildPlan.getLanguage() == PlanLanguage.BPMN) {
+                planTmpFile = Util.writeBPMNPlan2TmpFolder((BPMNPlan) buildPlan);
+            } else {
+                planTmpFile = Util.writePlan2TmpFolder((BPELPlan) buildPlan);
+            }
+            plansToUpload.put(buildPlan, planTmpFile);
         }
 
         LOG.debug("Plans to upload: " + buildPlans.size());
@@ -187,14 +194,24 @@ public class PlanbuilderWorker {
             // write to tmp dir, only generating one plan
             final File planTmpFile = plansToUpload.get(buildPlan);
 
-            final List<String> inputParameters = ((BPELPlan) buildPlan).getWsdl().getInputMessageLocalNames();
-            final List<String> outputParameters = ((BPELPlan) buildPlan).getWsdl().getOuputMessageLocalNames();
-
             final JsonObject obj = new JsonObject();
             obj.addProperty("name", QName.valueOf(buildPlan.getId()).getLocalPart());
             obj.addProperty("id", QName.valueOf(buildPlan.getId()).getLocalPart());
             obj.addProperty("planType", buildPlan.getType().toString());
-            obj.addProperty("planLanguage", BPELPlan.bpelNamespace);
+
+
+            final List<String> inputParameters;
+            final List<String> outputParameters;
+
+            if (buildPlan.getLanguage() != null && buildPlan.getLanguage() == PlanLanguage.BPMN) {
+                inputParameters = ((BPMNPlan) buildPlan).getInputMessageLocalNames();
+                outputParameters = ((BPMNPlan) buildPlan).getOutputMessageLocalNames();
+                obj.addProperty("planLanguage", BPMNPlan.bpmnNamespace);
+            } else {
+                inputParameters = ((BPELPlan) buildPlan).getWsdl().getInputMessageLocalNames();
+                outputParameters = ((BPELPlan) buildPlan).getWsdl().getOuputMessageLocalNames();
+                obj.addProperty("planLanguage", BPELPlan.bpelNamespace);
+            }
 
             JsonArray inputParamList = new JsonArray();
             createParameters(inputParameters).forEach(inputParamList::add);
@@ -270,7 +287,12 @@ public class PlanbuilderWorker {
                     final URL optionsUrl = new URL(state.getCsarUrl(), "selfserviceportal/options/");
                     LOG.debug("Sending options to " + optionsUrl.toString());
 
-                    final SelfServiceOptionWrapper option = Util.generateSelfServiceOption((BPELPlan) buildPlan);
+                    final SelfServiceOptionWrapper option;
+                    if (buildPlan.getLanguage() != null && buildPlan.getLanguage() == PlanLanguage.BPMN) {
+                        option = Util.generateSelfServiceOptionBPMN((BPMNPlan) buildPlan);
+                    } else {
+                        option = Util.generateSelfServiceOption((BPELPlan) buildPlan);
+                    }
                     LOG.debug("Sending the following option: " + option.toString());
 
                     // send plan back

@@ -180,13 +180,41 @@ public class SimpleFileExporter {
         return true;
     }
 
+    /**
+     * Exports the given BuildPlan to the given URI location
+     *
+     * @param destination the URI to export to
+     * @param buildPlan   the BuildPlan to export
+     * @return true iff exporting the BuildPlan was successful
+     * @throws IOException   is thrown when reading/writing the file fails
+     * @throws JAXBException is thrown when writing with JAXB fails
+     */
     public boolean export(final URI destination, final BPMNPlan buildPlan) throws IOException, JAXBException {
         if (!new File(destination).getName().contains("zip")) {
             return false;
         }
+        // TODO: review which files to be imported
+        // fetch imported files
+        /*
+        final Set<Path> importedFiles = buildPlan.getImportedFiles();
 
-        // fetch wsdl
-        //final GenericWsdlWrapper wsdl = buildPlan.getWsdl();
+
+        LOG.debug("BuildPlan has following files attached");
+        for (final Path file : importedFiles) {
+            LOG.debug(file.toAbsolutePath().toString());
+        }
+
+
+        // fetch import elements
+
+        final List<Element> importElements = buildPlan.getBpmnImportElements();
+
+        LOG.debug("BuildPlan has following import elements");
+        for (final Element element : importElements) {
+            LOG.debug("LocalName: " + element.getLocalName());
+            LOG.debug("location:" + element.getAttribute("location"));
+        }
+        */
 
         // generate temp folder
         final Path tempFolder = Files.createTempDirectory(Long.toString(System.currentTimeMillis()));
@@ -222,18 +250,18 @@ public class SimpleFileExporter {
             Files.writeString(Paths.get(scriptFile.getAbsolutePath()), script);
             i++;
         }
-        // save bpel file in tempfolder
+
+        // save bpmn file in tempfolder
         final File bpmnFile = tempFolder.resolve(deployXmlFile.getAbsolutePath().replace(".xml", ".bpmn")).toFile();
+        LOG.debug("file name: {}, exists? {}", bpmnFile, bpmnFile.exists());
+        if (!bpmnFile.exists()) {
+            bpmnFile.createNewFile();
+            LOG.debug("Creating file");
+        }
+
         try {
-            this.writeBPELDocToFile(bpmnFile, buildPlan.getBpmnDocument());
-            //LOG.info("" + bpmnFile);
-            //LOG.info("" + buildPlan.getBpmnDocument());
-            //ClassLoader classLoader = getClass().getClassLoader();
-            //Path path = ResourceAccess.resolveUrl(getClass().getClassLoader().getResource("scripts/CallNodeOperation.groovy"));
-            //String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("scripts/CallNodeOperation.groovy"));
-            //File file = new File(path.toAbsolutePath().toString());
-            //this.writeBPELDocToFile(script, buildPlan.getBpmnCallNodeOperationDocument());
-        } catch (Exception e) {
+            this.writeBPMNDocToFile(bpmnFile, buildPlan.getBpmnDocument());
+        } catch (final Exception e) {
             LOG.error("Error while writing BPMN Document to a file", e);
             return false;
         }
@@ -374,6 +402,31 @@ public class SimpleFileExporter {
      * @throws FileNotFoundException is thrown when the File denoted by the File Object doesn't exist
      */
     private void writeBPELDocToFile(final File destination, final Document doc) throws TransformerException,
+        FileNotFoundException {
+        final TransformerFactory tFactory = TransformerFactory.newInstance();
+        final Transformer transformer = tFactory.newTransformer();
+
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        final DOMSource source = new DOMSource(doc);
+        final StreamResult result = new StreamResult(new FileOutputStream(destination));
+        transformer.transform(source, result);
+    }
+
+    // TODO: merge with writeBPELDocToFile()
+    /**
+     * Writes the given DOM Document to the location denoted by the given File
+     *
+     * @param destination a File denoting the location to export to
+     * @param doc         the Document to export
+     * @throws TransformerException  is thrown when initializing a TransformerFactory or writing the Document fails
+     * @throws FileNotFoundException is thrown when the File denoted by the File Object doesn't exist
+     */
+    private void writeBPMNDocToFile(final File destination, final Document doc) throws TransformerException,
         FileNotFoundException {
         final TransformerFactory tFactory = TransformerFactory.newInstance();
         final Transformer transformer = tFactory.newTransformer();

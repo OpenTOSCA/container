@@ -143,4 +143,8 @@ public class BPMNProcessFragments {
         final String templateString = createServiceTemplateInstance(ServiceTemplateInstanceID, name, incomingFlowName, outgoingFlowName, state, resultVariable);
         return this.transformStringToNode(templateString);
     }
+    public Node createBPMNEndEventAsNode(String EventID, String incomingFlowName) throws IOException, SAXException {
+        final String templateString = createBPMNEndEvent(EventID, incomingFlowName);
+        return this.transformStringToNode(templateString);
+    }
 }

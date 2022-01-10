@@ -109,6 +109,8 @@ public class WineryExporter extends AbstractExporter {
         return null;
     }
 
+    // TODO: check plan language in the field of AbstractPlan
+    // avoid using "instanceof"
     public PlanExportResult exportBPELToCSAR(final List<AbstractPlan> plans, final CsarId csarId, IRepository repository, CsarStorageService storage) {
         Csar csar = storage.findById(csarId);
         Collection<String> exportedBpelPlanIds = new ArrayList<String>();
@@ -290,6 +292,7 @@ public class WineryExporter extends AbstractExporter {
             }
 
                 if (plan instanceof BPMNPlan) {
+                    LOG.info("Processing BPMN a plan id {} with language {}", plan.getId(), plan.getLanguage());
                     if (new QName(plan.getServiceTemplate().getTargetNamespace(), plan.getServiceTemplate().getId()).equals(buildQName(defs, serviceTemplate))) {
                         LOG.info(""+ ((BPMNPlan) plan).getBpmnDocument());
                         final TPlan generatedPlanElement = generateTPlanElement((BPMNPlan) plan, repository, new ServiceTemplateId(new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId())));

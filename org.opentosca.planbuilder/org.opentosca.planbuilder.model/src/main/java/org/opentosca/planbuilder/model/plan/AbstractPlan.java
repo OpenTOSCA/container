@@ -8,6 +8,7 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.next.model.PlanType;
 
 /**
@@ -24,6 +25,7 @@ public abstract class AbstractPlan {
     private final Collection<Link> links;
     private final String id;
     private PlanType type;
+    private PlanLanguage language;
     private int internalCounterId = 0;
 
     public AbstractPlan(final String id, final PlanType type, final TDefinitions definitions,
@@ -196,6 +198,14 @@ public abstract class AbstractPlan {
         }
 
         return toString;
+    }
+
+    public PlanLanguage getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(PlanLanguage language) {
+        this.language = language;
     }
 
     public static class Link {

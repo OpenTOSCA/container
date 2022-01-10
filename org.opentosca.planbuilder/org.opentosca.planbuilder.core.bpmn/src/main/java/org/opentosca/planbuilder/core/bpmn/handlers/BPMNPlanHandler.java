@@ -33,7 +33,6 @@ import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import org.opentosca.planbuilder.core.bpmn.fragments.BPMNProcessFragments;
 import org.xml.sax.SAXException;
@@ -88,42 +87,40 @@ public class BPMNPlanHandler {
     public void initializeXMLElements(final BPMNPlan newBuildPlan) {
         newBuildPlan.setBpmnDocument(this.documentBuilder.newDocument());
         newBuildPlan.setBpmnDefinitionElement(newBuildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace,
-            "definitions"));
+            "bpmn:definitions"));
         newBuildPlan.getBpmnDocument().appendChild(newBuildPlan.getBpmnDefinitionElement());
         // declare xml schema namespace
         newBuildPlan.getBpmnDefinitionElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:bpmn",
             "http://www.omg.org/spec/BPMN/20100524/MODEL");
-        newBuildPlan.getBpmnDefinitionElement().setAttributeNS("", "targetNamespace",
-            "http://bpmn.io/schema/bpmn");
-        newBuildPlan.getBpmnDefinitionElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:camunda", "http://camunda.org/schema/1.0/bpmn");
+        newBuildPlan.getBpmnDefinitionElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:camunda","http://camunda.org/schema/1.0/bpmn");
         // initialize and append extensions element to process
         newBuildPlan.setBpmnProcessElement((newBuildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace,
-            "process")));
-        // newBuildPlan.setBpmnMainSequenceElement((newBuildPlan.getBpmnDocument().createElement("bpmn")));
-        // newBuildPlan.getBpmnMainSequenceElement().setAttribute("id", "Event_Start");
+            "bpmn:process")));
 
+        newBuildPlan.setBpmnDiagramElement(newBuildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace,
+            "bpmn:BPMNDiagram"));
         newBuildPlan.getBpmnProcessElement().setAttribute("id", "Process_Random");
         newBuildPlan.getBpmnProcessElement().setAttribute("isExecutable", "true");
         newBuildPlan.getBpmnDefinitionElement().appendChild(newBuildPlan.getBpmnProcessElement());
-
+        newBuildPlan.getBpmnDefinitionElement().appendChild(newBuildPlan.getBpmnDiagramElement());
+        Element planeElement = newBuildPlan.getBpmnDocument().createElement("bpmndi:BPMNPlane");
+        planeElement.setAttribute("id", "Plane_Id");
+        planeElement.setAttribute("bpmnElement", "Process_Id");
+        newBuildPlan.getBpmnDiagramElement().appendChild(planeElement);
         // create start event from fragment -> just a test, has to be done by plugin!
-        // does only work if node is actually imported via importNode !!!
-        // get node type -> integer gibt node type
-        // eventuell qa komplett raus wenns nicht benötigt wird, ansonsten namespace dafür hinzufügen sonst gehts nicht!
         try {
-            System.out.println("trystart");
-            Node testnode = newBuildPlan.getBpmnDocument().importNode(fragmentclass.createBPMNStartEventAsNode("lustigerEventName", "tollerFlow"), true);
-            System.out.println("mittendrin");
-            newBuildPlan.getBpmnProcessElement().appendChild(testnode);
-
-            newBuildPlan.getBpmnProcessElement().appendChild(newBuildPlan.getBpmnDocument().importNode(fragmentclass.createServiceTemplateInstanceAsNode(
-                "ieineactivity", "Creat ServiceTemplate Instance", "tollerincomingFlow",
-                "tolleroutgoingFlow", "CREATING", "ServiceInstanceURL"), true));
-            newBuildPlan.setBpmnStartEvent((Element) fragmentclass.createBPMNStartEventAsNode("lustigerEventName", "tollerFlow"));
+            Element startEvent = (Element) newBuildPlan.getBpmnDocument().importNode((Element) fragmentclass.createBPMNStartEventAsNode("lustigerEventName", "tollerFlow"), true);
+            Element endEvent = (Element) newBuildPlan.getBpmnDocument().importNode((Element) fragmentclass.createBPMNEndEventAsNode("lustigerEventName", "tollerFlow"), true);
+            newBuildPlan.setBpmnStartEvent(startEvent);
             newBuildPlan.getBpmnProcessElement().appendChild(newBuildPlan.getBpmnStartEvent());
-        } catch (Exception f) {
-            BPMNPlanHandler.LOG.debug("error with fragments:", f);
+            newBuildPlan.setBpmnEndEvent(endEvent);
+            newBuildPlan.getBpmnProcessElement().appendChild(newBuildPlan.getBpmnEndEvent());
+
+        } catch (Exception e){
+            BPMNPlanHandler.LOG.debug("error with fragments:", e);
         }
+
+        // TODO: to be removed, testing purpose only
         // write the content into xml file
 
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -131,14 +128,13 @@ public class BPMNPlanHandler {
         try {
             transformer = transformerFactory.newTransformer();
             DOMSource source = new DOMSource(newBuildPlan.getBpmnDocument());
-            StreamResult result = new StreamResult(new File("C:\\Users\\User\\Downloads\\bpmn.xml"));
+            StreamResult result = new StreamResult(new File("test-bpmn.xml"));
             transformer.transform(source, result);
             // Output to console for testing
             StreamResult consoleResult = new StreamResult(System.out);
-            System.out.println("bpmn_done");
             transformer.transform(source, consoleResult);
-        } catch (Exception f) {
-            f.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
