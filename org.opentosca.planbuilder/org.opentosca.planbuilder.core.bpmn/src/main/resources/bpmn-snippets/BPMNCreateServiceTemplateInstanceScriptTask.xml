@@ -4,6 +4,4 @@
             <camunda:inputParameter name="State">StateToSet</camunda:inputParameter>
         </camunda:inputOutput>
     </bpmn:extensionElements>
-    <bpmn:incoming>IncomingFlowToReplace</bpmn:incoming>
-    <bpmn:outgoing>OutgoingFlowToReplace</bpmn:outgoing>
 </bpmn:scriptTask>

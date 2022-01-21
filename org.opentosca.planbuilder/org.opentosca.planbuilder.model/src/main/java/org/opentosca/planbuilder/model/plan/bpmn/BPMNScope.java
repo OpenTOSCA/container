@@ -1,7 +1,10 @@
 package org.opentosca.planbuilder.model.plan.bpmn;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
@@ -14,9 +17,8 @@ import org.w3c.dom.Element;
 
 /**
  * <p>
- * This class is the model for TemplateBuildPlans as declared in <a href= "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=BCLR-0043&mod=0&engl=1&inst=FAK"
- * >Konzept und Implementierung eine Java-Komponente zur Generierung von WS-BPEL 2.0 BuildPlans für OpenTOSCA</a> and
- * enforces those concepts by defining placeholder elements
+ * This class is the placeholder for BPMN elements before
+ * it is generated to XML snippet
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
@@ -25,8 +27,15 @@ import org.w3c.dom.Element;
  */
 public class BPMNScope {
 
+    private final String id;
     private final AbstractActivity act;
     private final Map<TOperation, TOperation> usedOperations;
+    private final BPMNScopeType bpmnScopeType;
+
+    // bpmn entity could have multiple incoming and outgoing
+    private Set<BPMNScope> incomingScope = new HashSet<>();
+    private Set<BPMNScope> outgoingScope = new HashSet<>();
+
     // the buildplan this templatebuildplan belongs to
     private BPMNPlan buildPlan;
 
@@ -37,6 +46,8 @@ public class BPMNScope {
     private Element bpmnSourcesElement;
     private Element bpmnTargetsElement;
     private Element bpmnVariablesElement;
+
+    // TODO: review necessity since the class is copied directly from BPELScope
     private Element bpelPartnerLinks;
     private Element bpelCorrelationSets;
     private Element bpelMainSequenceElement;
@@ -47,12 +58,35 @@ public class BPMNScope {
 
     private BPMNScope bpelCompensationScope;
     private BPMNScope bpelFaultScope;
+
     private TNodeTemplate nodeTemplate = null;
     private TRelationshipTemplate relationshipTemplate = null;
 
+    /**
+     *
+     * @param activity
+     * @param bpmnScopeType
+     * @param id
+     */
+    public BPMNScope(AbstractActivity activity, BPMNScopeType bpmnScopeType, String id) {
+        this.act = activity;
+        this.bpmnScopeType = bpmnScopeType;
+        this.usedOperations = new HashMap<TOperation, TOperation>();
+        this.id = id;
+    }
+    // Use Case: for Link
+    public BPMNScope(BPMNScopeType bpmnScopeType, String id) {
+        this.act = null;
+        this.bpmnScopeType = bpmnScopeType;
+        this.usedOperations = new HashMap<TOperation, TOperation>();
+        this.id = id;
+    }
+
     public BPMNScope(AbstractActivity activity) {
         this.act = activity;
+        this.bpmnScopeType = null;
         this.usedOperations = new HashMap<TOperation, TOperation>();
+        this.id = null;
     }
 
     @Override
@@ -365,6 +399,46 @@ public class BPMNScope {
 
     public void addUsedOperation(TOperation usedOperation, TOperation compensationOperation) {
         this.usedOperations.put(usedOperation, compensationOperation);
+    }
+
+    public BPMNScopeType getBpmnScopeType() {
+        return bpmnScopeType;
+    }
+
+    public boolean containsIncomingScope(BPMNScope incoming) {
+        return this.incomingScope.contains(incoming);
+    }
+
+    public boolean containsOutgoingScope(BPMNScope outgoing) {
+        return this.outgoingScope.contains(outgoing);
+    }
+
+    public void addIncomingScope(BPMNScope incoming) {
+        this.incomingScope.add(incoming);
+    }
+
+    public void addOutgoingScope(BPMNScope outgoing) {
+        this.outgoingScope.add(outgoing);
+    }
+
+    public int getNumIncomingLinks() {
+        return this.incomingScope.size();
+    }
+
+    public int getNumOutgoingLinks() {
+        return this.outgoingScope.size();
+    }
+
+    public Collection<BPMNScope> getIncomingLinks() {
+        return this.incomingScope;
+    }
+
+    public Collection<BPMNScope> getOutgoingLinks() {
+        return this.outgoingScope;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public enum BPELScopePhaseType {

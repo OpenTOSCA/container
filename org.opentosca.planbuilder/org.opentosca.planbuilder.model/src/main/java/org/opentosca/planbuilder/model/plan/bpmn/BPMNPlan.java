@@ -45,10 +45,20 @@ public class BPMNPlan extends AbstractPlan {
     private final List<String> inputMessageLocalNames = new ArrayList<>();
     private final List<String> outputMessageLocalNames = new ArrayList<>();
 
-    // variables associated with the bpel xml document itself
+    // variables associated with the bpmn xml document itself
     private List<Element> bpmnImportElements;
 
     private String csarName = null;
+
+    public List<BPMNScope> getTemplateBuildPlans() {
+        return templateBuildPlans;
+    }
+
+    public void setTemplateBuildPlans(List<BPMNScope> templateBuildPlans) {
+        this.templateBuildPlans = templateBuildPlans;
+    }
+
+    // TODO: rename, current name is misleading
     private List<BPMNScope> templateBuildPlans = new ArrayList<>();
 
     public BPMNPlan(String id, PlanType type, TDefinitions definitions, TServiceTemplate serviceTemplate, Collection<AbstractActivity> activities, Collection<AbstractPlan.Link> links) {
@@ -57,6 +67,7 @@ public class BPMNPlan extends AbstractPlan {
         // TODO: is it necessary to have imported files and elements
         // this.setImportedFiles(new HashSet<>());
         this.setBpmnImportElements(new ArrayList<>());
+        this.setTemplateBuildPlans(new ArrayList<>());
     }
 
     public void setBpmnDocument(final Document bpmnProcessDocument) {

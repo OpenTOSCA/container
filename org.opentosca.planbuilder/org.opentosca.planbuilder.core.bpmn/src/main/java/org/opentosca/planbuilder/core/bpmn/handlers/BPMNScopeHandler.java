@@ -3,16 +3,17 @@ package org.opentosca.planbuilder.core.bpmn.handlers;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.model.ModelUtils;
+import org.opentosca.planbuilder.core.bpmn.fragments.BPMNProcessFragments;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
-import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNScopeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -22,7 +23,8 @@ import org.w3c.dom.NodeList;
 
 /**
  * <p>
- * This class is part of the Facade to handle actions on BuildPlans. This particular class handle XML related operations
+ * This class is part of the Facade to handle actions on BPMN process components.
+ * This particular class handle XML related operations
  * on TemplateBuildPlans
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
@@ -33,6 +35,11 @@ import org.w3c.dom.NodeList;
 public class BPMNScopeHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPMNScopeHandler.class);
+    private final BPMNProcessFragments fragments;
+
+    public BPMNScopeHandler() throws ParserConfigurationException {
+        this.fragments = new BPMNProcessFragments();
+    }
 
     /**
      * Removes all ChildNodes of he given DOM Node
@@ -47,6 +54,64 @@ public class BPMNScopeHandler {
         }
     }
 
+    public BPMNScope createStartEvent(final BPMNPlan buildPlan) {
+        String idPrefix = BPMNScopeType.EVENT.toString();
+        final BPMNScope startEvent = new BPMNScope(BPMNScopeType.START_EVENT, idPrefix + "_" + buildPlan.getIdForNamesAndIncrement());
+
+        // collecting BPMNScope for refinement in next stage
+        startEvent.setBuildPlan(buildPlan);
+        buildPlan.addTemplateBuildPlan(startEvent);
+        return startEvent;
+    }
+
+    public BPMNScope createEndEvent(final BPMNPlan buildPlan) {
+        String idPrefix = BPMNScopeType.EVENT.name();
+        final BPMNScope endEvent = new BPMNScope(BPMNScopeType.END_EVENT, idPrefix + "_" + buildPlan.getIdForNamesAndIncrement());
+
+        // collecting BPMNScope for refinement in next stage
+        endEvent.setBuildPlan(buildPlan);
+        buildPlan.addTemplateBuildPlan(endEvent);
+        return endEvent;
+    }
+
+    public BPMNScope createTemplateBuildPlan(final AbstractActivity activity, final  BPMNPlan buildPlan) {
+        LOG.debug("Create template build plan with Abstract activity: {} type: {}", activity.getId(), activity.getType());
+        // reuse activity id with prefix
+        String idPrefix = "";
+        final BPMNScope templateBuildPlan;
+        if (activity instanceof NodeTemplateActivity) {
+            idPrefix = BPMNScopeType.SUBPROCESS.toString();
+            templateBuildPlan = new BPMNScope(activity, BPMNScopeType.SUBPROCESS, idPrefix + "_" + activity.getId());
+        } else if (activity instanceof RelationshipTemplateActivity) {
+            idPrefix = BPMNScopeType.CREATE_RT_INSTANCE.toString();
+            templateBuildPlan = new BPMNScope(activity, BPMNScopeType.CREATE_RT_INSTANCE, idPrefix + "_" + activity.getId());
+        } else {
+            templateBuildPlan = null;
+        }
+
+        // collecting BPMNScope for refinement in next stage
+        templateBuildPlan.setBuildPlan(buildPlan);
+        buildPlan.addTemplateBuildPlan(templateBuildPlan);
+        return templateBuildPlan;
+    }
+
+
+    public BPMNScope createSequenceFlow(BPMNScope src, BPMNScope trg, final BPMNPlan buildPlan) {
+        String idPrefix = BPMNScopeType.SEQUENCE_FLOW.name();
+        // create new id
+        final BPMNScope flow = new BPMNScope(BPMNScopeType.SEQUENCE_FLOW, idPrefix + "_" + buildPlan.getIdForNamesAndIncrement());
+
+        // src ->  flow -> trg
+        src.addOutgoingScope(flow);
+        trg.addIncomingScope(flow);
+        flow.addIncomingScope(src);
+        flow.addOutgoingScope(trg);
+
+        // collecting all BPMNScope for refinement in next stage
+        flow.setBuildPlan(buildPlan);
+        buildPlan.addTemplateBuildPlan(flow);
+        return flow;
+    }
 
     public BPMNScope createTemplateBuildPlan(final AbstractActivity activity, final BPMNPlan buildPlan,
                                              String namePrefix) {
@@ -81,6 +146,26 @@ public class BPMNScopeHandler {
         return newTemplateBuildPlan;
     }
 
+    /**
+     * Connects two TemplateBuildPlans (which are basically bpel scopes) with the given link
+     *
+     * @param source   the TemplateBuildPlan which should be a source of the link
+     * @param target   the TemplateBuildPlan which should be a target of the link
+     * @param linkName the name of the link used to connect the two templates
+     * @return true if connections between templates was sucessfully created, else false
+     */
+    /*
+    public boolean connect(final BPMNScope source, final BPMNScope target, final String linkName) {
+        BPMNScopeHandler.LOG.debug("Trying to connect TemplateBuildPlan {} as source with TemplateBuildPlan {} as target",
+            source.getBpelScopeElement().getAttribute("name"),
+            target.getBpelScopeElement().getAttribute("name"));
+        boolean check = true;
+        // if everything was successfully added return true
+        check &= this.addSource(linkName, source);
+        check &= this.addTarget(linkName, target);
+        return check;
+    }
+    */
     /**
      * Returns the names of the links declared in the sources element of the given TemplateBuildPlan
      *
@@ -253,4 +338,21 @@ public class BPMNScopeHandler {
         }
     }
 
+    public BPMNScope createServiceTemplateInstanceTask(BPMNPlan plan) {
+        String idPrefix = BPMNScopeType.CREATE_ST_INSTANCE.name();
+        BPMNScope task = new BPMNScope(BPMNScopeType.CREATE_ST_INSTANCE, idPrefix + "_" + plan.getIdForNamesAndIncrement());
+
+        plan.addTemplateBuildPlan(task);
+        task.setBuildPlan(plan);
+        return task;
+    }
+
+    public BPMNScope createSetServiceTemplateStateTask(BPMNPlan plan) {
+        String idPrefix = BPMNScopeType.SET_ST_STATE.name();
+        BPMNScope task = new BPMNScope(BPMNScopeType.SET_ST_STATE, idPrefix + "_" + plan.getIdForNamesAndIncrement());
+
+        plan.addTemplateBuildPlan(task);
+        task.setBuildPlan(plan);
+        return task;
+    }
 }

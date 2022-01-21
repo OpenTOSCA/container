@@ -1,0 +1,2 @@
+<bpmn:subProcess id="NodeSubprocess_IdToReplace" name="NameToSet" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL">
+</bpmn:subProcess>

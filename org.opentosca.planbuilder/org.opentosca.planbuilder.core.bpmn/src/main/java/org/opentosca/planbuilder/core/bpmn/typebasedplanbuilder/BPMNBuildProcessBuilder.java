@@ -1,10 +1,16 @@
 package org.opentosca.planbuilder.core.bpmn.typebasedplanbuilder;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -15,6 +21,7 @@ import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
+import org.opentosca.planbuilder.core.bpmn.handlers.BPMNFinalizer;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNPlanHandler;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
@@ -23,6 +30,7 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 /**
  * <p>
@@ -42,7 +50,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
     final static Logger LOG = LoggerFactory.getLogger(BPMNBuildProcessBuilder.class);
 
     private BPMNPlanHandler planHandler;
-
+    private BPMNFinalizer bpmnFinalizer;
 
     /**
      * <p>
@@ -53,6 +61,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
         super(pluginRegistry);
         try {
             this.planHandler = new BPMNPlanHandler();
+            this.bpmnFinalizer = new BPMNFinalizer();
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         }
@@ -80,7 +89,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
      */
     private BPMNPlan buildPlan(final Csar csar, final TDefinitions definitions,
                                final TServiceTemplate serviceTemplate) {
-        LOG.info("Geht das hier?");
+        LOG.info("Start Building BPMN Plan for {}", csar.id());
         // create empty plan from servicetemplate and add definitions
         String namespace;
         if (serviceTemplate.getTargetNamespace() != null) {
@@ -92,9 +101,11 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
         QName serviceTemplateQname = new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId());
         if (namespace.equals(serviceTemplateQname.getNamespaceURI())
             && serviceTemplate.getId().equals(serviceTemplateQname.getLocalPart())) {
+            LOG.info("Start Building BPMN buildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
+                serviceTemplateQname.toString(), definitions.getId(), csar.id().csarName());
 
-            final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_buildPlan2");
-            final String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan2";
+            final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_bpmn_buildPlan");
+            final String processNamespace = serviceTemplate.getTargetNamespace() + "_bpmn_buildPlan";
 
             AbstractPlan buildPlan =
                 AbstractBuildPlanBuilder.generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate, csar);
@@ -109,14 +120,38 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             newBuildPlan.setTOSCAOperationname("initiate");
 
             this.planHandler.initializeBPMNSkeleton(newBuildPlan, csar);
-            //newBuildPlan.setCsarName(csarName);
+            // newBuildPlan.setCsarName(csarName);
 
+            try {
+                this.bpmnFinalizer.finalize(newBuildPlan);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (SAXException e) {
+                e.printStackTrace();
+            }
+            writeXML(newBuildPlan);
             return newBuildPlan;
         }
 
         LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
             serviceTemplateQname.toString(), definitions.getId(), csar.id().csarName());
         return null;
+    }
+
+    public void writeXML(BPMNPlan newBuildPlan) {
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = null;
+        try {
+            transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(newBuildPlan.getBpmnDocument());
+            StreamResult result = new StreamResult(new File("test-bpmn.xml"));
+            transformer.transform(source, result);
+            // Output to console for testing
+            StreamResult consoleResult = new StreamResult(System.out);
+            transformer.transform(source, consoleResult);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
