@@ -33,6 +33,15 @@ public class BPMNPlanHandler {
     private final DocumentBuilder documentBuilder;
     private final BPMNScopeHandler bpmnScopeHandler;
     private final BPMNProcessFragments fragmentclass;
+    // TODO: consider non-hard coded id
+    final static String[][] NS_PAIRS = {
+        {"xmlns:bpmn", "http://www.omg.org/spec/BPMN/20100524/MODEL"},
+        {"xmlns:bpmndi", "http://www.omg.org/spec/BPMN/20100524/DI"},
+        {"xmlns:dc", "http://www.omg.org/spec/DD/20100524/DC"},
+        {"xmlns:camunda", "http://camunda.org/schema/1.0/bpmn"},
+        {"xmlns:di", "http://www.omg.org/spec/DD/20100524/DI"},
+        {"xmlns:qa", "http://some-company/schema/bpmn/qa"},
+    };
 
     public BPMNPlanHandler() throws ParserConfigurationException {
         this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -73,17 +82,27 @@ public class BPMNPlanHandler {
         }
     }
 
+    /**
+     * Initialize the basic XML elements for BPMN plan
+     * bpmn:definitions
+     * - bpmn:process
+     * - bpmndi:BPMNDiagram
+     * @param newBuildPlan
+     */
     public void initializeXMLElements(final BPMNPlan newBuildPlan) {
         newBuildPlan.setBpmnDocument(this.documentBuilder.newDocument());
+        // root element
         newBuildPlan.setBpmnDefinitionElement(newBuildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace,
             "bpmn:definitions"));
         newBuildPlan.getBpmnDocument().appendChild(newBuildPlan.getBpmnDefinitionElement());
-        // declare xml schema namespace
-        newBuildPlan.getBpmnDefinitionElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:bpmn",
-            "http://www.omg.org/spec/BPMN/20100524/MODEL");
-        newBuildPlan.getBpmnDefinitionElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:camunda","http://camunda.org/schema/1.0/bpmn");
 
-        // TODO: set other attribute for bpmn:definitions
+        // declare xml schema namespace
+        for (String[] pair : NS_PAIRS) {
+            newBuildPlan.getBpmnDefinitionElement().setAttributeNS("http://www.w3.org/2000/xmlns/", pair[0], pair[1]);
+        }
+
+        newBuildPlan.getBpmnDefinitionElement().setAttribute("id", "Definitions_0");
+        newBuildPlan.getBpmnDefinitionElement().setAttribute("targetNamespace", "http://bpmn.io/schema/bpmn");
 
         // initialize and append extensions element to process
         newBuildPlan.setBpmnProcessElement((newBuildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace,
@@ -91,30 +110,20 @@ public class BPMNPlanHandler {
 
         newBuildPlan.setBpmnDiagramElement(newBuildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace,
             "bpmn:BPMNDiagram"));
-        newBuildPlan.getBpmnProcessElement().setAttribute("id", "Process_Random");
+
+        // TODO: consider non-hardcode process_id
+        newBuildPlan.getBpmnProcessElement().setAttribute("id", "Process_0");
         newBuildPlan.getBpmnProcessElement().setAttribute("isExecutable", "true");
 
         // process and diagram element belong to definition
         newBuildPlan.getBpmnDefinitionElement().appendChild(newBuildPlan.getBpmnProcessElement());
         newBuildPlan.getBpmnDefinitionElement().appendChild(newBuildPlan.getBpmnDiagramElement());
         Element planeElement = newBuildPlan.getBpmnDocument().createElement("bpmndi:BPMNPlane");
-        planeElement.setAttribute("id", "Plane_Id");
+        planeElement.setAttribute("id", "Plane_0");
 
         // every elements in bpmn:BPMNDiagram needs to have a matching element in bpmn:process
-        planeElement.setAttribute("bpmnElement", "Process_Id");
+        planeElement.setAttribute("bpmnElement", "Process_0");
         newBuildPlan.getBpmnDiagramElement().appendChild(planeElement);
-
-        // create start event from fragment -> just a test, has to be done by plugin!
-        try {
-            Element startEvent = (Element) newBuildPlan.getBpmnDocument().importNode((Element) fragmentclass.createBPMNStartEventAsNode("lustigerEventName", "tollerFlow"), true);
-            Element endEvent = (Element) newBuildPlan.getBpmnDocument().importNode((Element) fragmentclass.createBPMNEndEventAsNode("lustigerEventName", "tollerFlow"), true);
-            newBuildPlan.setBpmnStartEvent(startEvent);
-            newBuildPlan.getBpmnProcessElement().appendChild(newBuildPlan.getBpmnStartEvent());
-            newBuildPlan.setBpmnEndEvent(endEvent);
-            newBuildPlan.getBpmnProcessElement().appendChild(newBuildPlan.getBpmnEndEvent());
-        } catch (Exception e){
-            BPMNPlanHandler.LOG.debug("error with fragments:", e);
-        }
     }
 
     /**

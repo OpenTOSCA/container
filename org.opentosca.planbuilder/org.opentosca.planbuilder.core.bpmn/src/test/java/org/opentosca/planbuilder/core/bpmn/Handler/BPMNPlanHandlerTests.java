@@ -12,6 +12,10 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -20,6 +24,14 @@ import static org.hamcrest.CoreMatchers.*;
 public class BPMNPlanHandlerTests {
 
     final static Logger logger = LoggerFactory.getLogger(BPMNPlanHandlerTests.class);
+    final static String[][] NS_PAIRS = {
+        {"xmlns:bpmn", "http://www.omg.org/spec/BPMN/20100524/MODEL"},
+        {"xmlns:bpmndi", "http://www.omg.org/spec/BPMN/20100524/DI"},
+        {"xmlns:dc", "http://www.omg.org/spec/DD/20100524/DC"},
+        {"xmlns:camunda", "http://camunda.org/schema/1.0/bpmn"},
+        {"xmlns:di", "http://www.omg.org/spec/DD/20100524/DI"},
+        {"xmlns:qa", "http://some-company/schema/bpmn/qa"},
+    };
     AbstractPlan emptyAbstractPlan;
     BPMNPlan bpmnPlan;
     BPELPlan bpelPlan;
@@ -69,10 +81,22 @@ public class BPMNPlanHandlerTests {
     public void testInitializeXMLElementsShouldBeNoNull() throws ParserConfigurationException {
         logger.info("Running unit test for {}", "initializeXMLElements");
         bpmnPlanHandler.initializeXMLElements(bpmnPlan);
-        assertThat(bpmnPlan.getBpmnStartEvent(), is(notNullValue()));
-        assertThat(bpmnPlan.getBpmnEndEvent(), is(notNullValue()));
+        assertThat(bpmnPlan.getBpmnDocument(), is(notNullValue()));
+        assertThat(bpmnPlan.getBpmnDefinitionElement(), is(notNullValue()));
         assertThat(bpmnPlan.getBpmnDiagramElement(), is(notNullValue()));
         assertThat(bpmnPlan.getBpmnProcessElement(), is(notNullValue()));
+    }
+
+    @Test
+    public void testInitializeXMLElementsNSDefined() {
+        bpmnPlanHandler.initializeXMLElements(bpmnPlan);
+        Element defElement = bpmnPlan.getBpmnDefinitionElement();
+        for (String[] p : NS_PAIRS) {
+            assertThat(defElement.hasAttribute(p[0]), is(true));
+            assertThat(defElement.getAttribute(p[0]), is(p[1]));
+        }
+
+
     }
 
 }
