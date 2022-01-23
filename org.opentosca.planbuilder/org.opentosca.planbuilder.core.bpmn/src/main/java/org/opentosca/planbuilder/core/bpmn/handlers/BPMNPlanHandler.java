@@ -185,7 +185,7 @@ public class BPMNPlanHandler {
                         order.add(nxtA);
                     }
 
-                    // TODO: consider parallel case
+
                     // iterating to instantiate BPMNScope
                     for (int i = 0; i < order.size(); i += 1) {
                         curA = order.get(i);
@@ -196,8 +196,20 @@ public class BPMNPlanHandler {
                         bpmnScopeHandler.createSequenceFlow(prevB, curB, plan);
                         prevB = curB;
 
-                        // enqueue last element
+                        // enqueue at last stage
                         if (i == order.size() - 1) {
+                            // size == 3 indicate curA is relationTemplate
+                            // need to enqueue prev nodeTemplate
+                            if (order.size() == 3) {
+                                curA = order.get(i - 1);
+                            }
+
+                            // TODO: recheck with parallel case
+                            if (visited.contains(curA)) {
+                                continue;
+                            }
+
+                            visited.add(curA);
                             Pair<AbstractActivity, BPMNScope> nxtPair = new Pair<>(curA, curB);
                             q.offer(nxtPair);
                         }
