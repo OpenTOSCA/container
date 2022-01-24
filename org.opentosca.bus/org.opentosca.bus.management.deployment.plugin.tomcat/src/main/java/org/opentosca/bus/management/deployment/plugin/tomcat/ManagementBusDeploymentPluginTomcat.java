@@ -211,11 +211,10 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
             // perform undeployment request on Tomcat
             final HttpResponse httpResponse = this.httpService.Get(undeploymentURL, Settings.ENGINE_IA_TOMCAT_USERNAME, Settings.ENGINE_IA_TOMCAT_PASSWORD);
             final String response = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
-
             LOG.debug("Tomcat response: {}", response);
 
             // check if WAR-File was undeployed successfully
-            if (response.contains("OK - Undeployed application at context path [" + deployPath + "]")) {
+            if (HttpStatus.valueOf(httpResponse.getStatusLine().getStatusCode()).is2xxSuccessful()) {
                 LOG.debug("IA successfully undeployed from Tomcat!");
                 message.setHeader(MBHeader.OPERATIONSTATE_BOOLEAN.toString(), true);
             } else {

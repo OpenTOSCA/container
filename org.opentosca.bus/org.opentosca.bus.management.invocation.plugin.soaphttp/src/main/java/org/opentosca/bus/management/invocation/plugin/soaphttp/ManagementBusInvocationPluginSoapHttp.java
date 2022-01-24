@@ -54,8 +54,7 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
 
     // Supported types defined in messages.properties.
     private static final String TYPES = "SOAP/HTTP";
-    private static final Map<String, Exchange> EXCHANGE_MAP =
-        Collections.synchronizedMap(new HashMap<String, Exchange>());
+    private static final Map<String, Exchange> EXCHANGE_MAP = Collections.synchronizedMap(new HashMap<>());
     private final CamelContext camelContext;
     private final CsarStorageService storage;
 
