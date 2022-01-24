@@ -9,13 +9,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpTrace;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.LaxRedirectStrategy;
@@ -88,15 +85,6 @@ public class HttpServiceImpl implements IHTTPService {
     }
 
     @Override
-    public HttpResponse Head(final String uri) throws IOException {
-        DefaultHttpClient client = new DefaultHttpClient();
-        client.setRedirectStrategy(new LaxRedirectStrategy());
-        final HttpHead head = new HttpHead(uri);
-        final HttpResponse response = client.execute(head);
-        return response;
-    }
-
-    @Override
     public HttpResponse Post(final String uri, final HttpEntity httpEntity) throws IOException {
         DefaultHttpClient client = new DefaultHttpClient();
         client.setRedirectStrategy(new LaxRedirectStrategy());
@@ -134,54 +122,12 @@ public class HttpServiceImpl implements IHTTPService {
     }
 
     @Override
-    public List<Cookie> PostCookies(final String uri, final HttpEntity httpEntity) throws IOException {
-        DefaultHttpClient client = new DefaultHttpClient();
-        client.setRedirectStrategy(new LaxRedirectStrategy());
-        final HttpPost post = new HttpPost(uri);
-        post.setEntity(httpEntity);
-        client.execute(post);
-        final List<Cookie> cookies = client.getCookieStore().getCookies();
-        // client.getConnectionManager().shutdown();
-        return cookies;
-    }
-
-    @Override
     public HttpResponse Put(final String uri, final HttpEntity httpEntity) throws IOException {
         DefaultHttpClient client = new DefaultHttpClient();
         client.setRedirectStrategy(new LaxRedirectStrategy());
         final HttpPut put = new HttpPut(uri);
         put.setEntity(httpEntity);
         final HttpResponse response = client.execute(put);
-        return response;
-    }
-
-    @Override
-    public HttpResponse Put(final String uri, final HttpEntity httpEntity, final String username,
-                             final String password) throws IOException {
-        DefaultHttpClient client = new DefaultHttpClient();
-        client.setRedirectStrategy(new LaxRedirectStrategy());
-        client.getCredentialsProvider().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
-        final HttpPut put = new HttpPut(uri);
-        put.setEntity(httpEntity);
-        final HttpResponse response = client.execute(put);
-        return response;
-    }
-
-    @Override
-    public HttpResponse Delete(final String uri) throws IOException {
-        DefaultHttpClient client = new DefaultHttpClient();
-        client.setRedirectStrategy(new LaxRedirectStrategy());
-        final HttpDelete del = new HttpDelete(uri);
-        final HttpResponse response = client.execute(del);
-        return response;
-    }
-
-    @Override
-    public HttpResponse Trace(final String uri) throws IOException {
-        DefaultHttpClient client = new DefaultHttpClient();
-        client.setRedirectStrategy(new LaxRedirectStrategy());
-        final HttpTrace trace = new HttpTrace(uri);
-        final HttpResponse response = client.execute(trace);
         return response;
     }
 
