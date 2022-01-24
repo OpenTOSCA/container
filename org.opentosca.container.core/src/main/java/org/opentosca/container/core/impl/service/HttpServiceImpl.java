@@ -157,7 +157,7 @@ public class HttpServiceImpl implements IHTTPService {
 
     @Override
     public HttpResponse Put(final String uri, final HttpEntity httpEntity, final String username,
-                            final String password) throws IOException {
+                             final String password) throws IOException {
         DefaultHttpClient client = new DefaultHttpClient();
         client.setRedirectStrategy(new LaxRedirectStrategy());
         client.getCredentialsProvider().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));

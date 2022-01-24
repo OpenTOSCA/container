@@ -79,7 +79,7 @@ public interface IHTTPService {
      *
      */
     HttpResponse Put(String uri, HttpEntity httpEntity, String username,
-                     String password) throws IOException;
+                      String password) throws IOException;
 
     /**
      * Executes a HTTP DELETE command.

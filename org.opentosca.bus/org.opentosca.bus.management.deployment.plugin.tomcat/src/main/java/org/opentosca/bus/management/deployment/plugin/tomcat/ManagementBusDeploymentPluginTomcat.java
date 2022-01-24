@@ -6,6 +6,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,11 +17,13 @@ import javax.xml.namespace.QName;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -31,6 +35,7 @@ import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.IHTTPService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 /**
@@ -265,12 +270,7 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
         // execute HTPP GET on URL and check the response
         try {
             final HttpResponse httpResponse = this.httpService.Get(url, Settings.ENGINE_IA_TOMCAT_USERNAME, Settings.ENGINE_IA_TOMCAT_PASSWORD);
-            final String response = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
-
-            LOG.debug(response);
-            if (response.contains("OK - Server info")) {
-                return true;
-            }
+            return HttpStatus.valueOf(httpResponse.getStatusLine().getStatusCode()).is2xxSuccessful();
         } catch (final Exception e) {
             LOG.error("Error while checking for availability of the Tomcat: {}",
                 e.getMessage());
@@ -361,26 +361,22 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
         final String deploymentURL =
             Settings.ENGINE_IA_TOMCAT_URL + "/manager/text/deploy?update=true&path=" + deployPath;
 
-        // create HttpEntity which contains the WAR-File
-        final MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-        final FileBody fileBody = new FileBody(warFile);
-        builder.addPart(fileName + ".war", fileBody);
-        final HttpEntity entity = builder.build();
-
         try {
             // perform deployment request on Tomcat
-            final HttpResponse httpResponse =
-                this.httpService.Put(deploymentURL, entity, Settings.ENGINE_IA_TOMCAT_USERNAME,
-                    Settings.ENGINE_IA_TOMCAT_PASSWORD);
+            String authentication = Settings.ENGINE_IA_TOMCAT_USERNAME + ":" + Settings.ENGINE_IA_TOMCAT_PASSWORD;
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(deploymentURL))
+                .setHeader(HttpHeaders.AUTHORIZATION, "Basic " + new Base64().encodeAsString(authentication.getBytes()))
+                .PUT(HttpRequest.BodyPublishers.ofFile(warFile.toPath()))
+                .build();
 
-            final String response = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
+            HttpClient client = HttpClient.newBuilder().build();
+            java.net.http.HttpResponse<String> httpResponse = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
 
-            LOG.info("Tomcat response to deployment request: {}", response);
+            LOG.info("Tomcat response to deployment request: {}", httpResponse.body());
 
             // check if WAR-File was deployed successfully.
-            if (response.contains("OK - Deployed application at context path " + deployPath)
-                || response.contains("OK - Deployed application at context path [" + deployPath + "]")) {
+            if (HttpStatus.valueOf(httpResponse.statusCode()).is2xxSuccessful()) {
                 LOG.info("Deployment was successful.");
 
                 // concatenate service endpoint
@@ -390,9 +386,8 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
             } else {
                 LOG.error("Deployment was not successful.");
             }
-        } catch (final IOException e) {
-            LOG.error("IOException occured while deploying the WAR-File: {}!",
-                e);
+        } catch (final IOException | InterruptedException e) {
+            LOG.error("IOException occurred while deploying the WAR-File: {}!", fileName, e);
         }
         return null;
     }
