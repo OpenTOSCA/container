@@ -120,6 +120,9 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             newBuildPlan.setTOSCAOperationname("initiate");
 
             this.planHandler.initializeBPMNSkeleton(newBuildPlan, csar);
+
+            // only generate diagram when all elements are instantiated
+            this.planHandler.generateBPMNDiagram(newBuildPlan);
             // newBuildPlan.setCsarName(csarName);
 
             try {

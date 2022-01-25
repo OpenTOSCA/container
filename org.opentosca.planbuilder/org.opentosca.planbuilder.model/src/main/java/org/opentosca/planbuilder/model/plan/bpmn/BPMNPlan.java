@@ -49,17 +49,21 @@ public class BPMNPlan extends AbstractPlan {
     private List<Element> bpmnImportElements;
 
     private String csarName = null;
-
-    public List<BPMNScope> getTemplateBuildPlans() {
-        return templateBuildPlans;
-    }
-
-    public void setTemplateBuildPlans(List<BPMNScope> templateBuildPlans) {
-        this.templateBuildPlans = templateBuildPlans;
-    }
-
     // TODO: rename, current name is misleading
     private List<BPMNScope> templateBuildPlans = new ArrayList<>();
+    private List<BPMNDiagramElement> diagramElements = new ArrayList<>();
+
+    public BPMNScope getBpmnStartEventElement() {
+        return bpmnStartEventElement;
+    }
+
+    public void setBpmnStartEventElement(BPMNScope bpmnStartEventElement) {
+        this.bpmnStartEventElement = bpmnStartEventElement;
+    }
+
+    // for building diagram
+    private BPMNScope bpmnStartEventElement;
+
 
     public BPMNPlan(String id, PlanType type, TDefinitions definitions, TServiceTemplate serviceTemplate, Collection<AbstractActivity> activities, Collection<AbstractPlan.Link> links) {
         super(id, type, definitions, serviceTemplate, activities, links);
@@ -161,6 +165,10 @@ public class BPMNPlan extends AbstractPlan {
         return this.templateBuildPlans.add(template);
     }
 
+    public boolean addDiagramElement(final BPMNDiagramElement diagramElement) {
+        return this.diagramElements.add(diagramElement);
+    }
+
     public void setCsarName(final String csarName) {
         this.csarName = csarName;
     }
@@ -211,5 +219,21 @@ public class BPMNPlan extends AbstractPlan {
 
     public List<String> getOutputMessageLocalNames() {
         return this.outputMessageLocalNames;
+    }
+
+    public List<BPMNScope> getTemplateBuildPlans() {
+        return templateBuildPlans;
+    }
+
+    public void setTemplateBuildPlans(List<BPMNScope> templateBuildPlans) {
+        this.templateBuildPlans = templateBuildPlans;
+    }
+
+    public List<BPMNDiagramElement> getDiagramElements() {
+        return diagramElements;
+    }
+
+    public void setDiagramElements(List<BPMNDiagramElement> diagramElements) {
+        this.diagramElements = diagramElements;
     }
 }

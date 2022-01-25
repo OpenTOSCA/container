@@ -1,0 +1,3 @@
+<bpmndi:BPMNShape id="Shape_IdToReplace" bpmnElement="Event_IdToReplace">
+    <dc:Bounds x="X_PosToReplace" y="Y_PosToReplace" width="WidthToReplace" height="HeightToReplace" />
+</bpmndi:BPMNShape>

@@ -224,4 +224,8 @@ public class BPMNPlanHandler {
         BPMNScope endEvent = bpmnScopeHandler.createEndEvent(plan);
         bpmnScopeHandler.createSequenceFlow(setSTStateTask, endEvent, plan);
     }
+
+    public void generateBPMNDiagram(BPMNPlan newBuildPlan) {
+
+    }
 }

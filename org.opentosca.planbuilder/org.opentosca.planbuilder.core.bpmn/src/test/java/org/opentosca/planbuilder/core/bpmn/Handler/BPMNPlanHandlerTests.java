@@ -95,7 +95,10 @@ public class BPMNPlanHandlerTests {
             assertThat(defElement.hasAttribute(p[0]), is(true));
             assertThat(defElement.getAttribute(p[0]), is(p[1]));
         }
+    }
 
+    @Test
+    public void testGenerateBPMNDiagramShouldHaveStartEndEvent() {
 
     }
 

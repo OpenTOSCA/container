@@ -61,6 +61,7 @@ public class BPMNScopeHandler {
         // collecting BPMNScope for refinement in next stage
         startEvent.setBuildPlan(buildPlan);
         buildPlan.addTemplateBuildPlan(startEvent);
+        buildPlan.setBpmnStartEventElement(startEvent);
         return startEvent;
     }
 

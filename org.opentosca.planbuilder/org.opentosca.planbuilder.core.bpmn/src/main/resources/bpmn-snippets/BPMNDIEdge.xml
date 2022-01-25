@@ -1,0 +1,4 @@
+<bpmndi:BPMNEdge id="Edge_IdToReplace" bpmnElement="Flow_IdToReplace">
+    <di:waypoint x="X_SrcPosToReplace" y="Y_SrcPosToReplace" />
+    <di:waypoint x="X_DstPosToReplace" y="Y_DstPosToReplace" />
+</bpmndi:BPMNEdge>
