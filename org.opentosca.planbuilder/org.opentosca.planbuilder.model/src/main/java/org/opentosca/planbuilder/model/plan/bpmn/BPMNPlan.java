@@ -35,6 +35,16 @@ public class BPMNPlan extends AbstractPlan {
     private Element bpmnDefinitionElement;
     private Element bpmnProcessElement;
     private Element bpmnDiagramElement;
+
+    public Element getBpmnPlaneElement() {
+        return bpmnDiagramPlaneElement;
+    }
+
+    public void setBpmnPlaneElement(Element bpmnDiagramPlaneElement) {
+        this.bpmnDiagramPlaneElement = bpmnDiagramPlaneElement;
+    }
+
+    private Element bpmnDiagramPlaneElement;
     private Element bpmnStartEvent;
     private Element bpmnEndEvent;
 
@@ -63,7 +73,6 @@ public class BPMNPlan extends AbstractPlan {
 
     // for building diagram
     private BPMNScope bpmnStartEventElement;
-
 
     public BPMNPlan(String id, PlanType type, TDefinitions definitions, TServiceTemplate serviceTemplate, Collection<AbstractActivity> activities, Collection<AbstractPlan.Link> links) {
         super(id, type, definitions, serviceTemplate, activities, links);

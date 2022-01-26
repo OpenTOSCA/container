@@ -18,6 +18,7 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNDiagramElement;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
 import org.slf4j.Logger;
@@ -33,6 +34,7 @@ public class BPMNPlanHandler {
     private final DocumentBuilder documentBuilder;
     private final BPMNScopeHandler bpmnScopeHandler;
     private final BPMNProcessFragments fragmentclass;
+    private final BPMNDiagramElementHandler diagramHandler;
     // TODO: consider non-hard coded id
     final static String[][] NS_PAIRS = {
         {"xmlns:bpmn", "http://www.omg.org/spec/BPMN/20100524/MODEL"},
@@ -50,6 +52,7 @@ public class BPMNPlanHandler {
         this.bpmnScopeHandler = new BPMNScopeHandler();
         // test
         this.fragmentclass = new BPMNProcessFragments();
+        this.diagramHandler = new BPMNDiagramElementHandler();
     }
 
     public BPMNPlan createEmptyBPMNPlan(final String processNamespace, final String processName,
@@ -91,39 +94,48 @@ public class BPMNPlanHandler {
      */
     public void initializeXMLElements(final BPMNPlan newBuildPlan) {
         newBuildPlan.setBpmnDocument(this.documentBuilder.newDocument());
-        // root element
-        newBuildPlan.setBpmnDefinitionElement(newBuildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace,
-            "bpmn:definitions"));
-        newBuildPlan.getBpmnDocument().appendChild(newBuildPlan.getBpmnDefinitionElement());
+        // root: definition element
+        Element definition = newBuildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace, "bpmn:definitions");
 
         // declare xml schema namespace
         for (String[] pair : NS_PAIRS) {
-            newBuildPlan.getBpmnDefinitionElement().setAttributeNS("http://www.w3.org/2000/xmlns/", pair[0], pair[1]);
+            definition.setAttributeNS("http://www.w3.org/2000/xmlns/", pair[0], pair[1]);
         }
 
-        newBuildPlan.getBpmnDefinitionElement().setAttribute("id", "Definitions_0");
-        newBuildPlan.getBpmnDefinitionElement().setAttribute("targetNamespace", "http://bpmn.io/schema/bpmn");
+        // TODO: consider non-hardcode process_id
+        definition.setAttribute("id", "Definitions_0");
+        definition.setAttribute("targetNamespace", "http://bpmn.io/schema/bpmn");
+
+        newBuildPlan.setBpmnDefinitionElement(definition);
+        newBuildPlan.getBpmnDocument().appendChild(newBuildPlan.getBpmnDefinitionElement());
 
         // initialize and append extensions element to process
-        newBuildPlan.setBpmnProcessElement((newBuildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace,
-            "bpmn:process")));
+        // process element
+        Element process = newBuildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace, "bpmn:process");
 
-        newBuildPlan.setBpmnDiagramElement(newBuildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace,
-            "bpmn:BPMNDiagram"));
+        process.setAttribute("id", "Process_0");
+        process.setAttribute("isExecutable", "true");
 
-        // TODO: consider non-hardcode process_id
-        newBuildPlan.getBpmnProcessElement().setAttribute("id", "Process_0");
-        newBuildPlan.getBpmnProcessElement().setAttribute("isExecutable", "true");
 
-        // process and diagram element belong to definition
+        newBuildPlan.setBpmnProcessElement(process);
         newBuildPlan.getBpmnDefinitionElement().appendChild(newBuildPlan.getBpmnProcessElement());
-        newBuildPlan.getBpmnDefinitionElement().appendChild(newBuildPlan.getBpmnDiagramElement());
-        Element planeElement = newBuildPlan.getBpmnDocument().createElement("bpmndi:BPMNPlane");
-        planeElement.setAttribute("id", "Plane_0");
 
+        // diagram element
+        Element diagram = newBuildPlan.getBpmnDocument().createElement("bpmndi:BPMNDiagram");
+
+        diagram.setAttribute("id", "Diagram_0");
+
+        newBuildPlan.setBpmnDiagramElement(diagram);
+        newBuildPlan.getBpmnDefinitionElement().appendChild(newBuildPlan.getBpmnDiagramElement());
+
+        Element planeElement = newBuildPlan.getBpmnDocument().createElement("bpmndi:BPMNPlane");
+
+        planeElement.setAttribute("id", "Plane_0");
         // every elements in bpmn:BPMNDiagram needs to have a matching element in bpmn:process
         planeElement.setAttribute("bpmnElement", "Process_0");
-        newBuildPlan.getBpmnDiagramElement().appendChild(planeElement);
+
+        newBuildPlan.setBpmnPlaneElement(planeElement);
+        newBuildPlan.getBpmnDiagramElement().appendChild(newBuildPlan.getBpmnPlaneElement());
     }
 
     /**
@@ -225,7 +237,43 @@ public class BPMNPlanHandler {
         bpmnScopeHandler.createSequenceFlow(setSTStateTask, endEvent, plan);
     }
 
-    public void generateBPMNDiagram(BPMNPlan newBuildPlan) {
+    /**
+     * The method generate BPMNDiagram objects after all BPMNScope objects are fulfilled by plugin.
+     * BPMNDiagram object must have 1-to-1 relation to BPMNScope object. The BPMNDiagram object will
+     * later be transformed into XML element by BPMNFinalizer.
+     * The method employs BFS to traverse with startEvent and creating connecting BPMNDiagram objects
+     * @param bpmnPlan
+     */
+    public void generateBPMNDiagram(BPMNPlan bpmnPlan) {
+        LOG.debug("Generating BPMN Diagram with plan {}", bpmnPlan);
+        BPMNScope start = bpmnPlan.getBpmnStartEventElement();
+        // {current scope, current start point [x, y]}
+        Deque<Pair<BPMNScope, int[]>> q = new LinkedList<>();
+        Set<BPMNScope> visited = new HashSet<>();
 
+        q.offer(new Pair(start, new int[]{0, 0}));
+        visited.add(start);
+        while (!q.isEmpty()) {
+            int size = q.size();
+            // TODO: consider with parallel case, where y should be split
+            while (size > 0) {
+                size -= 1;
+                Pair<BPMNScope, int[]> cur = q.poll();
+                BPMNScope curScope = cur.getValue0();
+                int curX = cur.getValue1()[0];
+                int curY = cur.getValue1()[1];
+                BPMNDiagramElement diagram = diagramHandler.createDiagramElementFromScope(curX, curY, curScope, bpmnPlan);
+                for (BPMNScope nxtScope : curScope.getOutgoingLinks()) {
+                    if (visited.contains(nxtScope)) {
+                        continue;
+                    }
+                    visited.add(nxtScope);
+                    int nx = diagramHandler.getNextXpos(diagram);
+                    int ny = diagramHandler.getNextYpos(diagram);
+                    q.offer(new Pair<>(nxtScope, new int[]{nx, ny}));
+                }
+            }
+        }
+        LOG.debug("Total of {} diagrams are generated from {} BPMN elements", bpmnPlan.getDiagramElements().size(), bpmnPlan.getTemplateBuildPlans().size());
     }
 }

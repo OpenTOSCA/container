@@ -7,8 +7,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.opentosca.planbuilder.core.bpmn.fragments.BPMNDiagramFragments;
 import org.opentosca.planbuilder.core.bpmn.fragments.BPMNProcessFragments;
-import org.opentosca.planbuilder.model.plan.bpmn.BPMNScopeType;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNDiagramElement;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
@@ -26,7 +27,7 @@ public class BPMNFinalizer {
     private BPMNPlanHandler planHandler;
     private BPMNScopeHandler scopeHandler;
     private BPMNProcessFragments processFragments;
-
+    private BPMNDiagramFragments diagramFragments;
     public BPMNFinalizer() {
         try {
             this.docFactory = DocumentBuilderFactory.newInstance();
@@ -35,6 +36,7 @@ public class BPMNFinalizer {
             this.planHandler = new BPMNPlanHandler();
             this.scopeHandler = new BPMNScopeHandler();
             this.processFragments = new BPMNProcessFragments();
+            this.diagramFragments = new BPMNDiagramFragments();
         } catch (ParserConfigurationException e) {
             LOG.error("Initializing factories and handlers failed", e);
         }
@@ -51,12 +53,19 @@ public class BPMNFinalizer {
         LOG.info("Finalizing BPMN build Plan {}", buildPlan.getId());
         final Document doc = buildPlan.getBpmnDocument();
         List<BPMNScope> scopeList = buildPlan.getTemplateBuildPlans();
+
         final Element processElement = buildPlan.getBpmnProcessElement();
         for (BPMNScope bpmnScope : scopeList) {
             Node node = processFragments.createBPMNScopeAsNode(bpmnScope);
             processElement.appendChild(doc.importNode(node, true));
         }
 
+        final Element planeElement = buildPlan.getBpmnPlaneElement();
+        List<BPMNDiagramElement> diagramList = buildPlan.getDiagramElements();
+        for (BPMNDiagramElement diagram : diagramList) {
+            Node node = diagramFragments.createBPMNDiagramElementAsNode(diagram);
+            planeElement.appendChild(doc.importNode(node, true));
+        }
         LOG.info("BPMN build Plan is finalized");
     }
 }

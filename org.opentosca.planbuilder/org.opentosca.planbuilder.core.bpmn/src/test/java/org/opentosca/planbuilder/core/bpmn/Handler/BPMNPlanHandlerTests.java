@@ -78,13 +78,42 @@ public class BPMNPlanHandlerTests {
     }
 
     @Test
-    public void testInitializeXMLElementsShouldBeNoNull() throws ParserConfigurationException {
-        logger.info("Running unit test for {}", "initializeXMLElements");
+    public void testInitializeXMLElementsShouldContainDocument() {
         bpmnPlanHandler.initializeXMLElements(bpmnPlan);
         assertThat(bpmnPlan.getBpmnDocument(), is(notNullValue()));
-        assertThat(bpmnPlan.getBpmnDefinitionElement(), is(notNullValue()));
-        assertThat(bpmnPlan.getBpmnDiagramElement(), is(notNullValue()));
-        assertThat(bpmnPlan.getBpmnProcessElement(), is(notNullValue()));
+    }
+
+    @Test
+    public void testInitializeXMLElementsShouldContainDefinitionElement() {
+        bpmnPlanHandler.initializeXMLElements(bpmnPlan);
+        Element element = bpmnPlan.getBpmnDefinitionElement();
+        assertThat(element, is(notNullValue()));
+        assertThat(element.hasAttribute("id"), is(true));
+
+    }
+
+    @Test
+    public void testInitializeXMLElementsShouldContainProcessElement() {
+        bpmnPlanHandler.initializeXMLElements(bpmnPlan);
+        Element element = bpmnPlan.getBpmnProcessElement();
+        assertThat(element, is(notNullValue()));
+        assertThat(element.hasAttribute("id"), is(true));
+    }
+
+    @Test
+    public void testInitializeXMLElementsShouldContainDiagramElement() {
+        bpmnPlanHandler.initializeXMLElements(bpmnPlan);
+        Element element = bpmnPlan.getBpmnDiagramElement();
+        assertThat(element, is(notNullValue()));
+        assertThat(element.hasAttribute("id"), is(true));
+    }
+
+    @Test
+    public void testInitializeXMLElementsShouldContainPlaneElement() {
+        bpmnPlanHandler.initializeXMLElements(bpmnPlan);
+        Element element = bpmnPlan.getBpmnPlaneElement();
+        assertThat(element, is(notNullValue()));
+        assertThat(element.hasAttribute("id"), is(true));
     }
 
     @Test

@@ -51,10 +51,12 @@ public class BPMNDiagramElementHandlerTests {
 
     @Test
     public void testCreateShape() {
-        BPMNDiagramElement diagramElement = diagramElementHandler.createDiagramElementFromScope(0, 0,startEvent, bpmnPlan);
+        int x = 0;
+        int y = 0;
+        BPMNDiagramElement diagramElement = diagramElementHandler.createDiagramElementFromScope(x, y, startEvent, bpmnPlan);
         assertThat(diagramElement.getType(), is(BPMNDiagramType.SHAPE));
-        assertThat(diagramElement.getXpos(), is(0));
-        assertThat(diagramElement.getYpos(), is(0));
+        assertThat(diagramElement.getXpos(), is(x));
+        assertThat(diagramElement.getYpos(), is(y - diagramElement.getHeight() / 2));
         assertThat(diagramElement.getRefScope(), is(startEvent));
     }
 

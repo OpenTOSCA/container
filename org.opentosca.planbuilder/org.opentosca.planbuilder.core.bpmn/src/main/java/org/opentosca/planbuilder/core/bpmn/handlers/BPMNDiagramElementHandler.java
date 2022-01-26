@@ -19,8 +19,8 @@ public class BPMNDiagramElementHandler {
 
     /**
      * Create and diagram element from the input scope and add it to plan for later export of XML
-     * @param startX
-     * @param startY
+     * @param startX: left waypoint in x-axis
+     * @param startY: middle of left waypoint in y-axis
      * @param bpmnScope
      * @param bpmnPlan
      * @return
@@ -35,15 +35,17 @@ public class BPMNDiagramElementHandler {
             dElement.setWaypointOut(startX + LENGTH, startY);
             dElement.setLength(LENGTH);
         } else {
-            dElement = new BPMNDiagramElement(BPMNDiagramType.SHAPE, startX, startY, bpmnScope.getId() + "_di");
+            // for SHAPE, need to offset startY for boundary (top-left corner)
+            dElement = new BPMNDiagramElement(BPMNDiagramType.SHAPE, startX, startY - HEIGHT / 2, bpmnScope.getId() + "_di");
             dElement.setHeight(HEIGHT);
             dElement.setWidth(WIDTH);
         }
         dElement.setRefScope(bpmnScope);
         bpmnPlan.addDiagramElement(dElement);
 
-        // TODO: consider handle subprocess where the WIDTH should be porportional to elements inside subprocess
+        // TODO: consider handle subprocess where the WIDTH should be proportional to elements inside subprocess
         // TODO: consider making event half the width and height of normal activity
+        // TODO: consider variable length and width for difference diagram
 
         return dElement;
     }
@@ -72,7 +74,8 @@ public class BPMNDiagramElementHandler {
         if (diagramElement.getType() == BPMNDiagramType.EDGE) {
             return diagramElement.getWaypointOutY();
         } else {
-            return diagramElement.getYpos();
+            // for SHAPE, need to offset startY for boundary (top-left corner)
+            return diagramElement.getYpos() + diagramElement.getHeight() / 2;
         }
     }
 }
