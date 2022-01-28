@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.wsdl.Binding;
@@ -178,7 +179,11 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
             return null;
         }
 
-        LOG.debug("Invoking the web service.");
+        LOG.info("Invoking the web service with headers:\n{}\nand content:\n{}",
+            headers.keySet().stream()
+                .map(key -> key + "=" + headers.get(key))
+                .collect(Collectors.joining(", ", "{", "}")),
+            document != null ? MBUtils.docToString(document) : "");
 
         final ProducerTemplate template = this.camelContext.createProducerTemplate();
         final ConsumerTemplate consumer = this.camelContext.createConsumerTemplate();
