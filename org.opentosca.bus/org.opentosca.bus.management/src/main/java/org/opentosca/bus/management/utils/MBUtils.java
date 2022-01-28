@@ -1,5 +1,6 @@
 package org.opentosca.bus.management.utils;
 
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,6 +15,12 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
@@ -471,5 +478,25 @@ public class MBUtils {
         }
 
         return null;
+    }
+
+    /**
+     * Transform the given XML Document to a String
+     *
+     * @param document the document to transform
+     * @return the transformed document as String
+     */
+    public static String docToString(Document document) {
+        try {
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer transformer = tf.newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            StringWriter writer = new StringWriter();
+            transformer.transform(new DOMSource(document), new StreamResult(writer));
+            return writer.getBuffer().toString();
+        } catch (TransformerException e) {
+            LOG.error("Failed to transform document to string:", e);
+            return null;
+        }
     }
 }
