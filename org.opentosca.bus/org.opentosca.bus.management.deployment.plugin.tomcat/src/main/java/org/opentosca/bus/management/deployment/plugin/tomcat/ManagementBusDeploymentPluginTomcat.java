@@ -434,7 +434,7 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
     private String getTomcatEndpoint(QName artifactType) {
 
         // for WARs relying on Java 17 the corresponding Tomcat must be selected
-        if (artifactType.equals("{http://opentosca.org/artifacttypes}WAR-Java17")) {
+        if (artifactType.equals(QName.valueOf("{http://opentosca.org/artifacttypes}WAR-Java17"))) {
             return Settings.ENGINE_IA_TOMCAT_JAVA17_URL;
         }
 
