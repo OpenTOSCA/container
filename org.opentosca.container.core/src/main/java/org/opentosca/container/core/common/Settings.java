@@ -45,6 +45,9 @@ public class Settings {
     public final static String ENGINE_IA_TOMCAT_URL = settings.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.url", "http://localhost:8090");
     public final static String ENGINE_IA_TOMCAT_USERNAME = settings.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.username", "admin");
     public final static String ENGINE_IA_TOMCAT_PASSWORD = settings.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.password", "admin");
+    public final static String ENGINE_IA_TOMCAT_JAVA17_URL = settings.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.java17.url", "http://localhost:8093");
+    public final static String ENGINE_IA_TOMCAT_JAVA17_USERNAME = settings.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.java17.username", "admin");
+    public final static String ENGINE_IA_TOMCAT_JAVA17_PASSWORD = settings.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.java17.password", "admin");
     public final static String OPENTOSCA_ENGINE_IA_KEEPFILES = settings.getProperty("org.opentosca.engine.ia.keepfiles", "false");
 
     public final static String PERSISTENCE_UNIT_NAME = "OpenTOSCA";
