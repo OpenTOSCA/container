@@ -5,7 +5,7 @@ services:
     ports:
       - '8098:8080'
   engine-ia-java17:
-    image: opentosca/engine-ia-new:latest
+    image: opentosca/engine-ia:java17
     ports:
       - '8099:8080'
   engine-plan:
