@@ -1,7 +1,11 @@
 version: '3'
 services:
-  engine-ia:
+  engine-ia-java8:
     image: opentosca/engine-ia:latest
+    ports:
+      - '8098:8080'
+  engine-ia-java17:
+    image: opentosca/engine-ia-new:latest
     ports:
       - '8099:8080'
   engine-plan:
