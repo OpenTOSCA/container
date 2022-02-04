@@ -20,7 +20,8 @@ public class SyncRoute extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        final String ENDPOINT = "cxf:${header[endpoint]}?dataFormat=PAYLOAD&loggingFeatureEnabled=true";
+        final String ENDPOINT =
+            "cxf:${header[SOAPEndpoint]}?wsdlURL=${header[endpoint]}?wsdl&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 
         final Processor headerProcessor = new HeaderProcessor();
         this.from("direct:Sync-WS-Invoke").process(headerProcessor).recipientList(this.simple(ENDPOINT));
