@@ -31,8 +31,8 @@ public class Settings {
 
     public final static String OPENTOSCA_CONTAINER_HOSTNAME = settings.getProperty("org.opentosca.container.hostname", "localhost");
     public final static String OPENTOSCA_CONTAINER_PORT = settings.getProperty("org.opentosca.container.port", "1337");
-    
-    public final static String CONTAINER_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT;    
+
+    public final static String CONTAINER_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT;
     public final static String CONTAINER_INSTANCEDATA_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/servicetemplates/{servicetemplateid}/instances";
     public final static String OPENTOSCA_CONTAINER_CONTENT_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/content/";
     public final static String OPENTOSCA_CONTAINER_CONTENT_API_ARTIFACTREFERENCE = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/content/{artifactreference}";
@@ -45,6 +45,9 @@ public class Settings {
     public final static String ENGINE_IA_TOMCAT_URL = settings.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.url", "http://localhost:8090");
     public final static String ENGINE_IA_TOMCAT_USERNAME = settings.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.username", "admin");
     public final static String ENGINE_IA_TOMCAT_PASSWORD = settings.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.password", "admin");
+    public final static String ENGINE_IA_TOMCAT_JAVA17_URL = settings.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.java17.url", "http://localhost:8093");
+    public final static String ENGINE_IA_TOMCAT_JAVA17_USERNAME = settings.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.java17.username", "admin");
+    public final static String ENGINE_IA_TOMCAT_JAVA17_PASSWORD = settings.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.java17.password", "admin");
     public final static String OPENTOSCA_ENGINE_IA_KEEPFILES = settings.getProperty("org.opentosca.engine.ia.keepfiles", "false");
 
     public final static String PERSISTENCE_UNIT_NAME = "OpenTOSCA";

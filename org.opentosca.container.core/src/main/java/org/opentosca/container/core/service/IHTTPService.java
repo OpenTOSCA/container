@@ -42,14 +42,6 @@ public interface IHTTPService {
     HttpResponse Get(String uri, String username, String password) throws IOException;
 
     /**
-     * Executes a HTTP HEAD command.
-     *
-     * @param uri - Resource URI
-     * @return Response Message
-     */
-    HttpResponse Head(String uri) throws IOException;
-
-    /**
      * Executes a HTTP POST command.
      *
      * @param uri        - Resource URI
@@ -64,8 +56,6 @@ public interface IHTTPService {
     HttpResponse Post(String uri, HttpEntity httpEntity, List<Cookie> cookies) throws
         IOException;
 
-    List<Cookie> PostCookies(String uri, HttpEntity httpEntity) throws IOException;
-
     /**
      * Executes a HTTP PUT command.
      *
@@ -74,28 +64,6 @@ public interface IHTTPService {
      * @return Response Message
      */
     HttpResponse Put(String uri, HttpEntity httpEntity) throws IOException;
-
-    /**
-     *
-     */
-    HttpResponse Put(String uri, HttpEntity httpEntity, String username,
-                     String password) throws IOException;
-
-    /**
-     * Executes a HTTP DELETE command.
-     *
-     * @param uri - Resource URI
-     * @return Response Message
-     */
-    HttpResponse Delete(String uri) throws IOException;
-
-    /**
-     * Executes a HTTP TRACE command.
-     *
-     * @param uri - Resource URI
-     * @return Response Message
-     */
-    HttpResponse Trace(String uri) throws IOException;
 
     /**
      * Executes a HTTP OPTIONS command.
