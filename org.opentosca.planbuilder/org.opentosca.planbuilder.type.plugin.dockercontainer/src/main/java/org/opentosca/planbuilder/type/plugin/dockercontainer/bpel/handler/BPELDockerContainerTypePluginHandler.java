@@ -231,7 +231,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             }
         }
 
-        if (containerImageVar == null || PluginUtils.isVariableValueEmpty(containerImageVar)) {
+        if ((containerImageVar == null || PluginUtils.isVariableValueEmpty(containerImageVar)) && (nodeTemplate.getDeploymentArtifacts() != null && !nodeTemplate.getDeploymentArtifacts().isEmpty())) {
             // handle with DA -> construct URL to the DockerImage .zip
 
             final TDeploymentArtifact da = fetchFirstDockerContainerDA(nodeTemplate, templateContext.getCsar());
