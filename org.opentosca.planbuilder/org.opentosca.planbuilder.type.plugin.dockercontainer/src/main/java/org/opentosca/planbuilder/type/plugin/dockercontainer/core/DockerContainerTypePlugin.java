@@ -34,6 +34,10 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
     }
 
     public static TDeploymentArtifact getTDeploymentArtifact(TNodeTemplate nodeTemplate, Csar csar) {
+        if (nodeTemplate.getDeploymentArtifacts() == null) {
+            return null;
+        }
+
         for (final TDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
             if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTIFACTTYPE)
                 || da.getArtifactType()
