@@ -6,7 +6,7 @@ import com.google.common.collect.Lists;
 import org.hibernate.Hibernate;
 import org.opentosca.container.core.next.model.SituationsMonitor;
 
-public class SituationsMonitorRepository extends JpaRepository<SituationsMonitor> {
+public class SituationsMonitorRepository extends JpaRepository2<SituationsMonitor> {
 
     public SituationsMonitorRepository() {
         super(SituationsMonitor.class);

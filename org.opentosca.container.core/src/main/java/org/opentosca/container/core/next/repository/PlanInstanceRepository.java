@@ -17,7 +17,7 @@ import org.opentosca.container.core.next.model.PlanInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PlanInstanceRepository extends JpaRepository<PlanInstance> {
+public class PlanInstanceRepository extends JpaRepository2<PlanInstance> {
 
     protected static final Logger logger = LoggerFactory.getLogger(PlanInstanceRepository.class);
 

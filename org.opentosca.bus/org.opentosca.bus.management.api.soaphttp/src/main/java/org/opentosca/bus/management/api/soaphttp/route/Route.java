@@ -22,7 +22,7 @@ import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
+import org.opentosca.container.core.next.model.Endpoint;
 import org.opentosca.container.core.plan.ChoreographyHandler;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -90,9 +90,9 @@ public class Route extends RouteBuilder {
         try {
             final URI uri = new URI(Route.PUBLIC_ENDPOINT);
             final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-            final WSDLEndpoint endpoint = new WSDLEndpoint(uri, Route.PORTTYPE, localContainer, localContainer,
-                new CsarId("***"), null, null, null, null, new HashMap<String, String>());
-            this.endpointService.storeWSDLEndpoint(endpoint);
+            final Endpoint endpoint = new Endpoint(uri, localContainer, localContainer,
+                new CsarId("***"), null, new HashMap<>(), Route.PORTTYPE, null, null, null);
+            this.endpointService.storeEndpoint(endpoint);
         } catch (final URISyntaxException e) {
             e.printStackTrace();
         }

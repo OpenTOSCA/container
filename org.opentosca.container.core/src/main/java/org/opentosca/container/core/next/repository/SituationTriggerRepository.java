@@ -7,7 +7,7 @@ import org.hibernate.Hibernate;
 import org.opentosca.container.core.next.model.Situation;
 import org.opentosca.container.core.next.model.SituationTrigger;
 
-public class SituationTriggerRepository extends JpaRepository<SituationTrigger> {
+public class SituationTriggerRepository extends JpaRepository2<SituationTrigger> {
 
     public SituationTriggerRepository() {
         super(SituationTrigger.class);

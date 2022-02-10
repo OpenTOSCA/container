@@ -13,7 +13,7 @@ import org.opentosca.container.core.next.jpa.AutoCloseableEntityManager;
 import org.opentosca.container.core.next.jpa.EntityManagerProvider;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 
-public class RelationshipTemplateInstanceRepository extends JpaRepository<RelationshipTemplateInstance> {
+public class RelationshipTemplateInstanceRepository extends JpaRepository2<RelationshipTemplateInstance> {
 
     public RelationshipTemplateInstanceRepository() {
         super(RelationshipTemplateInstance.class);

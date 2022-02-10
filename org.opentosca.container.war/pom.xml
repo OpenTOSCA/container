@@ -15,7 +15,6 @@
 
     <properties>
         <tomcat.version>9.0.43</tomcat.version>
-        <springboot.version>1.5.22.RELEASE</springboot.version>
         <cargo-maven3-plugin.version>1.9.2</cargo-maven3-plugin.version>
     </properties>
 
@@ -23,6 +22,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <attachClasses>true</attachClasses> <!-- see https://stackoverflow.com/a/10090564/873282 -->

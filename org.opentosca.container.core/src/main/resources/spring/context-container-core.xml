@@ -17,4 +17,5 @@
   <!-- xml serializer service -->
   <context:component-scan base-package="org.opentosca.container.core.engine.xml.impl" />
   <context:component-scan base-package="org.opentosca.container.core.engine.next" />
+  <context:component-scan base-package="org.opentosca.container.core.next.repository" />
 </beans>

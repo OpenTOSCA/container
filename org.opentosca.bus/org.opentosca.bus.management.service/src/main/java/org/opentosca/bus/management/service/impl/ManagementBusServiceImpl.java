@@ -60,7 +60,7 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
+import org.opentosca.container.core.next.model.Endpoint;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
@@ -129,7 +129,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     private final PluginHandler pluginHandler;
     private final PluginRegistry pluginRegistry;
     private final DeploymentPluginCapabilityChecker capabilityChecker;
-    private final ContainerEngine containerEngine;
     private final CsarStorageService storage;
     private final ChoreographyHandler choreographyHandler;
 
@@ -138,8 +137,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                     CollaborationContext collaborationContext, ICoreEndpointService endpointService,
                                     ParameterHandler parameterHandler, PluginHandler pluginHandler,
                                     PluginRegistry pluginRegistry, DeploymentPluginCapabilityChecker capabilityChecker,
-                                    ContainerEngine containerEngine, CsarStorageService storage,
-                                    ChoreographyHandler choreographyHandler) {
+                                    CsarStorageService storage, ChoreographyHandler choreographyHandler) {
         LOG.info("Instantiating ManagementBus Service");
         this.decisionMaker = decisionMaker;
         this.collaborationContext = collaborationContext;
@@ -149,7 +147,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         this.pluginRegistry = pluginRegistry;
         this.capabilityChecker = capabilityChecker;
         this.storage = storage;
-        this.containerEngine = containerEngine;
         this.choreographyHandler = choreographyHandler;
     }
 
@@ -289,8 +286,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         final TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
 
-        final Optional<TNodeTemplate> node =
-            ToscaEngine.getNodeTemplate(csar, arguments.serviceTemplateId, arguments.nodeTemplateId);
         QName typeID = null;
         TEntityType type = null;
         if (Objects.nonNull(arguments.nodeTemplateId)) {
@@ -546,27 +541,27 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             LOG.debug("Checking whether IA [{}] was already deployed", ia.getName());
 
             // check whether there are already stored endpoints for this IA
-            final List<WSDLEndpoint> endpoints =
-                this.endpointService.getWSDLEndpointsForNTImplAndIAName(triggeringContainer, deploymentLocation,
+            final List<Endpoint> endpoints =
+                this.endpointService.getEndpointsForNTImplAndIAName(triggeringContainer, deploymentLocation,
                     typeImplementation.getQName(), ia.getName());
 
             if (Objects.nonNull(endpoints) && !endpoints.isEmpty()) {
                 LOG.debug("IA is already deployed.");
 
-                final URI endpointURI = endpoints.get(0).getURI();
+                final URI endpointURI = endpoints.get(0).getUri();
                 message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpointURI);
 
-                final Optional<WSDLEndpoint> currentEndpoint =
-                    endpoints.stream().filter(wsdlEndpoint -> wsdlEndpoint.getServiceTemplateInstanceID()
+                final Optional<Endpoint> currentEndpoint =
+                    endpoints.stream().filter(endpoint -> endpoint.getServiceTemplateInstanceID()
                             .equals(serviceTemplateInstanceID))
                         .findFirst();
 
                 if (!currentEndpoint.isPresent()) {
                     // store new endpoint for the IA
-                    final WSDLEndpoint endpoint = new WSDLEndpoint(endpointURI, portType, triggeringContainer,
-                        deploymentLocation, csar.id(), serviceTemplateInstanceID, null, typeImplementation.getQName(),
-                        ia.getName(), new HashMap<>());
-                    this.endpointService.storeWSDLEndpoint(endpoint);
+                    final Endpoint endpoint = new Endpoint(endpointURI, triggeringContainer,
+                        deploymentLocation, csar.id(), serviceTemplateInstanceID, new HashMap<>(), portType, typeImplementation.getQName(),
+                        ia.getName(), null);
+                    this.endpointService.storeEndpoint(endpoint);
                 }
 
                 // Call IA, send response to caller and terminate bus
@@ -656,13 +651,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 LOG.debug("IA successfully deployed. Storing endpoint...");
 
                 // store new endpoint for the IA
-                final WSDLEndpoint endpoint =
-                    new WSDLEndpoint(endpointURI, portType, triggeringContainer, deploymentLocation, csar.id(),
-                        serviceTemplateInstanceID, null, typeImplementation.getQName(), ia.getName(), new HashMap<>());
+                final Endpoint endpoint =
+                    new Endpoint(endpointURI, triggeringContainer, deploymentLocation, csar.id(),
+                        serviceTemplateInstanceID, new HashMap<>(), portType, typeImplementation.getQName(), ia.getName(), null);
                 LOG.debug("Storing WSDLEndpoint:");
                 LOG.debug("URI = {}, portType = {}, triggeringContainer = {}, managingContainer = {}, csar = {}, serviceTemplateInstanceID = {}, planId = {}, nodeTypeImplementation = {}, iaName = {}, metadata = {}", endpointURI, portType, triggeringContainer, deploymentLocation, csar.id(),
                     serviceTemplateInstanceID, null, typeImplementation.getQName(), ia.getName(), new HashMap<>());
-                this.endpointService.storeWSDLEndpoint(endpoint);
+                this.endpointService.storeEndpoint(endpoint);
             }
             LOG.debug("Endpoint: {}", endpointURI.toString());
 
@@ -964,32 +959,30 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.debug("Plan language: {}", plan.getLanguage().toString());
 
         LOG.debug("Getting endpoint for the plan...");
-        final List<WSDLEndpoint> WSDLendpoints =
-            this.endpointService.getWSDLEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, arguments.csar.id(),
-                plan.getTemplateId());
+        final List<Endpoint> endpoints = this.endpointService.getEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, arguments.csar.id(),
+            plan.getTemplateId());
 
-        // choose WSDL endpoint depending on the invokation of the invoker or callback port type
-        WSDLEndpoint WSDLendpoint = null;
+        // choose endpoint depending on the invocation of the invoker or callback port type
+        Endpoint endpoint = null;
         if (Objects.isNull(callbackInvocation) || !callbackInvocation) {
-            WSDLendpoint = WSDLendpoints.stream()
-                .filter(endpoint -> endpoint.getPortType() == null
-                    || !endpoint.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
+            endpoint = endpoints.stream()
+                .filter(e -> e.getPortType() == null
+                    || !e.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
                 .findFirst().orElse(null);
         } else {
             LOG.debug("Invokation using callback.");
-            WSDLendpoint =
-                WSDLendpoints.stream().filter(endpoint -> endpoint.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
-                    .findFirst().orElse(null);
+            endpoint = endpoints.stream().filter(e -> e.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
+                .findFirst().orElse(null);
         }
 
-        if (WSDLendpoint != null) {
+        if (endpoint != null) {
 
-            final URI endpoint = WSDLendpoint.getURI();
-            LOG.debug("Endpoint for Plan {} : {} ", plan.getTemplateId(), endpoint);
+            final URI endpointUri = endpoint.getUri();
+            LOG.debug("Endpoint for Plan {} : {} ", plan.getTemplateId(), endpointUri);
 
             // Assumption. Should be checked with ToscaEngine
             message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
-            message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
+            message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpointUri);
 
             // check if we are the initiator and if not send multicast to all participants - Overmind
             final TServiceTemplate serviceTemplate = arguments.csar.entryServiceTemplate();
@@ -1153,11 +1146,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         final Csar csar = this.storage.findById(csarID);
 
-        final List<WSDLEndpoint> serviceEndpoints =
-            this.endpointService.getWSDLEndpointsForSTID(Settings.OPENTOSCA_CONTAINER_HOSTNAME, instanceID);
+        final List<Endpoint> serviceEndpoints =
+            this.endpointService.getEndpointsForSTID(Settings.OPENTOSCA_CONTAINER_HOSTNAME, instanceID);
         LOG.debug("Found {} endpoints to delete...", serviceEndpoints.size());
 
-        for (final WSDLEndpoint serviceEndpoint : serviceEndpoints) {
+        for (final Endpoint serviceEndpoint : serviceEndpoints) {
 
             final String triggeringContainer = serviceEndpoint.getTriggeringContainer();
             final String deploymentLocation = serviceEndpoint.getManagingContainer();
@@ -1176,7 +1169,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                 // get number of endpoints for the same IA
                 final int count =
-                    this.endpointService.getWSDLEndpointsForNTImplAndIAName(triggeringContainer, deploymentLocation,
+                    this.endpointService.getEndpointsForNTImplAndIAName(triggeringContainer, deploymentLocation,
                             typeImpl, iaName)
                         .size();
 
@@ -1197,7 +1190,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                     // create exchange for the undeployment plug-in invocation
                     Exchange exchange = new DefaultExchange(this.collaborationContext.getCamelContext());
-                    exchange.getIn().setHeader(MBHeader.ENDPOINT_URI.toString(), serviceEndpoint.getURI());
+                    exchange.getIn().setHeader(MBHeader.ENDPOINT_URI.toString(), serviceEndpoint.getUri());
 
                     // get plug-in for the undeployment
                     IManagementBusDeploymentPluginService deploymentPlugin;
@@ -1230,7 +1223,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 }
 
                 // delete the endpoint
-                this.endpointService.removeWSDLEndpoint(serviceEndpoint);
+                this.endpointService.removeEndpoint(serviceEndpoint);
                 LOG.debug("Endpoint deleted.");
             }
         }

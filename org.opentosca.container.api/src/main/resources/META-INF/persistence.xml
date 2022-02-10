@@ -16,6 +16,7 @@
 
     <!-- entities -->
     <class>org.opentosca.container.core.next.model.PersistenceObject</class>
+    <class>org.opentosca.container.core.next.model.Endpoint</class>
     <class>org.opentosca.container.core.next.model.Property</class>
     <class>org.opentosca.container.core.next.model.ServiceTemplateInstance</class>
     <class>org.opentosca.container.core.next.model.ServiceTemplateInstanceProperty</class>
@@ -45,7 +46,6 @@
     <class>org.opentosca.container.core.model.deployment.process.DeploymentProcessInfo</class>
     <class>org.opentosca.container.core.model.deployment.AbstractDeploymentInfo</class>
     <class>org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo</class>
-    <class>org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint</class>
     <class>org.opentosca.container.core.model.endpoint.rest.RESTEndpoint</class>
 
     <class>org.opentosca.container.core.model.capability.Capability</class>

@@ -10,12 +10,12 @@ import org.opentosca.container.core.next.jpa.EntityManagerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class JpaRepository<T> implements Repository<T, Long> {
+public abstract class JpaRepository2<T> implements Repository<T, Long> {
 
-    protected static final Logger logger = LoggerFactory.getLogger(JpaRepository.class);
+    protected static final Logger logger = LoggerFactory.getLogger(JpaRepository2.class);
     protected final Class<T> clazz;
 
-    public JpaRepository(final Class<T> clazz) {
+    public JpaRepository2(final Class<T> clazz) {
         this.clazz = clazz;
     }
 

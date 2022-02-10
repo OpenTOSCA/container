@@ -36,9 +36,10 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.engine.management.IManagementBus;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
+import org.opentosca.container.core.next.model.Endpoint;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.opentosca.container.core.next.model.PlanInstanceInput;
@@ -53,7 +54,6 @@ import org.opentosca.container.engine.plan.plugin.bpel.BpelPlanEnginePlugin;
 import org.opentosca.planbuilder.export.WineryExporter;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -225,7 +225,7 @@ public class MBJavaApi implements IManagementBus {
             return;
         }
 
-        final WSDLEndpoint endpoint = getAdaptationPlanEndpoint(currentConfigNodeIds, currentConfigRelationIds,
+        final Endpoint endpoint = getAdaptationPlanEndpoint(currentConfigNodeIds, currentConfigRelationIds,
             targetConfigNodeIds, targetConfigRelationIds);
         final String correlationID = String.valueOf(System.currentTimeMillis());
         QName planId = null;
@@ -298,11 +298,11 @@ public class MBJavaApi implements IManagementBus {
         template.asyncSend("direct:invoke", requestExchange);
     }
 
-    private WSDLEndpoint getAdaptationPlanEndpoint(final Collection<String> sourceNodeIDs,
-                                                   final Collection<String> sourceRelationIDs,
-                                                   final Collection<String> targetNodeIDs,
-                                                   final Collection<String> targetRelationIDs) {
-        for (final WSDLEndpoint endpoint : this.endpointService.getWSDLEndpoints()) {
+    private Endpoint getAdaptationPlanEndpoint(final Collection<String> sourceNodeIDs,
+                                               final Collection<String> sourceRelationIDs,
+                                               final Collection<String> targetNodeIDs,
+                                               final Collection<String> targetRelationIDs) {
+        for (final Endpoint endpoint : this.endpointService.getEndpoints()) {
             final Collection<String> sourceNodesMetadata =
                 toStringCollection(endpoint.getMetadata().get("SOURCENODES"), ",");
             final Collection<String> sourceRelationsMetadata =

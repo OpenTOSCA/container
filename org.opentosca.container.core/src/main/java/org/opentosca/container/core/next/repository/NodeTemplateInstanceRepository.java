@@ -16,7 +16,7 @@ import org.opentosca.container.core.next.jpa.EntityManagerProvider;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 
-public class NodeTemplateInstanceRepository extends JpaRepository<NodeTemplateInstance> {
+public class NodeTemplateInstanceRepository extends JpaRepository2<NodeTemplateInstance> {
 
     public NodeTemplateInstanceRepository() {
         super(NodeTemplateInstance.class);
