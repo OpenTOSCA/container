@@ -15,8 +15,16 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.eclipse.winery.model.tosca.TEntityTemplate;
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
@@ -25,13 +33,7 @@ import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
-import org.opentosca.planbuilder.model.tosca.AbstractProperties;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +116,7 @@ public class Handler {
         return instanceURLVarName;
     }
 
-    public boolean handleTerminate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean handleTerminate(final BPELPlanContext context, final TNodeTemplate nodeTemplate) {
         final boolean hasProps = checkProperties(nodeTemplate.getProperties());
 
         final String serviceInstanceVarName = context.getServiceInstanceURLVarName();
@@ -323,7 +325,7 @@ public class Handler {
         return true;
     }
 
-    public boolean handleTerminate(final BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean handleTerminate(final BPELPlanContext context, TRelationshipTemplate relationshipTemplate) {
         final String restCallResponseVarName = createRESTResponseVar(context);
         final String stateVarName = createStateVar(context, relationshipTemplate.getId());
 
@@ -494,7 +496,7 @@ public class Handler {
     }
 
     public boolean handleUpdate(final BPELPlanContext sourceContext, final BPELPlanContext targetContext,
-                                AbstractNodeTemplate sourceNodeTemplate, AbstractNodeTemplate targetNodeTemplate) {
+                                TNodeTemplate sourceNodeTemplate, TNodeTemplate targetNodeTemplate) {
         final boolean hasProps = checkProperties(sourceNodeTemplate.getProperties());
 
         /* create new node instance */
@@ -547,7 +549,7 @@ public class Handler {
 
         /* load properties and state from old instance to new instance */
         if (hasProps) {
-            this.appendUpdatePropertiesFromSourceToTarget(sourceContext, sourceNodeTemplate,
+            this.appendUpdatePropertiesFromSourceToTarget(sourceContext, targetContext, sourceNodeTemplate,
                 sourceNodeInstanceURLVarName, targetNodeInstanceUrlVar,
                 restCallResponseVar, targetContext.getPostPhaseElement());
         }
@@ -570,7 +572,7 @@ public class Handler {
      * @param nodeTemplate the NodeTemplate to handle
      * @return true iff appending all BPEL code was successful
      */
-    public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPELPlanContext context, final TNodeTemplate nodeTemplate) {
         final boolean hasProps = checkProperties(nodeTemplate.getProperties());
 
         final String serviceInstanceVarName = context.getServiceInstanceURLVarName();
@@ -853,7 +855,7 @@ public class Handler {
      * @param nodeTemplate the NodeTemplate to handle
      * @return true iff appending all BPEL code was successful
      */
-    public boolean handleUpgrade(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean handleUpgrade(final BPELPlanContext context, final TNodeTemplate nodeTemplate) {
 
         final boolean hasProps = checkProperties(nodeTemplate.getProperties());
 
@@ -922,10 +924,6 @@ public class Handler {
         return true;
     }
 
-    private void appendGetStateToPrePhase(BPELPlanContext context, String nodeInstanceURLVarName, String stateVarName) {
-        this.appendGetStateToElement(context, nodeInstanceURLVarName, stateVarName, context.getPrePhaseElement());
-    }
-
     private void appendGetStateToPostPhase(BPELPlanContext context, String instanceUrlVar, String stateVarName) {
         this.appendGetStateToElement(context, instanceUrlVar, stateVarName, context.getPostPhaseElement());
     }
@@ -947,11 +945,6 @@ public class Handler {
     private void appendFailedStateToFaultHandler(BPELPlanContext context, String nodeInstanceURLVarName) {
         String stateVarName = this.createStateVar(context, context.getTemplateId());
         this.appendStateUpdateAsChild(context, nodeInstanceURLVarName, stateVarName, "ERROR", context.getProvisioningFaultHandlerPhaseElement());
-    }
-
-    private void appendStateUpdateToPrePhase(BPELPlanContext context, String nodeInstanceURLVarName,
-                                             String stateVarName) {
-        this.appendStateUpdateFromVarToElement(context, nodeInstanceURLVarName, stateVarName, context.getPrePhaseElement());
     }
 
     private void appendStateUpdateToPostPhase(BPELPlanContext context, String nodeInstanceURLVarName,
@@ -1022,8 +1015,8 @@ public class Handler {
         this.invoker.addLogActivity(context, message, PlanContext.Phase.POST);
     }
 
-    public boolean appendUpdatePropertiesFromSourceToTarget(final BPELPlanContext sourceNodeContext,
-                                                            final AbstractNodeTemplate nodeTemplate,
+    public boolean appendUpdatePropertiesFromSourceToTarget(final BPELPlanContext sourceNodeContext, BPELPlanContext targetNodeContext,
+                                                            final TNodeTemplate nodeTemplate,
                                                             final String sourceNodeInstanceURLVarName,
                                                             final String targetNodeInstanceUrlVarName,
                                                             final String restCallResponseVarName,
@@ -1057,12 +1050,34 @@ public class Handler {
             // proper format
             Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName,
                 propertyVarNameToDOMMapping);
-            assignNode = sourceNodeContext.importNode(assignNode);
+            assignNode = targetNodeContext.importNode(assignNode);
             appendAsChildElement.appendChild(assignNode);
         } catch (final SAXException e) {
             e.printStackTrace();
             return false;
         } catch (final IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        final Map<String, String> propName2BpelVarNameMap = new HashMap<>();
+
+        Map<String, String> propertiesMap = ModelUtils.asMap(targetNodeContext.getNodeTemplate().getProperties());
+
+        for (PropertyVariable var : targetNodeContext.getPropertyVariables(targetNodeContext.getNodeTemplate())) {
+            if (propertiesMap.containsKey(var.getPropertyName())) {
+                propName2BpelVarNameMap.put(var.getPropertyName(), var.getVariableName());
+            }
+        }
+
+        try {
+            Node assignPropertiesToVariables =
+                this.fragments.createAssignFromInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
+                    + System.currentTimeMillis(), restCallResponseVarName, propName2BpelVarNameMap, ModelUtils.getNamespace(targetNodeContext.getNodeTemplate().getProperties()));
+            assignPropertiesToVariables =
+                targetNodeContext.importNode(assignPropertiesToVariables);
+            targetNodeContext.getPostPhaseElement().appendChild(assignPropertiesToVariables);
+        } catch (final IOException | SAXException e) {
             e.printStackTrace();
             return false;
         }
@@ -1084,7 +1099,7 @@ public class Handler {
         return true;
     }
 
-    public boolean appendUpdateProperties(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
+    public boolean appendUpdateProperties(final BPELPlanContext context, final TNodeTemplate nodeTemplate,
                                           final String nodeInstanceURLVarName, final String restCallResponseVarName,
                                           final Node appendAsChildElement) {
         try {
@@ -1142,8 +1157,8 @@ public class Handler {
     }
 
     public boolean handleUpdate(final BPELPlanContext sourceContext, final BPELPlanContext targetContext,
-                                AbstractRelationshipTemplate sourceRelationshipTemplate,
-                                AbstractRelationshipTemplate targetRelationshipTemplate) {
+                                TRelationshipTemplate sourceRelationshipTemplate,
+                                TRelationshipTemplate targetRelationshipTemplate) {
 
         final String targetServiceTemplateUrlVarName = targetContext.getServiceTemplateURLVar();
         final String targetServiceInstanceIdVarName = targetContext.getServiceInstanceIDVarName();
@@ -1156,9 +1171,9 @@ public class Handler {
         // find already available instanceIds from the target nodes (source and target of the relation to
         // create
         final String targetServiceRelationSourceNodeInstanceIdVar =
-            targetContext.findInstanceIDVar(targetRelationshipTemplate.getSource().getId(), true);
+            targetContext.findInstanceIDVar(ModelUtils.getSource(targetRelationshipTemplate, targetContext.getCsar()).getId(), true);
         final String targetServiceRelationTargetNodeInstanceIdVar =
-            targetContext.findInstanceIDVar(targetRelationshipTemplate.getTarget().getId(), true);
+            targetContext.findInstanceIDVar(ModelUtils.getTarget(targetRelationshipTemplate, targetContext.getCsar()).getId(), true);
 
         // if it is a connect to relation that we migrate, the node instances are already migrated,
         // therefore we can create the new instance in the connect migration scope
@@ -1167,13 +1182,13 @@ public class Handler {
         // (e.g. Raspian-hostedOn->Raspi3 => create code is added to raspbian)
         Element injectionPreElement = null;
         Element injectionPostElement = null;
-        if (ModelUtils.getRelationshipTypeHierarchy(targetRelationshipTemplate.getRelationshipType())
+        if (ModelUtils.getRelationshipTypeHierarchy(ModelUtils.findRelationshipType(targetRelationshipTemplate, targetContext.getCsar()), targetContext.getCsar())
             .contains(Types.connectsToRelationType)) {
             injectionPreElement = targetContext.getPrePhaseElement();
             injectionPostElement = targetContext.getPostPhaseElement();
         } else {
             // fetch nodeTemplate
-            final AbstractNodeTemplate sourceNodeTemplate = sourceRelationshipTemplate.getSource();
+            final TNodeTemplate sourceNodeTemplate = ModelUtils.getSource(sourceRelationshipTemplate, sourceContext.getCsar());
             injectionPreElement = targetContext.createContext(sourceNodeTemplate, ActivityType.MIGRATION).getPostPhaseElement();
             injectionPostElement = targetContext.createContext(sourceNodeTemplate, ActivityType.MIGRATION).getPostPhaseElement();
         }
@@ -1313,7 +1328,7 @@ public class Handler {
     }
 
     public boolean handleCreate(final BPELPlanContext context,
-                                final AbstractRelationshipTemplate relationshipTemplate) {
+                                final TRelationshipTemplate relationshipTemplate) {
 
         final String serviceInstanceVarName = context.getServiceInstanceURLVarName();
         if (serviceInstanceVarName == null) {
@@ -1356,17 +1371,17 @@ public class Handler {
         Element injectionPreElement = null;
         Element injectionPostElement = null;
         final String sourceInstanceVarName =
-            context.findInstanceIDVar(context.getRelationshipTemplate().getSource().getId(), true);
+            context.findInstanceIDVar(ModelUtils.getSource(context.getRelationshipTemplate(), context.getCsar()).getId(), true);
         final String targetInstanceVarName =
-            context.findInstanceIDVar(context.getRelationshipTemplate().getTarget().getId(), true);
+            context.findInstanceIDVar(ModelUtils.getTarget(context.getRelationshipTemplate(), context.getCsar()).getId(), true);
 
-        if (ModelUtils.getRelationshipTypeHierarchy(context.getRelationshipTemplate().getRelationshipType())
+        if (ModelUtils.getRelationshipTypeHierarchy(ModelUtils.findRelationshipType(context.getRelationshipTemplate(), context.getCsar()), context.getCsar())
             .contains(Types.connectsToRelationType)) {
             injectionPreElement = context.getPrePhaseElement();
             injectionPostElement = context.getPostPhaseElement();
         } else {
             // fetch nodeTemplate
-            final AbstractNodeTemplate sourceNodeTemplate = context.getRelationshipTemplate().getSource();
+            final TNodeTemplate sourceNodeTemplate = ModelUtils.getSource(context.getRelationshipTemplate(), context.getCsar());
             LOG.debug("Trying to create provisioning plan context for sourceNodeTemplate {} of relationshipTemplate {}", sourceNodeTemplate.toString(), context.getRelationshipTemplate().toString());
 
             // Right now the knowledge of DEFROST and PROVISIONING activities is to hard of an assumption, if you ask me
@@ -1684,26 +1699,26 @@ public class Handler {
      * bpel variable was not found or the properties weren't parsed right.
      */
     private Map<String, QName> buildMappingsFromVarNameToDomElement(final PlanContext context,
-                                                                    AbstractNodeTemplate nodeTemplate) {
-        final Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
+                                                                    TNodeTemplate nodeTemplate) {
+        final Map<String, String> propertiesMap = ModelUtils.asMap(nodeTemplate.getProperties());
         final Map<String, QName> mapping = new HashMap<>();
 
         for (String propertyName : propertiesMap.keySet()) {
             final String propVarName = context.getVariableNameOfProperty(nodeTemplate, propertyName);
-            mapping.put(propVarName, new QName(nodeTemplate.getProperties().getNamespace(), propertyName));
+            mapping.put(propVarName, new QName(ModelUtils.getNamespace(nodeTemplate.getProperties()), propertyName));
         }
 
         return mapping;
     }
 
     private Map<String, QName> buildMappingsFromVarNameToDomElement(final PlanContext context,
-                                                                    AbstractRelationshipTemplate relationshipTemplate) {
-        final Map<String, String> propertiesMap = relationshipTemplate.getProperties().asMap();
+                                                                    TRelationshipTemplate relationshipTemplate) {
+        final Map<String, String> propertiesMap = ModelUtils.asMap(relationshipTemplate.getProperties());
         final Map<String, QName> mapping = new HashMap<>();
 
         for (String propertyName : propertiesMap.keySet()) {
             final String propVarName = context.getVariableNameOfProperty(relationshipTemplate, propertyName);
-            mapping.put(propVarName, new QName(relationshipTemplate.getProperties().getNamespace(), propertyName));
+            mapping.put(propVarName, new QName(ModelUtils.getNamespace(relationshipTemplate.getProperties()), propertyName));
         }
 
         return mapping;
@@ -1716,18 +1731,18 @@ public class Handler {
      * properties/bpel-variables defined)
      * </p>
      *
-     * @param properties AbstractProperties of an AbstractNodeTemplate or AbstractRelationshipTemplate
+     * @param properties AbstractProperties of an TNodeTemplate or TRelationshipTemplate
      * @return true iff properties and properties.getDomElement() != null and DomElement.hasChildNodes() == true
      */
-    private boolean checkProperties(final AbstractProperties properties) {
+    private boolean checkProperties(final TEntityTemplate.Properties properties) {
         if (properties == null) {
             return false;
         }
 
-        return !properties.asMap().isEmpty();
+        return !ModelUtils.asMap(properties).isEmpty();
     }
 
-    public boolean handlePasswordCheck(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean handlePasswordCheck(final BPELPlanContext context, final TNodeTemplate nodeTemplate) {
 
         // find properties which store passwords
         // find their variables
@@ -1742,13 +1757,13 @@ public class Handler {
 
         // find runScript method
 
-        final AbstractNodeTemplate node = findRunScriptNode(nodeTemplate);
+        final TNodeTemplate node = findRunScriptNode(nodeTemplate, context.getCsar());
 
         if (node == null) {
             return false;
         }
 
-        final Map<AbstractParameter, Variable> inputParams = new HashMap<>();
+        final Map<TParameter, Variable> inputParams = new HashMap<>();
 
         final String cmdStringName = "checkPasswordScript_" + nodeTemplate.getId() + "_" + System.currentTimeMillis();
         final String cmdStringVal = createPlaceHolderPwCheckCmdString(pwVariables);
@@ -1770,10 +1785,10 @@ public class Handler {
             e.printStackTrace();
         }
 
-        inputParams.put(new AbstractParameter() {
+        inputParams.put(new TParameter() {
 
             @Override
-            public boolean isRequired() {
+            public boolean getRequired() {
                 // TODO Auto-generated method stub
                 return false;
             }
@@ -1791,16 +1806,16 @@ public class Handler {
             }
         }, cmdVar);
 
-        final Map<AbstractParameter, Variable> outputParams = new HashMap<>();
+        final Map<TParameter, Variable> outputParams = new HashMap<>();
 
         final String outputVarName = "pwCheckResult" + System.currentTimeMillis();
 
         final Variable outputVar = context.createGlobalStringVariable(outputVarName, "");
 
-        outputParams.put(new AbstractParameter() {
+        outputParams.put(new TParameter() {
 
             @Override
-            public boolean isRequired() {
+            public boolean getRequired() {
                 // TODO Auto-generated method stub
                 return false;
             }
@@ -1860,20 +1875,23 @@ public class Handler {
         return cmdString;
     }
 
-    protected AbstractNodeTemplate findRunScriptNode(final AbstractNodeTemplate nodeTemplate) {
-        final List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
+    protected TNodeTemplate findRunScriptNode(final TNodeTemplate nodeTemplate, Csar csar) {
+        final List<TNodeTemplate> infraNodes = new ArrayList<>();
 
-        ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes);
+        ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes, csar);
 
-        for (final AbstractNodeTemplate node : infraNodes) {
-            for (final AbstractInterface iface : node.getType().getInterfaces()) {
-                if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM)
-                    | iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER)) {
-                    for (final AbstractOperation op : iface.getOperations()) {
-                        if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
-                            | op.getName()
-                            .equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)) {
-                            return node;
+        for (final TNodeTemplate node : infraNodes) {
+            List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
+            if (interfaces != null) {
+                for (final TInterface iface : interfaces) {
+                    if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM)
+                        | iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER)) {
+                        for (final TOperation op : iface.getOperations()) {
+                            if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
+                                | op.getName()
+                                .equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)) {
+                                return node;
+                            }
                         }
                     }
                 }

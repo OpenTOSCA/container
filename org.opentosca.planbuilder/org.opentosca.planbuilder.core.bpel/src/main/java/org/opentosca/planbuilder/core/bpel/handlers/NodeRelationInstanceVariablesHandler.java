@@ -8,6 +8,10 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
@@ -17,10 +21,7 @@ import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
@@ -51,7 +52,7 @@ public class NodeRelationInstanceVariablesHandler {
     }
 
     public boolean addIfNullAbortCheck(final BPELScope templatePlan, final Property2VariableMapping propMap,
-                                       AbstractServiceTemplate serviceTemplate) {
+                                       TServiceTemplate serviceTemplate) {
 
         for (PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate, templatePlan.getNodeTemplate())) {
             final String bpelVarName = var.getVariableName();
@@ -80,7 +81,7 @@ public class NodeRelationInstanceVariablesHandler {
      * @param serviceTemplateUrlVarName the name of the variable holding the url to the serviceTemplate
      */
     public boolean addNodeInstanceFindLogic(final BPELScope templatePlan, final String serviceTemplateUrlVarName,
-                                            final String query, AbstractServiceTemplate serviceTemplate) {
+                                            final String query, TServiceTemplate serviceTemplate) {
 
         if (templatePlan.getNodeTemplate() == null) {
             throw new RuntimeException("Can't create instance find logic only for nodes");
@@ -127,7 +128,7 @@ public class NodeRelationInstanceVariablesHandler {
     }
 
     public boolean addRelationInstanceFindLogic(final BPELScope templatePlan, final String serviceTemplateUrlVarName,
-                                                final String query, AbstractServiceTemplate serviceTemplate) {
+                                                final String query, TServiceTemplate serviceTemplate) {
         if (templatePlan.getRelationshipTemplate() == null) {
             throw new RuntimeException("Can't create instance find logic only for relations");
         }
@@ -170,28 +171,28 @@ public class NodeRelationInstanceVariablesHandler {
         return true;
     }
 
-    public boolean addInstanceIDVarToTemplatePlans(final BPELPlan plan, AbstractServiceTemplate serviceTemplate) {
+    public boolean addInstanceIDVarToTemplatePlans(final BPELPlan plan, TServiceTemplate serviceTemplate) {
         boolean check = true;
 
-        for (AbstractNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+        for (TNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             check &= addInstanceIDVarToPlan(node, plan, serviceTemplate);
         }
 
-        for (AbstractRelationshipTemplate relation : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
+        for (TRelationshipTemplate relation : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
             check &= addInstanceIDVarToPlan(relation, plan, serviceTemplate);
         }
 
         return check;
     }
 
-    private boolean addInstanceIDVarToPlan(AbstractNodeTemplate nodeTemplate, BPELPlan plan, AbstractServiceTemplate serviceTemplate) {
+    private boolean addInstanceIDVarToPlan(TNodeTemplate nodeTemplate, BPELPlan plan, TServiceTemplate serviceTemplate) {
         String templateId = nodeTemplate.getId();
         String instanceIdVarName = nodeInstanceIDVarKeyword;
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
 
-        instanceIdVarName += "_" + ModelUtils.makeValidNCName(serviceTemplate.getQName().toString()) + "_"
+        instanceIdVarName += "_" + ModelUtils.makeValidNCName(new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()).toString()) + "_"
             + ModelUtils.makeValidNCName(templateId) + "_" + System.currentTimeMillis();
 
         return this.bpelProcessHandler.addVariable(instanceIdVarName, VariableType.TYPE,
@@ -199,14 +200,14 @@ public class NodeRelationInstanceVariablesHandler {
             plan);
     }
 
-    private boolean addInstanceIDVarToPlan(AbstractRelationshipTemplate relationshipTemplate, BPELPlan plan, AbstractServiceTemplate serviceTemplate) {
+    private boolean addInstanceIDVarToPlan(TRelationshipTemplate relationshipTemplate, BPELPlan plan, TServiceTemplate serviceTemplate) {
         String templateId = relationshipTemplate.getId();
         String instanceIdVarName = relationInstanceIDVarKeyword;
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
 
-        instanceIdVarName += "_" + ModelUtils.makeValidNCName(serviceTemplate.getQName().toString()) + "_"
+        instanceIdVarName += "_" + ModelUtils.makeValidNCName(new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()).toString()) + "_"
             + ModelUtils.makeValidNCName(templateId) + "_" + System.currentTimeMillis();
 
         return this.bpelProcessHandler.addVariable(instanceIdVarName, VariableType.TYPE,
@@ -214,8 +215,8 @@ public class NodeRelationInstanceVariablesHandler {
             plan);
     }
 
-    private boolean addInstanceURLVarToTemplatePlan(BPELPlan plan, final AbstractNodeTemplate nodeTemplate,
-                                                    AbstractServiceTemplate serviceTemplate) {
+    private boolean addInstanceURLVarToTemplatePlan(BPELPlan plan, final TNodeTemplate nodeTemplate,
+                                                    TServiceTemplate serviceTemplate) {
 
         String templateId = nodeTemplate.getId();
         String instanceUrlVarName = nodeInstanceURLVarKeyword;
@@ -230,7 +231,7 @@ public class NodeRelationInstanceVariablesHandler {
                 this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
         }
 
-        instanceUrlVarName += "_" + ModelUtils.makeValidNCName(serviceTemplate.getQName().toString()) + "_"
+        instanceUrlVarName += "_" + ModelUtils.makeValidNCName(new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()).toString()) + "_"
             + ModelUtils.makeValidNCName(templateId) + "_" + System.currentTimeMillis();
 
         return this.bpelProcessHandler.addVariable(instanceUrlVarName, VariableType.TYPE,
@@ -238,8 +239,8 @@ public class NodeRelationInstanceVariablesHandler {
             plan);
     }
 
-    private boolean addInstanceURLVarToTemplatePlan(BPELPlan plan, final AbstractRelationshipTemplate relationshipTemplate,
-                                                    AbstractServiceTemplate serviceTemplate) {
+    private boolean addInstanceURLVarToTemplatePlan(BPELPlan plan, final TRelationshipTemplate relationshipTemplate,
+                                                    TServiceTemplate serviceTemplate) {
 
         String templateId = relationshipTemplate.getId();
         String instanceUrlVarName = relationInstanceURLVarKeyword;
@@ -254,7 +255,7 @@ public class NodeRelationInstanceVariablesHandler {
                 this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
         }
 
-        instanceUrlVarName += "_" + ModelUtils.makeValidNCName(serviceTemplate.getQName().toString()) + "_"
+        instanceUrlVarName += "_" + ModelUtils.makeValidNCName(new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()).toString()) + "_"
             + ModelUtils.makeValidNCName(templateId) + "_" + System.currentTimeMillis();
 
         return this.bpelProcessHandler.addVariable(instanceUrlVarName, VariableType.TYPE,
@@ -267,21 +268,21 @@ public class NodeRelationInstanceVariablesHandler {
      *
      * @param plan a plan with TemplatePlans
      */
-    public boolean addInstanceURLVarToTemplatePlans(final BPELPlan plan, AbstractServiceTemplate serviceTemplate) {
+    public boolean addInstanceURLVarToTemplatePlans(final BPELPlan plan, TServiceTemplate serviceTemplate) {
         boolean check = true;
 
-        for (AbstractRelationshipTemplate relation : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
+        for (TRelationshipTemplate relation : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
             check &= addInstanceURLVarToTemplatePlan(plan, relation, serviceTemplate);
         }
 
-        for (AbstractNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+        for (TNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             check &= addInstanceURLVarToTemplatePlan(plan, node, serviceTemplate);
         }
         return check;
     }
 
     public boolean addNodeInstanceFindLogic(final BPELPlan plan, final String queryForNodeInstances,
-                                            AbstractServiceTemplate serviceTemplate) {
+                                            TServiceTemplate serviceTemplate) {
         boolean check = true;
 
         final String serviceTemplateUrlVarName = this.serviceInstanceHandler.findServiceTemplateUrlVariableName(plan);
@@ -296,7 +297,7 @@ public class NodeRelationInstanceVariablesHandler {
         return check;
     }
 
-    public boolean addRelationInstanceFindLogic(final BPELPlan plan, final String queryForRelationInstances, AbstractServiceTemplate serviceTemplate) {
+    public boolean addRelationInstanceFindLogic(final BPELPlan plan, final String queryForRelationInstances, TServiceTemplate serviceTemplate) {
         boolean check = true;
 
         final String serviceTemplateUrlVarName = this.serviceInstanceHandler.findServiceTemplateUrlVariableName(plan);
@@ -321,29 +322,29 @@ public class NodeRelationInstanceVariablesHandler {
      */
     public boolean addPropertyVariableUpdateBasedOnNodeInstanceID(final BPELPlan plan,
                                                                   final Property2VariableMapping propMap,
-                                                                  AbstractServiceTemplate serviceTemplate) {
+                                                                  TServiceTemplate serviceTemplate) {
         boolean check = true;
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             if (templatePlan.getNodeTemplate() != null && templatePlan.getNodeTemplate().getProperties() != null
-                && !templatePlan.getNodeTemplate().getProperties().asMap().isEmpty()) {
+                && !ModelUtils.asMap(templatePlan.getNodeTemplate().getProperties()).isEmpty()) {
                 check &= this.addPropertyVariableUpdateBasedOnNodeInstanceID(templatePlan, propMap, serviceTemplate);
             }
         }
         return check;
     }
 
-    public boolean addPropertyVariableUpdateBasedOnRelationInstanceID(final BPELPlan plan, final Property2VariableMapping propMap, AbstractServiceTemplate serviceTemplate) {
+    public boolean addPropertyVariableUpdateBasedOnRelationInstanceID(final BPELPlan plan, final Property2VariableMapping propMap, TServiceTemplate serviceTemplate) {
         boolean check = true;
         for (final BPELScope templatePlan : plan.getTemplateBuildPlans()) {
             if (templatePlan.getRelationshipTemplate() != null && templatePlan.getRelationshipTemplate().getProperties() != null
-                && !templatePlan.getRelationshipTemplate().getProperties().asMap().isEmpty()) {
+                && !ModelUtils.asMap(templatePlan.getRelationshipTemplate().getProperties()).isEmpty()) {
                 check &= this.addPropertyVariableUpdateBasedOnRelationInstanceID(templatePlan, propMap, serviceTemplate);
             }
         }
         return check;
     }
 
-    public boolean addPropertyVariableUpdateBasedOnRelationInstanceID(final BPELScope templatePlan, final Property2VariableMapping propMap, AbstractServiceTemplate serviceTemplate) {
+    public boolean addPropertyVariableUpdateBasedOnRelationInstanceID(final BPELScope templatePlan, final Property2VariableMapping propMap, TServiceTemplate serviceTemplate) {
         // check if everything is available
         if (templatePlan.getRelationshipTemplate() == null) {
             return false;
@@ -359,7 +360,7 @@ public class NodeRelationInstanceVariablesHandler {
 
         final String instanceIdVarName = this.findInstanceVarName(templatePlan, serviceTemplate);
 
-        final AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
+        final TRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
         // add XMLSchema Namespace for the logic
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
@@ -385,7 +386,7 @@ public class NodeRelationInstanceVariablesHandler {
         // create mapping from property dom nodes to bpelvariable
         final Map<String, String> string2BpelVarNameMap = new HashMap<>();
 
-        Map<String, String> propertiesMap = relationshipTemplate.getProperties().asMap();
+        Map<String, String> propertiesMap = ModelUtils.asMap(relationshipTemplate.getProperties());
 
         for (PropertyVariable var : propMap.getRelationPropertyVariables(serviceTemplate, relationshipTemplate)) {
             if (propertiesMap.containsKey(var.getPropertyName())) {
@@ -396,7 +397,7 @@ public class NodeRelationInstanceVariablesHandler {
         try {
             Node assignPropertiesToVariables =
                 this.bpelFragments.createAssignFromInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
-                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, relationshipTemplate.getProperties().getNamespace());
+                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, ModelUtils.getNamespace(relationshipTemplate.getProperties()));
             assignPropertiesToVariables = templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(assignPropertiesToVariables);
         } catch (final IOException | SAXException e) {
@@ -416,7 +417,7 @@ public class NodeRelationInstanceVariablesHandler {
      */
     public boolean addPropertyVariableUpdateBasedOnNodeInstanceID(final BPELScope templatePlan,
                                                                   final Property2VariableMapping propMap,
-                                                                  AbstractServiceTemplate serviceTemplate) {
+                                                                  TServiceTemplate serviceTemplate) {
         // check if everything is available
         if (templatePlan.getNodeTemplate() == null) {
             return false;
@@ -432,7 +433,7 @@ public class NodeRelationInstanceVariablesHandler {
 
         final String instanceIdVarName = this.findInstanceVarName(templatePlan, serviceTemplate);
 
-        final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
+        final TNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
         // add XMLSchema Namespace for the logic
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
@@ -456,20 +457,20 @@ public class NodeRelationInstanceVariablesHandler {
 
         // assign bpel variables from the requested properties
         // create mapping from property dom nodes to bpelvariable
-        final Map<String, String> string2BpelVarNameMap = new HashMap<>();
+        final Map<String, String> sourceString2BpelVarNameMap = new HashMap<>();
 
-        Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
+        Map<String, String> sourcePropertiesMap = ModelUtils.asMap(nodeTemplate.getProperties());
 
         for (PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate, nodeTemplate)) {
-            if (propertiesMap.containsKey(var.getPropertyName())) {
-                string2BpelVarNameMap.put(var.getPropertyName(), var.getVariableName());
+            if (sourcePropertiesMap.containsKey(var.getPropertyName())) {
+                sourceString2BpelVarNameMap.put(var.getPropertyName(), var.getVariableName());
             }
         }
 
         try {
             Node assignPropertiesToVariables =
                 this.bpelFragments.createAssignFromInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
-                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, nodeTemplate.getProperties().getNamespace());
+                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, sourceString2BpelVarNameMap, ModelUtils.getNamespace(nodeTemplate.getProperties()));
             assignPropertiesToVariables = templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(assignPropertiesToVariables);
         } catch (final IOException | SAXException e) {
@@ -480,8 +481,8 @@ public class NodeRelationInstanceVariablesHandler {
     }
 
     public boolean addPropertyVariableUpdateBasedOnNodeInstanceID(final BPELPlanContext context,
-                                                                  final AbstractNodeTemplate nodeTemplate,
-                                                                  AbstractServiceTemplate serviceTemplate) {
+                                                                  final TNodeTemplate nodeTemplate,
+                                                                  TServiceTemplate serviceTemplate) {
 
         final String instanceIdVarName =
             this.findInstanceVarName(serviceTemplate, context.getMainVariableNames(), nodeTemplate.getId(), true, nodeInstanceURLVarKeyword, relationInstanceURLVarKeyword);
@@ -515,7 +516,7 @@ public class NodeRelationInstanceVariablesHandler {
         // create mapping from property dom nodes to bpelvariable
         final Map<String, String> string2BpelVarNameMap = new HashMap<>();
 
-        Map<String, String> propertiesMap = nodeTemplate.getProperties().asMap();
+        Map<String, String> propertiesMap = ModelUtils.asMap(nodeTemplate.getProperties());
 
         for (String propertyName : propertiesMap.keySet()) {
             final String bpelVarName = context.getVariableNameOfProperty(nodeTemplate, propertyName);
@@ -527,7 +528,7 @@ public class NodeRelationInstanceVariablesHandler {
         try {
             Node assignPropertiesToVariables =
                 this.bpelFragments.createAssignFromInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
-                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, nodeTemplate.getProperties().getNamespace());
+                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, string2BpelVarNameMap, ModelUtils.getNamespace(nodeTemplate.getProperties()));
             assignPropertiesToVariables = context.importNode(assignPropertiesToVariables);
             context.getPrePhaseElement().appendChild(assignPropertiesToVariables);
         } catch (final IOException | SAXException e) {
@@ -537,7 +538,7 @@ public class NodeRelationInstanceVariablesHandler {
         return true;
     }
 
-    public String appendCountInstancesLogic(final BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate,
+    public String appendCountInstancesLogic(final BPELPlanContext context, final TRelationshipTemplate relationshipTemplate,
                                             final String query) {
 
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
@@ -612,7 +613,7 @@ public class NodeRelationInstanceVariablesHandler {
         return null;
     }
 
-    public String appendCountInstancesLogic(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
+    public String appendCountInstancesLogic(final BPELPlanContext context, final TNodeTemplate nodeTemplate,
                                             final String query) {
 
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
@@ -698,7 +699,7 @@ public class NodeRelationInstanceVariablesHandler {
     }
 
     public String appendCountInstancesLogic(final PlanContext context,
-                                            final AbstractRelationshipTemplate relationshipTemplate) {
+                                            final TRelationshipTemplate relationshipTemplate) {
         // TODO
         return null;
     }
@@ -749,23 +750,23 @@ public class NodeRelationInstanceVariablesHandler {
         return forEachElement;
     }
 
-    public String findInstanceUrlVarName(final BPELPlan plan, AbstractServiceTemplate serviceTemplate,
+    public String findInstanceUrlVarName(final BPELPlan plan, TServiceTemplate serviceTemplate,
                                          final String templateId, final boolean isNode) {
         return this.findInstanceVarName(serviceTemplate, this.bpelProcessHandler.getMainVariableNames(plan),
             templateId, isNode, nodeInstanceURLVarKeyword, relationInstanceURLVarKeyword);
     }
 
-    public String findInstanceIdVarName(final BPELPlan plan, AbstractServiceTemplate serviceTemplate,
+    public String findInstanceIdVarName(final BPELPlan plan, TServiceTemplate serviceTemplate,
                                         final String templateId, final boolean isNode) {
         return this.findInstanceVarName(serviceTemplate, this.bpelProcessHandler.getMainVariableNames(plan),
             templateId, isNode, nodeInstanceIDVarKeyword, relationInstanceIDVarKeyword);
     }
 
-    public String findInstanceVarName(final BPELScope templatePlan, AbstractServiceTemplate serviceTemplate) {
+    public String findInstanceVarName(final BPELScope templatePlan, TServiceTemplate serviceTemplate) {
         return findInstanceVarName(templatePlan, serviceTemplate, true);
     }
 
-    public String findInstanceVarName(final BPELScope templatePlan, AbstractServiceTemplate serviceTemplate, boolean findUrl) {
+    public String findInstanceVarName(final BPELScope templatePlan, TServiceTemplate serviceTemplate, boolean findUrl) {
         String templateId;
 
         boolean isNode = true;
@@ -782,10 +783,10 @@ public class NodeRelationInstanceVariablesHandler {
         }
     }
 
-    public String findInstanceVarName(AbstractServiceTemplate serviceTemplate, final List<String> varNames,
+    public String findInstanceVarName(TServiceTemplate serviceTemplate, final List<String> varNames,
                                       final String templateId, final boolean isNode, String nodeInstanceURLVarKeyword, String relationInstanceURLVarKeyword) {
         final String instanceURLVarName = (isNode ? nodeInstanceURLVarKeyword : relationInstanceURLVarKeyword) + "_"
-            + ModelUtils.makeValidNCName(serviceTemplate.getQName().toString()) + "_"
+            + ModelUtils.makeValidNCName(new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()).toString()) + "_"
             + ModelUtils.makeValidNCName(templateId) + "_";
         for (final String varName : varNames) {
             if (varName.contains(instanceURLVarName)) {

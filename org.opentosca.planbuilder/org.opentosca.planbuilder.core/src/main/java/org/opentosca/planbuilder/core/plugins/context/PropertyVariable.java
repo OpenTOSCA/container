@@ -1,17 +1,19 @@
 package org.opentosca.planbuilder.core.plugins.context;
 
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
+import org.opentosca.container.core.model.ModelUtils;
 
 public class PropertyVariable extends Variable {
 
-    private final AbstractServiceTemplate serviceTemplate;
+    private final TServiceTemplate serviceTemplate;
     private final String propertyName;
-    private AbstractNodeTemplate nodeTemplate;
-    private AbstractRelationshipTemplate relationshipTemplate;
+    private TNodeTemplate nodeTemplate;
+    private TRelationshipTemplate relationshipTemplate;
 
-    public PropertyVariable(AbstractServiceTemplate serviceTemplate, AbstractNodeTemplate templateId,
+    public PropertyVariable(TServiceTemplate serviceTemplate, TNodeTemplate templateId,
                             String variableName, String propertyName) {
         super(variableName);
         this.serviceTemplate = serviceTemplate;
@@ -19,7 +21,7 @@ public class PropertyVariable extends Variable {
         this.propertyName = propertyName;
     }
 
-    public PropertyVariable(AbstractServiceTemplate serviceTemplate, AbstractRelationshipTemplate templateId,
+    public PropertyVariable(TServiceTemplate serviceTemplate, TRelationshipTemplate templateId,
                             String variableName, String propertyName) {
         super(variableName);
         this.serviceTemplate = serviceTemplate;
@@ -27,7 +29,7 @@ public class PropertyVariable extends Variable {
         this.propertyName = propertyName;
     }
 
-    public AbstractServiceTemplate getServiceTemplate() {
+    public TServiceTemplate getServiceTemplate() {
         return this.serviceTemplate;
     }
 
@@ -35,11 +37,11 @@ public class PropertyVariable extends Variable {
         return this.nodeTemplate != null;
     }
 
-    public AbstractNodeTemplate getNodeTemplate() {
+    public TNodeTemplate getNodeTemplate() {
         return this.nodeTemplate;
     }
 
-    public AbstractRelationshipTemplate getRelationshipTemplate() {
+    public TRelationshipTemplate getRelationshipTemplate() {
         return this.relationshipTemplate;
     }
 
@@ -48,7 +50,7 @@ public class PropertyVariable extends Variable {
     }
 
     public String getContent() {
-        return this.nodeTemplate.getProperties().asMap().get(this.propertyName);
+        return ModelUtils.asMap(this.nodeTemplate.getProperties()).get(this.propertyName);
     }
 
     public String toString() {

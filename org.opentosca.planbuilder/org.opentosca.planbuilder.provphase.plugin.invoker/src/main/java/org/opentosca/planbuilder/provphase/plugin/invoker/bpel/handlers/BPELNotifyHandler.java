@@ -11,6 +11,10 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TTag;
+
 import com.google.common.collect.Lists;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
@@ -18,12 +22,7 @@ import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -194,18 +193,23 @@ public class BPELNotifyHandler extends PluginHandler {
     }
 
     private String getMyPartnerId(final BPELPlanContext context) {
-        return context.getServiceTemplate().getTags().get("participant");
+        TTag tag = context.getServiceTemplate().getTags().stream().filter(x -> x.getName().equals("participant")).findFirst().orElse(null);
+        if (tag != null) {
+            return tag.getValue();
+        } else {
+            return null;
+        }
     }
 
     public boolean addChoreographyParameters(final BPELPlanContext context, final Map<String, Variable> params) {
-        final AbstractRelationshipTemplate connectingRelationshipTemplate =
-            (AbstractRelationshipTemplate) context.getActivity().getMetadata().get("ConnectingRelationshipTemplate");
+        final TRelationshipTemplate connectingRelationshipTemplate =
+            (TRelationshipTemplate) context.getActivity().getMetadata().get("ConnectingRelationshipTemplate");
 
         String sendingPartner = null;
         String receivingPartner = null;
         if (connectingRelationshipTemplate != null) {
             sendingPartner = getMyPartnerId(context);
-            receivingPartner = getPartnerLocation(connectingRelationshipTemplate.getSource());
+            receivingPartner = getPartnerLocation(ModelUtils.getSource(connectingRelationshipTemplate, context.getCsar()));
             final Variable connectingRelationIdVar = context.createGlobalStringVariable("connectingRelationId_"
                 + sendingPartner + "_IDVar_" + context.getIdForNames(), connectingRelationshipTemplate.getId());
             params.put("ConnectingRelationshipTemplate", connectingRelationIdVar);
@@ -470,28 +474,16 @@ public class BPELNotifyHandler extends PluginHandler {
         return true;
     }
 
-    public Collection<AbstractParameter> getAllOperationParameters(final BPELPlanContext context) {
-        final Collection<AbstractParameter> parameters = new HashSet<>();
-        if (context.isNodeTemplate()) {
-            for (final AbstractInterface iface : context.getNodeTemplate().getType().getInterfaces()) {
-                for (final AbstractOperation op : iface.getOperations()) {
-                    parameters.addAll(op.getInputParameters());
-                }
-            }
-        }
-        return parameters;
-    }
-
     public Collection<PropertyVariable> getPartnerPropertyVariables(final BPELPlanContext context) {
-        final List<AbstractNodeTemplate> nodes = new ArrayList<>();
+        final List<TNodeTemplate> nodes = new ArrayList<>();
         final Collection<PropertyVariable> props = new HashSet<>();
 
-        final AbstractRelationshipTemplate relationshipTemplate =
-            (AbstractRelationshipTemplate) context.getActivity().getMetadata().get("ConnectingRelationshipTemplate");
+        final TRelationshipTemplate relationshipTemplate =
+            (TRelationshipTemplate) context.getActivity().getMetadata().get("ConnectingRelationshipTemplate");
 
-        ModelUtils.getNodesFromNodeToSink(relationshipTemplate.getTarget(), nodes);
+        ModelUtils.getNodesFromNodeToSink(ModelUtils.getTarget(relationshipTemplate, context.getCsar()), nodes, context.getCsar());
 
-        for (final AbstractNodeTemplate infraNode : nodes) {
+        for (final TNodeTemplate infraNode : nodes) {
             for (final PropertyVariable propVar : context.getPropertyVariables(infraNode)) {
                 // TODO/FIXME this shouldn't be necessary here..
                 if (!propVar.getPropertyName().equals("State")) {
@@ -512,7 +504,7 @@ public class BPELNotifyHandler extends PluginHandler {
 
         return context.getActivity().getType().equals(ActivityType.SENDNODENOTIFY);
         // for now we'll just return all parameters
-        // Collection<AbstractParameter> parameters = this.getAllOperationParameters(context);
+        // Collection<TParameter> parameters = this.getAllOperationParameters(context);
         // Map<String, PropertyVariable> paramMacthing = this.matchOperationParamertsToProperties(context);
         // return parameters.size() == paramMacthing.size();
     }
@@ -529,29 +521,12 @@ public class BPELNotifyHandler extends PluginHandler {
         return params;
     }
 
-    public String getPartnerLocation(final AbstractNodeTemplate node) {
+    public String getPartnerLocation(final TNodeTemplate node) {
         for (final QName qName : node.getOtherAttributes().keySet()) {
             if (qName.getLocalPart().equals(LOCATION)) {
                 return node.getOtherAttributes().get(qName);
             }
         }
         return null;
-    }
-
-    public Map<String, PropertyVariable> matchOperationParamertsToProperties(final BPELPlanContext context) {
-        final Map<String, PropertyVariable> params = new HashMap<>();
-
-        // TODO/FIXME right now we match all operation params against the available properties and send them
-        // over, maybe too much ?
-        final Collection<AbstractParameter> parameters = getAllOperationParameters(context);
-
-        // try to match param against a property and add it to the input of the notify call
-        for (final AbstractParameter param : parameters) {
-            final PropertyVariable propVar = context.getPropertyVariable(param.getName());
-            if (propVar != null) {
-                params.put(propVar.getNodeTemplate().getId() + "_" + propVar.getPropertyName(), propVar);
-            }
-        }
-        return params;
     }
 }

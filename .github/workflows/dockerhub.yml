@@ -33,11 +33,3 @@ jobs:
           context: .
           push: true
           tags: opentosca/container:latest
-
-      - name: Build and push version of Container
-        if: ${{ steps.vars.outputs.tag != 'master' }}
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: opentosca/container:${{ steps.vars.outputs.tag }}

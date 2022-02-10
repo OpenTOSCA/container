@@ -10,7 +10,7 @@ import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -319,27 +319,6 @@ public class BPELScopeHandler {
     }
 
     /**
-     * Returns the predecessors of the given TemplateBuildPlan
-     *
-     * @param templatePlan the TemplateBuildPlan to get predecessors from
-     * @return a List of TemplateBuildPlans that are predecessors of the given TemplateBuildPlan
-     */
-    public List<BPELScope> getPredecessors(final BPELScope templatePlan) {
-        final List<BPELScope> preds = new ArrayList<>();
-        final List<String> linkNamesInTargets = this.getLinksInTarget(templatePlan);
-
-        for (final String linkAsTarget : linkNamesInTargets) {
-            for (final BPELScope template : templatePlan.getBuildPlan().getTemplateBuildPlans()) {
-                final List<String> linkNamesInSources = this.getLinksInSources(template);
-                if (linkNamesInSources.contains(linkAsTarget)) {
-                    preds.add(template);
-                }
-            }
-        }
-        return preds;
-    }
-
-    /**
      * Returns all Successors of the given TemplateBuildPlan
      *
      * @param templatePlan the TemplateBuildPlan whose Successors should be returned
@@ -360,28 +339,6 @@ public class BPELScopeHandler {
         }
 
         return successors;
-    }
-
-    /**
-     * Returns a List of Names of the variables defined inside the given templatePlan
-     *
-     * @param templatePlan a templatePlan
-     * @return a List of Strings with the names of the variables defined inside the given templatePlan
-     */
-    public List<String> getVariableNames(final BPELScope templatePlan) {
-        final List<String> varNames = new ArrayList<>();
-        final NodeList variableNodesList = templatePlan.getBpelVariablesElement().getChildNodes();
-
-        for (int index = 0; index < variableNodesList.getLength(); index++) {
-            if (variableNodesList.item(index).getNodeType() == Node.ELEMENT_NODE) {
-                final String varName = ((Element) variableNodesList.item(index)).getAttribute("name");
-                if (varName != null) {
-                    varNames.add(varName);
-                }
-            }
-        }
-
-        return varNames;
     }
 
     /**
@@ -520,37 +477,6 @@ public class BPELScopeHandler {
                 "eventHandlers"));
 
         newTemplateBuildPlan.getBpelScopeElement().appendChild(newTemplateBuildPlan.getBpelEventHandlersElement());
-    }
-
-    /**
-     * Checks whether the given TemplateBuildPlan is for a NodeTemplate
-     *
-     * @param template the TemplateBuildPlan to check
-     * @return true if the given TemplateBuildPlan is for a NodeTemplate
-     */
-    public boolean isNodeTemplatePlan(final BPELScope template) {
-        return template.getNodeTemplate() != null;
-    }
-
-    /**
-     * Checks whether the given TemplateBuildPlan is for a RelationshipTemplate
-     *
-     * @param template the TemplateBuildPlan to check
-     * @return true if the given TemplateBuildPlan is for a RelationshipTemplate
-     */
-    public boolean isRelationshipTemplatePlan(final BPELScope template) {
-        return template.getRelationshipTemplate() != null;
-    }
-
-    /**
-     * Removes all connections the given TemplateBuildPlan contains. All source/target relations are removed from the
-     * given TemplateBuildPlan
-     *
-     * @param template the TemplateBuildPlan to remove its relations
-     */
-    public void removeAllConnetions(final BPELScope template) {
-        this.removeSources(template);
-        this.removeTargets(template);
     }
 
     /**

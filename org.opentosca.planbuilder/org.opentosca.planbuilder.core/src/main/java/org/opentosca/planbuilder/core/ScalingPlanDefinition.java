@@ -9,41 +9,35 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TCapability;
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
+import org.eclipse.winery.model.tosca.TEntityTemplate;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TPolicy;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TRequirement;
+import org.eclipse.winery.model.tosca.TTopologyTemplate;
+
+import com.google.common.collect.Sets;
 import org.opentosca.container.core.convention.Types;
-import org.opentosca.planbuilder.model.tosca.AbstractCapability;
-import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
-import org.opentosca.planbuilder.model.tosca.AbstractProperties;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRequirement;
-import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.model.ModelUtils;
 
 public class ScalingPlanDefinition {
 
-    // topology
+    private final Csar csar;
     public String name;
-    public AbstractTopologyTemplate topology;
+    public List<TNodeTemplate> nodeTemplates;
+    public List<TNodeTemplate> nodeTemplatesRecursiveSelection;
+    public List<TRelationshipTemplate> relationshipTemplates;
+    public List<TRelationshipTemplate> relationshipTemplatesRecursiveSelection;
+    public Collection<AnnotatedTNodeTemplate> selectionStrategy2BorderNodes;
+    public TTopologyTemplate topology;
 
-    // region
-    public List<AbstractNodeTemplate> nodeTemplates;
-    public List<AbstractRelationshipTemplate> relationshipTemplates;
-
-    // nodes with selection strategies
-    public Collection<AnnotatedAbstractNodeTemplate> selectionStrategy2BorderNodes;
-    // recursive selections
-    public List<AbstractNodeTemplate> nodeTemplatesRecursiveSelection;
-    public List<AbstractRelationshipTemplate> relationshipTemplatesRecursiveSelection;
-    // border crossing relations
-    public Set<AbstractRelationshipTemplate> borderCrossingRelations;
-
-    public ScalingPlanDefinition(final String name, final AbstractTopologyTemplate topology,
-                                 final List<AbstractNodeTemplate> nodeTemplates,
-                                 final List<AbstractRelationshipTemplate> relationshipTemplate,
-                                 final Collection<AnnotatedAbstractNodeTemplate> selectionStrategy2BorderNodes) {
+    public ScalingPlanDefinition(final String name, final TTopologyTemplate topology,
+                                 final List<TNodeTemplate> nodeTemplates,
+                                 final List<TRelationshipTemplate> relationshipTemplate,
+                                 final Collection<AnnotatedTNodeTemplate> selectionStrategy2BorderNodes, Csar csar) {
         this.name = name;
         this.topology = topology;
         this.nodeTemplates = nodeTemplates;
@@ -52,61 +46,63 @@ public class ScalingPlanDefinition {
 
         this.nodeTemplatesRecursiveSelection = new ArrayList<>();
         this.relationshipTemplatesRecursiveSelection = new ArrayList<>();
+        this.csar = csar;
 
         init();
-
-        this.borderCrossingRelations = calculateBorderCrossingRelations();
     }
 
     private void init() {
 
-        isValid();
+        isValid(this.csar);
 
         // calculate recursive nodes
-        for (final AbstractNodeTemplate nodeTemplate : this.selectionStrategy2BorderNodes) {
-            final List<AbstractNodeTemplate> sinkNodes = new ArrayList<>();
+        for (final TNodeTemplate nodeTemplate : this.selectionStrategy2BorderNodes) {
+            final Set<TNodeTemplate> sinkNodes = Sets.newHashSet();
 
-            ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.hostedOnRelationType, sinkNodes);
-            ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.dependsOnRelationType, sinkNodes);
-            ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.deployedOnRelationType, sinkNodes);
+            ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.hostedOnRelationType, sinkNodes, csar);
+            ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.dependsOnRelationType, sinkNodes, csar);
+            ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.deployedOnRelationType, sinkNodes, csar);
 
             sinkNodes.remove(nodeTemplate);
 
-            final List<AbstractRelationshipTemplate> outgoing =
-                ModelUtils.getOutgoingRelations(nodeTemplate, Types.hostedOnRelationType, Types.dependsOnRelationType,
-                    Types.deployedOnRelationType);
+            Collection<QName> types = Sets.newHashSet();
+            types.add(Types.hostedOnRelationType);
+            types.add(Types.dependsOnRelationType);
+            types.add(Types.deployedOnRelationType);
+            final List<TRelationshipTemplate> outgoing =
+                ModelUtils.getOutgoingRelations(nodeTemplate, types, csar);
 
             this.nodeTemplatesRecursiveSelection.addAll(sinkNodes);
             this.relationshipTemplatesRecursiveSelection.addAll(outgoing);
         }
     }
 
-    private Set<AbstractRelationshipTemplate> calculateBorderCrossingRelations() {
-        final Set<AbstractRelationshipTemplate> borderCrossingRelations = new HashSet<>();
+    private Set<TRelationshipTemplate> calculateBorderCrossingRelations(Csar csar) {
+        final Set<TRelationshipTemplate> borderCrossingRelations = new HashSet<>();
 
-        for (final AbstractRelationshipTemplate relationshipTemplate : this.relationshipTemplates) {
-            final AbstractNodeTemplate nodeStratSelection = crossesBorder(relationshipTemplate, this.nodeTemplates);
+        for (final TRelationshipTemplate relationshipTemplate : this.relationshipTemplates) {
+            final TNodeTemplate nodeStratSelection = crossesBorder(relationshipTemplate, this.nodeTemplates, csar);
             if (nodeStratSelection != null && this.selectionStrategy2BorderNodes.contains(nodeStratSelection)) {
                 borderCrossingRelations.add(relationshipTemplate);
             }
         }
 
-        for (final AbstractNodeTemplate nodeTemplate : this.nodeTemplates) {
-            final List<AbstractRelationshipTemplate> relations =
-                getBorderCrossingRelations(nodeTemplate, this.nodeTemplates);
+        for (final TNodeTemplate nodeTemplate : this.nodeTemplates) {
+            final List<TRelationshipTemplate> relations =
+                getBorderCrossingRelations(nodeTemplate, this.nodeTemplates, csar);
             borderCrossingRelations.addAll(relations);
         }
         return borderCrossingRelations;
     }
 
-    private boolean isValid() {
+    private boolean isValid(Csar csar) {
         // check if all nodes at the border are attached with a selection
         // strategy
         /* calculate all border crossing relations */
-        final Set<AbstractRelationshipTemplate> borderCrossingRelations = calculateBorderCrossingRelations();
+        final Set<TRelationshipTemplate> borderCrossingRelations = calculateBorderCrossingRelations(csar);
 
-        for (final AbstractRelationshipTemplate relation : borderCrossingRelations) {
-            final AbstractNodeTemplate nodeStratSelection = crossesBorder(relation, this.nodeTemplates);
+        for (final TRelationshipTemplate relation : borderCrossingRelations) {
+            final TNodeTemplate nodeStratSelection = crossesBorder(relation, this.nodeTemplates, csar);
             if (nodeStratSelection == null) {
                 // these edges MUST be connected to a strategically selected
                 // node
@@ -121,18 +117,18 @@ public class ScalingPlanDefinition {
         return true;
     }
 
-    private List<AbstractRelationshipTemplate> getBorderCrossingRelations(final AbstractNodeTemplate nodeTemplate,
-                                                                          final List<AbstractNodeTemplate> nodesToScale) {
-        final List<AbstractRelationshipTemplate> borderCrossingRelations = new ArrayList<>();
+    private List<TRelationshipTemplate> getBorderCrossingRelations(final TNodeTemplate nodeTemplate,
+                                                                   final List<TNodeTemplate> nodesToScale, Csar csar) {
+        final List<TRelationshipTemplate> borderCrossingRelations = new ArrayList<>();
 
-        for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
-            if (crossesBorder(relation, nodesToScale) != null) {
+        for (final TRelationshipTemplate relation : ModelUtils.getOutgoingRelations(nodeTemplate, csar)) {
+            if (crossesBorder(relation, nodesToScale, csar) != null) {
                 borderCrossingRelations.add(relation);
             }
         }
 
-        for (final AbstractRelationshipTemplate relation : nodeTemplate.getIngoingRelations()) {
-            if (crossesBorder(relation, nodesToScale) != null) {
+        for (final TRelationshipTemplate relation : ModelUtils.getIngoingRelations(nodeTemplate, csar)) {
+            if (crossesBorder(relation, nodesToScale, csar) != null) {
                 borderCrossingRelations.add(relation);
             }
         }
@@ -140,13 +136,13 @@ public class ScalingPlanDefinition {
         return borderCrossingRelations;
     }
 
-    private AbstractNodeTemplate crossesBorder(final AbstractRelationshipTemplate relationship,
-                                               final List<AbstractNodeTemplate> nodesToScale) {
+    private TNodeTemplate crossesBorder(final TRelationshipTemplate relationship,
+                                        final List<TNodeTemplate> nodesToScale, Csar csar) {
 
-        final AbstractNodeTemplate source = relationship.getSource();
-        final AbstractNodeTemplate target = relationship.getTarget();
+        final TNodeTemplate source = ModelUtils.getSource(relationship, csar);
+        final TNodeTemplate target = ModelUtils.getTarget(relationship, csar);
 
-        final QName baseType = ModelUtils.getRelationshipBaseType(relationship);
+        final QName baseType = ModelUtils.getRelationshipBaseType(relationship, csar);
 
         if (baseType.equals(Types.connectsToRelationType)) {
             // if either the source or target is not in the nodesToScale
@@ -169,13 +165,13 @@ public class ScalingPlanDefinition {
         return null;
     }
 
-    public static class AnnotatedAbstractNodeTemplate extends AbstractNodeTemplate {
+    public static class AnnotatedTNodeTemplate extends TNodeTemplate {
 
         private final Collection<String> annotations;
-        private final AbstractNodeTemplate nodeTemplate;
+        private final TNodeTemplate nodeTemplate;
 
-        public AnnotatedAbstractNodeTemplate(final AbstractNodeTemplate nodeTemplate,
-                                             final Collection<String> annotations) {
+        public AnnotatedTNodeTemplate(final TNodeTemplate nodeTemplate,
+                                      final Collection<String> annotations) {
             this.annotations = annotations;
             this.nodeTemplate = nodeTemplate;
         }
@@ -185,22 +181,12 @@ public class ScalingPlanDefinition {
         }
 
         @Override
-        public List<AbstractRelationshipTemplate> getOutgoingRelations() {
-            return this.nodeTemplate.getOutgoingRelations();
-        }
-
-        @Override
-        public List<AbstractRelationshipTemplate> getIngoingRelations() {
-            return this.nodeTemplate.getIngoingRelations();
-        }
-
-        @Override
-        public List<AbstractCapability> getCapabilities() {
+        public List<TCapability> getCapabilities() {
             return this.nodeTemplate.getCapabilities();
         }
 
         @Override
-        public List<AbstractRequirement> getRequirements() {
+        public List<TRequirement> getRequirements() {
             return this.nodeTemplate.getRequirements();
         }
 
@@ -210,27 +196,22 @@ public class ScalingPlanDefinition {
         }
 
         @Override
-        public List<AbstractNodeTypeImplementation> getImplementations() {
-            return this.nodeTemplate.getImplementations();
-        }
-
-        @Override
         public String getId() {
             return this.nodeTemplate.getId();
         }
 
         @Override
-        public AbstractNodeType getType() {
+        public QName getType() {
             return this.nodeTemplate.getType();
         }
 
         @Override
-        public AbstractProperties getProperties() {
+        public TEntityTemplate.Properties getProperties() {
             return this.nodeTemplate.getProperties();
         }
 
         @Override
-        public Collection<AbstractDeploymentArtifact> getDeploymentArtifacts() {
+        public List<TDeploymentArtifact> getDeploymentArtifacts() {
             return this.nodeTemplate.getDeploymentArtifacts();
         }
 
@@ -240,7 +221,7 @@ public class ScalingPlanDefinition {
         }
 
         @Override
-        public List<AbstractPolicy> getPolicies() {
+        public List<TPolicy> getPolicies() {
             return this.nodeTemplate.getPolicies();
         }
 

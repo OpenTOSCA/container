@@ -3,8 +3,15 @@ package org.opentosca.planbuilder.postphase.plugin.monitoring.bpel.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import javax.xml.namespace.QName;
+
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.next.model.PlanType;
@@ -12,12 +19,7 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
-import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 
 /**
@@ -43,7 +45,7 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
     }
 
     @Override
-    public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPELPlanContext context, final TNodeTemplate nodeTemplate) {
         // a double check basically
         // FIXME somehow the canHandle method should already include the planType but not with context
         // object itself as it allows to manipulate the plan already
@@ -55,7 +57,7 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
             return false;
         }
 
-        final AbstractDeploymentArtifact configDeplArti = fetchConfigurationArtifact(nodeTemplate);
+        final TDeploymentArtifact configDeplArti = fetchConfigurationArtifact(nodeTemplate);
 
         if (configDeplArti != null) {
             uploadConfigurationArtifact(context, configDeplArti, nodeTemplate);
@@ -67,22 +69,21 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
 
     @Override
     public boolean handleCreate(final BPELPlanContext context,
-                                final AbstractRelationshipTemplate relationshipTemplate) {
+                                final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandleCreate(BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(BPELPlanContext context, final TNodeTemplate nodeTemplate) {
         // what we are basically looking for:
         // <Interface name="Monitor">
         // <Operation name="deployAgent"/>
         // </Interface>
-        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
-            if (iface.getName().equals(this.monitoringInterfaceName)) {
-                for (final AbstractOperation op : iface.getOperations()) {
-                    if (op.getName().equals(this.monitoringOperationName)) {
-                        return true;
-                    }
+        TInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, this.monitoringInterfaceName, context.getCsar());
+        if (Objects.nonNull(iface)) {
+            for (final TOperation op : iface.getOperations()) {
+                if (op.getName().equals(this.monitoringOperationName)) {
+                    return true;
                 }
             }
         }
@@ -90,21 +91,21 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
     }
 
     @Override
-    public boolean canHandleCreate(BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(BPELPlanContext context, final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
-    private void uploadConfigurationArtifact(final BPELPlanContext context, final AbstractDeploymentArtifact deplArti,
-                                             final AbstractNodeTemplate nodeTemplate) {
-        final List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
-        ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes);
+    private void uploadConfigurationArtifact(final BPELPlanContext context, final TDeploymentArtifact deplArti,
+                                             final TNodeTemplate nodeTemplate) {
+        final List<TNodeTemplate> infraNodes = new ArrayList<>();
+        ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes, context.getCsar());
 
-        AbstractNodeTemplate infraNode = null;
+        TNodeTemplate infraNode = null;
         PropertyVariable sshIpVar = null;
         PropertyVariable sshKeyVar = null;
         PropertyVariable sshUserVar = null;
 
-        for (final AbstractNodeTemplate infraNodeTemplate : infraNodes) {
+        for (final TNodeTemplate infraNodeTemplate : infraNodes) {
             int propMatchCount = 0;
             final Collection<String> propNames = ModelUtils.getPropertyNames(infraNodeTemplate);
             for (final String propName : propNames) {
@@ -129,12 +130,12 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
             }
         }
 
-        this.invokerPlugin.handleArtifactReferenceUpload(deplArti.getArtifactRef().getArtifactReferences().get(0),
+        this.invokerPlugin.handleArtifactReferenceUpload(ModelUtils.findArtifactTemplate(deplArti.getArtifactRef(), context.getCsar()).getArtifactReferences().stream().findFirst().get(),
             context, sshIpVar, sshUserVar, sshKeyVar, infraNode, context.getProvisioningPhaseElement());
     }
 
-    private AbstractDeploymentArtifact fetchConfigurationArtifact(final AbstractNodeTemplate nodeTemplate) {
-        for (final AbstractDeploymentArtifact deplArti : nodeTemplate.getDeploymentArtifacts()) {
+    private TDeploymentArtifact fetchConfigurationArtifact(final TNodeTemplate nodeTemplate) {
+        for (final TDeploymentArtifact deplArti : nodeTemplate.getDeploymentArtifacts()) {
             if (deplArti.getArtifactType().equals(this.configArtifactType)) {
                 return deplArti;
             }
@@ -143,26 +144,26 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
     }
 
     @Override
-    public boolean handleTerminate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean handleTerminate(final BPELPlanContext context, final TNodeTemplate nodeTemplate) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean handleTerminate(final BPELPlanContext context,
-                                   final AbstractRelationshipTemplate relationshipTemplate) {
+                                   final TRelationshipTemplate relationshipTemplate) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean canHandleTerminate(BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleTerminate(BPELPlanContext context, final TNodeTemplate nodeTemplate) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean canHandleTerminate(BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(BPELPlanContext context, final TRelationshipTemplate relationshipTemplate) {
         // TODO Auto-generated method stub
         return false;
     }
@@ -174,47 +175,47 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
 
     @Override
     public boolean handleUpdate(final BPELPlanContext sourceContext, final BPELPlanContext targetContext,
-                                final AbstractNodeTemplate sourceNodeTemplate,
-                                final AbstractNodeTemplate targetNodeTemplate) {
+                                final TNodeTemplate sourceNodeTemplate,
+                                final TNodeTemplate targetNodeTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandleUpdate(final AbstractNodeTemplate sourceNodeTemplate,
-                                   final AbstractNodeTemplate targetNodeTemplate) {
+    public boolean canHandleUpdate(final TNodeTemplate sourceNodeTemplate,
+                                   final TNodeTemplate targetNodeTemplate) {
         return false;
     }
 
     @Override
     public boolean handleUpdate(final BPELPlanContext sourceContext, final BPELPlanContext targetContext,
-                                final AbstractRelationshipTemplate sourceRelationshipTemplate,
-                                final AbstractRelationshipTemplate targetRelationshipTemplate) {
+                                final TRelationshipTemplate sourceRelationshipTemplate,
+                                final TRelationshipTemplate targetRelationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandleUpdate(final AbstractRelationshipTemplate sourceRelationshipTemplate,
-                                   final AbstractRelationshipTemplate targetRelationshipTemplate) {
+    public boolean canHandleUpdate(final TRelationshipTemplate sourceRelationshipTemplate,
+                                   final TRelationshipTemplate targetRelationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean handleUpgrade(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
+    public boolean handleUpgrade(BPELPlanContext context, TNodeTemplate nodeTemplate) {
         return false;
     }
 
     @Override
-    public boolean handleUpgrade(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean handleUpgrade(BPELPlanContext context, TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandleUpgrade(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleUpgrade(BPELPlanContext context, TNodeTemplate nodeTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandleUpgrade(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleUpgrade(BPELPlanContext context, TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 }

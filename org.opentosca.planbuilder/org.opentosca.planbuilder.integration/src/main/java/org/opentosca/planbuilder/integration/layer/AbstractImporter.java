@@ -6,8 +6,13 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import com.google.common.collect.Lists;
-import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractSimplePlanBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBackupManagementProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBuildProcessBuilder;
@@ -21,10 +26,7 @@ import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTransformati
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELUpdateProcessBuilder;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.container.core.model.ModelUtils;
 
 /**
  * <p>
@@ -38,39 +40,41 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
  */
 public abstract class AbstractImporter {
 
-    protected final CsarStorageService storage;
     private final PluginRegistry pluginRegistry;
 
-    protected AbstractImporter(PluginRegistry pluginRegistry, CsarStorageService storage) {
+    protected AbstractImporter(PluginRegistry pluginRegistry) {
         this.pluginRegistry = pluginRegistry;
-        this.storage = storage;
     }
 
-    protected AbstractPlan buildAdaptationPlan(final String csarName, final AbstractDefinitions definitions,
+    protected AbstractPlan buildAdaptationPlan(final Csar csar, final TDefinitions definitions,
                                                final QName serviceTemplateId,
-                                               final Collection<AbstractNodeTemplate> sourceNodeTemplates,
-                                               final Collection<AbstractRelationshipTemplate> sourceRelationshipTemplates,
-                                               final Collection<AbstractNodeTemplate> targetNodeTemplates,
-                                               final Collection<AbstractRelationshipTemplate> targetRelationshipTemplates) {
+                                               final Collection<TNodeTemplate> sourceNodeTemplates,
+                                               final Collection<TRelationshipTemplate> sourceRelationshipTemplates,
+                                               final Collection<TNodeTemplate> targetNodeTemplates,
+                                               final Collection<TRelationshipTemplate> targetRelationshipTemplates) {
         final BPELTransformationProcessBuilder transformPlanBuilder = new BPELTransformationProcessBuilder(pluginRegistry);
 
-        return transformPlanBuilder.buildPlan(csarName, definitions, serviceTemplateId, sourceNodeTemplates,
+        return transformPlanBuilder.buildPlan(csar, definitions, serviceTemplateId, sourceNodeTemplates,
             sourceRelationshipTemplates, targetNodeTemplates,
             targetRelationshipTemplates);
     }
 
-    protected List<AbstractPlan> buildTransformationPlans(final String sourceCsarName,
-                                                          final AbstractDefinitions sourceDefinitions,
-                                                          final String targetCsarName,
-                                                          final AbstractDefinitions targetDefinitions) {
+    protected List<AbstractPlan> buildTransformationPlans(final Csar sourceCsarName,
+                                                          final TDefinitions sourceDefinitions,
+                                                          final Csar targetCsarName,
+                                                          final TDefinitions targetDefinitions) {
         final List<AbstractPlan> plans = new ArrayList<>();
 
         final BPELTransformationProcessBuilder transformPlanBuilder = new BPELTransformationProcessBuilder(pluginRegistry);
+        TServiceTemplate sourceServiceTemplate = Lists.newArrayList(sourceDefinitions.getServiceTemplates()).get(0);
+        TServiceTemplate targetServiceTemplate = Lists.newArrayList(targetDefinitions.getServiceTemplates()).get(0);
+        QName sourceQName = new QName(sourceServiceTemplate.getTargetNamespace(), sourceServiceTemplate.getId());
+        QName targetQName = new QName(targetServiceTemplate.getTargetNamespace(), targetServiceTemplate.getId());
 
         plans.add(transformPlanBuilder.buildPlan(sourceCsarName, sourceDefinitions,
-            Lists.newArrayList(sourceDefinitions.getServiceTemplates()).get(0).getQName(),
+            sourceQName,
             targetCsarName, targetDefinitions,
-            Lists.newArrayList(targetDefinitions.getServiceTemplates()).get(0).getQName()));
+            targetQName));
 
         return plans;
     }
@@ -78,16 +82,16 @@ public abstract class AbstractImporter {
     /**
      * Generates Plans for ServiceTemplates inside the given Definitions document
      *
-     * @param defs     an AbstractDefinitions
-     * @param csarName the FileName of the CSAR the given Definitions is contained in
+     * @param defs an TDefinitions
+     * @param csar the CSAR the given Definitions is contained in
      * @return a List of Plans
      */
-    public List<AbstractPlan> buildPlans(final AbstractDefinitions defs, final String csarName) {
+    public List<AbstractPlan> buildPlans(final TDefinitions defs, final Csar csar) {
 
         final List<AbstractPlan> plans = new ArrayList<>();
 
         boolean foundTopo = false;
-        for (AbstractServiceTemplate servTemp : defs.getServiceTemplates()) {
+        for (TServiceTemplate servTemp : defs.getServiceTemplates()) {
             if (servTemp.getTopologyTemplate() != null) {
                 foundTopo = true;
             }
@@ -100,7 +104,7 @@ public abstract class AbstractImporter {
         AbstractSimplePlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder(pluginRegistry);
         final BPELSituationAwareBuildProcessBuilder sitAwareBuilder = new BPELSituationAwareBuildProcessBuilder(pluginRegistry);
 
-        if (!sitAwareBuilder.buildPlans(csarName, defs).isEmpty()) {
+        if (!sitAwareBuilder.buildPlans(csar, defs).isEmpty()) {
             buildPlanBuilder = sitAwareBuilder;
         }
 
@@ -128,17 +132,17 @@ public abstract class AbstractImporter {
 
         final AbstractSimplePlanBuilder updatePlanBuilder = new BPELUpdateProcessBuilder(pluginRegistry);
 
-        AbstractServiceTemplate servTemplate = defs.getServiceTemplates().iterator().next();
+        TServiceTemplate servTemplate = defs.getServiceTemplates().iterator().next();
 
-        if (!servTemplate.hasBuildPlan() | !servTemplate.hasTerminationPlan()) {
-            plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));
-            plans.addAll(buildPlanBuilder.buildPlans(csarName, defs));
-            plans.addAll(terminationPlanBuilder.buildPlans(csarName, defs));
-            plans.addAll(freezePlanBuilder.buildPlans(csarName, defs));
-            plans.addAll(defreezePlanBuilder.buildPlans(csarName, defs));
-            plans.addAll(backupPlanBuilder.buildPlans(csarName, defs));
-            plans.addAll(testPlanBuilder.buildPlans(csarName, defs));
-            plans.addAll(updatePlanBuilder.buildPlans(csarName, defs));
+        if (ModelUtils.doesNotHaveBuildPlan(servTemplate) | !ModelUtils.hasTerminationPlan(servTemplate)) {
+            plans.addAll(scalingPlanBuilder.buildPlans(csar, defs));
+            plans.addAll(buildPlanBuilder.buildPlans(csar, defs));
+            plans.addAll(terminationPlanBuilder.buildPlans(csar, defs));
+            plans.addAll(freezePlanBuilder.buildPlans(csar, defs));
+            plans.addAll(defreezePlanBuilder.buildPlans(csar, defs));
+            plans.addAll(backupPlanBuilder.buildPlans(csar, defs));
+            plans.addAll(testPlanBuilder.buildPlans(csar, defs));
+            plans.addAll(updatePlanBuilder.buildPlans(csar, defs));
         }
 
         return plans;

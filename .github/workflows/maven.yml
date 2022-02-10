@@ -14,7 +14,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    timeout-minutes: 60
+    timeout-minutes: 120
 
     steps:
     - uses: actions/checkout@v2
@@ -54,3 +54,9 @@ jobs:
         time: '45s'
     - name: Build with Maven
       run: mvn -B package --file pom.xml --fail-at-end
+    - name: Run codacy-coverage-reporter
+      if: ${{ github.repository_owner == 'OpenTOSCA' }}
+      uses: codacy/codacy-coverage-reporter-action@master
+      with:
+        project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        coverage-reports: org.opentosca.container.reporting/target/site/jacoco-aggregate/jacoco.xml

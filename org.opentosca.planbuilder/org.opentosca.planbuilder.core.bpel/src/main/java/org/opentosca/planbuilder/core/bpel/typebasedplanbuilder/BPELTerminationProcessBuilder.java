@@ -6,6 +6,12 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractTerminationPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
@@ -21,11 +27,7 @@ import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,17 +72,16 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.IPlanBuilder#buildPlan(java.lang.String,
-     * org.opentosca.planbuilder.model.tosca.AbstractDefinitions, javax.xml.namespace.QName)
+     * org.opentosca.planbuilder.model.tosca.TDefinitions, javax.xml.namespace.QName)
      */
-    @Override
-    public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
-                              final AbstractServiceTemplate serviceTemplate) {
+    private BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                               final TServiceTemplate serviceTemplate) {
 
         final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_terminationPlan");
         final String processNamespace = serviceTemplate.getTargetNamespace() + "_terminationPlan";
 
         final AbstractPlan newAbstractTerminationPlan =
-            generateTOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
+            generateTOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate, csar);
 
         final BPELPlan newTerminationPlan =
             this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractTerminationPlan,
@@ -89,7 +90,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
         newTerminationPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
         newTerminationPlan.setTOSCAOperationname("terminate");
 
-        this.planHandler.initializeBPELSkeleton(newTerminationPlan, csarName);
+        this.planHandler.initializeBPELSkeleton(newTerminationPlan, csar);
 
         this.instanceVarsHandler.addInstanceURLVarToTemplatePlans(newTerminationPlan, serviceTemplate);
         this.instanceVarsHandler.addInstanceIDVarToTemplatePlans(newTerminationPlan, serviceTemplate);
@@ -125,7 +126,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
         this.instanceVarsHandler.addRelationInstanceFindLogic(newTerminationPlan, "?state=CREATED&amp;state=INITIAL&amp;serviceInstanceId=$bpelvar[" + serviceInstanceId + "]",
             serviceTemplate);
 
-        final List<BPELScope> changedActivities = runPlugins(newTerminationPlan, propMap, csarName);
+        final List<BPELScope> changedActivities = runPlugins(newTerminationPlan, propMap, csar);
 
         String serviceInstanceURLVarName =
             this.serviceInstanceHandler.findServiceInstanceUrlVariableName(newTerminationPlan);
@@ -162,13 +163,13 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
             if (activ.getNodeTemplate() != null) {
                 final BPELPlanContext context =
                     new BPELPlanContext(scopeBuilder, newTerminationPlan, activ, propMap, newTerminationPlan.getServiceTemplate(),
-                        serviceInstanceURLVarName, serviceInstanceId, serviceTemplateURLVarName, planInstanceUrl, csarName);
+                        serviceInstanceURLVarName, serviceInstanceId, serviceTemplateURLVarName, planInstanceUrl, csar);
                 this.instanceVarsHandler.appendCountInstancesLogic(context, activ.getNodeTemplate(),
                     "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED&amp;serviceInstanceId=$bpelvar[" + serviceInstanceId + "]");
             } else {
                 final BPELPlanContext context =
                     new BPELPlanContext(scopeBuilder, newTerminationPlan, activ, propMap, newTerminationPlan.getServiceTemplate(),
-                        serviceInstanceURLVarName, serviceInstanceId, serviceTemplateURLVarName, planInstanceUrl, csarName);
+                        serviceInstanceURLVarName, serviceInstanceId, serviceTemplateURLVarName, planInstanceUrl, csar);
                 this.instanceVarsHandler.appendCountInstancesLogic(context, activ.getRelationshipTemplate(),
                     "?state=CREATED&amp;state=INITIAL&amp;serviceInstanceId=$bpelvar[" + serviceInstanceId + "]");
             }
@@ -181,17 +182,17 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.IPlanBuilder#buildPlans(java.lang.String,
-     * org.opentosca.planbuilder.model.tosca.AbstractDefinitions)
+     * org.opentosca.planbuilder.model.tosca.TDefinitions)
      */
     @Override
-    public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
         final List<AbstractPlan> plans = new ArrayList<>();
-        for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
+        for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
-            if (!serviceTemplate.hasBuildPlan()) {
+            if (ModelUtils.doesNotHaveBuildPlan(serviceTemplate)) {
                 LOG.debug("ServiceTemplate {} has no TerminationPlan, generating TerminationPlan",
-                    serviceTemplate.getQName().toString());
-                final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplate);
+                    serviceTemplate.getId());
+                final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
 
                 if (newBuildPlan != null) {
                     LOG.debug("Created TerminationPlan "
@@ -200,24 +201,16 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                 }
             } else {
                 LOG.debug("ServiceTemplate {} has TerminationPlan, no generation needed",
-                    serviceTemplate.getQName().toString());
+                    serviceTemplate.getId());
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} termination plans for CSAR {}", String.valueOf(plans.size()), csarName);
+            LOG.info("Created {} termination plans for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }
 
-    /**
-     * This method will execute plugins on each TemplatePlan inside the given plan for termination of each node and
-     * relation.
-     *
-     * @param plan            the plan to execute the plugins on
-     * @param serviceTemplate the serviceTemplate the plan belongs to
-     * @param propMap         a PropertyMapping from NodeTemplate to Properties to BPELVariables
-     */
-    private List<BPELScope> runPlugins(final BPELPlan plan, final Property2VariableMapping propMap, String csarName) {
+    private List<BPELScope> runPlugins(final BPELPlan plan, final Property2VariableMapping propMap, Csar csar) {
 
         String serviceInstanceUrl = this.serviceInstanceHandler.findServiceInstanceUrlVariableName(plan);
         String serviceInstanceId = this.serviceInstanceHandler.findServiceInstanceIdVarName(plan);
@@ -228,14 +221,14 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
         for (final BPELScope bpelScope : plan.getTemplateBuildPlans()) {
             boolean result = false;
             if (bpelScope.getNodeTemplate() != null) {
-                final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
+                final TNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
                 final BPELPlanContext context = new BPELPlanContext(scopeBuilder, plan, bpelScope, propMap, plan.getServiceTemplate(),
-                    serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csarName);
+                    serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csar);
                 result = this.bpelPluginHandler.handleActivity(context, bpelScope, nodeTemplate);
             } else {
-                AbstractRelationshipTemplate relationshipTempalte = bpelScope.getRelationshipTemplate();
+                TRelationshipTemplate relationshipTempalte = bpelScope.getRelationshipTemplate();
                 final BPELPlanContext context = new BPELPlanContext(scopeBuilder, plan, bpelScope, propMap, plan.getServiceTemplate(),
-                    serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csarName);
+                    serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csar);
                 result = this.bpelPluginHandler.handleActivity(context, bpelScope, relationshipTempalte);
             }
 

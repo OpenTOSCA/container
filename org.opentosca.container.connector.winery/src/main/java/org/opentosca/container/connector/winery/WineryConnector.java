@@ -46,6 +46,7 @@ public class WineryConnector {
     final private static Logger LOG = LoggerFactory.getLogger(WineryConnector.class);
 
     private static final String FEATURE_ENRICHMENT_SUFFIX = "/topologytemplate/availablefeatures";
+    private static final String SERVICE_TEMPLATES_SUFFIX = "servicetemplates";
 
     private final String wineryPath;
 
@@ -59,13 +60,13 @@ public class WineryConnector {
         } catch (URISyntaxException e) {
             LOG.error("Winery Connector configuration is not valid", e);
         }
-        this.wineryPath = configurationValue;
+        this.wineryPath = configurationValue.endsWith("/") ? configurationValue : configurationValue + "/";;
         LOG.debug("Initialized Winery Connector for endpoint " + this.wineryPath);
     }
 
     public boolean isWineryRepositoryAvailable() {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            final URI serviceTemplatesUri = new URI(this.wineryPath + "servicetemplates");
+            final URI serviceTemplatesUri = new URI(this.wineryPath + SERVICE_TEMPLATES_SUFFIX);
             LOG.debug("Checking if winery is available at " + serviceTemplatesUri.toString());
 
             final HttpGet get = new HttpGet();
@@ -185,7 +186,7 @@ public class WineryConnector {
             final String jsonResponse = EntityUtils.toString(resp.getEntity());
             resp.close();
 
-            LOG.debug("Container Repository returned the following features:", jsonResponse);
+            LOG.debug("Container Repository returned the following features: {}", jsonResponse);
 
             // apply the found features to the CSAR
             final HttpPut put = new HttpPut();

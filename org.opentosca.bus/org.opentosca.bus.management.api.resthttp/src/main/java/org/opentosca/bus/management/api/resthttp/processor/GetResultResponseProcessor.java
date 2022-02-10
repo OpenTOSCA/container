@@ -47,6 +47,5 @@ public class GetResultResponseProcessor implements Processor {
             exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, "application/json");
             exchange.getMessage().setBody(obj.toJSONString());
         }
-
     }
 }

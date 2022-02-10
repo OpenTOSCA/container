@@ -26,7 +26,7 @@ public class DeleteRoute extends RouteBuilder {
 
         from("jetty://" + InvocationRoute.ENDPOINT + InvocationRoute.GET_RESULT_ENDPOINT
             + "?httpMethodRestrict=delete").bean(QueueMap.class, "remove(${header." + InvocationRoute.ID + "})")
-                                           .bean(ResultMap.class, "remove(${header." + InvocationRoute.ID + "})")
-                                           .removeHeaders("*");
+            .bean(ResultMap.class, "remove(${header." + InvocationRoute.ID + "})")
+            .removeHeaders("*");
     }
 }

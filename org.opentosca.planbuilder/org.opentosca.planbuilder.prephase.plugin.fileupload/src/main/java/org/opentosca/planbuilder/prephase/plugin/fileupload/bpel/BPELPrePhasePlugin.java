@@ -2,20 +2,28 @@ package org.opentosca.planbuilder.prephase.plugin.fileupload.bpel;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.convention.Types;
+import org.eclipse.winery.model.tosca.TArtifactType;
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeType;
+import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.utils.ModelUtilities;
+
+import org.opentosca.container.core.convention.Utils;
+import org.opentosca.container.core.model.ModelUtils;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPrePhasePlugin;
-import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.prephase.plugin.fileupload.bpel.handler.BPELPrePhasePluginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,8 +75,11 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
      * {@inheritDoc}
      */
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractDeploymentArtifact da,
-                          final AbstractNodeTemplate nodeTemplate) {
+    public boolean handle(final BPELPlanContext context, final TDeploymentArtifact da,
+                          final TNodeTemplate nodeTemplate) {
+        if (da.getArtifactType() == null) {
+            LOG.error("ArtifactType of DA {} is empty!", da.getIdFromIdOrNameField());
+        }
 
         if (da.getArtifactType().equals(dockerContainerArtefactType)
             || da.getArtifactType().equals(dockerContainerArtefactTypeOld)) {
@@ -82,8 +93,8 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
      * {@inheritDoc}
      */
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractImplementationArtifact ia,
-                          final AbstractNodeTemplate nodeTemplate) {
+    public boolean handle(final BPELPlanContext context, final TImplementationArtifact ia,
+                          final TNodeTemplate nodeTemplate) {
         final QName type = ia.getArtifactType();
         return type.equals(warArtifactType) || type.equals(warArtifactTypeOld);
     }
@@ -92,14 +103,15 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
      * {@inheritDoc}
      */
     @Override
-    public boolean canHandle(final AbstractDeploymentArtifact deploymentArtifact,
-                             final AbstractNodeType infrastructureNodeType) {
-        for (final QName artType : ModelUtils.getArtifactTypeHierarchy(deploymentArtifact.getArtifactRef())) {
-            for (final QName nodeType : ModelUtils.getNodeTypeHierarchy(infrastructureNodeType)) {
+    public boolean canHandle(BPELPlanContext context, final TDeploymentArtifact deploymentArtifact,
+                             final TNodeType infrastructureNodeType) {
+
+        for (final QName artType : ModelUtils.getArtifactTypeHierarchy(ModelUtils.findArtifactTemplate(deploymentArtifact.getArtifactRef(), context.getCsar()), context.getCsar())) {
+            for (final QName nodeType : ModelUtils.getNodeTypeHierarchy(infrastructureNodeType, context.getCsar())) {
                 BPELPrePhasePlugin.LOG.debug("Checking if type: " + artType.toString()
                     + " and infrastructure nodeType: " + nodeType.toString() + " can be handled");
 
-                if (isSupportedDeploymentPair(artType, nodeType, true)) {
+                if (isSupportedDeploymentPair(artType, nodeType, context.getCsar().artifactTypesMap(), true)) {
                     return true;
                 }
             }
@@ -109,12 +121,13 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
     }
 
     @Override
-    public boolean canHandle(final AbstractImplementationArtifact ia, final AbstractNodeType infrastructureNodeType) {
-        for (final QName artType : ModelUtils.getArtifactTypeHierarchy(ia.getArtifactRef())) {
-            for (final QName nodeType : ModelUtils.getNodeTypeHierarchy(infrastructureNodeType)) {
+    public boolean canHandle(BPELPlanContext context, final TImplementationArtifact ia, final TNodeType infrastructureNodeType) {
+
+        for (final QName artType : ModelUtils.getArtifactTypeHierarchy(ModelUtils.findArtifactTemplate(ia.getArtifactRef(), context.getCsar()), context.getCsar())) {
+            for (final QName nodeType : ModelUtils.getNodeTypeHierarchy(infrastructureNodeType, context.getCsar())) {
                 BPELPrePhasePlugin.LOG.debug("Checking if type: " + artType.toString()
                     + " and infrastructure nodeType: " + nodeType.toString() + " can be handled");
-                if (isSupportedDeploymentPair(artType, nodeType, false)) {
+                if (isSupportedDeploymentPair(artType, nodeType, context.getCsar().artifactTypesMap(), false)) {
                     return true;
                 }
             }
@@ -138,12 +151,12 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
      * @param artifactType           a QName denoting an scriptArtifactType
      * @param infrastructureNodeType a QName denoting an infrastructureNodeType
      * @param isDA                   indicates whether this check is on an IA or DA with the given artifactType
-     * @return a Boolean. True if given pair of QName's denotes a pair which this plugin can handle
+     * @return a Boolean. True if the given pair of QName's denotes a pair which this plugin can handle
      */
     private boolean isSupportedDeploymentPair(final QName artifactType, final QName infrastructureNodeType,
-                                              final boolean isDA) {
+                                              Map<QName, TArtifactType> artifactTypes, final boolean isDA) {
 
-        if (infrastructureNodeType.equals(Types.dockerEngineNodeType)) {
+        if (Utils.isSupportedDockerEngineNodeType(infrastructureNodeType)) {
             return false;
         }
 
@@ -162,30 +175,35 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
             return false;
         }
 
-        // we can deploy on debian nodes (ubuntu, rasbpian, docker containers based on
+        // we can deploy on debian nodes (ubuntu, raspbian, docker containers based on
         // debian,..)
-        return BPELPrePhasePlugin.jarArtifactType.equals(artifactType)
-            || BPELPrePhasePlugin.archiveArtifactType.equals(artifactType)
-            || BPELPrePhasePlugin.scriptArtifactType.equals(artifactType)
-            || BPELPrePhasePlugin.ansibleArtifactType.equals(artifactType)
-            || BPELPrePhasePlugin.chefArtifactType.equals(artifactType)
-            || BPELPrePhasePlugin.bpelArchiveArtifactType.equals(artifactType)
-            || BPELPrePhasePlugin.warArtifactType.equals(artifactType)
-            || BPELPrePhasePlugin.warArtifactTypeOld.equals(artifactType)
-            || BPELPrePhasePlugin.sqlArtifactType.equals(artifactType)
-            || BPELPrePhasePlugin.configurationArtifactType.equals(artifactType)
-            || BPELPrePhasePlugin.dockerContainerArtefactTypeOld.equals(artifactType)
-            || BPELPrePhasePlugin.tdlConfigurationArtifactType.equals(artifactType)
+        return ModelUtilities.isOfType(BPELPrePhasePlugin.jarArtifactType, artifactType, artifactTypes)
+            || ModelUtilities.isOfType(BPELPrePhasePlugin.archiveArtifactType, artifactType, artifactTypes)
+            || ModelUtilities.isOfType(BPELPrePhasePlugin.scriptArtifactType, artifactType, artifactTypes)
+            || ModelUtilities.isOfType(BPELPrePhasePlugin.ansibleArtifactType, artifactType, artifactTypes)
+            || ModelUtilities.isOfType(BPELPrePhasePlugin.chefArtifactType, artifactType, artifactTypes)
+            || ModelUtilities.isOfType(BPELPrePhasePlugin.bpelArchiveArtifactType, artifactType, artifactTypes)
+            || ModelUtilities.isOfType(BPELPrePhasePlugin.warArtifactType, artifactType, artifactTypes)
+            || ModelUtilities.isOfType(BPELPrePhasePlugin.warArtifactTypeOld, artifactType, artifactTypes)
+            || ModelUtilities.isOfType(BPELPrePhasePlugin.sqlArtifactType, artifactType, artifactTypes)
+            || ModelUtilities.isOfType(BPELPrePhasePlugin.configurationArtifactType, artifactType, artifactTypes)
+            || ModelUtilities.isOfType(BPELPrePhasePlugin.dockerContainerArtefactTypeOld, artifactType, artifactTypes)
+            || ModelUtilities.isOfType(BPELPrePhasePlugin.dockerContainerArtefactType, artifactType, artifactTypes)
+            || ModelUtilities.isOfType(BPELPrePhasePlugin.tdlConfigurationArtifactType, artifactType, artifactTypes)
             // We always support state artifacts.
-            || BPELPrePhasePlugin.stateArtifactType.equals(artifactType);
+            || ModelUtilities.isOfType(BPELPrePhasePlugin.stateArtifactType, artifactType, artifactTypes);
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(BPELPlanContext context, final TNodeTemplate nodeTemplate) {
         LOG.debug("Checking if DAs of node template {} can be deployed", nodeTemplate.getId());
         // Find infrastructures of this node and check if we can deploy all of its DA's
-        for (final AbstractDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
-            if (getDeployableInfrastructureNode(nodeTemplate, da) == null) {
+        if (nodeTemplate.getDeploymentArtifacts() == null) {
+            // No DAs = we can work with that
+            return true;
+        }
+        for (final TDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
+            if (getDeployableInfrastructureNode(nodeTemplate, da, context.getCsar()) == null) {
                 LOG.debug("DAs of node template {} can't be deployed", nodeTemplate.getId());
                 return false;
             }
@@ -194,15 +212,17 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
         return true;
     }
 
-    public AbstractNodeTemplate getDeployableInfrastructureNode(final AbstractNodeTemplate nodeToDeploy,
-                                                                final AbstractDeploymentArtifact da) {
-        final Collection<AbstractNodeTemplate> infraNodes = new HashSet<>();
-        ModelUtils.getInfrastructureNodes(nodeToDeploy, infraNodes);
-        for (final AbstractNodeTemplate node : infraNodes) {
-            for (final QName artType : ModelUtils.getArtifactTypeHierarchy(da.getArtifactRef())) {
-                for (final QName nodeType : ModelUtils.getNodeTypeHierarchy(node.getType())) {
-                    if (isSupportedDeploymentPair(artType, nodeType, true)) {
-                        return node;
+    public TNodeTemplate getDeployableInfrastructureNode(final TNodeTemplate nodeToDeploy,
+                                                         final TDeploymentArtifact da, Csar csar) {
+        final Collection<TNodeTemplate> infraNodes = new HashSet<>();
+        ModelUtils.getInfrastructureNodes(nodeToDeploy, infraNodes, csar);
+        for (final TNodeTemplate node : infraNodes) {
+            if (!node.getId().equals(nodeToDeploy.getId())) {
+                for (final QName artType : ModelUtils.getArtifactTypeHierarchy(ModelUtils.findArtifactTemplate(da.getArtifactRef(), csar), csar)) {
+                    for (final QName nodeType : ModelUtils.getNodeTypeHierarchy(node.getType(), csar)) {
+                        if (isSupportedDeploymentPair(artType, nodeType, csar.artifactTypesMap(), true)) {
+                            return node;
+                        }
                     }
                 }
             }
@@ -211,23 +231,31 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
     }
 
     @Override
-    public boolean handleCreate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPELPlanContext context, final TNodeTemplate nodeTemplate) {
         boolean handle = true;
-        for (final AbstractDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
-            final AbstractNodeTemplate infraNode = getDeployableInfrastructureNode(nodeTemplate, da);
-            handle &= this.handler.handle(context, da, infraNode);
+
+        List<TNodeTypeImplementation> nodeTypeImplementations = context.getCsar().nodeTypeImplementations().stream()
+            .filter(implementation -> implementation.getNodeType().equals(nodeTemplate.getType()))
+            .collect(Collectors.toList());
+
+        for (TNodeTypeImplementation nodeTypeImplementation : nodeTypeImplementations) {
+            for (final TDeploymentArtifact da : ModelUtils.calculateEffectiveDAs(nodeTemplate, nodeTypeImplementation, context.getCsar())) {
+                final TNodeTemplate infraNode = getDeployableInfrastructureNode(nodeTemplate, da, context.getCsar());
+                handle &= this.handler.handle(context, da, infraNode);
+            }
         }
+
         return handle;
     }
 
     @Override
-    public boolean canHandleCreate(final AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(BPELPlanContext context, final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
     @Override
     public boolean handleCreate(final BPELPlanContext context,
-                                final AbstractRelationshipTemplate relationshipTemplate) {
+                                final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 

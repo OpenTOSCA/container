@@ -1,10 +1,10 @@
 package org.opentosca.bus.management.api.java;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -20,6 +20,11 @@ import javax.inject.Singleton;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TPolicy;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TTopologyTemplate;
+
 import com.google.common.collect.Lists;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -31,6 +36,7 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.engine.management.IManagementBus;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
@@ -41,15 +47,13 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstanceState;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.SituationRepository;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.engine.plan.plugin.bpel.BpelPlanEnginePlugin;
 import org.opentosca.planbuilder.export.WineryExporter;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
+import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -80,15 +84,17 @@ public class MBJavaApi implements IManagementBus {
     private final WineryExporter exporter;
     private final ICoreEndpointService endpointService;
     private final BpelPlanEnginePlugin bpelDeployPlugin;
+    private final CsarStorageService storage;
 
     @Inject
     public MBJavaApi(CamelContext camelContext, Importer importer, WineryExporter exporter,
-                     ICoreEndpointService endpointService, BpelPlanEnginePlugin bpelPlanEnginePlugin) {
+                     ICoreEndpointService endpointService, BpelPlanEnginePlugin bpelPlanEnginePlugin, CsarStorageService storage) {
         this.camelContext = camelContext;
         this.importer = importer;
         this.exporter = exporter;
         this.endpointService = endpointService;
         this.bpelDeployPlugin = bpelPlanEnginePlugin;
+        this.storage = storage;
         LOG.info("Starting direct Java invocation API for Management Bus");
     }
 
@@ -192,14 +198,16 @@ public class MBJavaApi implements IManagementBus {
         @SuppressWarnings("unchecked") final Map<String, Collection<Long>> nodeIds2situationIds =
             (Map<String, Collection<Long>>) eventValues.get("NODE2SITUATIONS");
 
-        final AbstractTopologyTemplate topology =
-            Lists.newArrayList(this.importer.getMainDefinitions(instance.getCsarId()).getServiceTemplates()).get(0)
+        Csar csar = this.storage.findById(instance.getCsarId());
+
+        final TTopologyTemplate topology =
+            Lists.newArrayList(this.importer.getMainDefinitions(csar).getServiceTemplates()).get(0)
                 .getTopologyTemplate();
 
         final ServiceTemplateInstanceConfiguration currentConfig =
             getCurrentServiceTemplateInstanceConfiguration(topology, instance);
         final ServiceTemplateInstanceConfiguration targetConfig =
-            getValidServiceTemplateInstanceConfiguration(topology, nodeIds2situationIds);
+            getValidServiceTemplateInstanceConfiguration(topology, nodeIds2situationIds, csar);
 
         final Collection<String> currentConfigNodeIds =
             currentConfig.nodeTemplates.stream().map(x -> x.getId()).collect(Collectors.toList());
@@ -237,7 +245,7 @@ public class MBJavaApi implements IManagementBus {
             try {
                 // FIXME the QName conversion of the instance is probably a bad idea
                 final BPELPlan adaptationPlan =
-                    (BPELPlan) this.importer.generateAdaptationPlan(instance.getCsarId(),
+                    (BPELPlan) this.importer.generateAdaptationPlan(csar,
                         QName.valueOf(instance.getTemplateId()),
                         currentConfigNodeIds, currentConfigRelationIds,
                         targetConfigNodeIds, targetConfigRelationIds);
@@ -367,11 +375,11 @@ public class MBJavaApi implements IManagementBus {
         return result;
     }
 
-    private ServiceTemplateInstanceConfiguration getCurrentServiceTemplateInstanceConfiguration(final AbstractTopologyTemplate topology,
+    private ServiceTemplateInstanceConfiguration getCurrentServiceTemplateInstanceConfiguration(final TTopologyTemplate topology,
                                                                                                 final ServiceTemplateInstance instance) {
 
-        final Collection<AbstractNodeTemplate> currentlyRunningNodes = new HashSet<>();
-        final Collection<AbstractRelationshipTemplate> currentlyRunningRelations = new HashSet<>();
+        final Collection<TNodeTemplate> currentlyRunningNodes = new HashSet<>();
+        final Collection<TRelationshipTemplate> currentlyRunningRelations = new HashSet<>();
 
         final Collection<NodeTemplateInstanceState> validNodeState = new HashSet<>();
         validNodeState.add(NodeTemplateInstanceState.STARTED);
@@ -381,7 +389,7 @@ public class MBJavaApi implements IManagementBus {
         final Collection<RelationshipTemplateInstanceState> validRelationState = new HashSet<>();
         validRelationState.add(RelationshipTemplateInstanceState.CREATED);
 
-        for (final AbstractNodeTemplate node : topology.getNodeTemplates()) {
+        for (final TNodeTemplate node : topology.getNodeTemplates()) {
             for (final NodeTemplateInstance inst : instance.getNodeTemplateInstances()) {
                 if (inst.getTemplateId().equals(node.getId()) && validNodeState.contains(inst.getState())) {
                     currentlyRunningNodes.add(node);
@@ -389,7 +397,7 @@ public class MBJavaApi implements IManagementBus {
             }
         }
 
-        for (final AbstractRelationshipTemplate relation : topology.getRelationshipTemplates()) {
+        for (final TRelationshipTemplate relation : topology.getRelationshipTemplates()) {
             for (final RelationshipTemplateInstance inst : instance.getRelationshipTemplateInstances()) {
                 if (inst.getTemplateId().equals(relation.getId()) && validRelationState.contains(inst.getState())) {
                     currentlyRunningRelations.add(relation);
@@ -400,14 +408,14 @@ public class MBJavaApi implements IManagementBus {
         return new ServiceTemplateInstanceConfiguration(currentlyRunningNodes, currentlyRunningRelations);
     }
 
-    private ServiceTemplateInstanceConfiguration getValidServiceTemplateInstanceConfiguration(final AbstractTopologyTemplate topology,
-                                                                                              final Map<String, Collection<Long>> nodeIds2situationIds) {
+    private ServiceTemplateInstanceConfiguration getValidServiceTemplateInstanceConfiguration(final TTopologyTemplate topology,
+                                                                                              final Map<String, Collection<Long>> nodeIds2situationIds, Csar csar) {
 
-        final Collection<AbstractNodeTemplate> validNodes = new ArrayList<>();
-        final Collection<AbstractRelationshipTemplate> validRelations = new ArrayList<>();
+        final Collection<TNodeTemplate> validNodes = new ArrayList<>();
+        final Collection<TRelationshipTemplate> validRelations = new ArrayList<>();
 
-        for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
-            final Collection<AbstractPolicy> policies = getPolicies(Types.situationPolicyType, nodeTemplate);
+        for (final TNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
+            final Collection<TPolicy> policies = getPolicies(Types.situationPolicyType, nodeTemplate);
             if (policies.isEmpty()) {
                 validNodes.add(nodeTemplate);
             } else if (isValidUnderSituations(nodeTemplate, nodeIds2situationIds)) {
@@ -416,11 +424,11 @@ public class MBJavaApi implements IManagementBus {
         }
 
         // check if node set is deployable
-        final Collection<AbstractNodeTemplate> deployableAndValidNodeSet =
-            getDeployableSubgraph(validNodes, nodeIds2situationIds);
-        for (final AbstractRelationshipTemplate relations : topology.getRelationshipTemplates()) {
-            if (deployableAndValidNodeSet.contains(relations.getSource())
-                & deployableAndValidNodeSet.contains(relations.getTarget())) {
+        final Collection<TNodeTemplate> deployableAndValidNodeSet =
+            getDeployableSubgraph(validNodes, nodeIds2situationIds, csar);
+        for (final TRelationshipTemplate relations : topology.getRelationshipTemplates()) {
+            if (deployableAndValidNodeSet.contains(ModelUtils.getSource(relations, csar))
+                & deployableAndValidNodeSet.contains(ModelUtils.getTarget(relations, csar))) {
                 validRelations.add(relations);
             }
         }
@@ -428,19 +436,19 @@ public class MBJavaApi implements IManagementBus {
         return new ServiceTemplateInstanceConfiguration(deployableAndValidNodeSet, validRelations);
     }
 
-    private Collection<AbstractNodeTemplate> getDeployableSubgraph(final Collection<AbstractNodeTemplate> nodeTemplates,
-                                                                   final Map<String, Collection<Long>> nodeIds2situationIds) {
-        final Set<AbstractNodeTemplate> validDeploymentSubgraph = new HashSet<>(nodeTemplates);
-        final Collection<AbstractNodeTemplate> toRemove = new HashSet<>();
+    private Collection<TNodeTemplate> getDeployableSubgraph(final Collection<TNodeTemplate> nodeTemplates,
+                                                            final Map<String, Collection<Long>> nodeIds2situationIds, Csar csar) {
+        final Set<TNodeTemplate> validDeploymentSubgraph = new HashSet<>(nodeTemplates);
+        final Collection<TNodeTemplate> toRemove = new HashSet<>();
 
-        for (final AbstractNodeTemplate nodeTemplate : nodeTemplates) {
-            final Collection<AbstractRelationshipTemplate> hostingRelations =
-                getOutgoingHostedOnRelations(nodeTemplate);
+        for (final TNodeTemplate nodeTemplate : nodeTemplates) {
+            final Collection<TRelationshipTemplate> hostingRelations =
+                getOutgoingHostedOnRelations(nodeTemplate, csar);
             if (!hostingRelations.isEmpty()) {
                 // if we have hostedOn relations check if it is valid under the situation and is in the set
                 boolean foundValidHost = false;
-                for (final AbstractRelationshipTemplate relationshipTemplate : hostingRelations) {
-                    final AbstractNodeTemplate hostingNode = relationshipTemplate.getTarget();
+                for (final TRelationshipTemplate relationshipTemplate : hostingRelations) {
+                    final TNodeTemplate hostingNode = ModelUtils.getTarget(relationshipTemplate, csar);
                     if (isValidUnderSituations(hostingNode, nodeIds2situationIds)
                         && nodeTemplates.contains(hostingNode)) {
                         foundValidHost = true;
@@ -457,11 +465,11 @@ public class MBJavaApi implements IManagementBus {
             return validDeploymentSubgraph;
         } else {
             validDeploymentSubgraph.removeAll(toRemove);
-            return getDeployableSubgraph(validDeploymentSubgraph, nodeIds2situationIds);
+            return getDeployableSubgraph(validDeploymentSubgraph, nodeIds2situationIds, csar);
         }
     }
 
-    private boolean isValidUnderSituations(final AbstractNodeTemplate nodeTemplate,
+    private boolean isValidUnderSituations(final TNodeTemplate nodeTemplate,
                                            final Map<String, Collection<Long>> nodeIds2situationIds) {
         // check if the situation of the policy is active
         Collection<Long> situationIds = null;
@@ -477,13 +485,13 @@ public class MBJavaApi implements IManagementBus {
         return isValid;
     }
 
-    private Collection<AbstractRelationshipTemplate> getOutgoingHostedOnRelations(final AbstractNodeTemplate nodeTemplate) {
-        return nodeTemplate.getOutgoingRelations().stream().filter(x -> x.getType().equals(Types.hostedOnRelationType))
+    private Collection<TRelationshipTemplate> getOutgoingHostedOnRelations(final TNodeTemplate nodeTemplate, Csar csar) {
+        return ModelUtils.getOutgoingRelations(nodeTemplate, csar).stream().filter(x -> x.getType().equals(Types.hostedOnRelationType))
             .collect(Collectors.toList());
     }
 
-    private Collection<AbstractPolicy> getPolicies(final QName policyType, final AbstractNodeTemplate nodeTemplate) {
-        return nodeTemplate.getPolicies().stream().filter(x -> x.getType().getId().equals(policyType))
+    private Collection<TPolicy> getPolicies(final QName policyType, final TNodeTemplate nodeTemplate) {
+        return nodeTemplate.getPolicies().stream().filter(x -> x.getPolicyType().equals(policyType))
             .collect(Collectors.toList());
     }
 
@@ -529,17 +537,13 @@ public class MBJavaApi implements IManagementBus {
                     + Settings.CONTAINER_INSTANCEDATA_API + "\".");
                 String str = Settings.CONTAINER_INSTANCEDATA_API;
                 str = str.replace("{csarid}", csarID.csarName());
-                try {
-                    str = str.replace("{servicetemplateid}",
-                        URLEncoder.encode(URLEncoder.encode(serviceTemplateID, "UTF-8"), "UTF-8"));
-                } catch (final UnsupportedEncodingException e) {
-                    LOG.error("Couldn't encode Service Template URL", e);
-                }
+                str = str.replace("{servicetemplateid}",
+                    URLEncoder.encode(URLEncoder.encode(serviceTemplateID, StandardCharsets.UTF_8), StandardCharsets.UTF_8));
                 LOG.debug("instance api: {}", str);
                 map.put(para, str);
             } else if (para.equalsIgnoreCase("csarEntrypoint")) {
-            	LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \""
-                    + Settings.OPENTOSCA_CONTAINER_CONTENT_API.replace("{csarid}", csarID.csarName()));                                              
+                LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \""
+                    + Settings.OPENTOSCA_CONTAINER_CONTENT_API.replace("{csarid}", csarID.csarName()));
                 map.put(para, Settings.OPENTOSCA_CONTAINER_CONTENT_API.replace("{csarid}", csarID.csarName()));
             } else {
                 map.put(para, value);
@@ -561,11 +565,11 @@ public class MBJavaApi implements IManagementBus {
     }
 
     private static class ServiceTemplateInstanceConfiguration {
-        Collection<AbstractNodeTemplate> nodeTemplates;
-        Collection<AbstractRelationshipTemplate> relationshipTemplates;
+        Collection<TNodeTemplate> nodeTemplates;
+        Collection<TRelationshipTemplate> relationshipTemplates;
 
-        public ServiceTemplateInstanceConfiguration(final Collection<AbstractNodeTemplate> nodes,
-                                                    final Collection<AbstractRelationshipTemplate> relations) {
+        public ServiceTemplateInstanceConfiguration(final Collection<TNodeTemplate> nodes,
+                                                    final Collection<TRelationshipTemplate> relations) {
             this.nodeTemplates = nodes;
             this.relationshipTemplates = relations;
         }

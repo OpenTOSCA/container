@@ -1,10 +1,9 @@
 package org.opentosca.planbuilder.type.plugin.connectsto.bpel;
 
-import javax.xml.parsers.ParserConfigurationException;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.type.plugin.connectsto.bpel.handler.BPELConnectsToPluginHandler;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.ConnectsToPlugin;
 
@@ -25,15 +24,7 @@ public class BPELConnectsToPlugin extends ConnectsToPlugin<BPELPlanContext> {
     private final BPELConnectsToPluginHandler handler;
 
     public BPELConnectsToPlugin() {
-        BPELConnectsToPluginHandler safeCreatedHandler;
-        try {
-            safeCreatedHandler = new BPELConnectsToPluginHandler();
-        } catch (ParserConfigurationException e) {
-            // Wow this is bad
-            e.printStackTrace();
-            safeCreatedHandler = null;
-        }
-        handler = safeCreatedHandler;
+        handler = new BPELConnectsToPluginHandler();
     }
 
     /*
@@ -43,7 +34,7 @@ public class BPELConnectsToPlugin extends ConnectsToPlugin<BPELPlanContext> {
      * opentosca.planbuilder.plugins.context.BPELPlanContext)
      */
     @Override
-    public boolean handleCreate(final BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPELPlanContext templateContext, TNodeTemplate nodeTemplate) {
         return false;
     }
 
@@ -55,18 +46,18 @@ public class BPELConnectsToPlugin extends ConnectsToPlugin<BPELPlanContext> {
      */
     @Override
     public boolean handleCreate(final BPELPlanContext templateContext,
-                                AbstractRelationshipTemplate relationshipTemplate) {
+                                TRelationshipTemplate relationshipTemplate) {
         return this.handler.handle(templateContext);
     }
 
     @Override
-    public boolean handleTerminate(BPELPlanContext templateContext, AbstractNodeTemplate nodeTemplate) {
+    public boolean handleTerminate(BPELPlanContext templateContext, TNodeTemplate nodeTemplate) {
         // we never handle a terminate on nodeTemplates here
         return false;
     }
 
     @Override
-    public boolean handleTerminate(BPELPlanContext templateContext, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean handleTerminate(BPELPlanContext templateContext, TRelationshipTemplate relationshipTemplate) {
         // TODO we have to define the semantics of a disconnect first
         return false;
     }

@@ -6,7 +6,13 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
 import org.opentosca.planbuilder.core.ChoreographyBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
@@ -27,11 +33,7 @@ import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlu
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,11 +67,11 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
     private final BPELPluginHandler bpelPluginHandler;
     private final EmptyPropertyToInputHandler emptyPropInit;
     private final ChoreographyBuilder choreoBuilder = new ChoreographyBuilder();
-    private SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
-    private CorrelationIDInitializer correlationHandler;
-    private SituationTriggerRegistration sitRegistrationPlugin;
-    private BPELPlanHandler planHandler;
-    private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
+    private final SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
+    private final CorrelationIDInitializer correlationHandler;
+    private final SituationTriggerRegistration sitRegistrationPlugin;
+    private final BPELPlanHandler planHandler;
+    private final NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 
     /**
      * <p>
@@ -89,7 +91,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             this.correlationHandler = new CorrelationIDInitializer();
         } catch (final ParserConfigurationException e) {
             LOG.error("Error while initializing BuildPlanHandler", e);
-            throw new PlanbuilderRuntimeException( "Error while initializing BuildPlanHandler", e);
+            throw new PlanbuilderRuntimeException("Error while initializing BuildPlanHandler", e);
         }
         // TODO seems ugly
         this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
@@ -101,11 +103,10 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.IPlanBuilder#buildPlan(java.lang.String,
-     * org.opentosca.planbuilder.model.tosca.AbstractDefinitions, javax.xml.namespace.QName)
+     * org.opentosca.planbuilder.model.tosca.TDefinitions, javax.xml.namespace.QName)
      */
-    @Override
-    public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
-                              final AbstractServiceTemplate serviceTemplate) {
+    private BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                               final TServiceTemplate serviceTemplate) {
         // create empty plan from servicetemplate and add definitions
         String namespace;
         if (serviceTemplate.getTargetNamespace() != null) {
@@ -114,18 +115,19 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             namespace = definitions.getTargetNamespace();
         }
 
-        if (namespace.equals(serviceTemplate.getQName().getNamespaceURI())
-            && serviceTemplate.getId().equals(serviceTemplate.getQName().getLocalPart())) {
+        QName serviceTemplateQname = new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId());
+        if (namespace.equals(serviceTemplateQname.getNamespaceURI())
+            && serviceTemplate.getId().equals(serviceTemplateQname.getLocalPart())) {
 
             final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_buildPlan");
             final String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan";
 
             AbstractPlan buildPlan =
-                AbstractBuildPlanBuilder.generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
+                AbstractBuildPlanBuilder.generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate, csar);
 
             if (this.choreoBuilder.isChoreographyPartner(serviceTemplate)) {
                 LOG.debug("Transforming plan to be part of a choreography: ");
-                buildPlan = this.choreoBuilder.transformToChoreography(buildPlan);
+                buildPlan = this.choreoBuilder.transformToChoreography(buildPlan, csar);
             }
 
             LOG.debug("Generated the following abstract prov plan: ");
@@ -137,7 +139,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             newBuildPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
             newBuildPlan.setTOSCAOperationname("initiate");
 
-            this.planHandler.initializeBPELSkeleton(newBuildPlan, csarName);
+            this.planHandler.initializeBPELSkeleton(newBuildPlan, csar);
 
             this.nodeRelationInstanceHandler.addInstanceURLVarToTemplatePlans(newBuildPlan, serviceTemplate);
             this.nodeRelationInstanceHandler.addInstanceIDVarToTemplatePlans(newBuildPlan, serviceTemplate);
@@ -167,9 +169,9 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
             this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap, serviceInstanceUrl,
                 serviceInstanceID, serviceTemplateUrl, planInstanceUrl,
-                serviceTemplate, csarName);
+                serviceTemplate, csar);
 
-            runPlugins(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csarName);
+            runPlugins(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csar);
 
             this.correlationHandler.addCorrellationID(newBuildPlan);
 
@@ -179,7 +181,6 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
                 newBuildPlan.getBpelMainSequenceOutputAssignElement(),
                 "CREATED", serviceInstanceUrl);
-
 
             this.serviceInstanceInitializer.appendSetServiceInstanceStateAsChild(newBuildPlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBuildPlan), "ERROR", serviceInstanceUrl);
             this.serviceInstanceInitializer.appendSetServiceInstanceStateAsChild(newBuildPlan, this.planHandler.getMainCatchAllFaultHandlerSequenceElement(newBuildPlan), "FAILED", this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newBuildPlan));
@@ -195,14 +196,12 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
             this.sitRegistrationPlugin.handle(serviceTemplate, newBuildPlan);
 
-
-
             this.finalizer.finalize(newBuildPlan);
             return newBuildPlan;
         }
 
         LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
-            serviceTemplate.getQName().toString(), definitions.getId(), csarName);
+            serviceTemplateQname.toString(), definitions.getId(), csar.id().csarName());
         return null;
     }
 
@@ -210,17 +209,17 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
      * (non-Javadoc)
      *
      * @see org.opentosca.planbuilder.IPlanBuilder#buildPlans(java.lang.String,
-     * org.opentosca.planbuilder.model.tosca.AbstractDefinitions)
+     * org.opentosca.planbuilder.model.tosca.TDefinitions)
      */
     @Override
-    public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
         final List<AbstractPlan> plans = new ArrayList<>();
-        for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
+        for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
-            if (!serviceTemplate.hasBuildPlan()) {
+            if (ModelUtils.doesNotHaveBuildPlan(serviceTemplate)) {
                 LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan",
-                    serviceTemplate.getQName().toString());
-                final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplate);
+                    serviceTemplate.getId());
+                final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
 
                 if (newBuildPlan != null) {
                     LOG.debug("Created BuildPlan "
@@ -229,11 +228,11 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 }
             } else {
                 LOG.debug("ServiceTemplate {} has BuildPlan, no generation needed",
-                    serviceTemplate.getQName().toString());
+                    serviceTemplate.getId());
             }
         }
         if (!plans.isEmpty()) {
-            LOG.info("Created {} build plans for CSAR {}", plans.size(), csarName);
+            LOG.info("Created {} build plans for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }
@@ -250,19 +249,19 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
      */
     private void runPlugins(final BPELPlan buildPlan, final Property2VariableMapping map,
                             final String serviceInstanceUrl, final String serviceInstanceID,
-                            final String serviceTemplateUrl, final String planInstanceUrl, final String csarFileName) {
+                            final String serviceTemplateUrl, final String planInstanceUrl, final Csar csar) {
         for (final BPELScope bpelScope : buildPlan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(scopeBuilder, buildPlan, bpelScope, map, buildPlan.getServiceTemplate(),
-                serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csarFileName);
+                serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csar);
             if (bpelScope.getNodeTemplate() != null) {
 
-                final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
+                final TNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
 
                 // if this nodeTemplate has the label running (Property: State=Running), skip
                 // provisioning and just generate instance data handling
                 // extended check for OperatingSystem node type
                 if (isRunning(nodeTemplate)
-                    || nodeTemplate.getType().getName().equals(Types.abstractOperatingSystemNodeType.getLocalPart())) {
+                    || ModelUtils.findNodeType(nodeTemplate, csar).getName().equals(Types.abstractOperatingSystemNodeType.getLocalPart())) {
                     LOG.debug("Skipping the provisioning of NodeTemplate "
                         + bpelScope.getNodeTemplate().getId() + "  because state=running is set.");
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
@@ -277,7 +276,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 this.bpelPluginHandler.handleActivity(context, bpelScope, nodeTemplate);
             } else if (bpelScope.getRelationshipTemplate() != null) {
                 // handling relationshiptemplate
-                final AbstractRelationshipTemplate relationshipTemplate = bpelScope.getRelationshipTemplate();
+                final TRelationshipTemplate relationshipTemplate = bpelScope.getRelationshipTemplate();
 
                 this.bpelPluginHandler.handleActivity(context, bpelScope, relationshipTemplate);
             } else {

@@ -2,9 +2,10 @@ package org.opentosca.planbuilder.selection.plugin.input.core;
 
 import java.util.List;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IScalingPlanBuilderSelectionPlugin;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 
 /**
  * <p>
@@ -22,7 +23,7 @@ public abstract class SelectionInputPlugin<T extends PlanContext> implements ISc
     private static final String INPUT_SELECTION_STRATEGY = "UserProvided";
 
     @Override
-    public boolean canHandle(final AbstractNodeTemplate nodeTemplate, final List<String> selectionStrategies) {
+    public boolean canHandle(final TNodeTemplate nodeTemplate, final List<String> selectionStrategies) {
         return selectionStrategies.contains(SelectionInputPlugin.INPUT_SELECTION_STRATEGY);
     }
 

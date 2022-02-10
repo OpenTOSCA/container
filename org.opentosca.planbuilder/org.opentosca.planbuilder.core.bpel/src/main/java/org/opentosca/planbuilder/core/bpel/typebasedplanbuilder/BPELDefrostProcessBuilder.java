@@ -7,7 +7,15 @@ import java.util.Objects;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.AbstractDefrostPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
@@ -27,13 +35,7 @@ import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlu
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,14 +74,13 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
         this.finalizer = new BPELFinalizer();
     }
 
-    @Override
-    public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
-                              final AbstractServiceTemplate serviceTemplate) {
+    private BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
+                               final TServiceTemplate serviceTemplate) {
         BPELDefrostProcessBuilder.LOG.info("Making Concrete Plans");
 
-        if (!this.isDefrostable(serviceTemplate)) {
+        if (!this.isDefrostable(serviceTemplate, csar)) {
             BPELDefrostProcessBuilder.LOG.warn("Couldn't create DeFreezePlan for ServiceTemplate {} in Definitions {} of CSAR {}",
-                serviceTemplate.getQName().toString(), definitions.getId(), csarName);
+                serviceTemplate.getId(), definitions.getId(), csar.id().csarName());
             return null;
         }
 
@@ -87,7 +88,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
         final String processNamespace = serviceTemplate.getTargetNamespace() + "_defrostPlan";
 
         final AbstractPlan newAbstractBackupPlan =
-            generateDOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
+            generateDOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate, csar);
 
         final BPELPlan newDefreezePlan =
             this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractBackupPlan, "defrost");
@@ -96,7 +97,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
         newDefreezePlan.setTOSCAOperationname("defrost");
         newDefreezePlan.setType(PlanType.BUILD);
 
-        this.planHandler.initializeBPELSkeleton(newDefreezePlan, csarName);
+        this.planHandler.initializeBPELSkeleton(newDefreezePlan, csar);
 
         this.instanceVarsHandler.addInstanceURLVarToTemplatePlans(newDefreezePlan, serviceTemplate);
         this.instanceVarsHandler.addInstanceIDVarToTemplatePlans(newDefreezePlan, serviceTemplate);
@@ -119,9 +120,9 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
         this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newDefreezePlan, propMap, serviceInstanceUrl,
             serviceInstanceId, serviceTemplateUrl, planInstanceUrl, serviceTemplate,
-            csarName);
+            csar);
 
-        runPlugins(newDefreezePlan, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csarName);
+        runPlugins(newDefreezePlan, propMap, serviceInstanceUrl, serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csar);
 
         this.correlationHandler.addCorrellationID(newDefreezePlan);
 
@@ -157,36 +158,25 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
         return newDefreezePlan;
     }
 
-    private boolean isDefrostable(final AbstractServiceTemplate serviceTemplate) {
+    private boolean isDefrostable(final TServiceTemplate serviceTemplate, Csar csar) {
 
-        for (final AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
-            if (this.isDefrostable(nodeTemplate)) {
+        for (final TNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+            if (this.isDefrostable(nodeTemplate, csar)) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean isDefrostable(final AbstractNodeTemplate nodeTemplate) {
-        return Objects.nonNull(this.getLoadStateOperation(nodeTemplate))
+    private boolean isDefrostable(final TNodeTemplate nodeTemplate, Csar csar) {
+        return Objects.nonNull(this.getLoadStateOperation(nodeTemplate, csar))
             && hasFreezeableComponentPolicy(nodeTemplate);
     }
 
-    private AbstractInterface getLoadStateInterface(final AbstractNodeTemplate nodeTemplate) {
-        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
-            if (!iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE)) {
-                continue;
-            }
-
-            return iface;
-        }
-        return null;
-    }
-
-    private AbstractOperation getLoadStateOperation(final AbstractNodeTemplate nodeTemplate) {
-        final AbstractInterface iface = this.getLoadStateInterface(nodeTemplate);
+    private TOperation getLoadStateOperation(final TNodeTemplate nodeTemplate, Csar csar) {
+        final TInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE, csar);
         if (iface != null) {
-            for (final AbstractOperation op : iface.getOperations()) {
+            for (final TOperation op : iface.getOperations()) {
                 if (!op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE)) {
                     continue;
                 }
@@ -199,14 +189,14 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
     private void runPlugins(final BPELPlan buildPlan, final Property2VariableMapping map,
                             final String serviceInstanceUrl, final String serviceInstanceId,
-                            final String serviceTemplateUrl, String planInstanceUrl, final String csarFileName) {
+                            final String serviceTemplateUrl, String planInstanceUrl, final Csar csar) {
 
         for (final BPELScope bpelScope : buildPlan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(new BPELScopeBuilder(pluginRegistry), buildPlan, bpelScope, map, buildPlan.getServiceTemplate(), serviceInstanceUrl,
-                serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csarFileName);
+                serviceInstanceId, serviceTemplateUrl, planInstanceUrl, csar);
             if (bpelScope.getNodeTemplate() != null) {
 
-                final AbstractNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
+                final TNodeTemplate nodeTemplate = bpelScope.getNodeTemplate();
 
                 if (isRunning(nodeTemplate)) {
                     BPELBuildProcessBuilder.LOG.debug("Skipping the provisioning of NodeTemplate "
@@ -222,7 +212,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
                 this.bpelPluginHandler.handleActivity(context, bpelScope, nodeTemplate);
             } else if (bpelScope.getRelationshipTemplate() != null) {
                 // handle relationshiptemplate
-                final AbstractRelationshipTemplate relationshipTemplate = bpelScope.getRelationshipTemplate();
+                final TRelationshipTemplate relationshipTemplate = bpelScope.getRelationshipTemplate();
 
                 bpelPluginHandler.handleActivity(context, bpelScope, relationshipTemplate);
             }
@@ -230,18 +220,18 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
         BPELDefrostProcessBuilder.LOG.debug("Building the Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
-        for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
+        for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
-            if (!this.isDefrostable(serviceTemplate)) {
+            if (!this.isDefrostable(serviceTemplate, csar)) {
                 continue;
             }
 
             BPELDefrostProcessBuilder.LOG.debug("ServiceTemplate {} has no DefreezePlan, generating a new plan",
-                serviceTemplate.getQName().toString());
-            final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplate);
+                serviceTemplate.getId());
+            final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
 
             if (newBuildPlan != null) {
                 BPELDefrostProcessBuilder.LOG.debug("Created Defreeze Plan "
@@ -250,7 +240,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
             }
         }
         if (!plans.isEmpty()) {
-        	LOG.info("Created {} defrost plan for CSAR {}", String.valueOf(plans.size()), csarName);
+            LOG.info("Created {} defrost plan for CSAR {}", plans.size(), csar.id().csarName());
         }
         return plans;
     }

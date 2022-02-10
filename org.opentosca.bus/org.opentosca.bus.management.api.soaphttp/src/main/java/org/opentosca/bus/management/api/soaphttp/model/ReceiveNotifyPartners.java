@@ -177,5 +177,4 @@ public class ReceiveNotifyPartners {
     public void setPlanChorCorrelation(String planChorCorrelation) {
         this.planChorCorrelation = planChorCorrelation;
     }
-    
 }

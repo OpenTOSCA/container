@@ -6,12 +6,13 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.selection.plugin.mosquitto.workload.core.MosquittoSelectionPlugin;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -39,19 +40,19 @@ public class BPELMosquittoSelectionPlugin extends MosquittoSelectionPlugin<BPELP
     }
 
     @Override
-    public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
+    public boolean handle(final BPELPlanContext context, final TNodeTemplate nodeTemplate,
                           final List<String> selectionStrategies) {
 
         // TODO fetch instance variables
         final String nodeTemplateInstanceVar = this.findInstanceVar(context, nodeTemplate.getId(), true);
 
-        final List<AbstractRelationshipTemplate> relations = ModelUtils.getOutgoingInfrastructureEdges(nodeTemplate);
+        final List<TRelationshipTemplate> relations = ModelUtils.getOutgoingInfrastructureEdges(nodeTemplate, context.getCsar());
 
         if (relations.isEmpty()) {
             return false;
         }
 
-        final AbstractRelationshipTemplate relation = relations.get(0);
+        final TRelationshipTemplate relation = relations.get(0);
         final String relationTemplateInstnaceVar = this.findInstanceVar(context, relation.getId(), false);
 
         final String responseVarName = "selectFirstInstance_" + nodeTemplate.getId() + "_FetchRelationInstance_"

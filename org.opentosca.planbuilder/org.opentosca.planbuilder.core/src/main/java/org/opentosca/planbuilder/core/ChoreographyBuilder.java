@@ -4,16 +4,18 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import com.google.common.collect.Lists;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,26 +23,26 @@ public class ChoreographyBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(ChoreographyBuilder.class);
 
-    public AbstractPlan transformToChoreography(final AbstractPlan plan) {
-        final AbstractServiceTemplate serviceTemplate = plan.getServiceTemplate();
+    public AbstractPlan transformToChoreography(final AbstractPlan plan, Csar csar) {
+        final TServiceTemplate serviceTemplate = plan.getServiceTemplate();
 
         if (!isChoreographyPartner(serviceTemplate)) {
             return plan;
         }
         final Collection<AbstractActivity> activties = plan.getActivites();
 
-        Collection<AbstractNodeTemplate> unmanagedNodes = getUnmanagedChoreographyNodes(serviceTemplate);
+        Collection<TNodeTemplate> unmanagedNodes = getUnmanagedChoreographyNodes(serviceTemplate);
         LOG.debug("Found following unmanaged nodes: ");
-        for (final AbstractNodeTemplate unmanagedNode : unmanagedNodes) {
+        for (final TNodeTemplate unmanagedNode : unmanagedNodes) {
             LOG.debug("Unmanaged Node: " + unmanagedNode.getId());
             for (final AbstractActivity activity : plan.findNodeTemplateActivities(unmanagedNode)) {
                 activity.addMetadata("ignoreProvisioning", true);
             }
         }
 
-        Collection<AbstractRelationshipTemplate> unmanagedRelations = getUnmanagedRelation(serviceTemplate);
+        Collection<TRelationshipTemplate> unmanagedRelations = getUnmanagedRelation(serviceTemplate, csar);
         LOG.debug("Found following unmanaged relations: ");
-        for (final AbstractRelationshipTemplate unmanagedRelation : unmanagedRelations) {
+        for (final TRelationshipTemplate unmanagedRelation : unmanagedRelations) {
             LOG.debug("Unmanaged Relation: " + unmanagedRelation.getId());
             for (final AbstractActivity act : plan.findRelationshipTemplateActivities(unmanagedRelation)) {
                 act.addMetadata("ignoreProvisioning", true);
@@ -49,22 +51,25 @@ public class ChoreographyBuilder {
 
         final Collection<Link> links = plan.getLinks();
 
-        final Collection<AbstractNodeTemplate> managedConnectingNodes =
-            getManagedConnectingChoreographyNodes(serviceTemplate);
-        final Collection<AbstractRelationshipTemplate> connectingRelations =
-            getConnectingChoreographyRelations(serviceTemplate);
+        final Collection<TNodeTemplate> managedConnectingNodes =
+            getManagedConnectingChoreographyNodes(serviceTemplate, csar);
+        final Collection<TRelationshipTemplate> connectingRelations =
+            getConnectingChoreographyRelations(serviceTemplate, csar);
 
         final Collection<AbstractActivity> activitiesToAdd = new HashSet<>();
 
         final Collection<Link> linksToAdd = new HashSet<>();
 
-        for (final AbstractRelationshipTemplate relation : connectingRelations) {
-            if (managedConnectingNodes.contains(relation.getTarget())
-                & !managedConnectingNodes.contains(relation.getSource())) {
+        for (final TRelationshipTemplate relation : connectingRelations) {
+            TNodeTemplate source = ModelUtils.getSource(relation, csar);
+            TNodeTemplate target = ModelUtils.getTarget(relation, csar);
+
+            if (managedConnectingNodes.contains(target)
+                & !managedConnectingNodes.contains(source)) {
 
                 // in this case we have to send a notify as the connecting node is depending on the managed nodes
                 final NodeTemplateActivity nodeActivity = new NodeTemplateActivity(
-                    "sendNotify_" + relation.getTarget().getId(), ActivityType.SENDNODENOTIFY, relation.getTarget());
+                    "sendNotify_" + target.getId(), ActivityType.SENDNODENOTIFY, target);
                 nodeActivity.addMetadata("ConnectingRelationshipTemplate", relation);
                 activitiesToAdd.add(nodeActivity);
 
@@ -78,23 +83,23 @@ public class ChoreographyBuilder {
                     plan.findNodeTemplateActivities(x).forEach(y -> linksToAdd.add(new Link(y, nodeActivity)));
                 });
             }
-            if (managedConnectingNodes.contains(relation.getSource())
-                & !managedConnectingNodes.contains(relation.getTarget())) {
+            if (managedConnectingNodes.contains(source)
+                & !managedConnectingNodes.contains(target)) {
 
                 // this relation connects a managed node as target therefore it is depending on receiving data
                 final NodeTemplateActivity nodeActivity =
-                    new NodeTemplateActivity("receiveNotify_" + relation.getSource().getId(),
-                        ActivityType.RECEIVENODENOTIFY, relation.getSource());
+                    new NodeTemplateActivity("receiveNotify_" + source.getId(),
+                        ActivityType.RECEIVENODENOTIFY, source);
                 nodeActivity.addMetadata("ConnectingRelationshipTemplate", relation);
                 activitiesToAdd.add(nodeActivity);
 
                 // connect the receive activity so that it is started before the partners infrastructure will be handled, i.e., creating instance data (without provisioning!)
 
-                AbstractNodeTemplate targetNode = relation.getTarget();
-                Collection<AbstractNodeTemplate> targetNodeHosts = Lists.newArrayList();
-                ModelUtils.getNodesFromNodeToSink(targetNode, targetNodeHosts);
+                TNodeTemplate targetNode = target;
+                Collection<TNodeTemplate> targetNodeHosts = Lists.newArrayList();
+                ModelUtils.getNodesFromNodeToSink(targetNode, targetNodeHosts, csar);
 
-                Collection<AbstractNodeTemplate> sinks = targetNodeHosts.stream().filter(x -> x.getOutgoingRelations().isEmpty()).collect(Collectors.toList());
+                Collection<TNodeTemplate> sinks = targetNodeHosts.stream().filter(x -> ModelUtils.getOutgoingRelations(x, csar).isEmpty()).collect(Collectors.toList());
 
                 // we receive before creating this relation and before the target stack of this relation
                 plan.findRelationshipTemplateActivities(relation)
@@ -131,17 +136,17 @@ public class ChoreographyBuilder {
         return newChoregraphyPlan;
     }
 
-    private Collection<AbstractRelationshipTemplate> getUnmanagedRelation(final AbstractServiceTemplate serviceTemplate) {
-        final Collection<AbstractRelationshipTemplate> unmanagedRelations = new HashSet<>();
+    private Collection<TRelationshipTemplate> getUnmanagedRelation(final TServiceTemplate serviceTemplate, Csar csar) {
+        final Collection<TRelationshipTemplate> unmanagedRelations = new HashSet<>();
 
-        final Collection<AbstractNodeTemplate> unmanAbstractNodeTemplates =
+        final Collection<TNodeTemplate> unmanTNodeTemplates =
             getUnmanagedChoreographyNodes(serviceTemplate);
 
-        for (final AbstractRelationshipTemplate relation : serviceTemplate.getTopologyTemplate()
+        for (final TRelationshipTemplate relation : serviceTemplate.getTopologyTemplate()
             .getRelationshipTemplates()) {
 
-            if (unmanAbstractNodeTemplates.contains(relation.getTarget())
-                & unmanAbstractNodeTemplates.contains(relation.getSource())) {
+            if (unmanTNodeTemplates.contains(ModelUtils.getTarget(relation, csar))
+                & unmanTNodeTemplates.contains(ModelUtils.getSource(relation, csar))) {
                 unmanagedRelations.add(relation);
             }
         }
@@ -149,27 +154,27 @@ public class ChoreographyBuilder {
         return unmanagedRelations;
     }
 
-    private Collection<AbstractRelationshipTemplate> getConnectingChoreographyRelations(final AbstractServiceTemplate serviceTemplate) {
-        final Collection<AbstractRelationshipTemplate> connectingRelations = new HashSet<>();
+    private Collection<TRelationshipTemplate> getConnectingChoreographyRelations(final TServiceTemplate serviceTemplate, Csar csar) {
+        final Collection<TRelationshipTemplate> connectingRelations = new HashSet<>();
 
-        final Collection<AbstractNodeTemplate> connectingNodes = new HashSet<>();
-        final Collection<AbstractNodeTemplate> managedConNodes = getManagedConnectingChoreographyNodes(serviceTemplate);
-        final Collection<AbstractNodeTemplate> unmanAbstractNodeTemplates =
+        final Collection<TNodeTemplate> connectingNodes = new HashSet<>();
+        final Collection<TNodeTemplate> managedConNodes = getManagedConnectingChoreographyNodes(serviceTemplate, csar);
+        final Collection<TNodeTemplate> unmanTNodeTemplates =
             getUnmanagedChoreographyNodes(serviceTemplate);
 
         connectingNodes.addAll(managedConNodes);
-        connectingNodes.addAll(unmanAbstractNodeTemplates);
+        connectingNodes.addAll(unmanTNodeTemplates);
 
-        for (final AbstractNodeTemplate connectingNode : connectingNodes) {
+        for (final TNodeTemplate connectingNode : connectingNodes) {
 
-            for (final AbstractRelationshipTemplate relation : connectingNode.getOutgoingRelations()) {
-                if (managedConNodes.contains(relation.getTarget())) {
+            for (final TRelationshipTemplate relation : ModelUtils.getOutgoingRelations(connectingNode, csar)) {
+                if (managedConNodes.contains(ModelUtils.getTarget(relation, csar))) {
                     connectingRelations.add(relation);
                 }
             }
 
-            for (final AbstractRelationshipTemplate relation : connectingNode.getIngoingRelations()) {
-                if (managedConNodes.contains(relation.getSource())) {
+            for (final TRelationshipTemplate relation : ModelUtils.getIngoingRelations(connectingNode, csar)) {
+                if (managedConNodes.contains(ModelUtils.getSource(relation, csar))) {
                     connectingRelations.add(relation);
                 }
             }
@@ -178,18 +183,18 @@ public class ChoreographyBuilder {
         return connectingRelations;
     }
 
-    private Collection<AbstractNodeTemplate> getConnectingChoreographyNodes(final AbstractServiceTemplate serviceTemplate,
-                                                                            final Collection<AbstractNodeTemplate> nodes) {
-        final Collection<AbstractNodeTemplate> connectingChoregraphyNodes = new HashSet<>();
+    private Collection<TNodeTemplate> getConnectingChoreographyNodes(final TServiceTemplate serviceTemplate,
+                                                                     final Collection<TNodeTemplate> nodes, Csar csar) {
+        final Collection<TNodeTemplate> connectingChoregraphyNodes = new HashSet<>();
 
-        for (final AbstractNodeTemplate unmanagedNode : nodes) {
-            for (final AbstractRelationshipTemplate relation : unmanagedNode.getIngoingRelations()) {
-                if (!nodes.contains(relation.getSource())) {
+        for (final TNodeTemplate unmanagedNode : nodes) {
+            for (final TRelationshipTemplate relation : ModelUtils.getIngoingRelations(unmanagedNode, csar)) {
+                if (!nodes.contains(ModelUtils.getSource(relation, csar))) {
                     connectingChoregraphyNodes.add(unmanagedNode);
                 }
             }
-            for (final AbstractRelationshipTemplate relation : unmanagedNode.getOutgoingRelations()) {
-                if (!nodes.contains(relation.getTarget())) {
+            for (final TRelationshipTemplate relation : ModelUtils.getOutgoingRelations(unmanagedNode, csar)) {
+                if (!nodes.contains(ModelUtils.getTarget(relation, csar))) {
                     connectingChoregraphyNodes.add(unmanagedNode);
                 }
             }
@@ -198,29 +203,32 @@ public class ChoreographyBuilder {
         return connectingChoregraphyNodes;
     }
 
-    private Collection<AbstractNodeTemplate> getManagedConnectingChoreographyNodes(final AbstractServiceTemplate serviceTemplate) {
-        return getConnectingChoreographyNodes(serviceTemplate, this.getManagedChoreographyNodes(serviceTemplate));
+    private Collection<TNodeTemplate> getManagedConnectingChoreographyNodes(final TServiceTemplate serviceTemplate, Csar csar) {
+        return getConnectingChoreographyNodes(serviceTemplate, this.getManagedChoreographyNodes(serviceTemplate), csar);
     }
 
-    public boolean isChoreographyPartner(final AbstractServiceTemplate serviceTemplate) {
+    public boolean isChoreographyPartner(final TServiceTemplate serviceTemplate) {
         return getChoreographyTag(serviceTemplate) != null;
     }
 
-    private String getChoreographyTag(final AbstractServiceTemplate serviceTemplate) {
-        return serviceTemplate.getTags().get("choreography");
+    private String getChoreographyTag(final TServiceTemplate serviceTemplate) {
+        if (serviceTemplate.getTags() == null) {
+            return null;
+        }
+        return serviceTemplate.getTags().stream().filter(x -> x.getName().equals("choreography")).map(x -> x.getValue()).findFirst().orElse(null);
     }
 
-    private Collection<AbstractNodeTemplate> getManagedChoreographyNodes(final AbstractServiceTemplate serviceTemplate) {
+    private Collection<TNodeTemplate> getManagedChoreographyNodes(final TServiceTemplate serviceTemplate) {
         return this.getManagedChoreographyNodes(getChoreographyTag(serviceTemplate),
             serviceTemplate.getTopologyTemplate().getNodeTemplates());
     }
 
-    private Collection<AbstractNodeTemplate> getUnmanagedChoreographyNodes(final AbstractServiceTemplate serviceTemplate) {
-        final Collection<AbstractNodeTemplate> unmanagedNodes = new HashSet<>();
-        final Collection<AbstractNodeTemplate> nodes = serviceTemplate.getTopologyTemplate().getNodeTemplates();
-        final Collection<AbstractNodeTemplate> managedNodes = this.getManagedChoreographyNodes(serviceTemplate);
+    private Collection<TNodeTemplate> getUnmanagedChoreographyNodes(final TServiceTemplate serviceTemplate) {
+        final Collection<TNodeTemplate> unmanagedNodes = new HashSet<>();
+        final Collection<TNodeTemplate> nodes = serviceTemplate.getTopologyTemplate().getNodeTemplates();
+        final Collection<TNodeTemplate> managedNodes = this.getManagedChoreographyNodes(serviceTemplate);
 
-        for (final AbstractNodeTemplate node : nodes) {
+        for (final TNodeTemplate node : nodes) {
             if (!managedNodes.contains(node)) {
                 unmanagedNodes.add(node);
             }
@@ -228,11 +236,11 @@ public class ChoreographyBuilder {
         return unmanagedNodes;
     }
 
-    private Collection<AbstractNodeTemplate> getManagedChoreographyNodes(final String choreographyTag,
-                                                                         final Collection<AbstractNodeTemplate> nodeTemplates) {
-        final Collection<AbstractNodeTemplate> choreoNodes = new HashSet<>();
+    private Collection<TNodeTemplate> getManagedChoreographyNodes(final String choreographyTag,
+                                                                  final Collection<TNodeTemplate> nodeTemplates) {
+        final Collection<TNodeTemplate> choreoNodes = new HashSet<>();
         for (final String nodeId : choreographyTag.split(",")) {
-            for (final AbstractNodeTemplate node : nodeTemplates) {
+            for (final TNodeTemplate node : nodeTemplates) {
                 if (node.getId().equals(nodeId.trim())) {
                     choreoNodes.add(node);
                 }

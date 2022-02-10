@@ -417,12 +417,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         // check whether operation has output parameters
         final boolean hasOutputParams;
         try {
-            final TInterface nodeTypeInterface = ToscaEngine.resolveInterfaceAbstract(type, neededInterface);
+            final TInterface nodeTypeInterface = ToscaEngine.resolveInterface(csar, type, neededInterface);
             final TOperation operation = ToscaEngine.resolveOperation(nodeTypeInterface, neededOperation);
             hasOutputParams = operation.getOutputParameters() != null
                 && !operation.getOutputParameters().isEmpty();
         } catch (final NotFoundException notFound) {
-            LOG.warn("Tried to invoke an unknown operation on an IA");
+            LOG.error("Tried to invoke unknown operation '{}' in interface '{}!", neededOperation, neededInterface);
             return;
         }
         message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), hasOutputParams);
@@ -660,7 +660,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     new WSDLEndpoint(endpointURI, portType, triggeringContainer, deploymentLocation, csar.id(),
                         serviceTemplateInstanceID, null, typeImplementation.getQName(), ia.getName(), new HashMap<>());
                 LOG.debug("Storing WSDLEndpoint:");
-                LOG.debug("URI = {}, portType = {}, triggeringContainer = {}, managingContainer = {}, csar = {}, serviceTemplateInstanceID = {}, planId = {}, nodeTypeImplementation = {}, iaName = {}, metadata = {}",endpointURI, portType, triggeringContainer, deploymentLocation, csar.id(),
+                LOG.debug("URI = {}, portType = {}, triggeringContainer = {}, managingContainer = {}, csar = {}, serviceTemplateInstanceID = {}, planId = {}, nodeTypeImplementation = {}, iaName = {}, metadata = {}", endpointURI, portType, triggeringContainer, deploymentLocation, csar.id(),
                     serviceTemplateInstanceID, null, typeImplementation.getQName(), ia.getName(), new HashMap<>());
                 this.endpointService.storeWSDLEndpoint(endpoint);
             }

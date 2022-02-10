@@ -26,6 +26,7 @@ import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPl
 import org.opentosca.bus.management.invocation.plugin.rest.model.ContentType;
 import org.opentosca.bus.management.invocation.plugin.rest.model.DataAssign;
 import org.opentosca.bus.management.invocation.plugin.rest.model.DataAssign.Operations.Operation;
+import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * <br>
  * <p>
  * The Plug-in gets needed information (like endpoint of the service or operation to invoke) from the Management Bus and
- * creates a HTTP message out of it. The Plug-in supports the transfer of parameters via queryString (both in the URL
+ * creates an HTTP message out of it. The Plug-in supports the transfer of parameters via queryString (both in the URL
  * and the body) and xml formatted in the body.
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
@@ -62,9 +63,7 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
     // Supported types defined in messages.properties.
     private static final String TYPES = "REST";
     // Default Values of specific content
-    private static final String PARAMS = "queryString";
-    private static final String ENDPOINT = "no";
-    private static final String CONTENTTYPE = "urlencoded";
+    private static final String CONTENT_TYPE = "urlencoded";
     private static final String METHOD = "POST";
 
     private final CamelContext camelContext;
@@ -93,7 +92,6 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
         }
 
         final Document specificContent = message.getHeader(MBHeader.SPECIFICCONTENT_DOCUMENT.toString(), Document.class);
-        final Document paramsDoc = null;
         DataAssign dataAssign = null;
         if (specificContent != null) {
             LOG.debug("Unmarshalling provided artifact specific content.");
@@ -102,11 +100,16 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
 
         final String operationName = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
         final String interfaceName = message.getHeader(MBHeader.INTERFACENAME_STRING.toString(), String.class);
-        Operation operation = null;
+        Operation operation;
         final boolean isDoc = false;
         if (dataAssign != null) {
             LOG.debug("Searching for correct operation.");
             operation = getOperation(dataAssign, operationName, interfaceName);
+            if (operation != null) {
+                LOG.debug("Found operation {}", operation.getName());
+            } else {
+                LOG.warn("Could not find operation with name {}", operationName);
+            }
         }
 
         final Map<String, Object> headers = new HashMap<>();
@@ -120,18 +123,13 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
 
         // ...as xml
         final Object body;
-        if (contentTypeParam != null && !contentTypeParam.value().equalsIgnoreCase(CONTENTTYPE)) {
-            LOG.debug("ContenttypeParam set: params into payload as {}.", contentTypeParam);
+        if (!contentTypeParam.value().equalsIgnoreCase(CONTENT_TYPE)) {
+            LOG.debug("ContentTypeParam set: params into payload as {}.", contentTypeParam);
             body = mapToJSON(paramsMap);
         } else {
             // ...as urlencoded String
             LOG.debug("Params into payload as urlencoded String.");
-            if (paramsDoc != null || paramsMap != null) {
-                final String queryString = getQueryString(paramsDoc, paramsMap);
-                body = queryString;
-            } else {
-                body = null;
-            }
+            body = mapToQueryString(paramsMap);
         }
 
         // if mocking is turned on we just fake the entire request
@@ -140,12 +138,12 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
             LOG.info("Headers:");
             LOG.info(headers.toString());
             LOG.info("Body:");
-            LOG.info(((HashMap<String, String>) params).toString());
+            LOG.info(params.toString());
             return respondViaMocking(exchange, this.storage);
         }
 
         final ProducerTemplate template = camelContext.createProducerTemplate();
-        // the dummyhost uri is ignored, so this is ugly but intended
+        // the dummy host uri is ignored, so this is ugly but intended
 
         // deployment of plan may be not finished at this point, thus, poll for successful invocation
         String responseString = null;
@@ -156,23 +154,23 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
             try {
                 responseString = template.requestBodyAndHeaders("http://dummyhost", body, headers, String.class);
             } catch (final Exception e) {
+                LOG.trace("Error while requesting body and headers.", e);
             }
             LOG.trace(responseString);
 
-            if (null != responseString) {
-                break;
-            } else if (System.currentTimeMillis() - startMillis > maxWaitTime) {
-                final String str = "Wait time exceeded, stop waiting for response of operation.";
-                LOG.error(str + "\n" + responseString);
-            } else {
-                LOG.trace("Waiting for being able to invoke Camunda BPMN plan for at most "
-                    + (maxWaitTime - System.currentTimeMillis() + startMillis) / 1000 + " seconds.");
-            }
+            if (null == responseString) {
+                if (System.currentTimeMillis() - startMillis > maxWaitTime) {
+                    LOG.error("Wait time exceeded, stop waiting for response of operation.");
+                } else {
+                    LOG.trace("Waiting for being able to invoke Camunda BPMN plan for at most "
+                        + (maxWaitTime - System.currentTimeMillis() + startMillis) / 1000 + " seconds.");
+                }
 
-            try {
-                Thread.sleep(1000);
-            } catch (final InterruptedException e) {
-                e.printStackTrace();
+                try {
+                    Thread.sleep(1000);
+                } catch (final InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         } while (null == responseString);
         LOG.info("Response of the REST call: " + responseString);
@@ -190,25 +188,8 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
         }
         final JsonObject variables = new JsonObject();
         variables.add("variables", vars);
-        LOG.debug("JSON request body: {}", variables.toString());
+        LOG.debug("JSON request body: {}", variables);
         return variables.toString();
-    }
-
-    /**
-     * Returns the created queryString.
-     *
-     * @param paramsDoc to create queryString from.
-     * @param paramsMap to create queryString from.
-     * @return created queryString
-     */
-    private String getQueryString(final Document paramsDoc, Map<String, String> paramsMap) {
-        LOG.debug("Creating queryString...");
-        if (paramsDoc != null) {
-            paramsMap = docToMap(paramsDoc);
-        }
-        final String queryString = mapToQueryString(paramsMap);
-        LOG.debug("Created queryString: {}", queryString);
-        return queryString;
     }
 
     /**
@@ -218,7 +199,7 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
      * @return the queryString.
      */
     private String mapToQueryString(final Map<String, String> params) {
-        LOG.debug("Transfering the map: {} into a queryString...", params);
+        LOG.debug("Transferring the map: {} into a queryString...", params);
         final StringBuilder query = new StringBuilder();
         for (final Entry<String, String> entry : params.entrySet()) {
             query.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
@@ -239,10 +220,9 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
      */
     private Document stringToDoc(final String string) {
         final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder;
-        Document doc = null;
+        Document doc;
         try {
-            builder = factory.newDocumentBuilder();
+            DocumentBuilder builder = factory.newDocumentBuilder();
             builder.setErrorHandler(new DefaultHandler());
             doc = builder.parse(new InputSource(new StringReader(string)));
         } catch (final Exception e) {
@@ -259,7 +239,7 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
      * @return HashMap or null if string wasn't a valid queryString.
      */
     private Map<String, String> queryStringToMap(final String queryString) {
-        LOG.debug("Transfering the queryString: {} into a HashMap...", queryString);
+        LOG.debug("Transferring the queryString: {} into a HashMap...", queryString);
         final String[] params = queryString.split("&");
         final Map<String, String> map = new HashMap<>();
         for (final String param : params) {
@@ -274,29 +254,8 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
                 return null;
             }
         }
-        LOG.debug("Transfered HashMap: {}", map.toString());
+        LOG.debug("Transferred HashMap: {}", map);
         return map;
-    }
-
-    /**
-     * Returns the http path that will be concatenated to the endpoint.
-     *
-     * @return http path.
-     */
-    private String getHttpPath(final Operation operation) {
-        final StringBuilder httpPath = new StringBuilder();
-        final String intName = operation.getInterfaceName();
-        final String opName = operation.getName();
-        if (intName != null) {
-            httpPath.append(intName);
-        }
-        if (opName != null) {
-            if (intName != null) {
-                httpPath.append("/");
-            }
-            httpPath.append(opName);
-        }
-        return httpPath.toString();
     }
 
     /**
@@ -338,8 +297,8 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
     /**
      * Transfers the document to a map.
      *
-     * @param doc to be transfered to a map.
-     * @return transfered map.
+     * @param doc to be transferred to a map.
+     * @return transferred map.
      */
     private Map<String, String> docToMap(final Document doc) {
         final Map<String, String> map = new HashMap<>();
@@ -349,14 +308,7 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
 
         for (Node node = iterator.nextNode(); node != null; node = iterator.nextNode()) {
             final String name = ((Element) node).getTagName();
-            final StringBuilder content = new StringBuilder();
-            final NodeList children = node.getChildNodes();
-            for (int i = 0; i < children.getLength(); i++) {
-                final Node child = children.item(i);
-                if (child.getNodeType() == Node.TEXT_NODE) {
-                    content.append(child.getTextContent());
-                }
-            }
+            final StringBuilder content = MBUtils.createStringFromNode(node);
             if (!content.toString().trim().isEmpty()) {
                 map.put(name, content.toString());
             }
@@ -393,13 +345,12 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
     }
 
     /**
-     * Alters the exchange with the response of the invoked service depending of the type of the body.
+     * Alters the exchange with the response of the invoked service depending on the type of the body.
      *
      * @param exchange       to be altered.
      * @param responseString containing the response of the invoked service.
      * @return exchange with response of the invokes service as body.
-     * @TODO: Response handling is a bit hacky. Should be updated sometime to determine the response type with
-     * content-type header.
+     * TODO: Response handling is a bit hacky. Should be updated sometime to determine the response type with content-type header.
      */
     private Exchange createResponseExchange(final Exchange exchange, final String responseString,
                                             final String operationName, final boolean isDoc) {
@@ -408,12 +359,12 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
 
         // response was xml
         if (responseDoc != null) {
-            LOG.debug("Reponse is xml formatted.");
+            LOG.debug("Response is xml formatted.");
             if (isDoc) {
                 LOG.debug("Returning response xml formatted..");
                 exchange.getIn().setBody(responseDoc);
             } else {
-                LOG.debug("Transfering xml response into a Hashmap...");
+                LOG.debug("Transferring xml response into a Hashmap...");
                 Map<String, String> responseMap = docToMap(responseDoc);
                 LOG.debug("Returning response as HashMap.");
                 exchange.getIn().setBody(responseMap);
@@ -422,11 +373,11 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
             // response should be queryString
             Map<String, String> responseMap = queryStringToMap(responseString);
             if (responseMap == null || responseMap.isEmpty()) {
-                LOG.debug("Response isn't neihter xml nor queryString. Returning the reponse: {} as string.",
+                LOG.debug("Response isn't neither xml nor queryString. Returning the response: {} as string.",
                     responseString);
                 exchange.getIn().setBody(responseString);
             } else if (isDoc) {
-                LOG.debug("Transfering response into xml...");
+                LOG.debug("Transferring response into xml...");
                 responseDoc = mapToDoc(operationName, responseMap);
                 exchange.getIn().setBody(responseDoc);
             } else {
@@ -461,7 +412,7 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
             LOG.warn("Couldn't unmarshall provided artifact specific content!");
             e.printStackTrace();
         }
-        LOG.debug("No unmarshallable artifact specific content provided. Using default values now.");
+        LOG.debug("No artifact specific content provided that can be marshalled. Using default values now.");
         return null;
     }
 

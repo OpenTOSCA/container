@@ -9,12 +9,14 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.container.core.model.ModelUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -25,16 +27,6 @@ import org.xml.sax.SAXException;
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  */
 public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInstanceHandler {
-
-    public class ServiceInsanceHandlingException extends RuntimeException {
-        public ServiceInsanceHandlingException(Exception e) {
-            super(e);
-        }
-
-        public ServiceInsanceHandlingException(String s) {
-            super(s);
-        }
-    }
 
     public SimplePlanBuilderServiceInstanceHandler() throws ParserConfigurationException {
         super();
@@ -300,7 +292,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
                                                                       Property2VariableMapping propMap,
                                                                       String serviceTemplateUrlVarName,
                                                                       Collection<BPELScope> scopes,
-                                                                      AbstractServiceTemplate serviceTemplate, String query) {
+                                                                      TServiceTemplate serviceTemplate, String query) {
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
@@ -400,7 +392,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
 
             final Map<String, String> propName2BpelVarNameMap = new HashMap<>();
 
-            Map<String, String> propertiesMap = templatePlan.getNodeTemplate().getProperties().asMap();
+            Map<String, String> propertiesMap = ModelUtils.asMap(templatePlan.getNodeTemplate().getProperties());
 
             for (PropertyVariable var : propMap.getNodePropertyVariables(serviceTemplate,
                 templatePlan.getNodeTemplate())) {
@@ -412,7 +404,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
             try {
                 Node assignPropertiesToVariables =
                     this.fragments.createAssignFromInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
-                        + System.currentTimeMillis(), restCallResponseVarName, propName2BpelVarNameMap, templatePlan.getNodeTemplate().getProperties().getNamespace());
+                        + System.currentTimeMillis(), restCallResponseVarName, propName2BpelVarNameMap, ModelUtils.getNamespace(templatePlan.getNodeTemplate().getProperties()));
                 assignPropertiesToVariables =
                     templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
                 plan.getBpelMainFlowElement().getParentNode().insertBefore(assignPropertiesToVariables,
@@ -427,7 +419,7 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
     public boolean appendInitPropertyVariablesFromServiceInstanceData(final BPELPlan plan,
                                                                       final Property2VariableMapping propMap,
                                                                       String serviceTemplateUrlVarName,
-                                                                      AbstractServiceTemplate serviceTemplate, String query) {
+                                                                      TServiceTemplate serviceTemplate, String query) {
         return this.appendInitPropertyVariablesFromServiceInstanceData(plan, propMap, serviceTemplateUrlVarName,
             plan.getTemplateBuildPlans(), serviceTemplate, query);
     }
@@ -651,6 +643,16 @@ public class SimplePlanBuilderServiceInstanceHandler extends AbstractServiceInst
         } catch (IOException | SAXException e) {
             e.printStackTrace();
             throw new ServiceInsanceHandlingException("Can't read xml template, couldn't generate bpel code");
+        }
+    }
+
+    public class ServiceInsanceHandlingException extends RuntimeException {
+        public ServiceInsanceHandlingException(Exception e) {
+            super(e);
+        }
+
+        public ServiceInsanceHandlingException(String s) {
+            super(s);
         }
     }
 }

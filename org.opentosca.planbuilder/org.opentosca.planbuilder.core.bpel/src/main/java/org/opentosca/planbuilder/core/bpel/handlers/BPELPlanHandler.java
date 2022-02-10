@@ -21,6 +21,7 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProcessEvents;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
@@ -32,7 +33,7 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.CDATASection;
@@ -75,23 +76,6 @@ public class BPELPlanHandler {
         this.documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
         this.bpelScopeHandler = new BPELScopeHandler();
         this.ddFactory = new ObjectFactory();
-    }
-
-    /**
-     * Returns a prefix for the given namespace if it is declared in the buildPlan
-     *
-     * @param namespace the namespace to get the prefix for
-     * @return a String containing the prefix, else null
-     */
-    public String getPrefixForNamespace(final String namespace, final BPELPlan plan) {
-        if (plan.namespaceMap.containsValue(namespace)) {
-            for (final String key : plan.namespaceMap.keySet()) {
-                if (plan.namespaceMap.get(key).equals(namespace)) {
-                    return key;
-                }
-            }
-        }
-        return null;
     }
 
     public Node importNode(final BPELPlan plan, final Node node) {
@@ -250,18 +234,6 @@ public class BPELPlanHandler {
     }
 
     /**
-     * Adds an integer variable to the given plan on the global level
-     *
-     * @param name a name for the variable (no duplicate check)
-     * @param plan the plan to add the variable to
-     * @return true iff adding the variable was successful
-     */
-    public boolean addIntegerVariable(final String name, final BPELPlan plan) {
-        return addVariable(name, BPELPlan.VariableType.TYPE,
-            new QName("http://www.w3.org/2001/XMLSchema", "integer", "xsd"), plan);
-    }
-
-    /**
      * Adds an invoke element to the deployment deskriptor of the given BuildPlan
      *
      * @param partnerLinkName the name of the partnerLink the invoke will use
@@ -384,23 +356,6 @@ public class BPELPlanHandler {
     }
 
     /**
-     * Adds a partnerLinkType which only has one portType (e.g. syncronous)
-     *
-     * @param partnerLinkTypeName the name for the partnerLinkType
-     * @param roleName            the roleName of the Process
-     * @param portType            the PortType used in the PartnerLink
-     * @param buildPlan           the BuildPlan to add the PartnerLinkType to
-     * @return true if adding partnerLink was successful, else false
-     */
-    public boolean addPartnerLinkType(final String partnerLinkTypeName, final String roleName, final QName portType,
-                                      final BPELPlan buildPlan) {
-        BPELPlanHandler.LOG.debug("Trying to add partnerLinkType {} with roleName {} and portType {} to BuildPlan {}",
-            partnerLinkTypeName, roleName, portType.toString(),
-            buildPlan.getBpelProcessElement().getAttribute("name"));
-        return buildPlan.getWsdl().addPartnerLinkType(partnerLinkTypeName, roleName, portType);
-    }
-
-    /**
      * Adds a partnerLinkType which has to PortType (e.g. asynchronous callback)
      *
      * @param partnerLinkTypeName the name for the partnerLinkType
@@ -424,7 +379,7 @@ public class BPELPlanHandler {
      *
      * @param variableName String containing a name
      * @param initVal      the value for the variable, if null the value will be empty
-     * @param plan the plan to add the variable to
+     * @param plan         the plan to add the variable to
      * @return a TemplatePropWrapper containing the generated Id for the variable
      */
     public Variable createGlobalStringVariable(final String variableName, final String initVal, BPELPlan plan) {
@@ -669,16 +624,10 @@ public class BPELPlanHandler {
         return true;
     }
 
-    /**
-     * Creates a Plan with an empty skeleton for the given ServiceTemplate
-     *
-     * @param serviceTemplate the ServiceTemplate to generate a Plan Skeleton for
-     * @return an empty Plan Skeleton
-     */
     public BPELPlan createEmptyBPELPlan(final String processNamespace, final String processName,
                                         final AbstractPlan abstractPlan, final String inputOperationName) {
         BPELPlanHandler.LOG.debug("Creating BuildPlan for ServiceTemplate {}",
-            abstractPlan.getServiceTemplate().getQName().toString());
+            abstractPlan.getServiceTemplate().getId());
 
         final BPELPlan buildPlan =
             new BPELPlan(abstractPlan.getId(), abstractPlan.getType(), abstractPlan.getDefinitions(),
@@ -847,22 +796,6 @@ public class BPELPlanHandler {
     }
 
     /**
-     * Returns all TemplateBuildPlans of the given BuildPlan which handle RelationshipTemplates
-     *
-     * @param buildPlan the BuildPlan to get the TemplateBuildPlans from
-     * @return a List of TemplateBuildPlans which handle RelationshipTemplates
-     */
-    public List<BPELScope> getRelationshipTemplatePlans(final BPELPlan buildPlan) {
-        final List<BPELScope> relationshipPlans = new ArrayList<>();
-        for (final BPELScope template : buildPlan.getTemplateBuildPlans()) {
-            if (this.bpelScopeHandler.isRelationshipTemplatePlan(template)) {
-                relationshipPlans.add(template);
-            }
-        }
-        return relationshipPlans;
-    }
-
-    /**
      * Returns a TemplateBuildPlan which handles the Template with the given id
      *
      * @param id        the id of template inside a TopologyTemplate
@@ -985,8 +918,8 @@ public class BPELPlanHandler {
         return ModelUtils.hasChildElementWithAttribute(buildPlan.getBpelProcessVariablesElement(), "name", name);
     }
 
-    public void initializeBPELSkeleton(final BPELPlan plan, final String csarName) {
-        plan.setCsarName(csarName);
+    public void initializeBPELSkeleton(final BPELPlan plan, final Csar csar) {
+        plan.setCsarName(csar.id().csarName());
 
         final Map<AbstractActivity, BPELScope> abstract2bpelMap = new HashMap<>();
 
@@ -1057,39 +990,8 @@ public class BPELPlanHandler {
         }
     }
 
-    /**
-     * adds the given BPEL XML to the main fault handler as a catch with the given faultName, if faultName is null
-     * append it to the main catchAll
-     *
-     * @param bpelToAppend bpel xml as DOM Element
-     * @param faultName    a QName for the fault the catch block is working with
-     * @return true iff adding the code was successful
-     */
-    public boolean appendToMainFaultHandler(Element bpelToAppend, QName faultName, BPELPlan plan) {
-
-        Element catchElement;
-
-        if (faultName != null) {
-            QName registeredQName = this.importNamespace(faultName, plan);
-            catchElement = plan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "catch");
-            catchElement.setAttribute("faultName", registeredQName.getPrefix() + ":" + registeredQName.getLocalPart());
-            plan.getBpelFaultHandlersElement().appendChild(catchElement);
-        } else {
-            catchElement = this.getMainCatchAllFaultHandlerSequenceElement(plan);
-        }
-
-        Node importedNode = plan.getBpelDocument().importNode(bpelToAppend, true);
-        catchElement.appendChild(importedNode);
-
-        return true;
-    }
-
     public Element getMainCatchAllFaultHandlerSequenceElement(BPELPlan plan) {
         return (Element) plan.getBpelFaultHandlersElement().getElementsByTagName("catchAll").item(0).getFirstChild();
-    }
-
-    public boolean assignInitValueToVariable(Variable var, String value, BPELPlan plan) {
-        return assignInitValueToVariable(var.getVariableName(), value, plan);
     }
 
     /**
@@ -1204,32 +1106,6 @@ public class BPELPlanHandler {
     }
 
     /**
-     * Checks whether the variable given by name is initialized at the beginning of the plan
-     *
-     * @param variableName the name of the variable to check for
-     * @param buildPlan    the BuildPlan to check in
-     * @return true if there is a copy element inside the main assign element of the given BuildPlan
-     */
-    public boolean isVariableInitialized(final String variableName, final BPELPlan buildPlan) {
-        final Element propertyAssignElement = buildPlan.getBpelMainSequencePropertyAssignElement();
-        // get all copy elements
-        for (int i = 0; i < propertyAssignElement.getChildNodes().getLength(); i++) {
-            if (propertyAssignElement.getChildNodes().item(i).getLocalName().equals("copy")) {
-                final Node copyElement = propertyAssignElement.getChildNodes().item(i);
-                for (int j = 0; j < copyElement.getChildNodes().getLength(); j++) {
-                    if (copyElement.getChildNodes().item(j).getLocalName().equals("to")) {
-                        final Node toElement = copyElement.getChildNodes().item(j);
-                        if (toElement.getAttributes().getNamedItem("variable").getNodeValue().equals(variableName)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
      * Registers an extension in the given BuildPlan
      *
      * @param namespace      the namespace of the extension
@@ -1310,8 +1186,8 @@ public class BPELPlanHandler {
     /**
      * Imports the given QName Namespace into the BuildPlan
      *
-     * @param qname           a QName to import
-     * @param plan the plan to import namespace in
+     * @param qname a QName to import
+     * @param plan  the plan to import namespace in
      * @return the QName with set prefix
      */
     public QName importNamespace(final QName qname, final BPELPlan plan) {

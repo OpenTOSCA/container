@@ -1,21 +1,26 @@
 package org.opentosca.bus.management.utils;
 
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
@@ -28,11 +33,11 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Properties;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
@@ -85,7 +90,7 @@ public class MBUtils {
                 continue;
             }
             final TNodeType currentNodeType = ToscaEngine.resolveNodeType(csar, current);
-            if (isOperatingSystemNodeType(currentNodeType)) {
+            if (isOperatingSystemNodeType(csar, currentNodeType)) {
                 // just return the first result if we don't need to check for a node instance
                 if (!mustHaveNodeInstance) {
                     return current;
@@ -95,7 +100,7 @@ public class MBUtils {
             }
             // nodeType was not an OS node type, therefore traverse the Graph "downwards"
             ToscaEngine.getRelatedNodeTemplates(serviceTemplate, current,
-                Types.hostedOnRelationType, Types.deployedOnRelationType, Types.dependsOnRelationType)
+                    Types.hostedOnRelationType, Types.deployedOnRelationType, Types.dependsOnRelationType)
                 // avoid cycles in the graph
                 .filter(t -> !traversedTemplates.contains(t))
                 .forEach(nodeTemplateGraph::add);
@@ -122,12 +127,12 @@ public class MBUtils {
         }
         LOG.debug("Found instanceRef Property with value: {}", propMap.get(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF));
         /*
-         * values are sent from fontend delimited by "," in the following format:
+         * values are sent from frontend delimited by "," in the following format:
          * service-template-instance-id,node-template-id
          */
         final String[] values = propMap.get(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF).split(",");
         if (values.length != 2) {
-            LOG.warn("input format for instanceref was incorrect. Received value {}", values);
+            LOG.warn("input format for instance reference was incorrect. Received value {}", String.join(", ", values));
             // to avoid messing this up
             return nodeTemplateInstance;
         }
@@ -141,34 +146,33 @@ public class MBUtils {
     /**
      * Checks if the specified NodeType is the OperatingSystem NodeType.
      *
-     * @return true if the specified NodeType is one of the OperatingSystem NodeTypes. Otherwise false.
+     * @return true if the specified NodeType is one of the OperatingSystem NodeTypes. Otherwise, false.
      */
-    private static boolean isOperatingSystemNodeType(final TNodeType nodeType) {
+    private static boolean isOperatingSystemNodeType(Csar csar, final TNodeType nodeType) {
         if (nodeType.getInterfaces() == null) {
             return false;
         }
-        List<TInterface> exposedInterfaces = nodeType.getInterfaces();
-        boolean isOs = exposedInterfaces.stream()
-            .filter(tInterface -> Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM.equals(tInterface.getName()))
-            .anyMatch(os -> doesInterfaceContainOperation(os, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
-                && doesInterfaceContainOperation(os, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE));
-        boolean isDocker = exposedInterfaces.stream()
-            .filter(tInterface -> Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER.equals(tInterface.getName()))
-            .anyMatch(os -> doesInterfaceContainOperation(os, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
-                && doesInterfaceContainOperation(os, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE));
+
+        TInterface interfaceOfNodeType = ModelUtils.getInterfaceOfNodeType(csar, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM);
+        boolean isOs = interfaceOfNodeType != null
+            && doesInterfaceContainOperation(interfaceOfNodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
+            && doesInterfaceContainOperation(interfaceOfNodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE);
+
+        interfaceOfNodeType = ModelUtils.getInterfaceOfNodeType(csar, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER);
+        boolean isDocker = interfaceOfNodeType != null
+            && doesInterfaceContainOperation(interfaceOfNodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
+            && doesInterfaceContainOperation(interfaceOfNodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE);
+
         return isOs || isDocker;
     }
 
-    private static boolean doesInterfaceContainOperation(TNodeType nodeType, String interfaceName, String operationName) {
-        try {
-            return doesInterfaceContainOperation(ToscaEngine.resolveInterface(nodeType, interfaceName), operationName);
-        } catch (NotFoundException e) {
-            return false;
-        }
+    private static boolean doesInterfaceContainOperation(Csar csar, TNodeType nodeType, String interfaceName, String operationName) {
+        TInterface tInterface = ToscaEngine.resolveInterface(csar, nodeType, interfaceName);
+        return tInterface != null && doesInterfaceContainOperation(tInterface, operationName);
     }
 
     private static boolean doesInterfaceContainOperation(TInterface tInterface, String operationName) {
-        return tInterface.getOperations().stream().anyMatch(op -> operationName.equals(op.getName()));
+        return tInterface.getOperations().stream().anyMatch(op -> operationName.equalsIgnoreCase(op.getName()));
     }
 
     /**
@@ -178,12 +182,12 @@ public class MBUtils {
      * @return a String containing the name of the OS interface, or if the given Node Type is not an OS Node Type null
      */
     @Nullable
-    public static String getInterfaceForOperatingSystemNodeType(final TNodeType nodeType) {
-        if (doesInterfaceContainOperation(nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
-            && doesInterfaceContainOperation(nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
+    public static String getInterfaceForOperatingSystemNodeType(Csar csar, final TNodeType nodeType) {
+        if (doesInterfaceContainOperation(csar, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
+            && doesInterfaceContainOperation(csar, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
             return Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM;
-        } else if (doesInterfaceContainOperation(nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
-            && doesInterfaceContainOperation(nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE)) {
+        } else if (doesInterfaceContainOperation(csar, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
+            && doesInterfaceContainOperation(csar, nodeType, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE)) {
             return Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER;
         }
         return null;
@@ -328,7 +332,7 @@ public class MBUtils {
 
         Optional<NodeTemplateInstance> nextNode = getConnectedNodeTemplateInstance(currentNode, Types.hostedOnRelationType);
 
-        if (!nextNode.isPresent()) {
+        if (nextNode.isEmpty()) {
             nextNode = getConnectedNodeTemplateInstance(currentNode, Types.deployedOnRelationType);
         }
 
@@ -384,9 +388,14 @@ public class MBUtils {
         }
     }
 
-    public static QName findPlanByOperation(Csar csar, String ifaceName, String opName) {
-        TExportedOperation op = csar.entryServiceTemplate().getBoundaryDefinitions().getInterfaces().stream().filter(iface -> iface.getName().equals(ifaceName)).collect(Collectors.toList())
-            .stream().flatMap(iface -> iface.getOperation().stream()).filter(ope -> ope.getName().equals(opName)).findFirst().orElse(null);
+    @Nullable
+    public static QName findPlanByOperation(Csar csar, String interfaceName, String opName) {
+        TExportedOperation op = csar.entryServiceTemplate().getBoundaryDefinitions().getInterfaces().stream()
+            .filter(anInterface -> anInterface.getName().equals(interfaceName))
+            .flatMap(anInterface -> anInterface.getOperation().stream())
+            .filter(ope -> ope.getName().equals(opName))
+            .findFirst()
+            .orElse(null);
         if (op != null) {
             return new QName(csar.entryServiceTemplate().getTargetNamespace(), ((TPlan) op.getPlan().getPlanRef()).getId());
         }
@@ -397,11 +406,11 @@ public class MBUtils {
     /**
      * Transfers the properties document to a map.
      *
-     * @param propertiesDocument to be transfered to a map.
-     * @return transfered map.
+     * @param propertiesDocument to be transferred to a map.
+     * @return transferred map.
      */
     public static HashMap<String, String> docToMap(final Document propertiesDocument, final boolean allowEmptyEntries) {
-        final HashMap<String, String> reponseMap = new HashMap<>();
+        final HashMap<String, String> responseMap = new HashMap<>();
 
         final DocumentTraversal traversal = (DocumentTraversal) propertiesDocument;
         final NodeIterator iterator =
@@ -410,25 +419,30 @@ public class MBUtils {
         for (Node node = iterator.nextNode(); node != null; node = iterator.nextNode()) {
 
             final String name = node.getLocalName();
-            final StringBuilder content = new StringBuilder();
-            final NodeList children = node.getChildNodes();
-            for (int i = 0; i < children.getLength(); i++) {
-                final Node child = children.item(i);
-                if (child.getNodeType() == Node.TEXT_NODE) {
-                    content.append(child.getTextContent());
-                }
-            }
+            final StringBuilder content = createStringFromNode(node);
 
             if (allowEmptyEntries) {
-                reponseMap.put(name, content.toString());
+                responseMap.put(name, content.toString());
             } else {
                 if (!content.toString().trim().isEmpty()) {
-                    reponseMap.put(name, content.toString());
+                    responseMap.put(name, content.toString());
                 }
             }
         }
 
-        return reponseMap;
+        return responseMap;
+    }
+
+    public static StringBuilder createStringFromNode(Node node) {
+        final StringBuilder content = new StringBuilder();
+        final NodeList children = node.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            final Node child = children.item(i);
+            if (child.getNodeType() == Node.TEXT_NODE) {
+                content.append(child.getTextContent());
+            }
+        }
+        return content;
     }
 
     /**
@@ -436,32 +450,53 @@ public class MBUtils {
      *
      * @return the created Document.
      */
+    @Nullable
     public static Document mapToDoc(final String rootElementNamespaceURI, final String rootElementName,
                                     final HashMap<String, String> paramsMap) {
         LOG.debug("Mapping to doc for element {} and namespace {}.", rootElementName, rootElementNamespaceURI);
         Document document;
 
         final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = null;
+        DocumentBuilder documentBuilder;
         try {
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            document = documentBuilder.newDocument();
+
+            final Element rootElement = document.createElementNS(rootElementNamespaceURI, rootElementName);
+            document.appendChild(rootElement);
+
+            Element mapElement;
+            for (final Entry<String, String> entry : paramsMap.entrySet()) {
+                mapElement = document.createElement(entry.getKey());
+                mapElement.setTextContent(entry.getValue());
+                rootElement.appendChild(mapElement);
+            }
+
+            return document;
         } catch (final ParserConfigurationException e) {
-            LOG.error("Some error occured.");
-            e.printStackTrace();
+            LOG.error("Some error occurred.", e);
         }
 
-        document = documentBuilder.newDocument();
+        return null;
+    }
 
-        final Element rootElement = document.createElementNS(rootElementNamespaceURI, rootElementName);
-        document.appendChild(rootElement);
-
-        Element mapElement;
-        for (final Entry<String, String> entry : paramsMap.entrySet()) {
-            mapElement = document.createElement(entry.getKey());
-            mapElement.setTextContent(entry.getValue());
-            rootElement.appendChild(mapElement);
+    /**
+     * Transform the given XML Document to a String
+     *
+     * @param document the document to transform
+     * @return the transformed document as String
+     */
+    public static String docToString(Document document) {
+        try {
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer transformer = tf.newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            StringWriter writer = new StringWriter();
+            transformer.transform(new DOMSource(document), new StreamResult(writer));
+            return writer.getBuffer().toString();
+        } catch (TransformerException e) {
+            LOG.error("Failed to transform document to string:", e);
+            return null;
         }
-
-        return document;
     }
 }

@@ -2,6 +2,7 @@ package org.opentosca.container.api.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -18,6 +19,7 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -25,7 +27,6 @@ import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
@@ -193,24 +194,11 @@ public class CsarController {
         return handleCsarUpload(file.getFileName(), is, applyEnrichment);
     }
 
-    private String extractFileName(MultivaluedMap<String, String> headers) {
-        String[] contentDispostion = headers.getFirst("Content-Disposition").split("\\s*;\\s*");
-        for (String kvPair : contentDispostion) {
-            if (kvPair.startsWith("filename")) {
-                String[] name = kvPair.split("=");
-                String quoted = name[1].trim();
-                // drops the surrounding quotes
-                return quoted.substring(1, quoted.length() - 1);
-            }
-        }
-        return null;
-    }
-
     @POST
     @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Handles an upload request for a CSAR file")
-    public Response uploadCsar(@ApiParam(required = true) final CsarUploadRequest request) {
+    public Response uploadCsar(@ApiParam(required = true) final CsarUploadRequest request, @HeaderParam("Authorization") String authorizationString) {
         logger.debug("Invoking uploadCsar");
         if (request == null) {
             return Response.status(Status.BAD_REQUEST).build();
@@ -226,8 +214,14 @@ public class CsarController {
 
         try {
             final URL url = new URL(request.getUrl());
+            HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
 
-            return handleCsarUpload(filename, url.openStream(), request.getEnrich());
+            if (authorizationString != null && !authorizationString.isEmpty()) {
+                httpConnection.setRequestProperty("Authorization", authorizationString);
+                httpConnection.setRequestProperty("Accept", "*");
+            }
+
+            return handleCsarUpload(filename, httpConnection.getInputStream(), request.getEnrich());
         } catch (final Exception e) {
             logger.error("Error uploading CSAR: {}", e.getMessage(), e);
             return Response.serverError().build();
@@ -244,7 +238,7 @@ public class CsarController {
         WineryConnector wc = new WineryConnector();
         doApplyEnrichment(wc, tempFile, applyEnrichment);
 
-        CsarId csarId = null;
+        CsarId csarId;
         try {
             csarId = storage.storeCSAR(tempFile);
         } catch (UserException e) {
@@ -386,8 +380,10 @@ public class CsarController {
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response transformCsar(@ApiParam(required = true) final CsarTransformRequest request) {
         logger.debug("Invoking transform Csar");
-        final CsarId sourceCsar = new CsarId(request.getSourceCsarName());
-        final CsarId targetCsar = new CsarId(request.getTargetCsarName());
+        final CsarId sourceCsarId = new CsarId(request.getSourceCsarName());
+        Csar sourceCsar = this.storage.findById(sourceCsarId);
+        final CsarId targetCsarId = new CsarId(request.getTargetCsarName());
+        Csar targetCsar = this.storage.findById(targetCsarId);
 
         Collection<AbstractPlan> plansGenerated = this.csarService.generateTransformationPlans(sourceCsar, targetCsar);
         AbstractPlan planGenerated;
@@ -398,9 +394,9 @@ public class CsarController {
             planGenerated = plansGenerated.iterator().next();
         }
 
-        Csar storedCsar = storage.findById(sourceCsar);
+        Csar storedCsar = storage.findById(sourceCsarId);
 
-        List<TPlan> plans = this.storage.findById(sourceCsar).entryServiceTemplate().getPlans();
+        List<TPlan> plans = this.storage.findById(sourceCsarId).entryServiceTemplate().getPlans();
         TPlan plan = null;
 
         for (TPlan tPlan : plans) {
@@ -414,7 +410,7 @@ public class CsarController {
             return Response.serverError().entity("Couldn't generate transformation plan").build();
         }
 
-        this.controlService.invokePlanDeployment(sourceCsar, storedCsar.entryServiceTemplate(), plans, plan);
+        this.controlService.invokePlanDeployment(sourceCsarId, storedCsar.entryServiceTemplate(), plans, plan);
 
         PlanType[] planTypes = {PlanType.TRANSFORMATION};
         return Response.ok(this.planService.getPlanDto(storedCsar, planTypes, plan.getId())).build();

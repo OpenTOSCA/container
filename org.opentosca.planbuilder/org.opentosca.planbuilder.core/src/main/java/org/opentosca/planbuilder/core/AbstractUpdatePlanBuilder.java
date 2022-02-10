@@ -7,12 +7,21 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.model.tosca.TTopologyTemplate;
+
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.ModelUtils;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
@@ -21,12 +30,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilder {
 
@@ -37,24 +40,19 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
         super(pluginRegistry);
     }
 
-    @Override
-    public PlanType createdPlanType() {
-        return PlanType.MANAGEMENT;
-    }
-
-    protected AbstractPlan generateUOG(final String id, final AbstractDefinitions definitions,
-                                       final AbstractServiceTemplate serviceTemplate) {
+    protected AbstractPlan generateUOG(final String id, final TDefinitions definitions,
+                                       final TServiceTemplate serviceTemplate, Csar csar) {
 
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
-        final Map<AbstractNodeTemplate, AbstractActivity> mappingStop = new HashMap<>();
-        final Map<AbstractNodeTemplate, AbstractActivity> mappingStart = new HashMap<>();
+        final Map<TNodeTemplate, AbstractActivity> mappingStop = new HashMap<>();
+        final Map<TNodeTemplate, AbstractActivity> mappingStart = new HashMap<>();
 
-        final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
+        final TTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
 
         // Get all node templates which are sources only --> that don't
-        for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
-            if (hasUpdatableAncestor(topology.getRelationshipTemplates(), nodeTemplate)) {
+        for (final TNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
+            if (hasUpdatableAncestor(topology.getRelationshipTemplates(), nodeTemplate, csar)) {
                 // node has updatable ancestors.
                 // Needs to be stopped in stopping phase and restarted in starting phase.
 
@@ -81,7 +79,7 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
                 } else {
                     throw new RuntimeException("Policy expected, behavior not implemented");
                 }
-            } else if (isUpdatableComponent(nodeTemplate)) {
+            } else if (isUpdatableComponent(nodeTemplate, csar)) {
                 // Bottommost updatable node.
                 // No stopping needed. Run update in starting phase.
 
@@ -114,7 +112,7 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
             }
         }
 
-        for (final AbstractRelationshipTemplate relationshipTemplate : topology.getRelationshipTemplates()) {
+        for (final TRelationshipTemplate relationshipTemplate : topology.getRelationshipTemplates()) {
 
             final RelationshipTemplateActivity activityStop = new RelationshipTemplateActivity(
                 relationshipTemplate.getId() + "_termination_activity", ActivityType.TERMINATION, relationshipTemplate);
@@ -124,31 +122,36 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
                 relationshipTemplate.getId() + "_update_activity", ActivityType.PROVISIONING, relationshipTemplate);
             activities.add(activityStart);
 
-            final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate);
+            final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate, csar);
+
+            TNodeTemplate source = ModelUtils.getSource(relationshipTemplate, csar);
+            TNodeTemplate target = ModelUtils.getTarget(relationshipTemplate, csar);
 
             if (baseType.equals(Types.connectsToRelationType)) {
 
-                links.add(new Link(activityStop, mappingStop.get(relationshipTemplate.getSource())));
-                links.add(new Link(activityStop, mappingStop.get(relationshipTemplate.getTarget())));
+                links.add(new Link(activityStop, mappingStop.get(source)));
+                links.add(new Link(activityStop, mappingStop.get(target)));
 
-                links.add(new Link(mappingStart.get(relationshipTemplate.getSource()), activityStart));
-                links.add(new Link(mappingStart.get(relationshipTemplate.getTarget()), activityStart));
+                links.add(new Link(mappingStart.get(source), activityStart));
+                links.add(new Link(mappingStart.get(target), activityStart));
             } else if (baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
                 | baseType.equals(Types.deployedOnRelationType)) {
-                links.add(new Link(mappingStop.get(relationshipTemplate.getSource()), activityStop));
-                links.add(new Link(activityStop, mappingStop.get(relationshipTemplate.getTarget())));
+                links.add(new Link(mappingStop.get(source), activityStop));
+                links.add(new Link(activityStop, mappingStop.get(target)));
 
-                links.add(new Link(activityStart, mappingStart.get(relationshipTemplate.getSource())));
-                links.add(new Link(mappingStart.get(relationshipTemplate.getTarget()), activityStart));
+                links.add(new Link(activityStart, mappingStart.get(source)));
+                links.add(new Link(mappingStart.get(target), activityStart));
             }
         }
 
         final Collection<AbstractActivity> sinksStart = new HashSet<>();
         final Collection<AbstractActivity> sinksStop = new HashSet<>();
-        for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
+        for (final TNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
             boolean isSink = true;
-            for (final AbstractRelationshipTemplate relationshipTemplate : topology.getRelationshipTemplates()) {
-                if (relationshipTemplate.getSource().equals(nodeTemplate)) {
+            for (final TRelationshipTemplate relationshipTemplate : topology.getRelationshipTemplates()) {
+                TNodeTemplate source = ModelUtils.getSource(relationshipTemplate, csar);
+
+                if (source.equals(nodeTemplate)) {
                     isSink = false;
                     break;
                 }
@@ -170,38 +173,38 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
         };
     }
 
-    protected boolean isUpdatableComponent(final AbstractNodeTemplate nodeTemplate) {
-        return nodeTemplate.getType().getInterfaces().stream()
-            .anyMatch(abstractInterface -> abstractInterface.getName().equalsIgnoreCase("UpdateManagementInterface"));
+    protected boolean isUpdatableComponent(final TNodeTemplate nodeTemplate, Csar csar) {
+        return ModelUtils.hasInterface(nodeTemplate, "UpdateManagementInterface", csar);
     }
 
-    protected boolean hasUpdatableAncestor(final List<AbstractRelationshipTemplate> relationshipTemplates, final AbstractNodeTemplate nodeTemplate) {
-        Queue<AbstractNodeTemplate> ancestorQueue = new LinkedList<>();
+    protected boolean hasUpdatableAncestor(final List<TRelationshipTemplate> relationshipTemplates, final TNodeTemplate nodeTemplate, Csar csar) {
+        Queue<TNodeTemplate> ancestorQueue = new LinkedList<>();
         ancestorQueue.add(nodeTemplate);
         while (!ancestorQueue.isEmpty()) {
-            AbstractNodeTemplate ancestor = ancestorQueue.remove();
-            if ((!ancestor.equals(nodeTemplate)) && isUpdatableComponent(ancestor)) return true;
-            for (AbstractRelationshipTemplate relation : relationshipTemplates) {
-                final QName baseType = ModelUtils.getRelationshipBaseType(relation);
+            TNodeTemplate ancestor = ancestorQueue.remove();
+            if ((!ancestor.equals(nodeTemplate)) && isUpdatableComponent(ancestor, csar)) return true;
+            for (TRelationshipTemplate relation : relationshipTemplates) {
+                final QName baseType = ModelUtils.getRelationshipBaseType(relation, csar);
                 if ((baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
-                    | baseType.equals(Types.deployedOnRelationType)) && relation.getSource().equals(ancestor)) {
-                    ancestorQueue.add(relation.getTarget());
+                    | baseType.equals(Types.deployedOnRelationType)) && ModelUtils.getSource(relation, csar).equals(ancestor)) {
+                    ancestorQueue.add(ModelUtils.getTarget(relation, csar));
                 }
             }
         }
         return false;
     }
 
-    protected boolean hasStatefulComponentPolicy(final AbstractNodeTemplate nodeTemplate) {
+    protected boolean hasStatefulComponentPolicy(final TNodeTemplate nodeTemplate) {
         return hasPolicy(nodeTemplate, this.statefulComponentPolicy);
     }
 
-    protected boolean hasFreezableComponentPolicy(final AbstractNodeTemplate nodeTemplate) {
+    protected boolean hasFreezableComponentPolicy(final TNodeTemplate nodeTemplate) {
         return hasPolicy(nodeTemplate, this.freezableComponentPolicy);
     }
 
-    private boolean hasPolicy(final AbstractNodeTemplate nodeTemplate, final QName policyType) {
-        return nodeTemplate.getPolicies().stream()
-            .anyMatch(policy -> policy.getType().getId().equals(policyType));
+    private boolean hasPolicy(final TNodeTemplate nodeTemplate, final QName policyType) {
+        return Optional.ofNullable(nodeTemplate.getPolicies()).stream()
+            .flatMap(Collection::stream)
+            .anyMatch(policy -> policy.getPolicyType().equals(policyType));
     }
 }

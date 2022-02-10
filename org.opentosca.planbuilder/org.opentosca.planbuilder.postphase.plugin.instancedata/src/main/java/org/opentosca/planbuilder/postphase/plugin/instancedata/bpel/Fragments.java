@@ -14,6 +14,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.common.file.ResourceAccess;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -46,40 +47,66 @@ public class Fragments {
     }
 
     /**
-     * Creates a BPEL4RESTLight DELETE Activity with the given BPELVar as Url to request on.
+     * Creates a BPEL assign activity that reads the property values from a NodeInstance Property response and sets the
+     * given variables
      *
-     * @param bpelVarName the variable containing an URL
-     * @param responseVarName the variable to hold the response
-     * @return a String containing a BPEL4RESTLight Activity
-     * @throws IOException is thrown when reading internal files fails
+     * @param assignName                          the name of the assign activity
+     * @param nodeInstancePropertyResponseVarName the name of the variable holding the property data
+     * @param propElement2BpelVarNameMap          a Map from DOM Elements (representing Node Properties) to BPEL
+     *                                            variable names
+     * @return a Node containing a BPEL assign activity
+     * @throws IOException  is thrown when reading internal files fail
+     * @throws SAXException is thrown when parsing internal files fail
      */
-    public String createRESTDeleteOnURLBPELVarAsString(final String bpelVarName,
-                                                       final String responseVarName) throws IOException {
-        final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPEL4RESTLightDELETE.xml");
-        // <!-- $urlVarName, $ResponseVarName -->
-        String template = ResourceAccess.readResourceAsString(url);
-        template = template.replace("$urlVarName", bpelVarName);
-        template = template.replace("$ResponseVarName", responseVarName);
+    public Node createAssignFromInstancePropertyToBPELVariableAsNode(final String assignName,
+                                                                     final String nodeInstancePropertyResponseVarName,
+                                                                     final Map<String, String> propElement2BpelVarNameMap, String namespace) throws IOException,
+        SAXException {
+        final String templateString =
+            createAssignFromInstancePropertyToBPELVariableAsString(assignName, nodeInstancePropertyResponseVarName,
+                propElement2BpelVarNameMap, namespace);
+        return this.transformStringToNode(templateString);
+    }
 
-        return template;
+    public Node transformStringToNode(String xmlString) throws SAXException, IOException {
+        final InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(xmlString));
+        final Document doc = this.docBuilder.parse(is);
+        return doc.getFirstChild();
     }
 
     /**
-     * Creates a BPEL4RESTLight DELETE Activity with the given BPELVar as Url to request on.
+     * Creates a BPEL assign activity that reads the property values from a NodeInstance Property response and sets the
+     * given variables
      *
-     * @param bpelVarName the variable containing an URL
-     * @param responseVarName the variable to hold the response
-     * @return a String containing a BPEL4RESTLight Activity
-     * @throws IOException is thrown when reading internal files fails
-     * @throws SAXException is thrown when parsing internal files fails
+     * @param assignName                          the name of the assign activity
+     * @param nodeInstancePropertyResponseVarName the name of the variable holding the property data
+     * @param propElement2BpelVarNameMap          a Map from DOM Elements (representing Node Properties) to BPEL
+     *                                            variable names
+     * @return a String containing a BPEL assign activity
+     * @throws IOException is thrown when reading internal files fail
      */
-    public Node createRESTDeleteOnURLBPELVarAsNode(final String bpelVarName,
-                                                   final String responseVarName) throws IOException, SAXException {
-        final String templateString = createRESTDeleteOnURLBPELVarAsString(bpelVarName, responseVarName);
-        final InputSource is = new InputSource();
-        is.setCharacterStream(new StringReader(templateString));
-        final Document doc = this.docBuilder.parse(is);
-        return doc.getFirstChild();
+    public String createAssignFromInstancePropertyToBPELVariableAsString(final String assignName,
+                                                                         final String nodeInstancePropertyResponseVarName,
+                                                                         final Map<String, String> propElement2BpelVarNameMap, String namespace) throws IOException {
+        final String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("core-bpel/BpelCopyFromPropertyVarToNodeInstanceProperty.xml"));
+
+        StringBuilder assignString =
+            new StringBuilder("<bpel:assign name=\"" + assignName + "\" xmlns:bpel=\"" + BPELPlan.bpelNamespace + "\" >");
+
+        // <!-- $PropertyVarName, $NodeInstancePropertyRequestVarName,
+        // $NodeInstancePropertyLocalName, $NodeInstancePropertyNamespace -->
+        for (final String propElement : propElement2BpelVarNameMap.keySet()) {
+            String copyString = template.replace("$PropertyVarName", propElement2BpelVarNameMap.get(propElement));
+            copyString = copyString.replace("$NodeInstancePropertyRequestVarName", nodeInstancePropertyResponseVarName);
+            copyString = copyString.replace("$NodeInstancePropertyLocalName", propElement);
+            copyString = copyString.replace("$NodeInstancePropertyNamespace", namespace);
+            assignString.append(copyString);
+        }
+
+        assignString.append("</bpel:assign>");
+
+        return assignString.toString();
     }
 
     /**
@@ -242,70 +269,6 @@ public class Fragments {
         return bpel4RestString;
     }
 
-    public String generateBPEL4RESTLightServiceInstancePOST(final String instanceDataAPIUrlVariableName,
-                                                            final String csarId, final QName serviceTemplateId,
-                                                            final String responseVariableName) throws IOException {
-        // tags in xml snippet: $InstanceDataURLVar, $CSARName,
-        // $serviceTemplateId, $ResponseVarName
-        final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI.xml");
-        String bpel4RestString = ResourceAccess.readResourceAsString(url);
-
-        bpel4RestString = bpel4RestString.replace("$InstanceDataURLVar", instanceDataAPIUrlVariableName);
-        bpel4RestString = bpel4RestString.replace("$CSARName", csarId);
-        bpel4RestString = bpel4RestString.replace("$serviceTemplateId", serviceTemplateId.toString());
-        bpel4RestString = bpel4RestString.replace("$ResponseVarName", responseVariableName);
-
-        return bpel4RestString;
-    }
-
-    public Node generateBPEL4RESTLightServiceInstancePOSTAsNode(final String instanceDataAPIUrlVariableName,
-                                                                final String csarId, final QName serviceTemplateId,
-                                                                final String responseVariableName) throws IOException,
-        SAXException {
-        final String templateString =
-            generateBPEL4RESTLightServiceInstancePOST(instanceDataAPIUrlVariableName, csarId, serviceTemplateId,
-                responseVariableName);
-        final InputSource is = new InputSource();
-        is.setCharacterStream(new StringReader(templateString));
-        final Document doc = this.docBuilder.parse(is);
-        return doc.getFirstChild();
-    }
-
-    public String generateServiceInstanceURLVarAssign(final String serviceInstanceResponseVarName,
-                                                      final String serviceInstanceURLVarName) throws IOException {
-        final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BpelAssignServiceInstancePOSTResponse.xml");
-        String bpelAssignString = ResourceAccess.readResourceAsString(url);
-        // <!-- $assignName $ServiceInstanceResponseVarName
-        // $ServiceInstanceURLVarName-->
-
-        bpelAssignString =
-            bpelAssignString.replace("$assignName", "assignServiceInstance" + System.currentTimeMillis());
-        bpelAssignString = bpelAssignString.replace("$ServiceInstanceResponseVarName", serviceInstanceResponseVarName);
-        bpelAssignString = bpelAssignString.replace("$ServiceInstanceURLVarName", serviceInstanceURLVarName);
-        return bpelAssignString;
-    }
-
-    public Node generateServiceInstanceURLVarAssignAsNode(final String serviceInstanceResponseVarName,
-                                                          final String serviceInstanceURLVarName) throws IOException,
-        SAXException {
-        final String templateString =
-            generateServiceInstanceURLVarAssign(serviceInstanceResponseVarName, serviceInstanceURLVarName);
-        final InputSource is = new InputSource();
-        is.setCharacterStream(new StringReader(templateString));
-        final Document doc = this.docBuilder.parse(is);
-        return doc.getFirstChild();
-    }
-
-    public Node generateNodeInstancesQueryGETasNode(final String instanceDataUrlVarName, final String responseVarName,
-                                                    final QName nodeType) throws IOException, SAXException {
-        final String templateString =
-            generateNodeInstancePropertiesGET(instanceDataUrlVarName, responseVarName, nodeType);
-        final InputSource is = new InputSource();
-        is.setCharacterStream(new StringReader(templateString));
-        final Document doc = this.docBuilder.parse(is);
-        return doc.getFirstChild();
-    }
-
     public String generateInstancePropertiesGET(final String instanceUrlVarName,
                                                 final String bpel4RestLightResponseVarName) throws IOException {
         final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPEL4RESTLightGET_Instance_Properties.xml");
@@ -320,111 +283,6 @@ public class Fragments {
                                                     final String bpel4RestLightResponseVarName) throws SAXException,
         IOException {
         final String templateString = generateInstancePropertiesGET(instanceUrlVarName, bpel4RestLightResponseVarName);
-        final InputSource is = new InputSource();
-        is.setCharacterStream(new StringReader(templateString));
-        final Document doc = this.docBuilder.parse(is);
-        return doc.getFirstChild();
-    }
-
-    public String generateAssignFromNodeInstanceResonseToStringVar(final String stringVarName,
-                                                                   final String nodeInstanceResponseVarName) throws IOException {
-        final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BpelAssignFromNodeInstanceRequestToStringVar.xml");
-        String bpelAssignString = ResourceAccess.readResourceAsString(url);
-        // <!-- $stringVarName, $NodeInstanceResponseVarName -->
-        bpelAssignString = bpelAssignString.replace("$stringVarName", stringVarName);
-        bpelAssignString = bpelAssignString.replace("$NodeInstanceResponseVarName", nodeInstanceResponseVarName);
-        return bpelAssignString;
-    }
-
-    public Node generateAssignFromNodeInstanceResponseToStringVarAsNode(final String stringVarName,
-                                                                        final String nodeInstanceResponseVarName) throws IOException,
-        SAXException {
-        final String templateString =
-            generateAssignFromNodeInstanceResonseToStringVar(stringVarName, nodeInstanceResponseVarName);
-        final InputSource is = new InputSource();
-        is.setCharacterStream(new StringReader(templateString));
-        final Document doc = this.docBuilder.parse(is);
-        return doc.getFirstChild();
-    }
-
-    public String generateNodeInstancePropertiesGET(final String instanceDataUrlVarName, final String responseVarName,
-                                                    final QName nodeType) throws IOException {
-        final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPEL4RESTLightGET_NodeInstance_InstanceDataAPI.xml");
-        String bpelAssignString = ResourceAccess.readResourceAsString(url);
-
-        // $InstanceDataURLVar, $ResponseVarName, $nodeType
-
-        bpelAssignString = bpelAssignString.replace("$InstanceDataURLVar", instanceDataUrlVarName);
-        bpelAssignString = bpelAssignString.replace("$ResponseVarName", responseVarName);
-        bpelAssignString = bpelAssignString.replace("$nodeType", nodeType.toString());
-        return bpelAssignString;
-    }
-
-    public String generateServiceInstanceRequestToStringVarAssign(final String stringVarName,
-                                                                  final String serviceInstanceResponseVarName,
-                                                                  final int nodeInstanceIndex) throws IOException {
-        // <!-- $stringVarName, $ServiceInstanceResponseVarName,
-        // $nodeInstanceIndex -->
-        final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BpelAssignFromServiceInstanceRequestToStringVar.xml");
-        String bpelAssignString = ResourceAccess.readResourceAsString(url);
-
-        bpelAssignString = bpelAssignString.replace("$stringVarName", stringVarName);
-        bpelAssignString = bpelAssignString.replace("$ServiceInstanceResponseVarName", serviceInstanceResponseVarName);
-        bpelAssignString = bpelAssignString.replace("$nodeInstanceIndex", String.valueOf(nodeInstanceIndex));
-
-        return bpelAssignString;
-    }
-
-    public Node generateServiceInstanceRequestToStringVarAssignAsNode(final String stringVarName,
-                                                                      final String serviceInstanceResponseVarName,
-                                                                      final int nodeInstanceIndex) throws IOException,
-        SAXException {
-        final String templateString =
-            generateServiceInstanceRequestToStringVarAssign(stringVarName, serviceInstanceResponseVarName,
-                nodeInstanceIndex);
-        final InputSource is = new InputSource();
-        is.setCharacterStream(new StringReader(templateString));
-        final Document doc = this.docBuilder.parse(is);
-        return doc.getFirstChild();
-    }
-
-    public String generateBPEL4RESTLightGET(final String urlVarName, final String responseVarName) throws IOException {
-        // BPEL4RESTLightGET_ServiceInstance_InstanceDataAPI.xml
-        // <!-- $serviceInstanceUrlVarName, $ResponseVarName -->
-        final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BPEL4RESTLightGET.xml");
-        String bpelServiceInstanceGETString = ResourceAccess.readResourceAsString(url);
-
-        bpelServiceInstanceGETString = bpelServiceInstanceGETString.replace("$urlVarName", urlVarName);
-        bpelServiceInstanceGETString = bpelServiceInstanceGETString.replace("$ResponseVarName", responseVarName);
-        return bpelServiceInstanceGETString;
-    }
-
-    public Node generateBPEL4RESTLightGETAsNode(final String serviceInstanceUrlVarName,
-                                                final String responseVarName) throws IOException, SAXException {
-        final String templateString = generateBPEL4RESTLightGET(serviceInstanceUrlVarName, responseVarName);
-        final InputSource is = new InputSource();
-        is.setCharacterStream(new StringReader(templateString));
-        final Document doc = this.docBuilder.parse(is);
-        return doc.getFirstChild();
-    }
-
-    public String generateAssignFromInputMessageToStringVariable(final String inputMessageElementLocalName,
-                                                                 final String stringVariableName) throws IOException {
-        final URL url = getClass().getClassLoader().getResource("instancedata-plugin/BpelAssignFromInputToStringVar.xml");
-        String bpelAssignString = ResourceAccess.readResourceAsString(url);
-        // <!-- $inputElementLocalName, $StringVariableName, $assignName -->
-        bpelAssignString = bpelAssignString.replace("$inputElementLocalName", inputMessageElementLocalName);
-        bpelAssignString = bpelAssignString.replace("$StringVariableName", stringVariableName);
-        bpelAssignString =
-            bpelAssignString.replace("$assignName", "assignFromInputToString" + System.currentTimeMillis());
-        return bpelAssignString;
-    }
-
-    public Node generateAssignFromInputMessageToStringVariableAsNode(final String inputMessageElementLocalName,
-                                                                     final String stringVariableName) throws IOException,
-        SAXException {
-        final String templateString =
-            generateAssignFromInputMessageToStringVariable(inputMessageElementLocalName, stringVariableName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);

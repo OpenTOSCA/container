@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.wsdl.Binding;
@@ -54,8 +55,7 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
 
     // Supported types defined in messages.properties.
     private static final String TYPES = "SOAP/HTTP";
-    private static final Map<String, Exchange> EXCHANGE_MAP =
-        Collections.synchronizedMap(new HashMap<String, Exchange>());
+    private static final Map<String, Exchange> EXCHANGE_MAP = Collections.synchronizedMap(new HashMap<>());
     private final CamelContext camelContext;
     private final CsarStorageService storage;
 
@@ -100,7 +100,7 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
             LOG.info("Headers:");
             LOG.info(headers.toString());
             LOG.info("Body:");
-            LOG.info(((HashMap<String, String>) params).toString());
+            LOG.info(params.toString());
             return respondViaMocking(exchange, this.storage);
         }
 
@@ -123,6 +123,7 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
             // add the operation header for the cxf endpoint explicitly if invoking an IA
             if (Objects.nonNull(message.getHeader(MBHeader.IMPLEMENTATION_ARTIFACT_NAME_STRING.toString(),
                 String.class))) {
+                headers.put("operationNamespace", wsdl.getTargetNamespace());
                 headers.put("operationName", operationName);
             }
 
@@ -178,7 +179,11 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
             return null;
         }
 
-        LOG.debug("Invoking the web service.");
+        LOG.info("Invoking the web service with headers:\n{}\nand content:\n{}",
+            headers.keySet().stream()
+                .map(key -> key + "=" + headers.get(key))
+                .collect(Collectors.joining(", ", "{", "}")),
+            document != null ? MBUtils.docToString(document) : "");
 
         final ProducerTemplate template = this.camelContext.createProducerTemplate();
         final ConsumerTemplate consumer = this.camelContext.createConsumerTemplate();

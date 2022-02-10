@@ -3,10 +3,13 @@ package org.opentosca.planbuilder.core.bpel.artifactbasednodehandler;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
+
+import org.opentosca.container.core.model.ModelUtils;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
-import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 
 /**
  * <p>
@@ -21,20 +24,23 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
  */
 class DANodeTypeImplCandidate {
 
-    private final AbstractNodeTemplate nodeTemplate;
-    AbstractNodeTypeImplementation impl;
-    List<AbstractDeploymentArtifact> das = new ArrayList<>();
-    List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
-    List<IPlanBuilderPrePhaseDAPlugin> plugins = new ArrayList<>();
+    final List<TDeploymentArtifact> das = new ArrayList<>();
+    final TNodeTypeImplementation impl;
+    final List<TNodeTemplate> infraNodes = new ArrayList<>();
+    final List<IPlanBuilderPrePhaseDAPlugin<?>> plugins = new ArrayList<>();
+    final TNodeTemplate nodeTemplate;
+
+    private final Csar csar;
 
     /**
      * Constructor determines which NodeTypeImplementation is used
      *
-     * @param impl an AbstractNodeTypeImplementation with a DA
+     * @param impl an TNodeTypeImplementation with a DA
      */
-    DANodeTypeImplCandidate(final AbstractNodeTemplate nodeTemplate, final AbstractNodeTypeImplementation impl) {
+    DANodeTypeImplCandidate(final TNodeTemplate nodeTemplate, final TNodeTypeImplementation impl, Csar csar) {
         this.impl = impl;
         this.nodeTemplate = nodeTemplate;
+        this.csar = csar;
     }
 
     /**
@@ -44,8 +50,8 @@ class DANodeTypeImplCandidate {
      * @param nodeTemplate an InfrastructureNode on which the DA should be deployed
      * @param plugin       the PrePhaseDAPlugin which can deploy the DA unto the given NodeTemplate
      */
-    void add(final AbstractDeploymentArtifact da, final AbstractNodeTemplate nodeTemplate,
-             final IPlanBuilderPrePhaseDAPlugin plugin) {
+    void add(final TDeploymentArtifact da, final TNodeTemplate nodeTemplate,
+             final IPlanBuilderPrePhaseDAPlugin<?> plugin) {
         this.das.add(da);
         this.infraNodes.add(nodeTemplate);
         this.plugins.add(plugin);
@@ -57,6 +63,6 @@ class DANodeTypeImplCandidate {
      * @return true if all DA's of the NodeTypeImplementation can be deployed, else false
      */
     boolean isValid() {
-        return BPELScopeBuilder.calculateEffectiveDAs(this.nodeTemplate, this.impl).size() == this.das.size();
+        return ModelUtils.calculateEffectiveDAs(this.nodeTemplate, this.impl, this.csar).size() == this.das.size();
     }
 }

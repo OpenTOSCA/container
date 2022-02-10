@@ -210,7 +210,9 @@ public class ServiceTemplateController {
                                   @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId, @ApiParam(required = true) final ServiceTransformRequest request) {
 
         CsarId csarId = new CsarId(csar);
-        final AdaptationPlanGenerationResult result = this.csarService.generateAdaptationPlan(csarId, QName.valueOf(serviceTemplateId), request.getSourceNodeTemplates(), request.getSourceRelationshipTemplates(), request.getTargetNodeTemplates(), request.getTargetRelationshipTemplates());
+        Csar csarToTransform = this.storage.findById(csarId);
+
+        final AdaptationPlanGenerationResult result = this.csarService.generateAdaptationPlan(csarToTransform, QName.valueOf(serviceTemplateId), request.getSourceNodeTemplates(), request.getSourceRelationshipTemplates(), request.getTargetNodeTemplates(), request.getTargetRelationshipTemplates());
 
         if (result == null) {
             return Response.serverError().build();

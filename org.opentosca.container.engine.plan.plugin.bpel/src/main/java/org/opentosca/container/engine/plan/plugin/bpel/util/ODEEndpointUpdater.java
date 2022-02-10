@@ -70,7 +70,6 @@ public class ODEEndpointUpdater {
     private final ICoreEndpointService endpointService;
     // @hahnml: The type of plan engine used (BPS or ODE)
     private final String engineType;
-    private CsarId csarId;
 
     // private static IToscaEngineService toscaEngineService = null;
 
@@ -95,7 +94,6 @@ public class ODEEndpointUpdater {
      * Core, else false
      */
     public boolean changeEndpoints(final List<File> processFiles, final CsarId csarId) {
-        this.csarId = csarId;
 
         final Map<QName, List<File>> unchangedFiles = new HashMap<>();
         final File deployXml = getDeployXML(processFiles);

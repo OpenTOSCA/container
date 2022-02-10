@@ -3,11 +3,12 @@ package org.opentosca.planbuilder.model.plan;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import org.opentosca.container.core.next.model.PlanType;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 /**
  * Copyright 2017 IAAS University of Stuttgart <br>
@@ -17,16 +18,16 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
  */
 public abstract class AbstractPlan {
 
-    private final AbstractServiceTemplate serviceTemplate;
-    private final AbstractDefinitions definitions;
+    private final TServiceTemplate serviceTemplate;
+    private final TDefinitions definitions;
     private final Collection<AbstractActivity> activites;
     private final Collection<Link> links;
     private final String id;
     private PlanType type;
     private int internalCounterId = 0;
 
-    public AbstractPlan(final String id, final PlanType type, final AbstractDefinitions definitions,
-                        final AbstractServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
+    public AbstractPlan(final String id, final PlanType type, final TDefinitions definitions,
+                        final TServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
                         final Collection<Link> links) {
         this.id = id;
         this.type = type;
@@ -56,20 +57,20 @@ public abstract class AbstractPlan {
 
     /**
      * Returns the definitions document this AbstractPlan belongs to. The ServiceTemplate this BuildPlan provisions must
-     * be contained in the given AbstractDefinitions.
+     * be contained in the given TDefinitions.
      *
-     * @return an AbstractDefinitions
+     * @return an TDefinitions
      */
-    public AbstractDefinitions getDefinitions() {
+    public TDefinitions getDefinitions() {
         return this.definitions;
     }
 
     /**
-     * Returns the AbstractServiceTemplate of the ServiceTemplate this AbstractPlan belongs to
+     * Returns the TServiceTemplate of the ServiceTemplate this AbstractPlan belongs to
      *
-     * @return a AbstractServiceTemplate
+     * @return a TServiceTemplate
      */
-    public AbstractServiceTemplate getServiceTemplate() {
+    public TServiceTemplate getServiceTemplate() {
         return this.serviceTemplate;
     }
 
@@ -117,7 +118,7 @@ public abstract class AbstractPlan {
         return sources;
     }
 
-    public AbstractActivity findRelationshipTemplateActivity(final AbstractRelationshipTemplate relationshipTemplate,
+    public AbstractActivity findRelationshipTemplateActivity(final TRelationshipTemplate relationshipTemplate,
                                                              final ActivityType type) {
         for (final AbstractActivity activity : findRelationshipTemplateActivities(relationshipTemplate)) {
             if (activity.getType().equals(type)) {
@@ -127,7 +128,7 @@ public abstract class AbstractPlan {
         return null;
     }
 
-    public Collection<AbstractActivity> findNodeTemplateActivities(final AbstractNodeTemplate nodeTemplate) {
+    public Collection<AbstractActivity> findNodeTemplateActivities(final TNodeTemplate nodeTemplate) {
         final Collection<AbstractActivity> foundActivities = new HashSet<>();
         for (final AbstractActivity activity : this.activites) {
 
@@ -140,7 +141,7 @@ public abstract class AbstractPlan {
         return foundActivities;
     }
 
-    public Collection<AbstractActivity> findRelationshipTemplateActivities(final AbstractRelationshipTemplate relationshipTemplate) {
+    public Collection<AbstractActivity> findRelationshipTemplateActivities(final TRelationshipTemplate relationshipTemplate) {
         final Collection<AbstractActivity> foundActivities = new HashSet<>();
         for (final AbstractActivity activity : this.activites) {
 
@@ -151,15 +152,6 @@ public abstract class AbstractPlan {
             }
         }
         return foundActivities;
-    }
-
-    public AbstractActivity findNodeTemplateActivity(final AbstractNodeTemplate nodeTemplate, final ActivityType type) {
-        for (final AbstractActivity activity : findNodeTemplateActivities(nodeTemplate)) {
-            if (activity.getType().equals(type)) {
-                return activity;
-            }
-        }
-        return null;
     }
 
     /**

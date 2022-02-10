@@ -12,17 +12,18 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.core.plugins.utils.PluginUtils;
-import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
-import org.opentosca.planbuilder.type.plugin.mosquittoconnectsto.core.handler.ConnectsToTypePluginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -36,7 +37,7 @@ import org.xml.sax.SAXException;
  *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
  */
-public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<BPELPlanContext> {
+public class BPELConnectsToPluginHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELConnectsToPluginHandler.class);
     private final BPELInvokerPlugin invokerPlugin = new BPELInvokerPlugin();
@@ -55,23 +56,23 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
         this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
-    @Override
     public boolean handle(final BPELPlanContext templateContext) {
-        final AbstractRelationshipTemplate relationTemplate = templateContext.getRelationshipTemplate();
+        final TRelationshipTemplate relationTemplate = templateContext.getRelationshipTemplate();
+        Csar csar = templateContext.getCsar();
 
         // fetch topic
-        final Variable topicName = templateContext.getPropertyVariable(relationTemplate.getTarget(), "Name");
+        final Variable topicName = templateContext.getPropertyVariable(ModelUtils.getTarget(relationTemplate, csar), "Name");
 
         /* fetch ip of mosquitto */
         Variable mosquittoVmIp = null;
 
         // find infrastructure nodes of mosquitto
-        List<AbstractNodeTemplate> infrastructureNodes = new ArrayList<>();
-        ModelUtils.getInfrastructureNodes(relationTemplate.getTarget(), infrastructureNodes);
+        List<TNodeTemplate> infrastructureNodes = new ArrayList<>();
+        ModelUtils.getInfrastructureNodes(ModelUtils.getTarget(relationTemplate, csar), infrastructureNodes, csar);
 
-        ModelUtils.getNodesFromNodeToSink(relationTemplate.getTarget(), infrastructureNodes);
+        ModelUtils.getNodesFromNodeToSink(ModelUtils.getTarget(relationTemplate, csar), infrastructureNodes, csar);
 
-        for (final AbstractNodeTemplate infraNode : infrastructureNodes) {
+        for (final TNodeTemplate infraNode : infrastructureNodes) {
 
             for (final String ipPropName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
                 // fetch mosquitto ip
@@ -93,9 +94,9 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
         String ubuntuTemplateId = null;
 
         infrastructureNodes = new ArrayList<>();
-        ModelUtils.getInfrastructureNodes(relationTemplate.getSource(), infrastructureNodes);
+        ModelUtils.getInfrastructureNodes(ModelUtils.getSource(relationTemplate, csar), infrastructureNodes, templateContext.getCsar());
 
-        for (final AbstractNodeTemplate infraNode : infrastructureNodes) {
+        for (final TNodeTemplate infraNode : infrastructureNodes) {
 
             for (final String ipPropName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
                 if (templateContext.getPropertyVariable(infraNode, ipPropName) != null) {
@@ -175,16 +176,6 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
         return true;
     }
 
-    /**
-     * Loads a BPEL Assign fragment which queries the csarEntrypath from the input message into String variable.
-     *
-     * @param assignName          the name of the BPEL assign
-     * @param csarEntryXpathQuery the csarEntryPoint XPath query
-     * @param stringVarName       the variable to load the queries results into
-     * @return a DOM Node representing a BPEL assign element
-     * @throws IOException  is thrown when loading internal bpel fragments fails
-     * @throws SAXException is thrown when parsing internal format into DOM fails
-     */
     public Node loadAssignXpathQueryToStringVarFragmentAsNode(final String assignName, final String xpath2Query,
                                                               final String stringVarName) throws IOException,
         SAXException {
