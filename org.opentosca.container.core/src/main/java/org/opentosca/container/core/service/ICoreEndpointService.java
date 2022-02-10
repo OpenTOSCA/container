@@ -1,12 +1,10 @@
 package org.opentosca.container.core.service;
 
-import java.net.URI;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.endpoint.rest.RESTEndpoint;
 import org.opentosca.container.core.next.model.Endpoint;
 
 /**
@@ -31,15 +29,6 @@ public interface ICoreEndpointService {
      * @see Endpoint
      */
     void storeEndpoint(Endpoint endpoint);
-
-    /**
-     * This method queries for RESTEndpoints identified by the given URI and thorID
-     *
-     * @param anyURI : Uri to identify the Endpoint
-     * @return ArrayList containing all endpoints matching the given parameters
-     * @see RESTEndpoint
-     */
-    List<RESTEndpoint> getRestEndpoints(URI anyURI, String triggeringContainer, CsarId csarId);
 
     /**
      * This method queries for a Endpoint identified by the given CSARID and PlanId

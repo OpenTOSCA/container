@@ -46,7 +46,6 @@
     <class>org.opentosca.container.core.model.deployment.process.DeploymentProcessInfo</class>
     <class>org.opentosca.container.core.model.deployment.AbstractDeploymentInfo</class>
     <class>org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo</class>
-    <class>org.opentosca.container.core.model.endpoint.rest.RESTEndpoint</class>
 
     <class>org.opentosca.container.core.model.capability.Capability</class>
 
