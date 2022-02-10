@@ -17,8 +17,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
 
 import org.eclipse.winery.model.ids.XmlId;
 import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
@@ -40,12 +38,10 @@ import org.opentosca.container.core.next.model.Endpoint;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService;
-import org.opentosca.container.engine.plan.plugin.bpel.util.BPELRESTLightUpdater;
 import org.opentosca.container.engine.plan.plugin.bpel.util.ODEEndpointUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.xml.sax.SAXException;
 
 /**
  * <p>
@@ -53,10 +49,8 @@ import org.xml.sax.SAXException;
  * IPlanEnginePlanRefPluginService} unto a WSO2 Business Process Server or Apache Orchestration Director Engine (ODE).
  * </p>
  * <p>
- * The class is the highlevel control of the plugin. It uses the classes {@link BPELRESTLightUpdater} to update
- * BPEL4RESTLight (see: OpenTOSCA/trunk/examples/org.opentosca.bpel4restlight.bpelextension) extension activities with
- * up-to-date endpoints. The plugin also uses {@link ODEEndpointUpdater} to update the bindings inside the used WSDL
- * Descriptions referenced in the BPEL process.
+ * The class is the highlevel control of the plugin. The plugin also uses {@link ODEEndpointUpdater} to update the
+ * bindings inside the used WSDL Descriptions referenced in the BPEL process.
  * <p>
  * The endpoints for the update are retrieved through a service that implements the {@link ICoreEndpointService}
  * interface.
@@ -66,7 +60,6 @@ import org.xml.sax.SAXException;
  * to deploy the updated plan unto the Apache ODE behind the endpoint.
  * </p>
  *
- * @see BPELRESTLightUpdater
  * @see ODEEndpointUpdater
  * @see OdeConnector
  * @see ICoreEndpointService
@@ -152,24 +145,6 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             LOG.error("Couldn't load ODEEndpointUpdater", e);
         }
 
-        // update the bpel and bpel4restlight elements (ex.: GET, PUT,..)
-        BPELRESTLightUpdater bpelRestUpdater;
-        try {
-            bpelRestUpdater = new BPELRESTLightUpdater(endpointService);
-            if (!bpelRestUpdater.changeEndpoints(planContents, csarId)) {
-                // we don't abort deployment here
-                LOG.warn("Couldn't change all endpoints inside BPEL4RESTLight Elements in the given process {}", planLocation);
-            }
-        } catch (final TransformerConfigurationException e) {
-            LOG.error("Couldn't load BPELRESTLightUpdater transformer", e);
-        } catch (final ParserConfigurationException e) {
-            LOG.error("Couldn't load BPELRESTLightUpdaters parser", e);
-        } catch (final SAXException e) {
-            LOG.error("ParseError: Couldn't parse .bpel file", e);
-        } catch (final IOException e) {
-            LOG.error("IOError: Couldn't access .bpel file", e);
-        }
-
         // package process
         LOG.debug("Prepare deployment of PlanModelReference");
 
@@ -199,8 +174,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             e.printStackTrace();
         }
 
-        // this will be the endpoint the container can use to instantiate the
-        // BPEL Process
+        // this will be the endpoint the container can use to instantiate the BPEL Process
         URI endpointUri = null;
         URI callbackEndpoint = null;
         if (endpoints.keySet().size() == 1) {
