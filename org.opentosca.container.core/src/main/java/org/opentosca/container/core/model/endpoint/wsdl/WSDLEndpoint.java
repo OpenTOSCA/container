@@ -44,7 +44,7 @@ public class WSDLEndpoint extends AbstractEndpoint {
     // Used when persisting, so we can Query for QName-Objects.
     @Basic
     @Convert(converter = QNameConverter.class)
-    @Column(name = "PortType")
+    @Column(name = "portType")
     private QName PortType;
 
     // NodeTypeImplementation/RelationshipTypeImplementation and IA name are there to identify
