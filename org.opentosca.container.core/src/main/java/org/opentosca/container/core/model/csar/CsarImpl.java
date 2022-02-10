@@ -70,6 +70,7 @@ public class CsarImpl implements Csar {
     @NonNull
     private final CsarId id;
     private final Optional<ServiceTemplateId> entryServiceTemplate;
+	
     // TODO evaluate putting the save-location into an additional field here!
     private final IRepository wineryRepo;
 
