@@ -18,7 +18,8 @@ public class BPMNDiagramElementHandler {
     private final static int LENGTH = 100;
 
     /**
-     * Create and diagram element from the input scope and add it to plan for later export of XML
+     * Create BPMN diagram instance from the input scope and add it to plan for later transform to XML element
+     * Scope Type should have 1-to-1
      * @param startX: left waypoint in x-axis
      * @param startY: middle of left waypoint in y-axis
      * @param bpmnScope
@@ -29,25 +30,29 @@ public class BPMNDiagramElementHandler {
         String postfix = "_di";
 
         LOG.debug("Creating diagram from bpmnScope: {}", bpmnScope.getId());
-        BPMNDiagramElement dElement = null;
+        BPMNDiagramElement diagramInstance = null;
         if (bpmnScope.getBpmnScopeType() == BPMNScopeType.SEQUENCE_FLOW) {
-            dElement = new BPMNDiagramElement(BPMNDiagramType.EDGE, startX, startY, bpmnScope.getId() +  "_di");
-            dElement.setWaypointOut(startX + LENGTH, startY);
-            dElement.setLength(LENGTH);
+            diagramInstance = new BPMNDiagramElement(BPMNDiagramType.EDGE, startX, startY, bpmnScope.getId() +  "_di");
+            diagramInstance.setWaypointOut(startX + LENGTH, startY);
+            diagramInstance.setLength(LENGTH);
         } else {
             // for SHAPE, need to offset startY for boundary (top-left corner)
-            dElement = new BPMNDiagramElement(BPMNDiagramType.SHAPE, startX, startY - HEIGHT / 2, bpmnScope.getId() + "_di");
-            dElement.setHeight(HEIGHT);
-            dElement.setWidth(WIDTH);
+            diagramInstance = new BPMNDiagramElement(BPMNDiagramType.SHAPE, startX, startY - HEIGHT / 2, bpmnScope.getId() + "_di");
+            diagramInstance.setHeight(HEIGHT);
+            diagramInstance.setWidth(WIDTH);
         }
-        dElement.setRefScope(bpmnScope);
-        bpmnPlan.addDiagramElement(dElement);
+
+
+        diagramInstance.setRefScope(bpmnScope);
+
+        // diagram instance is flatten, no recursive structure required
+        bpmnPlan.addDiagramElement(diagramInstance);
 
         // TODO: consider handle subprocess where the WIDTH should be proportional to elements inside subprocess
         // TODO: consider making event half the width and height of normal activity
         // TODO: consider variable length and width for difference diagram
 
-        return dElement;
+        return diagramInstance;
     }
 
     /**

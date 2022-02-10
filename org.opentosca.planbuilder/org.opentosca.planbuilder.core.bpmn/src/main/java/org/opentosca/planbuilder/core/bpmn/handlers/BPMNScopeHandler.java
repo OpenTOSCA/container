@@ -54,6 +54,32 @@ public class BPMNScopeHandler {
         }
     }
 
+    /**
+     * Create Start Event for a given subprocess. Skip setting the buildPlan with Event
+     * @param buildPlan
+     * @param bpmnSubprocess
+     * @return
+     */
+    public BPMNScope createStartEventSubprocess(final BPMNPlan buildPlan, final BPMNScope bpmnSubprocess) {
+        String idPrefix = BPMNScopeType.EVENT.toString();
+        final BPMNScope startEvent = new BPMNScope(BPMNScopeType.START_EVENT, idPrefix + "_" + buildPlan.getIdForNamesAndIncrement());
+        startEvent.setBuildPlan(buildPlan);
+        startEvent.setParentProcess(bpmnSubprocess);
+
+        bpmnSubprocess.addScopeToSubprocess(startEvent);
+        return startEvent;
+    }
+
+    public BPMNScope createEndEventSubprocess(final BPMNPlan buildPlan, final BPMNScope bpmnSubprocess) {
+        String idPrefix = BPMNScopeType.EVENT.toString();
+        final BPMNScope endEvent = new BPMNScope(BPMNScopeType.END_EVENT, idPrefix + "_" + buildPlan.getIdForNamesAndIncrement());
+        endEvent.setBuildPlan(buildPlan);
+        endEvent.setParentProcess(bpmnSubprocess);
+
+        bpmnSubprocess.addScopeToSubprocess(endEvent);
+        return endEvent;
+    }
+
     public BPMNScope createStartEvent(final BPMNPlan buildPlan) {
         String idPrefix = BPMNScopeType.EVENT.toString();
         final BPMNScope startEvent = new BPMNScope(BPMNScopeType.START_EVENT, idPrefix + "_" + buildPlan.getIdForNamesAndIncrement());
@@ -96,6 +122,23 @@ public class BPMNScopeHandler {
         return templateBuildPlan;
     }
 
+    public BPMNScope createSequenceFlowSubprocess(BPMNScope src, BPMNScope trg, final BPMNScope bpmnSubprocess) {
+        BPMNPlan buildPlan = bpmnSubprocess.getBuildPlan();
+        String idPrefix = BPMNScopeType.SEQUENCE_FLOW.name();
+        // create new id
+        final BPMNScope flow = new BPMNScope(BPMNScopeType.SEQUENCE_FLOW, idPrefix + "_" + buildPlan.getIdForNamesAndIncrement());
+
+        // src ->  flow -> trg
+        src.addOutgoingScope(flow);
+        trg.addIncomingScope(flow);
+        flow.addIncomingScope(src);
+        flow.addOutgoingScope(trg);
+
+        // collecting all BPMNScope for refinement in next stage
+        flow.setBuildPlan(buildPlan);
+        bpmnSubprocess.addScopeToSubprocess(flow);
+        return flow;
+    }
 
     public BPMNScope createSequenceFlow(BPMNScope src, BPMNScope trg, final BPMNPlan buildPlan) {
         String idPrefix = BPMNScopeType.SEQUENCE_FLOW.name();

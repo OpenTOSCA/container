@@ -54,12 +54,14 @@ public class BPMNFinalizer {
         final Document doc = buildPlan.getBpmnDocument();
         List<BPMNScope> scopeList = buildPlan.getTemplateBuildPlans();
 
+        // Create and import XML process element to document
         final Element processElement = buildPlan.getBpmnProcessElement();
         for (BPMNScope bpmnScope : scopeList) {
             Node node = processFragments.createBPMNScopeAsNode(bpmnScope);
             processElement.appendChild(doc.importNode(node, true));
         }
 
+        // Create and import XML diagram element to document
         final Element planeElement = buildPlan.getBpmnPlaneElement();
         List<BPMNDiagramElement> diagramList = buildPlan.getDiagramElements();
         for (BPMNDiagramElement diagram : diagramList) {

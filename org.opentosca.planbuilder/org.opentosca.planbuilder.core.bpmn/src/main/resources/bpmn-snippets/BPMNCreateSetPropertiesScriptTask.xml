@@ -10,6 +10,4 @@
             <camunda:inputParameter name="Input_DockerEngineCertificate" />
         </camunda:inputOutput>
     </bpmn:extensionElements>
-    <bpmn:incoming>IncomingFlowToReplace</bpmn:incoming>
-    <bpmn:outgoing>OutgoingFlowToReplace</bpmn:outgoing>
 </bpmn:scriptTask>

@@ -9,7 +9,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
-import org.opentosca.planbuilder.model.plan.bpmn.BPMNScopeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -41,30 +40,89 @@ public class BPMNProcessFragments {
         this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
+    /**
+     * Create XML node from BPMNScope object
+     * @param bpmnScope
+     * @return
+     */
     public Node createBPMNScopeAsNode(BPMNScope bpmnScope) {
         LOG.debug("Creating BPMNScope as Node: {} with type: {}", bpmnScope.getId(), bpmnScope.getBpmnScopeType().name());
+        Node node = null;
         try {
-            // TODO: consider change to switch
-            if (bpmnScope.getBpmnScopeType() == BPMNScopeType.SEQUENCE_FLOW) {
-                return this.createBPMNSequenceFlowAsNode(bpmnScope);
-            } else if (bpmnScope.getBpmnScopeType() == BPMNScopeType.SUBPROCESS) {
-                return this.createBPMNSubprocess(bpmnScope);
-            } else if (bpmnScope.getBpmnScopeType() == BPMNScopeType.START_EVENT) {
-                return this.createBPMNStartEventAsNode(bpmnScope);
-            } else if (bpmnScope.getBpmnScopeType() == BPMNScopeType.END_EVENT) {
-                return this.createBPMNEndEventAsNode(bpmnScope);
-            } else if (bpmnScope.getBpmnScopeType() == BPMNScopeType.CREATE_ST_INSTANCE) {
-                return this.createServiceTemplateInstanceAsNode(bpmnScope);
-            } else if (bpmnScope.getBpmnScopeType() == BPMNScopeType.SET_ST_STATE) {
-                return this.createSetServiceTemplateStateAsNode(bpmnScope);
-            } else if (bpmnScope.getBpmnScopeType() == BPMNScopeType.CREATE_RT_INSTANCE) {
-                return this.createRelationshipTemplateInstanceAsNode(bpmnScope);
+            switch(bpmnScope.getBpmnScopeType()) {
+                case SEQUENCE_FLOW:
+                    node = this.createBPMNSequenceFlowAsNode(bpmnScope);
+                    break;
+                case SUBPROCESS:
+                    node = this.createBPMNSubprocessAsNode(bpmnScope);
+                    break;
+                case START_EVENT:
+                    node = this.createBPMNStartEventAsNode(bpmnScope);
+                    break;
+                case END_EVENT:
+                    node = this.createBPMNEndEventAsNode(bpmnScope);
+                    break;
+                case CREATE_ST_INSTANCE:
+                    node = this.createServiceTemplateInstanceAsNode(bpmnScope);
+                    break;
+                case SET_ST_STATE:
+                    node = this.createSetServiceTemplateStateAsNode(bpmnScope);
+                    break;
+                case CREATE_RT_INSTANCE:
+                    node = this.createRelationshipTemplateInstanceAsNode(bpmnScope);
+                    break;
+                case CREATE_NODE_INSTANCE_TASK:
+                    node = this.createNodeTemplateInstanceAsNode(bpmnScope);
+                    break;
+                case CALL_NODE_OPERATION_TASK:
+                    node = this.createNodeOperationAsNode(bpmnScope);
+                    break;
+                case SET_NODE_PROPERTY_TASK:
+                    node = this.createSetPropertiesAsNode(bpmnScope);
+                    break;
+                default:
+                    LOG.debug("Doesn't find matching BPMNScope Type for {}", bpmnScope.getId());
+                    break;
             }
         } catch (Exception e) {
             LOG.debug("Fail to create BPMN Element due to {}", e);
         }
-        LOG.debug("Doesn't find matching BPMNScope Type for {}", bpmnScope.getId());
-        return null;
+
+        return node;
+    }
+
+    private Node createSetPropertiesAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
+        String template = createSetProperties(bpmnScope.getId());
+        Node node = this.transformStringToNode(template);
+        bpmnScope.setBpmnScopeElement((Element) node);
+        addIncomings(bpmnScope);
+        addOutgoings(bpmnScope);
+        return node;
+    }
+
+    // TODO: review other attribute to replace
+    private String createSetProperties(String id) throws IOException {
+        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateSetPropertiesScriptTask.xml"));
+        template = template.replace("SetProperties_IdToReplace", id);
+        return template;
+    }
+
+    private Node createNodeOperationAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
+        String template = createNodeOperation(bpmnScope.getId());
+        Node node = this.transformStringToNode(template);
+        bpmnScope.setBpmnScopeElement((Element) node);
+        addIncomings(bpmnScope);
+        addOutgoings(bpmnScope);
+        return node;
+    }
+
+    private Node createNodeTemplateInstanceAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
+        String template = createNodeTemplateInstance(bpmnScope.getId());
+        Node node = this.transformStringToNode(template);
+        bpmnScope.setBpmnScopeElement((Element) node);
+        addIncomings(bpmnScope);
+        addOutgoings(bpmnScope);
+        return node;
     }
 
     private Node createRelationshipTemplateInstanceAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
@@ -150,6 +208,13 @@ public class BPMNProcessFragments {
         return template;
     }
 
+    public String createNodeTemplateInstance(String NodeTemplateInstanceID) throws IOException {
+        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateNodeTemplateInstanceScriptTask.xml"));
+        template = template.replaceAll("NodeTemplateInstance_IdToReplace", NodeTemplateInstanceID);
+        // TODO: review other attribute
+        return template;
+    }
+
     public String createNodeTemplateInstance(String NodeTemplateInstanceID, String name, String NodeTemplate, String incomingFlowName,
                                              String outgoingFlowName, String state, String resultVariable) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateNodeTemplateInstanceScriptTask.xml"));
@@ -182,6 +247,12 @@ public class BPMNProcessFragments {
         template = template.replaceAll("SourceURLToSet", source);
         template = template.replaceAll("TargetURLToSet", target);
         template = template.replaceAll("ResultVariableToSet", resultVariable);
+        return template;
+    }
+
+    public String createNodeOperation(String Id) throws IOException {
+        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateNodeOperationScriptTask.xml"));
+        template = template.replaceAll("CallNodeOperation_IdToReplace", Id);
         return template;
     }
 
@@ -226,12 +297,19 @@ public class BPMNProcessFragments {
         return this.transformStringToNode(templateString);
     }
 
-    public Node createBPMNSubprocess(BPMNScope bpmnScope) throws IOException, SAXException {
+    public Node createBPMNSubprocessAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
         final String templateString = createBPMNSubprocess(bpmnScope.getId());
         Node node = this.transformStringToNode(templateString);
+        Document doc = bpmnScope.getBpmnDocument();
         bpmnScope.setBpmnScopeElement((Element) node);
         this.addIncomings(bpmnScope);
         this.addOutgoings(bpmnScope);
+
+        // Creating Elements within Subprocess recursivly
+        for (BPMNScope subScope : bpmnScope.getSubprocessBPMNScopes()) {
+            Node child = this.createBPMNScopeAsNode(subScope);
+            bpmnScope.getBpmnScopeElement().appendChild(doc.importNode(child, true));
+        }
         return node;
     }
 

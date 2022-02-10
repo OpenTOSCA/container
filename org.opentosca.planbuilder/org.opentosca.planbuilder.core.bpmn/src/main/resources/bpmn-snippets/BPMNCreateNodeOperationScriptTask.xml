@@ -28,6 +28,4 @@
             <camunda:outputParameter name="Output_ContainerIP" />
         </camunda:inputOutput>
     </bpmn:extensionElements>
-    <bpmn:incoming>IncomingFlowToReplace</bpmn:incoming>
-    <bpmn:outgoing>OutgoingFlowToReplace</bpmn:outgoing>
 </bpmn:scriptTask>

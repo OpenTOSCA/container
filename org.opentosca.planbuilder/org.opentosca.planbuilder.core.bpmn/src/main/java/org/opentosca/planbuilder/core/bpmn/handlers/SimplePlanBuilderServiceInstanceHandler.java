@@ -4,6 +4,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.core.bpmn.fragments.BPMNProcessFragments;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 
 /**
  * Reference to package org.opentosca.planbuilder.core.bpel.handlers; AbstractServiceInstanceHandler
@@ -29,5 +30,27 @@ public class SimplePlanBuilderServiceInstanceHandler {
         docFactory.setNamespaceAware(true);
     }
 
+    // TODO: implement
+    public void appendCreateServiceInstanceVarsAndAnitializeWithInstanceDataAPI(BPMNPlan newBuildPlan) {
+    }
 
+    // TODO: implement
+    public String findServiceInstanceUrlVariableName(BPMNPlan newBuildPlan) {
+        return "";
+    }
+
+    // TODO: implement
+    public String findServiceInstanceIdVarName(BPMNPlan newBuildPlan) {
+        return "";
+    }
+
+    // TODO: implement
+    public String findServiceTemplateUrlVariableName(BPMNPlan newBuildPlan) {
+        return "";
+    }
+
+    // TODO: implement
+    public String findPlanInstanceUrlVariableName(BPMNPlan newBuildPlan) {
+        return "";
+    }
 }

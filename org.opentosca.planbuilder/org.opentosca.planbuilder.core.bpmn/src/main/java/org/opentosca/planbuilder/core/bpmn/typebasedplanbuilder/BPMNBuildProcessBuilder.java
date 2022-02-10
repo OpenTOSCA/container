@@ -21,13 +21,19 @@ import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
+import org.opentosca.planbuilder.core.bpmn.handlers.SimplePlanBuilderServiceInstanceHandler;
+import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNFinalizer;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNPlanHandler;
+import org.opentosca.planbuilder.core.bpmn.typebasednodehandler.BPMNPluginHandler;
+import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
+import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -51,7 +57,8 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
     private BPMNPlanHandler planHandler;
     private BPMNFinalizer bpmnFinalizer;
-
+    private BPMNPluginHandler bpmnPluginHandler;
+    private SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
     /**
      * <p>
      * Default Constructor
@@ -62,6 +69,9 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
         try {
             this.planHandler = new BPMNPlanHandler();
             this.bpmnFinalizer = new BPMNFinalizer();
+            this.bpmnPluginHandler = new BPMNPluginHandler(pluginRegistry);
+            this.serviceInstanceInitializer = new SimplePlanBuilderServiceInstanceHandler();
+
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         }
@@ -121,6 +131,25 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
             this.planHandler.initializeBPMNSkeleton(newBuildPlan, csar);
 
+            // TODO: implement propertyInitializer
+            final Property2VariableMapping propMap = null;
+            //final Property2VariableMapping propMap =
+            //    this.propertyInitializer.initializePropertiesAsVariables(newBuildPlan, serviceTemplate);
+
+            // instanceDataAPI handling is done solely trough this extension
+
+            // initialize instanceData handling
+            this.serviceInstanceInitializer.appendCreateServiceInstanceVarsAndAnitializeWithInstanceDataAPI(newBuildPlan);
+
+            String serviceInstanceUrl =
+                this.serviceInstanceInitializer.findServiceInstanceUrlVariableName(newBuildPlan);
+            String serviceInstanceID = this.serviceInstanceInitializer.findServiceInstanceIdVarName(newBuildPlan);
+            String serviceTemplateUrl =
+                this.serviceInstanceInitializer.findServiceTemplateUrlVariableName(newBuildPlan);
+            String planInstanceUrl = this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newBuildPlan);
+
+            this.runPlugins(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csar);
+
             // only generate diagram when all elements are instantiated
             this.planHandler.generateBPMNDiagram(newBuildPlan);
             // newBuildPlan.setCsarName(csarName);
@@ -157,4 +186,50 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
         }
     }
 
+    /**
+     * <P>
+     *     This method assigns plugins to the already initialized BuildPlan and its BPMN Activity (TemplateBuildPlans).
+     *     The assigned plugins fulfill the detail of each activity with mainly groovy script selection and corresponding input/output paramter
+     *     The method refers to the similar method in BPELBuildProcessBuilder.java
+     * </P>
+     * @param buildPlan
+     * @param map
+     * @param serviceInstanceUrl
+     * @param serviceInstanceID
+     * @param serviceTemplateUrl
+     * @param planInstanceUrl
+     * @param csar
+     */
+    private void runPlugins(final BPMNPlan buildPlan, final Property2VariableMapping map,
+                            final String serviceInstanceUrl, final String serviceInstanceID,
+                            final String serviceTemplateUrl, final String planInstanceUrl, final Csar csar) {
+        LOG.debug("Running Plugins for each bpmnScope");
+        // iterating through all BPMNScope to find matching plugin
+        for (final BPMNScope bpmnScope : buildPlan.getTemplateBuildPlans()) {
+            final BPMNPlanContext context = new BPMNPlanContext(buildPlan, bpmnScope, map, buildPlan.getServiceTemplate(),
+                serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csar);
+
+            if (bpmnScope.getNodeTemplate() != null) {
+                final TNodeTemplate nodeTemplate = bpmnScope.getNodeTemplate();
+
+                // if this nodeTemplate has the label running (Property: State=Running), skip
+                // provisioning and just generate instance data handling
+                // extended check for OperatingSystem node type
+                if (isRunning(nodeTemplate)
+                    || ModelUtils.findNodeType(nodeTemplate, csar).getName().equals(Types.abstractOperatingSystemNodeType.getLocalPart())) {
+                    LOG.debug("Skipping the provisioning of NodeTemplate "
+                        + bpmnScope.getNodeTemplate().getId() + "  because state=running is set.");
+                    continue;
+                }
+
+                // generate detail for activity
+                this.bpmnPluginHandler.handleActivity(context, bpmnScope, nodeTemplate);
+            } else if (bpmnScope.getRelationshipTemplate() != null) {
+                final TRelationshipTemplate relationshipTemplate = bpmnScope.getRelationshipTemplate();
+                // handling relationshiptemplate
+
+                this.bpmnPluginHandler.handleActivity(context, bpmnScope, relationshipTemplate);
+            }
+        }
+    }
 }

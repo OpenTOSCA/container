@@ -1,10 +1,6 @@
 package org.opentosca.planbuilder.model.plan.bpmn;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
@@ -38,6 +34,59 @@ public class BPMNScope {
 
     // the buildplan this templatebuildplan belongs to
     private BPMNPlan buildPlan;
+
+    // all BPMNScopes contains in the subprocess (including Task and Sequence flow, bpmn elements are fulfilled by plugin
+    private Set<BPMNScope> subprocessBPMNScopes = new HashSet<>();
+
+    // parent process for current BPMNScope contained within subprocess
+    private BPMNScope parentProcess;
+
+    public BPMNScope getSubProStartEvent() {
+        return subProStartEvent;
+    }
+
+    public void setSubProStartEvent(BPMNScope subProStartEvent) {
+        this.subProStartEvent = subProStartEvent;
+    }
+
+    public BPMNScope getSubProCreateNodeInstanceTask() {
+        return subProCreateNodeInstanceTask;
+    }
+
+    public void setSubProCreateNodeInstanceTask(BPMNScope subProCreateNodeInstanceTask) {
+        this.subProCreateNodeInstanceTask = subProCreateNodeInstanceTask;
+    }
+
+    public BPMNScope getSubProCallOperationTask() {
+        return subProCallOperationTask;
+    }
+
+    public void setSubProCallOperationTask(BPMNScope subProCallOperationTask) {
+        this.subProCallOperationTask = subProCallOperationTask;
+    }
+
+    public BPMNScope getSubProSetNodePropertyTask() {
+        return subProSetNodePropertyTask;
+    }
+
+    public void setSubProSetNodePropertyTask(BPMNScope subProSetNodePropertyTask) {
+        this.subProSetNodePropertyTask = subProSetNodePropertyTask;
+    }
+
+    public BPMNScope getSubProEndEvent() {
+        return subProEndEvent;
+    }
+
+    public void setSubProEndEvent(BPMNScope subProEndEvent) {
+        this.subProEndEvent = subProEndEvent;
+    }
+
+    // events and elements contains in a Node subprocess
+    private BPMNScope subProStartEvent;
+    private BPMNScope subProCreateNodeInstanceTask;
+    private BPMNScope subProCallOperationTask;
+    private BPMNScope subProSetNodePropertyTask;
+    private BPMNScope subProEndEvent;
 
     // bpmn elements this templatebuildplan controls
     private Element bpmnScopeElement;
@@ -421,6 +470,10 @@ public class BPMNScope {
         this.outgoingScope.add(outgoing);
     }
 
+    public void addScopeToSubprocess(BPMNScope scope) {
+        this.subprocessBPMNScopes.add(scope);
+    }
+
     public int getNumIncomingLinks() {
         return this.incomingScope.size();
     }
@@ -441,6 +494,17 @@ public class BPMNScope {
         return id;
     }
 
+    public BPMNScope getParentProcess() {
+        return parentProcess;
+    }
+
+    public void setParentProcess(BPMNScope parentProcess) {
+        this.parentProcess = parentProcess;
+    }
+
+    public Set<BPMNScope> getSubprocessBPMNScopes() {
+        return subprocessBPMNScopes;
+    }
     public enum BPELScopePhaseType {
         PRE, PROVISIONING, POST
     }

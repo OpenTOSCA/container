@@ -15,6 +15,7 @@ import org.opentosca.planbuilder.core.bpmn.Handler.BPMNScopeHandlerTests;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNScopeHandler;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNScopeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -106,6 +107,30 @@ public class BPMNProcessFragmentsTests {
         BPMNScope scope = bpmnScopeHandler.createSetServiceTemplateStateTask(bpmnPlan);
         Element sNode = (Element) fragments.createSetServiceTemplateStateAsNode(scope);
         assertThat((sNode).getAttribute("id"), is(scope.getId()));
+    }
+
+    @Test
+    public void testCreateNodeTemplateInstance() {
+        BPMNScope createNodeInstanceTask = new BPMNScope(
+            BPMNScopeType.CREATE_NODE_INSTANCE_TASK, "Task_0");
+        Element sNode = (Element) fragments.createBPMNScopeAsNode(createNodeInstanceTask);
+        assertThat(sNode.getAttribute("id"), is(createNodeInstanceTask.getId()));
+    }
+
+    @Test
+    public void testCreateNodeOperation() {
+        BPMNScope createNodeInstanceTask = new BPMNScope(
+            BPMNScopeType.CALL_NODE_OPERATION_TASK, "Task_0");
+        Element sNode = (Element) fragments.createBPMNScopeAsNode(createNodeInstanceTask);
+        assertThat(sNode.getAttribute("id"), is(createNodeInstanceTask.getId()));
+    }
+
+    @Test
+    public void testCreateSetProperties() {
+        BPMNScope createNodeInstanceTask = new BPMNScope(
+            BPMNScopeType.SET_NODE_PROPERTY_TASK, "Task_0");
+        Element sNode = (Element) fragments.createBPMNScopeAsNode(createNodeInstanceTask);
+        assertThat(sNode.getAttribute("id"), is(createNodeInstanceTask.getId()));
     }
 
     // for debugging purpose, don't remove

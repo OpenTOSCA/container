@@ -34,5 +34,8 @@
     <module>org.opentosca.planbuilder.type.plugin.patternbased</module>
     <module>org.opentosca.planbuilder.type.plugin.platforms</module>
     <module>org.opentosca.planbuilder.type.plugin.ubuntuvm</module>
+      <module>org.opentosca.planbuilder.type.plugin.createnodeinstance</module>
+      <module>org.opentosca.planbuilder.type.plugin.setnodeproperty</module>
+      <module>org.opentosca.planbuilder.type.plugin.callnodeoperation</module>
   </modules>
 </project>

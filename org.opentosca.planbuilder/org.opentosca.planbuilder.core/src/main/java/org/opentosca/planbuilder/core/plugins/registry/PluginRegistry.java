@@ -17,14 +17,7 @@ import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhase
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.core.plugins.choreography.IPlanBuilderChoreographyPlugin;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
-import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPlugin;
-import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPolicyAwarePostPhasePlugin;
-import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPolicyAwarePrePhasePlugin;
-import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPolicyAwareTypePlugin;
-import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlugin;
-import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPrePhasePlugin;
-import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.core.plugins.typebased.IScalingPlanBuilderSelectionPlugin;
+import org.opentosca.planbuilder.core.plugins.typebased.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +49,9 @@ public class PluginRegistry {
     private final List<IPlanBuilderPolicyAwarePostPhasePlugin<?>> policyAwarePostPhasePlugins = new ArrayList<>();
     private final List<IPlanBuilderPolicyAwarePrePhasePlugin<?>> policyAwarePrePhasePlugins = new ArrayList<>();
     private final List<IPlanBuilderChoreographyPlugin<?>> choreographyPlugins = new ArrayList<>();
+    private final List<IPlanBuilderTypeCreateInstancePlugin<?>> createInstancePlugins = new ArrayList<>();
+    private final List<IPlanBuilderTypeCallNodeOperationPlugin<?>> callNodeOperationPlugins = new ArrayList<>();
+    private final List<IPlanBuilderTypeSetPropertyPlugin<?>> setPropertyPlugins = new ArrayList<>();
 
     @Inject
     // required is false to allow starting without any planbuilder plugins
@@ -113,6 +109,18 @@ public class PluginRegistry {
         if (plugin instanceof IPlanBuilderChoreographyPlugin<?>) {
             roles.add(IPlanBuilderChoreographyPlugin.class.getSimpleName());
             choreographyPlugins.add((IPlanBuilderChoreographyPlugin<?>) plugin);
+        }
+        if (plugin instanceof IPlanBuilderTypeCreateInstancePlugin<?>) {
+            roles.add(IPlanBuilderTypeCreateInstancePlugin.class.getSimpleName());
+            createInstancePlugins.add((IPlanBuilderTypeCreateInstancePlugin<?>) plugin);
+        }
+        if (plugin instanceof IPlanBuilderTypeCallNodeOperationPlugin<?>) {
+            roles.add(IPlanBuilderTypeCallNodeOperationPlugin.class.getSimpleName());
+            callNodeOperationPlugins.add((IPlanBuilderTypeCallNodeOperationPlugin<?>) plugin);
+        }
+        if (plugin instanceof IPlanBuilderTypeSetPropertyPlugin<?>) {
+            roles.add(IPlanBuilderTypeSetPropertyPlugin.class.getSimpleName());
+            setPropertyPlugins.add((IPlanBuilderTypeSetPropertyPlugin<?>) plugin);
         }
         if (roles.isEmpty()) {
             LOG.warn("Plugin {} could not be registered for any roles. It's not available from the PluginRegistry", plugin.getClass().getSimpleName());
@@ -193,6 +201,18 @@ public class PluginRegistry {
 
     public List<IPlanBuilderChoreographyPlugin<?>> getChoreographyPlugins() {
         return choreographyPlugins;
+    }
+
+    public List<IPlanBuilderTypeCreateInstancePlugin<?>> getCreateInstancePlugins() {
+        return createInstancePlugins;
+    }
+
+    public List<IPlanBuilderTypeCallNodeOperationPlugin<?>> getCallNodeOperationPlugins() {
+        return callNodeOperationPlugins;
+    }
+
+    public List<IPlanBuilderTypeSetPropertyPlugin<?>> getSetPropertyPlugins() {
+        return setPropertyPlugins;
     }
 
     public boolean canTypePluginHandleCreate(final TRelationshipTemplate relationshipTemplate, Csar csar) {
