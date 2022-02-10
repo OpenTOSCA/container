@@ -16,12 +16,7 @@ import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-//import org.eclipse.persistence.annotations.Customizer;
-//import org.opentosca.container.core.next.jpa.SoftDeleteCustomizer;
-
 @MappedSuperclass
-// FIXME reinstate soft-deletion behaviour
-//@Customizer(SoftDeleteCustomizer.class)
 public class PersistenceObject implements Serializable {
 
     private static final long serialVersionUID = 7082895776724756832L;
@@ -29,9 +24,6 @@ public class PersistenceObject implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
-
-    // @Version
-    // protected Long version;
 
     @JsonIgnore
     @Column(name = "CREATED_AT", insertable = true, updatable = false)
