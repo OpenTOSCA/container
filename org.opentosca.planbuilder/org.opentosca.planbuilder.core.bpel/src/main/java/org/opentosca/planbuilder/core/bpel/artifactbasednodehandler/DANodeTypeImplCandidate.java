@@ -7,6 +7,8 @@ import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 
+import org.opentosca.container.core.model.ModelUtils;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
 
 /**
@@ -25,17 +27,20 @@ class DANodeTypeImplCandidate {
     final List<TDeploymentArtifact> das = new ArrayList<>();
     final TNodeTypeImplementation impl;
     final List<TNodeTemplate> infraNodes = new ArrayList<>();
-    final List<IPlanBuilderPrePhaseDAPlugin> plugins = new ArrayList<>();
+    final List<IPlanBuilderPrePhaseDAPlugin<?>> plugins = new ArrayList<>();
     final TNodeTemplate nodeTemplate;
+
+    private final Csar csar;
 
     /**
      * Constructor determines which NodeTypeImplementation is used
      *
      * @param impl an TNodeTypeImplementation with a DA
      */
-    DANodeTypeImplCandidate(final TNodeTemplate nodeTemplate, final TNodeTypeImplementation impl) {
+    DANodeTypeImplCandidate(final TNodeTemplate nodeTemplate, final TNodeTypeImplementation impl, Csar csar) {
         this.impl = impl;
         this.nodeTemplate = nodeTemplate;
+        this.csar = csar;
     }
 
     /**
@@ -46,7 +51,7 @@ class DANodeTypeImplCandidate {
      * @param plugin       the PrePhaseDAPlugin which can deploy the DA unto the given NodeTemplate
      */
     void add(final TDeploymentArtifact da, final TNodeTemplate nodeTemplate,
-             final IPlanBuilderPrePhaseDAPlugin plugin) {
+             final IPlanBuilderPrePhaseDAPlugin<?> plugin) {
         this.das.add(da);
         this.infraNodes.add(nodeTemplate);
         this.plugins.add(plugin);
@@ -58,6 +63,6 @@ class DANodeTypeImplCandidate {
      * @return true if all DA's of the NodeTypeImplementation can be deployed, else false
      */
     boolean isValid() {
-        return BPELScopeBuilder.calculateEffectiveDAs(this.nodeTemplate, this.impl).size() == this.das.size();
+        return ModelUtils.calculateEffectiveDAs(this.nodeTemplate, this.impl, this.csar).size() == this.das.size();
     }
 }

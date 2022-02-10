@@ -210,11 +210,11 @@ public class Utils {
     }
 
     /**
-     * Checks whether the given NodeType is a docker engine nodeType that can be handled by the set of plugins used by
+     * Checks whether the given NodeType is a docker engine NodeType that can be handled by the set of plugins used by
      * the PlanBuilder.
      *
      * @param nodeType a QName denoting some nodeType
-     * @return a boolean. True if the given nodeType is a docker engine nodeType
+     * @return True if the given nodeType is a docker engine nodeType
      */
     public static boolean isSupportedDockerEngineNodeType(final QName nodeType) {
         return nodeType.getNamespaceURI().equalsIgnoreCase(Types.dockerEngineNodeType.getNamespaceURI())

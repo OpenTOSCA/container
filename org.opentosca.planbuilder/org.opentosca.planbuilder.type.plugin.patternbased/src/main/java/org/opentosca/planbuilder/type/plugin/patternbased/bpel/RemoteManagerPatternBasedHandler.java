@@ -9,17 +9,18 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
+import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.w3c.dom.Element;
 
 public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
 
     public boolean handleCreate(final BPELPlanContext context, final TNodeTemplate nodeTemplate, Element elementToAppendTo) {
-        final TInterface iface = getRemoteManagerInterface(nodeTemplate, context.getCsar());
+        final TInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_INTERFACE_REMOTE_MANAGER, context.getCsar());
         final TOperation createOperation = getRemoteManagerInstallOperation(nodeTemplate, context.getCsar());
 
         final Set<TNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate, context.getCsar());
@@ -77,7 +78,7 @@ public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
     }
 
     private TOperation getRemoteManagerInstallOperation(TNodeTemplate node, Csar csar) {
-        TInterface iface = this.getRemoteManagerInterface(node, csar);
+        TInterface iface = ModelUtils.getInterfaceOfNode(node, Interfaces.OPENTOSCA_INTERFACE_REMOTE_MANAGER, csar);
         if (iface != null) {
             for (TOperation op : iface.getOperations()) {
                 if (op.getName().equals("install")) {
@@ -89,21 +90,12 @@ public class RemoteManagerPatternBasedHandler extends PatternBasedHandler {
     }
 
     private TOperation getRemoteManagerResetOperation(TNodeTemplate node, Csar csar) {
-        TInterface iface = this.getRemoteManagerInterface(node, csar);
+        TInterface iface = ModelUtils.getInterfaceOfNode(node, Interfaces.OPENTOSCA_INTERFACE_REMOTE_MANAGER, csar);
         if (iface != null) {
             for (TOperation op : iface.getOperations()) {
                 if (op.getName().equals("reset")) {
                     return op;
                 }
-            }
-        }
-        return null;
-    }
-
-    private TInterface getRemoteManagerInterface(TNodeTemplate node, Csar csar) {
-        for (TInterface iface : ModelUtils.findNodeType(node, csar).getInterfaces()) {
-            if (iface.getName().equals("http://opentosca.org/interfaces/pattern/remotemanager")) {
-                return iface;
             }
         }
         return null;

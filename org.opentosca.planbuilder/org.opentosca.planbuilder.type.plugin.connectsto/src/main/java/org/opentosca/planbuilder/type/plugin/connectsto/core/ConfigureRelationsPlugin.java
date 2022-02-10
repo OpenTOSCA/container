@@ -1,15 +1,17 @@
 package org.opentosca.planbuilder.type.plugin.connectsto.core;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipType;
 
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 
 public abstract class ConfigureRelationsPlugin<T extends PlanContext> implements IPlanBuilderTypePlugin<T> {
 
@@ -25,13 +27,16 @@ public abstract class ConfigureRelationsPlugin<T extends PlanContext> implements
 
     @Override
     public boolean canHandleCreate(Csar csar, final TRelationshipTemplate relationshipTemplate) {
-        final List<TInterface> interfaces = ModelUtils.findRelationshipType(relationshipTemplate, csar).getInterfaces();
-        if (interfaces == null) {
-            return false;
-        }
-        for (final TInterface i : interfaces) {
-            if (i.getName().equalsIgnoreCase(INTERFACE_NAME)) {
-                return true;
+        TRelationshipType relationshipType = ModelUtils.findRelationshipType(relationshipTemplate, csar);
+        if (Objects.nonNull(ModelUtils.findRelationshipType(relationshipTemplate, csar).getInterfaces())) {
+            final List<TInterface> interfaces = relationshipType.getInterfaces();
+            if (interfaces == null) {
+                return false;
+            }
+            for (final TInterface i : interfaces) {
+                if (i.getName().equalsIgnoreCase(INTERFACE_NAME)) {
+                    return true;
+                }
             }
         }
         return false;

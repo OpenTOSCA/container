@@ -2,6 +2,8 @@ package org.opentosca.planbuilder.type.plugin.patternbased.bpel;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
@@ -14,7 +16,7 @@ import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.w3c.dom.Element;
 
 public class LifecyclePatternBasedHandler extends PatternBasedHandler {
@@ -26,22 +28,22 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         Set<TNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate, context.getCsar());
         nodesForMatching = this.filterForNodesInCreation(context, nodesForMatching);
 
-        TOperation op = null;
+        TOperation op;
         boolean result = true;
 
         if (((op = this.getLifecyclePatternInstallMethod(nodeTemplate, context.getCsar())) != null)
             && hasCompleteMatching(nodesForMatching, iface, op)) {
-            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
+            result = invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
         }
 
         if (((op = this.getLifecyclePatternConfigureMethod(nodeTemplate, context.getCsar())) != null)
             && hasCompleteMatching(nodesForMatching, iface, op)) {
-            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
+            result = result & invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
         }
 
         if (((op = this.getLifecyclePatternStartMethod(nodeTemplate, context.getCsar())) != null)
             && hasCompleteMatching(nodesForMatching, iface, op)) {
-            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
+            result = result & invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
         }
 
         return result;
@@ -53,17 +55,17 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 
         Set<TNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate, context.getCsar());
 
-        TOperation op = null;
+        TOperation op;
         boolean result = true;
 
         if (((op = this.getLifecyclePatternStopMethod(nodeTemplate, context.getCsar())) != null)
             && hasCompleteMatching(nodesForMatching, iface, op)) {
-            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
+            result = invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
         }
 
         if (((op = this.getLifecyclePatternUninstallMethod(nodeTemplate, context.getCsar())) != null)
             && hasCompleteMatching(nodesForMatching, iface, op)) {
-            result &= invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
+            result = result & invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
         }
 
         return result;
@@ -71,12 +73,7 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 
     public boolean handleUpdate(final BPELPlanContext context, final TNodeTemplate nodeTemplate, Element elementToAppendTo, Csar csar) {
 
-        TInterface iface = null;
-        for (final TInterface ifacei : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
-            if (ifacei.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE)) {
-                iface = ifacei;
-            }
-        }
+        TInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE, csar);
         if (iface == null) return false;
 
         TOperation updateOperation = null;
@@ -95,10 +92,12 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
 
     private boolean isImplementedAsScript(TInterface iface, TNodeTemplate nodeTemplate, Csar csar) {
         for (TNodeTypeImplementation impl : ModelUtils.findNodeTypeImplementation(nodeTemplate, csar)) {
-            for (TImplementationArtifact implArtifact : impl.getImplementationArtifacts()) {
-                if (implArtifact.getInterfaceName().equals(iface.getName())) {
-                    if (implArtifact.getArtifactType().equals(Types.scriptArtifactType)) {
-                        return true;
+            if (impl.getImplementationArtifacts() != null) {
+                for (TImplementationArtifact implArtifact : impl.getImplementationArtifacts()) {
+                    if (implArtifact.getInterfaceName().equals(iface.getName())) {
+                        if (implArtifact.getArtifactType().equals(Types.scriptArtifactType)) {
+                            return true;
+                        }
                     }
                 }
             }
@@ -115,13 +114,16 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         boolean foundRunScript = false;
         boolean foundTransferFile = false;
         for (TNodeTemplate node : nodeTemplates) {
-            for (TInterface iface : ModelUtils.findNodeType(node, csar).getInterfaces()) {
-                for (TOperation op : iface.getOperations()) {
-                    if (op.getName().equals("runScript")) {
-                        foundRunScript = true;
-                    }
-                    if (op.getName().equals("transferFile")) {
-                        foundTransferFile = true;
+            List<TInterface> interfaces = ModelUtils.findNodeType(node, csar).getInterfaces();
+            if (interfaces != null) {
+                for (TInterface iface : interfaces) {
+                    for (TOperation op : iface.getOperations()) {
+                        if (op.getName().equals("runScript")) {
+                            foundRunScript = true;
+                        }
+                        if (op.getName().equals("transferFile")) {
+                            foundTransferFile = true;
+                        }
                     }
                 }
             }
@@ -131,7 +133,7 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
     }
 
     private Set<TNodeTemplate> getNodesForMatching(TNodeTemplate nodeTemplate, Csar csar) {
-        Set<TNodeTemplate> nodesForMatching = new HashSet<TNodeTemplate>();
+        Set<TNodeTemplate> nodesForMatching = new HashSet<>();
 
         nodesForMatching.add(nodeTemplate);
         ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.dependsOnRelationType, nodesForMatching, csar);
@@ -140,7 +142,7 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
     }
 
     private Set<TNodeTemplate> filterForNodesInCreation(BPELPlanContext context, Set<TNodeTemplate> nodes) {
-        Set<TNodeTemplate> result = new HashSet<TNodeTemplate>();
+        Set<TNodeTemplate> result = new HashSet<>();
         Collection<TNodeTemplate> nodesInCreation = context.getNodesInCreation();
 
         for (TNodeTemplate node : nodes) {
@@ -161,17 +163,17 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         Set<TNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate, csar);
 
         // Small check if we have to find runScript and transferFile operations
-        boolean hasScriptImplementation = false;
+        boolean hasScriptImplementation;
 
         // check if the lifecycle operations can be matched against the nodes
-        TOperation op = null;
+        TOperation op;
         TInterface iface = this.getLifecyclePatternInterface(nodeTemplate, csar);
         if (((op = this.getLifecyclePatternInstallMethod(nodeTemplate, csar)) != null)
             && !hasCompleteMatching(nodesForMatching, iface, op)) {
             return false;
         }
 
-        hasScriptImplementation |= this.isImplementedAsScript(iface, nodeTemplate, csar);
+        hasScriptImplementation = this.isImplementedAsScript(iface, nodeTemplate, csar);
 
         if (((op = this.getLifecyclePatternConfigureMethod(nodeTemplate, csar)) != null)
             && !hasCompleteMatching(nodesForMatching, iface, op)) {
@@ -203,17 +205,17 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         Set<TNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate, csar);
 
         // Small check if we have to find runScript and transferFile operations
-        boolean hasScriptImplementation = false;
+        boolean hasScriptImplementation;
 
         // check if the lifecycle operations can be matched against the nodes
-        TOperation op = null;
+        TOperation op;
         TInterface iface = this.getLifecyclePatternInterface(nodeTemplate, csar);
         if (((op = this.getLifecyclePatternStopMethod(nodeTemplate, csar)) != null)
             && !hasCompleteMatching(nodesForMatching, iface, op)) {
             return false;
         }
 
-        hasScriptImplementation |= this.isImplementedAsScript(iface, nodeTemplate, csar);
+        hasScriptImplementation = this.isImplementedAsScript(iface, nodeTemplate, csar);
 
         if (((op = this.getLifecyclePatternUninstallMethod(nodeTemplate, csar)) != null)
             && !hasCompleteMatching(nodesForMatching, iface, op)) {
@@ -238,7 +240,7 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         Set<TNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate, csar);
 
         // check if the lifecycle operations can be matched against the nodes
-        TOperation op = null;
+        TOperation op;
         TInterface iface = this.getLifecyclePatternInterface(nodeTemplate, csar);
         if (((op = this.getLifecyclePatternInstallMethod(nodeTemplate, csar)) != null)
             && !hasCompleteMatching(nodesForMatching, iface, op)) {
@@ -269,7 +271,7 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         Set<TNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate, csar);
 
         // check if the lifecycle operations can be matched against the nodes
-        TOperation op = null;
+        TOperation op;
         TInterface iface = this.getLifecyclePatternInterface(nodeTemplate, csar);
         if (((op = this.getLifecyclePatternStopMethod(nodeTemplate, csar)) != null)
             && !hasCompleteMatching(nodesForMatching, iface, op)) {
@@ -293,15 +295,19 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
     }
 
     protected TInterface getLifecyclePatternInterface(final TNodeTemplate nodeTemplate, Csar csar) {
-        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
-            switch (iface.getName()) {
-                case Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE:
-                case Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE2:
-                case Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE3:
-                    return iface;
-            }
+
+        // search for all three possible lifecycle interfaces within the NodeType hierarchy
+        TInterface lifecycleInterface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE, csar);
+        if (Objects.nonNull(lifecycleInterface)) {
+            return lifecycleInterface;
         }
-        return null;
+
+        lifecycleInterface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE2, csar);
+        if (Objects.nonNull(lifecycleInterface)) {
+            return lifecycleInterface;
+        }
+
+        return ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE3, csar);
     }
 
     protected TOperation getLifecyclePatternStartMethod(final TNodeTemplate nodeTemplate, Csar csar) {

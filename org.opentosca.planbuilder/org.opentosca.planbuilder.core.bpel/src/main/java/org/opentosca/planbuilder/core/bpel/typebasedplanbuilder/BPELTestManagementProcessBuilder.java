@@ -19,6 +19,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.AbstractManagementFeaturePlanBuilder;
@@ -27,11 +28,14 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
+import org.opentosca.planbuilder.core.bpel.handlers.DeployTechDescriptorHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.PropertyVariableHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.SimplePlanBuilderServiceInstanceHandler;
 import org.opentosca.planbuilder.core.bpel.typebasednodehandler.BPELPluginHandler;
+import org.opentosca.planbuilder.core.plugins.context.DeployTechDescriptorMapping;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
+import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
@@ -39,7 +43,6 @@ import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +63,8 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
     private final BPELFinalizer finalizer;
     // class for initializing properties inside the build plan
     private final PropertyVariableHandler propertyInitializer;
+    // class for initializing deployment technology properties in the build plan
+    private final DeployTechDescriptorHandler deployTechDescriptorHandler;
     private final BPELPluginHandler bpelPluginHandler;
     // handler for abstract buildplan operations
     public BPELPlanHandler planHandler;
@@ -89,6 +94,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
         }
         this.propertyInitializer = new PropertyVariableHandler(this.planHandler);
         this.finalizer = new BPELFinalizer();
+        this.deployTechDescriptorHandler = new DeployTechDescriptorHandler(this.planHandler);
     }
 
     private BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
@@ -126,6 +132,9 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
         final Property2VariableMapping propMap =
             this.propertyInitializer.initializePropertiesAsVariables(newTestPlan, serviceTemplate);
 
+        DeployTechDescriptorMapping descriptorMap =
+            this.deployTechDescriptorHandler.initializeDescriptorsAsVariables(newTestPlan, serviceTemplate);
+
         // initialize instanceData handling
         this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
             newTestPlan);
@@ -148,7 +157,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
             serviceTemplate);
         this.instanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newTestPlan, propMap, serviceTemplate);
 
-        runPlugins(newTestPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csar);
+        runPlugins(newTestPlan, propMap, descriptorMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csar);
 
         this.correlationHandler.addCorrellationID(newTestPlan);
 
@@ -203,11 +212,12 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
     }
 
     private void runPlugins(final BPELPlan testPlan, final Property2VariableMapping map,
-                            final String serviceInstanceUrl, final String serviceInstanceID,
-                            final String serviceTemplateUrl, final String planInstanceUrl, final Csar csar) {
+                            final DeployTechDescriptorMapping descriptorMap, final String serviceInstanceUrl,
+                            final String serviceInstanceID, final String serviceTemplateUrl,
+                            final String planInstanceUrl, final Csar csar) {
 
         for (final BPELScope bpelScope : testPlan.getTemplateBuildPlans()) {
-            final BPELPlanContext context = new BPELPlanContext(new BPELScopeBuilder(pluginRegistry), testPlan, bpelScope, map, testPlan.getServiceTemplate(),
+            final BPELPlanContext context = new BPELPlanContext(new BPELScopeBuilder(pluginRegistry), testPlan, bpelScope, map, descriptorMap, testPlan.getServiceTemplate(),
                 serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csar);
             if (Objects.nonNull(bpelScope.getNodeTemplate())) {
 
@@ -229,17 +239,29 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
                         final Map<TParameter, Variable> inputMapping = new HashMap<>();
                         final Map<TParameter, Variable> outputMapping = new HashMap<>();
 
-                        // search for input parameters in the topology stack
+                        // search for input parameters
                         LOG.debug("Test {} on NodeTemplate {} needs the following input parameters:",
                             testOperation.getName(), nodeTemplate.getName());
                         for (final TParameter param : testOperation.getInputParameters()) {
                             LOG.debug("Input param: {}", param.getName());
-                            found:
-                            for (final TNodeTemplate nodeForMatching : nodesForMatching) {
+                            boolean found = false;
+                            // search in deployment technology descriptors
+                            Optional<PropertyVariable> var = descriptorMap.getVariableByNodeAndProp(nodeTemplate, param.getName());
+                            if (var.isPresent()) {
+                                inputMapping.put(param, var.get());
+                                LOG.debug("Found variable |{}|", var.get().getVariableName());
+                                found = true;
+                            }
+                            // search in the topology stack
+                            for (int i = 0; i < nodesForMatching.size() && !found; i++) {
+                                TNodeTemplate nodeForMatching = nodesForMatching.get(i);
                                 for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
                                     if (param.getName().equals(propName)) {
-                                        inputMapping.put(param, context.getPropertyVariable(nodeForMatching, propName));
-                                        break found;
+                                        PropertyVariable propVar = context.getPropertyVariable(nodeForMatching, propName);
+                                        inputMapping.put(param, propVar);
+                                        LOG.debug("Found variable |{}|", propVar.getVariableName());
+                                        found = true;
+                                        break;
                                     }
                                 }
                             }

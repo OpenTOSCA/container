@@ -21,7 +21,7 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.slf4j.LoggerFactory;
 

@@ -35,7 +35,7 @@ import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlu
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,19 +173,8 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
             && hasFreezeableComponentPolicy(nodeTemplate);
     }
 
-    private TInterface getLoadStateInterface(final TNodeTemplate nodeTemplate, Csar csar) {
-        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
-            if (!iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE)) {
-                continue;
-            }
-
-            return iface;
-        }
-        return null;
-    }
-
     private TOperation getLoadStateOperation(final TNodeTemplate nodeTemplate, Csar csar) {
-        final TInterface iface = this.getLoadStateInterface(nodeTemplate, csar);
+        final TInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE, csar);
         if (iface != null) {
             for (final TOperation op : iface.getOperations()) {
                 if (!op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE)) {

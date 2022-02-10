@@ -12,7 +12,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 
 /**
  * <p>
@@ -34,6 +34,10 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
     }
 
     public static TDeploymentArtifact getTDeploymentArtifact(TNodeTemplate nodeTemplate, Csar csar) {
+        if (nodeTemplate.getDeploymentArtifacts() == null) {
+            return null;
+        }
+
         for (final TDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
             if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTIFACTTYPE)
                 || da.getArtifactType()

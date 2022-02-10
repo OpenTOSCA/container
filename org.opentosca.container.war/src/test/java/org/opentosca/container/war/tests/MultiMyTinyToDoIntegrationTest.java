@@ -4,17 +4,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
-import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,18 +19,20 @@ import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.control.OpenToscaControlService;
-import org.opentosca.container.core.common.SystemException;
-import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.war.Application;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = {Application.class})
@@ -55,7 +53,7 @@ public class MultiMyTinyToDoIntegrationTest {
     public InstanceService instanceService;
 
     @Test
-    public void test() throws InterruptedException, ExecutionException, RepositoryCorruptException, IOException, SystemException, AccountabilityException, UserException, GitAPIException {
+    public void test() throws Exception {
         Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage);
         TestUtils.generatePlans(this.csarService, csar);
 
@@ -66,7 +64,9 @@ public class MultiMyTinyToDoIntegrationTest {
         TPlan buildPlan = null;
         TPlan scaleOutPlan = null;
         TPlan terminationPlan = null;
+        assertNotNull(serviceTemplate);
         List<TPlan> plans = serviceTemplate.getPlans();
+        assertNotNull(plans);
 
         for (TPlan plan : plans) {
             PlanType type = PlanType.fromString(plan.getPlanType());
@@ -91,17 +91,18 @@ public class MultiMyTinyToDoIntegrationTest {
             }
         }
 
-        Assert.assertNotNull("BuildPlan not found", buildPlan);
-        Assert.assertNotNull("ScaleOutPlan not found", scaleOutPlan);
-        Assert.assertNotNull("TerminationPlan not found", terminationPlan);
+        assertNotNull("BuildPlan not found", buildPlan);
+        assertNotNull("ScaleOutPlan not found", scaleOutPlan);
+        assertNotNull("TerminationPlan not found", terminationPlan);
 
         ServiceTemplateInstance serviceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
-
+        assertNotNull(serviceTemplateInstance);
+        assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
         this.checkStateAfterBuild(serviceTemplateInstance);
 
         String serviceInstanceUrl = TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString());
 
-        TestUtils.runManagementPlanExecution(this.planService, csar, serviceInstanceUrl, serviceTemplate, serviceTemplateInstance, scaleOutPlan, this.getScaleOurPlanInputParameters(serviceInstanceUrl));
+        TestUtils.runManagementPlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, scaleOutPlan, this.getScaleOurPlanInputParameters(serviceInstanceUrl));
 
         this.checkStateAfterScaleOut(serviceTemplateInstance);
 
@@ -120,8 +121,8 @@ public class MultiMyTinyToDoIntegrationTest {
         Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstanceUpdated.getNodeTemplateInstances();
         Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstanceUpdated.getRelationshipTemplateInstances();
 
-        Assert.assertTrue(nodeTemplateInstances.size() == 5);
-        Assert.assertTrue(relationshipTemplateInstances.size() == 4);
+        assertEquals(5, nodeTemplateInstances.size());
+        assertEquals(4, relationshipTemplateInstances.size());
 
         int foundDockerEngine = 0;
         int foundTinyToDo = 0;
@@ -134,8 +135,8 @@ public class MultiMyTinyToDoIntegrationTest {
             }
         }
 
-        Assert.assertTrue(foundDockerEngine == 1);
-        Assert.assertTrue(foundTinyToDo == 4);
+        Assert.assertFalse(foundDockerEngine != 1);
+        assertEquals(4, foundTinyToDo);
 
         TestUtils.checkViaHTTPGET("http://localhost:9994", 200, "My Tiny Todolist");
     }
@@ -144,8 +145,8 @@ public class MultiMyTinyToDoIntegrationTest {
         Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
         Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
 
-        Assert.assertTrue(nodeTemplateInstances.size() == 4);
-        Assert.assertTrue(relationshipTemplateInstances.size() == 3);
+        assertEquals(4, nodeTemplateInstances.size());
+        assertEquals(3, relationshipTemplateInstances.size());
 
         int foundDockerEngine = 0;
         int foundTinyToDo = 0;
@@ -158,8 +159,8 @@ public class MultiMyTinyToDoIntegrationTest {
             }
         }
 
-        Assert.assertTrue(foundDockerEngine == 1);
-        Assert.assertTrue(foundTinyToDo == 3);
+        assertEquals(1, foundDockerEngine);
+        assertEquals(3, foundTinyToDo);
 
         TestUtils.checkViaHTTPGET("http://localhost:9990", 200, "My Tiny Todolist");
         TestUtils.checkViaHTTPGET("http://localhost:9991", 200, "My Tiny Todolist");
@@ -196,7 +197,7 @@ public class MultiMyTinyToDoIntegrationTest {
         dockerEngineUrl.setName("DockerEngineURL");
         dockerEngineUrl.setRequired(true);
         dockerEngineUrl.setType("String");
-        dockerEngineUrl.setValue("tcp://172.17.0.1:2375");
+        dockerEngineUrl.setValue("tcp://" + TestUtils.getDockerHost() + ":2375");
 
         org.opentosca.container.core.extension.TParameter applicationPort = new org.opentosca.container.core.extension.TParameter();
         applicationPort.setName("ApplicationPort");

@@ -34,7 +34,7 @@ import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -269,7 +269,7 @@ public class BPELInvokerPluginHandler {
         final String requestVariableName =
             invokerPortType.getLocalPart() + InputMessageId.getLocalPart() + "Request" + context.getIdForNames();
         context.addVariable(requestVariableName, BPELPlan.VariableType.MESSAGE, InputMessageId);
-        final String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageId.getLocalPart()
+    final String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageId.getLocalPart()
             + "Response" + context.getIdForNames();
         context.addVariable(responseVariableName, BPELPlan.VariableType.MESSAGE, OutputMessageId);
 
@@ -487,12 +487,14 @@ public class BPELInvokerPluginHandler {
 
     private List<String> getRunScriptParams(final TNodeTemplate nodeTemplate, Csar csar) {
         final List<String> inputParams = new ArrayList<>();
-
-        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
-            for (final TOperation op : iface.getOperations()) {
-                if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)) {
-                    for (final TParameter param : op.getInputParameters()) {
-                        inputParams.add(param.getName());
+        List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
+        if (interfaces != null) {
+            for (final TInterface tInterface : interfaces) {
+                for (final TOperation op : tInterface.getOperations()) {
+                    if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)) {
+                        for (final TParameter param : op.getInputParameters()) {
+                            inputParams.add(param.getName());
+                        }
                     }
                 }
             }
@@ -503,12 +505,14 @@ public class BPELInvokerPluginHandler {
 
     private List<String> getTransferFileParams(final TNodeTemplate nodeTemplate, Csar csar) {
         final List<String> inputParams = new ArrayList<>();
-
-        for (final TInterface iface : ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces()) {
-            for (final TOperation op : iface.getOperations()) {
-                if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
-                    for (final TParameter param : op.getInputParameters()) {
-                        inputParams.add(param.getName());
+        List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
+        if (interfaces != null) {
+            for (final TInterface tInterface : interfaces) {
+                for (final TOperation op : tInterface.getOperations()) {
+                    if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
+                        for (final TParameter param : op.getInputParameters()) {
+                            inputParams.add(param.getName());
+                        }
                     }
                 }
             }
@@ -530,7 +534,7 @@ public class BPELInvokerPluginHandler {
         }
 
         /*
-         * Contruct all needed data (paths, url, scripts)
+         * Construct all needed data (paths, url, scripts)
          */
         // TODO /home/ec2-user/ or ~ is a huge assumption
         // the path to the file on the ubuntu vm being uploaded
@@ -596,7 +600,7 @@ public class BPELInvokerPluginHandler {
                 this.handle(templateContext, infraTemplate.getId(), true,
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE,
                     "ContainerManagementInterface", transferFileRequestInputParams,
-                    new HashMap<String, Variable>(), elementToAppendTo);
+                    new HashMap<>(), elementToAppendTo);
                 break;
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
@@ -612,7 +616,7 @@ public class BPELInvokerPluginHandler {
                 }
                 this.handle(templateContext, infraTemplate.getId(), true, "runScript",
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, runScriptRequestInputParams,
-                    new HashMap<String, Variable>(), elementToAppendTo);
+                    new HashMap<>(), elementToAppendTo);
 
                 // transfer the file
                 if (transferFileInputParams.contains(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP)) {
@@ -627,7 +631,7 @@ public class BPELInvokerPluginHandler {
                 this.handle(templateContext, infraTemplate.getId(), true,
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE,
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, transferFileRequestInputParams,
-                    new HashMap<String, Variable>(), elementToAppendTo);
+                    new HashMap<>(), elementToAppendTo);
                 break;
             default:
                 return false;

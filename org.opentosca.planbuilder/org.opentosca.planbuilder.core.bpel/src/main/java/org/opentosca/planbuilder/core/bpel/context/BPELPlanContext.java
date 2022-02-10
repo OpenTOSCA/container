@@ -34,6 +34,7 @@ import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationCha
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.plugins.context.DeployTechDescriptorMapping;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
@@ -45,7 +46,7 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -73,9 +74,16 @@ public class BPELPlanContext extends PlanContext {
     private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 
     public BPELPlanContext(BPELScopeBuilder scopeBuilder, final BPELPlan plan, final BPELScope templateBuildPlan, final Property2VariableMapping map,
+                       final TServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
+                       String serviceInstanceIDVarName, String serviceTemplateURLVarName, String planInstanceUrlVarName, Csar csar) {
+        this(scopeBuilder, plan, templateBuildPlan, map, null, serviceTemplate, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, planInstanceUrlVarName, csar);
+    }
+
+    public BPELPlanContext(BPELScopeBuilder scopeBuilder, final BPELPlan plan, final BPELScope templateBuildPlan, final Property2VariableMapping map,
+                           final DeployTechDescriptorMapping descriptorMap,
                            final TServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
                            String serviceInstanceIDVarName, String serviceTemplateURLVarName, String planInstanceUrlVarName, Csar csar) {
-        super(plan, serviceTemplate, map, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, planInstanceUrlVarName, csar);
+        super(plan, serviceTemplate, map, descriptorMap, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, planInstanceUrlVarName, csar);
 
         this.scopeBuilder = scopeBuilder;
         this.templateBuildPlan = templateBuildPlan;

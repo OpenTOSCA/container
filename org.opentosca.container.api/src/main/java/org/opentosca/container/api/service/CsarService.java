@@ -48,7 +48,7 @@ public class CsarService {
      */
     public boolean generatePlans(final Csar csar) throws SystemException, UserException {
         Optional<Path> zipFile = safeExport(csar);
-        if (!zipFile.isPresent()) {
+        if (zipFile.isEmpty()) {
             return false;
         }
 
@@ -60,6 +60,8 @@ public class CsarService {
         IRepository repo = RepositoryFactory.getRepository(csar.getSaveLocation());
 
         final Path file = planBuilderExporter.exportToCSAR(buildPlans, csar.id(), repo, this.storage).csarFile;
+        logger.debug("Exported BuildPlan under {}", file);
+
         return true;
     }
 
@@ -76,6 +78,7 @@ public class CsarService {
 
             final WineryExporter.PlanExportResult result = planBuilderExporter.exportToCSAR(plans, csar.id(), repo, this.storage);
             final Path file = result.csarFile;
+            logger.debug("Exported AdaptationPlan under {}", file);
 
             return new AdaptationPlanGenerationResult(csar.id(), result.planIds.iterator().next());
         } catch (final Exception e) {
@@ -89,6 +92,7 @@ public class CsarService {
         List<AbstractPlan> plans = planBuilderImporter.generateTransformationPlans(sourceCsar, targetCsar);
         IRepository repo = RepositoryFactory.getRepository(sourceCsar.getSaveLocation());
         final Path file = planBuilderExporter.exportToCSAR(plans, sourceCsar.id(), repo, this.storage).csarFile;
+        logger.debug("Exported TransformationPlan under {}", file);
         return plans;
     }
 
