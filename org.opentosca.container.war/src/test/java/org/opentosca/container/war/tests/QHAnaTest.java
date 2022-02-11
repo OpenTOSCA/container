@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNotNull;
 @TestPropertySource(properties = "server.port=1337")
 public class QHAnaTest {
 
-    public static final String QcApplicationsRepository = "https://github.com/UST-QuAntiL/tosca-definitions-qc-applications";
+    public static final String QcApplicationsRepository = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
 
     public QName csarId = QName.valueOf("{https://ust-quantil.github.io/quantum/applications/servicetemplates}QHAna_w1");
 
