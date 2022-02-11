@@ -30,7 +30,7 @@ import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueTyp
 import org.opentosca.bus.management.service.impl.collaboration.route.ReceiveRequestRoute;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.next.model.Endpoint;
+import org.opentosca.container.core.next.model.endpoints.Endpoint;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

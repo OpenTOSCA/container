@@ -22,7 +22,7 @@ import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.next.model.Endpoint;
+import org.opentosca.container.core.next.model.endpoints.Endpoint;
 import org.opentosca.container.core.plan.ChoreographyHandler;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;

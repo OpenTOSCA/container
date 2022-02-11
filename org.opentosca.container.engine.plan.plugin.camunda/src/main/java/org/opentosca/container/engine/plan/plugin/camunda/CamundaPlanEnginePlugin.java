@@ -44,7 +44,7 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.impl.service.FileSystem;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.next.model.Endpoint;
+import org.opentosca.container.core.next.model.endpoints.Endpoint;
 import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;

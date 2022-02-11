@@ -1,11 +1,12 @@
 package org.opentosca.container.core.impl.service;
 
 import java.util.List;
+import java.util.Objects;
 
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.next.model.Endpoint;
+import org.opentosca.container.core.next.model.endpoints.Endpoint;
 import org.opentosca.container.core.next.repository.EndpointRepository;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService {
     public void storeEndpoint(final Endpoint endpoint) {
 
         // TODO this check is a hack because of the problem with deploying of multiple deployment artifacts
-        if (!existsEndpoint(endpoint)) {
+        if (Objects.nonNull(endpoint.getId()) && !existsEndpoint(endpoint)) {
             LOG.debug("The endpoint for \"{}\" is not stored. Thus store it.", endpoint.getPortType());
             endpointRepository.save(endpoint);
         } else {

@@ -1,4 +1,4 @@
-package org.opentosca.container.core.next.model;
+package org.opentosca.container.core.next.model.endpoints;
 
 import java.net.URI;
 import java.util.Map;
@@ -18,6 +18,7 @@ import org.opentosca.container.core.common.jpa.CsarIdConverter;
 import org.opentosca.container.core.common.jpa.QNameConverter;
 import org.opentosca.container.core.common.jpa.UriConverter;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.next.model.PersistenceObject;
 
 @Entity
 @Data
@@ -96,5 +97,5 @@ public class Endpoint extends PersistenceObject {
     @Basic
     @Convert(converter = QNameConverter.class)
     @Column(name = "planId")
-    private QName PlanId;
+    private QName planId;
 }
