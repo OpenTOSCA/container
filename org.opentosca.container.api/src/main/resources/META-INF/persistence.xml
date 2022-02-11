@@ -47,7 +47,7 @@
     <class>org.opentosca.container.core.model.deployment.AbstractDeploymentInfo</class>
     <class>org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo</class>
 
-    <class>org.opentosca.container.core.model.capability.Capability</class>
+    <class>org.opentosca.container.core.next.model.Capability</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
