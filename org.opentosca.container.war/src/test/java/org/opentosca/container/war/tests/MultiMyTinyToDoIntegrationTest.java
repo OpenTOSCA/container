@@ -39,7 +39,9 @@ import static org.junit.Assert.assertNotNull;
 @TestPropertySource(properties = "server.port=1337")
 public class MultiMyTinyToDoIntegrationTest {
 
-    public QName csarId = new QName("http://opentosca.org/servicetemplates", "Multi_MyTinyToDo_Bare_Docker_w1-wip1");
+    public static final String TestApplicationsRepository = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
+
+    public QName csarId = new QName("http://opentosca.org/test/applications/servicetemplates", "MutliMyTinyToDo-DockerEngine-Test_w1-wip1");
 
     @Inject
     public OpenToscaControlService control;
@@ -54,7 +56,7 @@ public class MultiMyTinyToDoIntegrationTest {
 
     @Test
     public void test() throws Exception {
-        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage);
+        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage, TestApplicationsRepository);
         TestUtils.generatePlans(this.csarService, csar);
 
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();

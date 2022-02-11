@@ -43,10 +43,12 @@ import static org.junit.Assert.assertNotNull;
 @TestPropertySource(properties = "server.port=1337")
 public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
 
+    public static final String TestApplicationsRepository = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
+
     protected static final Logger LOGGER = LoggerFactory.getLogger(MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest.class);
 
-    public QName myTinyToDocsarId = new QName("http://opentosca.org/servicetemplates", "MyTinyToDo_Bare_Docker");
-    public QName multiMyTinyToDoCsarId = new QName("http://opentosca.org/servicetemplates", "Multi_MyTinyToDo_Bare_Docker_w1-wip1");
+    public QName myTinyToDocsarId = new QName("http://opentosca.org/test/applications/servicetemplates", "MyTinyToDo-DockerEngine-Test_w1-wip1");
+    public QName multiMyTinyToDoCsarId = new QName("http://opentosca.org/test/applications/servicetemplates", "MutliMyTinyToDo-DockerEngine-Test_w1-wip1");
 
     @Inject
     public OpenToscaControlService control;
@@ -61,8 +63,8 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
 
     @Test
     public void test() throws Exception {
-        Csar myTinyToDoCsar = TestUtils.setupCsarTestRepository(this.myTinyToDocsarId, this.storage);
-        Csar multiMyTinyToDoCsar = TestUtils.setupCsarTestRepository(this.multiMyTinyToDoCsarId, this.storage);
+        Csar myTinyToDoCsar = TestUtils.setupCsarTestRepository(this.myTinyToDocsarId, this.storage, TestApplicationsRepository);
+        Csar multiMyTinyToDoCsar = TestUtils.setupCsarTestRepository(this.multiMyTinyToDoCsarId, this.storage, TestApplicationsRepository);
         TestUtils.generatePlans(this.csarService, myTinyToDoCsar);
         TestUtils.generatePlans(this.csarService, multiMyTinyToDoCsar);
 
