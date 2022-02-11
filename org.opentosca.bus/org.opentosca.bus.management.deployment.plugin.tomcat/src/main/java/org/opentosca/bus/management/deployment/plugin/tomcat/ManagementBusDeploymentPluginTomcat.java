@@ -11,6 +11,7 @@ import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
@@ -432,6 +433,11 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
      * @return the endpoint of the Tomcat
      */
     private String getTomcatEndpoint(QName artifactType) {
+
+        // fallback to default Tomcat 8 if we can not make a decision based on the artifact type
+        if (Objects.isNull(artifactType)) {
+            return Settings.ENGINE_IA_TOMCAT_URL;
+        }
 
         // for WARs relying on Java 17 the corresponding Tomcat must be selected
         if (artifactType.equals(QName.valueOf("{http://opentosca.org/artifacttypes}WAR-Java17"))) {
