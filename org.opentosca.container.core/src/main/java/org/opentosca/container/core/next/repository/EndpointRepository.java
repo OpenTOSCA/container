@@ -12,8 +12,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EndpointRepository extends JpaRepository<Endpoint, Long> {
 
-    List<Endpoint> findAll();
-
     List<Endpoint> findByPortTypeAndTriggeringContainerAndCsarId(QName portType, String triggeringContainer, CsarId csarId);
 
     List<Endpoint> findByTriggeringContainerAndServiceTemplateInstanceID(String triggeringContainer, Long serviceTemplateInstanceID);
