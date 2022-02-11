@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
-import org.opentosca.container.core.model.capability.provider.ProviderType;
+import org.opentosca.container.core.next.model.ProviderType;
 import org.opentosca.container.core.next.model.Capability;
 import org.opentosca.container.core.next.repository.CapabilityRepository;
 import org.opentosca.container.core.service.ICoreCapabilityService;

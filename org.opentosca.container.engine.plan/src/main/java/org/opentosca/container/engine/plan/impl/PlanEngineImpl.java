@@ -18,7 +18,7 @@ import org.eclipse.winery.model.tosca.TPlan;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opentosca.container.core.model.capability.provider.ProviderType;
+import org.opentosca.container.core.next.model.ProviderType;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.ICoreCapabilityService;
 import org.opentosca.container.engine.plan.IPlanEngineService;

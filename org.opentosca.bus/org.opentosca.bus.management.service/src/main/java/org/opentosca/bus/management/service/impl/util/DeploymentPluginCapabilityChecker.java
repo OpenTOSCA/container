@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import org.eclipse.winery.model.tosca.TRequiredContainerFeature;
 
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
-import org.opentosca.container.core.model.capability.provider.ProviderType;
+import org.opentosca.container.core.next.model.ProviderType;
 import org.opentosca.container.core.service.ICoreCapabilityService;
 import org.springframework.stereotype.Service;
 

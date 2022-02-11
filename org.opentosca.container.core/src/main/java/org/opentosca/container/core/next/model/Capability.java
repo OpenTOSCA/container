@@ -9,7 +9,6 @@ import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.opentosca.container.core.model.capability.provider.ProviderType;
 
 @Entity
 @Data
