@@ -1,16 +1,9 @@
 package org.opentosca.container.core.next.repository;
 
-import org.hibernate.Hibernate;
 import org.opentosca.container.core.next.model.DeploymentTest;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public class DeploymentTestRepository extends JpaRepository2<DeploymentTest> {
-
-    public DeploymentTestRepository() {
-        super(DeploymentTest.class);
-    }
-
-    @Override
-    protected void initializeInstance(DeploymentTest instance) {
-        Hibernate.initialize(instance.getDeploymentTestResults());
-    }
+@Repository
+public interface DeploymentTestRepository extends JpaRepository<DeploymentTest, Long> {
 }

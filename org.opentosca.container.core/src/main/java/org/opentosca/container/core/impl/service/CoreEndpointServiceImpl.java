@@ -41,7 +41,7 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService {
     public void storeEndpoint(final Endpoint endpoint) {
 
         // TODO this check is a hack because of the problem with deploying of multiple deployment artifacts
-        if (Objects.nonNull(endpoint.getId()) && !existsEndpoint(endpoint)) {
+        if (!existsEndpoint(endpoint)) {
             LOG.debug("The endpoint for \"{}\" is not stored. Thus store it.", endpoint.getPortType());
             endpointRepository.save(endpoint);
         } else {
@@ -56,6 +56,9 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService {
      * @return true, if the Endpoint already exists.
      */
     private boolean existsEndpoint(final Endpoint endpoint) {
+        if (Objects.isNull(endpoint.getId())) {
+            return false;
+        }
         return endpointRepository.findById(endpoint.getId()).isPresent();
     }
 

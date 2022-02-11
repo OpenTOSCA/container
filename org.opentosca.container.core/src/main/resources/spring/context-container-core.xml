@@ -42,7 +42,7 @@
     <bean id="dataSource"
           class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="org.h2.Driver"/>
-        <property name="url" value="jdbc:h2:file:/${java.io.tmpdir}/opentosca"/>
+        <property name="url" value="jdbc:h2:file:/TODO/opentosca"/>
         <property name="username" value="admin"/>
         <property name="password" value="admin"/>
     </bean>

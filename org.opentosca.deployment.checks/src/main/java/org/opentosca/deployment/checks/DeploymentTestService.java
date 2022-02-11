@@ -1,5 +1,6 @@
 package org.opentosca.deployment.checks;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,7 +27,7 @@ public class DeploymentTestService {
 
     private static final Logger logger = LoggerFactory.getLogger(DeploymentTestService.class);
 
-    private final DeploymentTestRepository repository = new DeploymentTestRepository();
+    private final DeploymentTestRepository deploymentTestRepository;
     private final CsarStorageService csarStorage;
 
     private final ExecutorService pool = Executors.newFixedThreadPool(5);
@@ -34,9 +35,10 @@ public class DeploymentTestService {
     private final TestExecutor executor;
 
     @Inject
-    public DeploymentTestService(TestExecutor executor, CsarStorageService csarStorage) {
+    public DeploymentTestService(DeploymentTestRepository deploymentTestRepository, TestExecutor executor, CsarStorageService csarStorage) {
         logger.debug("Instantiating DeploymentTestService");
         this.executor = executor;
+        this.deploymentTestRepository = deploymentTestRepository;
         this.csarStorage = csarStorage;
     }
 
@@ -80,6 +82,16 @@ public class DeploymentTestService {
     }
 
     /**
+     * Find the deployment test with the given ID
+     *
+     * @param id the ID of the deployment test
+     * @return an optional containing the deployment test if found, and emtpy optional otherwise
+     */
+    public Optional<DeploymentTest> find(Long id) {
+        return deploymentTestRepository.findById(id);
+    }
+
+    /**
      * Runs a deployment test for a certain service template instance.
      *
      * @param csarId                  The corresponding CSAR
@@ -95,7 +107,7 @@ public class DeploymentTestService {
         final DeploymentTest result = new DeploymentTest();
         result.setServiceTemplateInstance(serviceTemplateInstance);
         result.setState(DeploymentTestState.STARTED);
-        this.repository.add(result);
+        final DeploymentTest storedResult = deploymentTestRepository.save(result);
 
         // Execute
         this.pool.submit(() -> {
@@ -109,12 +121,12 @@ public class DeploymentTestService {
             try {
                 future.join();
                 logger.info("Jobs has been finished");
-                result.setState(DeploymentTestState.FINISHED);
+                storedResult.setState(DeploymentTestState.FINISHED);
             } catch (final Exception e) {
                 logger.error("Jobs completed with exception: {}", e.getMessage(), e);
-                result.setState(DeploymentTestState.FAILED);
+                storedResult.setState(DeploymentTestState.FAILED);
             }
-            this.repository.update(result);
+            deploymentTestRepository.save(storedResult);
         });
         logger.info("Deployment test is running in background...");
 

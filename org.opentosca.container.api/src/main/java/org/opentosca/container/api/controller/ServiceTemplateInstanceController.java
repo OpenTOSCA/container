@@ -52,7 +52,6 @@ import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.next.model.SituationsMonitor;
-import org.opentosca.container.core.next.repository.DeploymentTestRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.deployment.checks.DeploymentTestService;
 import org.slf4j.Logger;
@@ -402,7 +401,7 @@ public class ServiceTemplateInstanceController {
             final ResourceDecorator decorator = new ResourceDecorator();
             decorator.setObject(v);
             decorator.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePathBuilder()
-                .path(String.valueOf(v.getId())).build()))
+                    .path(String.valueOf(v.getId())).build()))
                 .rel("self").build());
             return decorator;
         }).collect(Collectors.toList());
@@ -431,7 +430,7 @@ public class ServiceTemplateInstanceController {
         }
 
         // TODO: Check if deployment test belongs the current instance
-        final DeploymentTest object = new DeploymentTestRepository().find(Long.valueOf(deploymenttest)).orElse(null);
+        final DeploymentTest object = deploymentTestService.find(Long.valueOf(deploymenttest)).orElse(null);
         if (object == null) {
             throw new NotFoundException();
         }
