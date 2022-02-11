@@ -66,7 +66,7 @@ public class InstanceService {
 
     private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository =
         new ServiceTemplateInstanceRepository();
-    private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository = new NodeTemplateInstanceRepository();
+    private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository;
     private final RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository =
         new RelationshipTemplateInstanceRepository();
 
@@ -84,7 +84,8 @@ public class InstanceService {
     private final DocumentConverter converter = new DocumentConverter();
 
     @Inject
-    public InstanceService(RelationshipTemplateService relationshipTemplateService, NodeTemplateService nodeTemplateService, ServiceTemplateService serviceTemplateService, CsarStorageService storage) {
+    public InstanceService(NodeTemplateInstanceRepository nodeTemplateInstanceRepository, RelationshipTemplateService relationshipTemplateService, NodeTemplateService nodeTemplateService, ServiceTemplateService serviceTemplateService, CsarStorageService storage) {
+        this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
         this.relationshipTemplateService = relationshipTemplateService;
         this.nodeTemplateService = nodeTemplateService;
         this.serviceTemplateService = serviceTemplateService;
@@ -326,7 +327,7 @@ public class InstanceService {
 
     public NodeTemplateInstance getNodeTemplateInstance(final Long id) {
         logger.debug("Requesting node template instance <{}>...", id);
-        final Optional<NodeTemplateInstance> instance = this.nodeTemplateInstanceRepository.find(id);
+        final Optional<NodeTemplateInstance> instance = this.nodeTemplateInstanceRepository.findById(id);
 
         if (instance.isPresent()) {
             return instance.get();
@@ -358,7 +359,7 @@ public class InstanceService {
 
         final NodeTemplateInstance node = resolveNodeTemplateInstance(serviceTemplateName, nodeTemplateId, id);
         node.setState(newState);
-        this.nodeTemplateInstanceRepository.update(node);
+        this.nodeTemplateInstanceRepository.save(node);
     }
 
     public Document getNodeTemplateInstanceProperties(final String serviceTemplateQName, final String nodeTemplateId,
@@ -384,7 +385,7 @@ public class InstanceService {
             final NodeTemplateInstanceProperty property =
                 this.convertDocumentToProperty(properties, NodeTemplateInstanceProperty.class);
             node.addProperty(property);
-            this.nodeTemplateInstanceRepository.update(node);
+            this.nodeTemplateInstanceRepository.save(node);
         } catch (InstantiationException | IllegalAccessException e) { // This is not supposed to happen at all!
             final String msg = String.format("An error occurred while instantiating an instance of the %s class.",
                 NodeTemplateInstanceProperty.class);
@@ -439,7 +440,7 @@ public class InstanceService {
         }
         newInstance.setServiceTemplateInstance(serviceTemplateInstance);
 
-        this.nodeTemplateInstanceRepository.add(newInstance);
+        this.nodeTemplateInstanceRepository.save(newInstance);
 
         return newInstance;
     }
@@ -448,7 +449,7 @@ public class InstanceService {
                                            final Long id) {
         // throws exception if not found
         final NodeTemplateInstance instance = resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id);
-        this.nodeTemplateInstanceRepository.remove(instance);
+        this.nodeTemplateInstanceRepository.delete(instance);
     }
 
     /* Relationship Template Instances */

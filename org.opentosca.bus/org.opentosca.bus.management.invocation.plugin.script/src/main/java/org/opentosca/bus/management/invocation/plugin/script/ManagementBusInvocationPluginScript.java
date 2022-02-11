@@ -82,12 +82,15 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
 
     private final CamelContext camelContext;
 
+    private final MBUtils mbUtils;
+
     @Inject
-    public ManagementBusInvocationPluginScript(ArtifactTypesHandler typesHandler, CsarStorageService storage, ContainerEngine containerEngine, @Named("fallback") CamelContext camelContext) {
+    public ManagementBusInvocationPluginScript(ArtifactTypesHandler typesHandler, CsarStorageService storage, ContainerEngine containerEngine, @Named("fallback") CamelContext camelContext, MBUtils mbUtils) {
         this.typesHandler = typesHandler;
         this.storage = storage;
         this.containerEngine = containerEngine;
         this.camelContext = camelContext;
+        this.mbUtils = mbUtils;
     }
 
     @Override
@@ -140,7 +143,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
         LOG.debug("ServiceInstanceID: {}", serviceInstanceID);
         // search operating system IA to upload files and run scripts on target machine
         final long serviceTemplateInstanceId = Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/"));
-        TNodeTemplate osNodeTemplate = MBUtils.getOperatingSystemNodeTemplate(csar, serviceTemplate, nodeTemplate, true,
+        TNodeTemplate osNodeTemplate = mbUtils.getOperatingSystemNodeTemplate(csar, serviceTemplate, nodeTemplate, true,
             serviceTemplateInstanceId);
 
         if (osNodeTemplate == null) {
@@ -149,9 +152,9 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
         }
 
         if (osNodeTemplate.getType().equals(Types.abstractOperatingSystemNodeType)) {
-            final NodeTemplateInstance abstractOSInstance = MBUtils.getNodeTemplateInstance(serviceTemplateInstanceId, osNodeTemplate);
+            final NodeTemplateInstance abstractOSInstance = mbUtils.getNodeTemplateInstance(serviceTemplateInstanceId, osNodeTemplate);
             if (abstractOSInstance != null) {
-                final NodeTemplateInstance replacementInstance = MBUtils.getAbstractOSReplacementInstance(abstractOSInstance);
+                final NodeTemplateInstance replacementInstance = mbUtils.getAbstractOSReplacementInstance(abstractOSInstance);
                 if (replacementInstance != null) {
                     // overwrite computed intermediate result based on replacement
                     csar = storage.findById(replacementInstance.getServiceTemplateInstance().getCsarId());
@@ -162,7 +165,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
         }
         final TNodeType osNodeType = ToscaEngine.resolveNodeTypeReference(csar, osNodeTemplate.getType());
         LOG.debug("OperatingSystem-NodeType found: {}", osNodeType.getQName());
-        final TImplementationArtifact osIA = MBUtils.getOperatingSystemIA(csar, serviceTemplate, osNodeType);
+        final TImplementationArtifact osIA = mbUtils.getOperatingSystemIA(csar, serviceTemplate, osNodeType);
 
         if (osIA == null) {
             LOG.warn("No OperatingSystem-IA found!");

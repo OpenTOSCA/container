@@ -61,9 +61,9 @@ public class ContainerProxy {
     private final CsarStorageService storageService;
 
     @Inject
-    public ContainerProxy(CsarStorageService storageService) {
+    public ContainerProxy(CsarStorageService storageService, NodeTemplateInstanceRepository nodeInstanceRepo) {
         this.storageService = storageService;
-        this.nodeInstanceRepo = new NodeTemplateInstanceRepository();
+        this.nodeInstanceRepo = nodeInstanceRepo;
         this.serviceTemplateInstanceRepository = new ServiceTemplateInstanceRepository();
     }
 
@@ -116,7 +116,7 @@ public class ContainerProxy {
                 return nodeInstances.get(0);
             }
         } else {
-            return this.nodeInstanceRepo.find(Long.valueOf(nodeInstanceID)).orElse(null);
+            return this.nodeInstanceRepo.findById(Long.valueOf(nodeInstanceID)).orElse(null);
         }
         LOG.warn("No matching NodeInstance found.");
         return null;

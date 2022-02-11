@@ -39,8 +39,11 @@ public class ParameterHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(ParameterHandler.class);
 
+    private final MBUtils mbUtils;
+
     @Inject
-    public ParameterHandler() {
+    public ParameterHandler(MBUtils mbUtils) {
+        this.mbUtils = mbUtils;
     }
 
     /**
@@ -137,7 +140,7 @@ public class ParameterHandler {
         // search for parameters downwards in the topology until all are set
         while (!unsetParameters.isEmpty()) {
             if (nodeTemplateInstance.getTemplateType().equals(Types.abstractOperatingSystemNodeType)) {
-                nodeTemplateInstance = MBUtils.getAbstractOSReplacementInstance(nodeTemplateInstance);
+                nodeTemplateInstance = mbUtils.getAbstractOSReplacementInstance(nodeTemplateInstance);
             }
 
             // retrieve stored instance data for current node
@@ -181,7 +184,7 @@ public class ParameterHandler {
             }
 
             // get next node downwards in the topology
-            final Optional<NodeTemplateInstance> nextNode = MBUtils.getNextNodeTemplateInstance(nodeTemplateInstance);
+            final Optional<NodeTemplateInstance> nextNode = mbUtils.getNextNodeTemplateInstance(nodeTemplateInstance);
             if (nextNode.isPresent()) {
                 nodeTemplateInstance = nextNode.get();
                 LOG.debug("Next node for parameter search: {}", nodeTemplateInstance.getId());

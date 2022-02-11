@@ -47,6 +47,7 @@ import org.opentosca.container.core.next.repository.NodeTemplateInstanceReposito
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -55,92 +56,18 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 
-//FIXME this piece of ... needs to do actual transaction management, because Hibernate actually follows the JPA spec!
 @NonNullByDefault
+@Service
 public class MBUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(MBUtils.class);
 
     // repository to access ServiceTemplateInstance data
     private static final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository = new ServiceTemplateInstanceRepository();
-    private static final NodeTemplateInstanceRepository nodeTemplateInstanceRepository = new NodeTemplateInstanceRepository();
+    private NodeTemplateInstanceRepository nodeTemplateInstanceRepository;
 
-    /**
-     * Finds the operating system node template, optionally requiring that it has a NodeInstance associated with a given
-     * serviceTemplateInstanceId.
-     *
-     * @return The OperatingSystem NodeTemplate.
-     */
-    @Nullable
-    public static TNodeTemplate getOperatingSystemNodeTemplate(final Csar csar,
-                                                               final TServiceTemplate serviceTemplate,
-                                                               final TNodeTemplate nodeTemplate,
-                                                               boolean mustHaveNodeInstance,
-                                                               Long serviceTemplateInstanceId) {
-
-        // Need to do exhaustive checking of all osNodeTypes for NodeInstance criteria
-        final Queue<TNodeTemplate> osNodeTemplates = new LinkedList<>();
-        final Queue<TNodeTemplate> nodeTemplateGraph = new LinkedList<>();
-        final Set<TNodeTemplate> traversedTemplates = new HashSet<>();
-        nodeTemplateGraph.add(nodeTemplate);
-        while (!nodeTemplateGraph.isEmpty()) {
-            final TNodeTemplate current = nodeTemplateGraph.poll();
-            if (!traversedTemplates.add(current)) {
-                // skip templates we already traversed
-                continue;
-            }
-            final TNodeType currentNodeType = ToscaEngine.resolveNodeType(csar, current);
-            if (isOperatingSystemNodeType(csar, currentNodeType)) {
-                // just return the first result if we don't need to check for a node instance
-                if (!mustHaveNodeInstance) {
-                    return current;
-                }
-                osNodeTemplates.add(current);
-                continue;
-            }
-            // nodeType was not an OS node type, therefore traverse the Graph "downwards"
-            ToscaEngine.getRelatedNodeTemplates(serviceTemplate, current,
-                    Types.hostedOnRelationType, Types.deployedOnRelationType, Types.dependsOnRelationType)
-                // avoid cycles in the graph
-                .filter(t -> !traversedTemplates.contains(t))
-                .forEach(nodeTemplateGraph::add);
-        }
-        // return the first result that has an instance
-        for (TNodeTemplate osTemplate : osNodeTemplates) {
-            if (getNodeTemplateInstance(serviceTemplateInstanceId, osTemplate) != null) {
-                return osTemplate;
-            }
-        }
-        return null;
-    }
-
-    @Nullable // contaminated by MBUtils#getNodeTemplateInstances
-    public static NodeTemplateInstance getAbstractOSReplacementInstance(NodeTemplateInstance nodeTemplateInstance) {
-        final Map<String, String> propMap = nodeTemplateInstance.getPropertiesAsMap();
-        if (propMap == null) {
-            // return original node template instance
-            return nodeTemplateInstance;
-        }
-        if (!propMap.containsKey(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF)) {
-            // no instance reference stored in the node template instance, so no replacement available
-            return nodeTemplateInstance;
-        }
-        LOG.debug("Found instanceRef Property with value: {}", propMap.get(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF));
-        /*
-         * values are sent from frontend delimited by "," in the following format:
-         * service-template-instance-id,node-template-id
-         */
-        final String[] values = propMap.get(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF).split(",");
-        if (values.length != 2) {
-            LOG.warn("input format for instance reference was incorrect. Received value {}", String.join(", ", values));
-            // to avoid messing this up
-            return nodeTemplateInstance;
-        }
-        final Long serviceTemplateInstanceId = Long.parseLong(values[0]);
-        final String nodeTemplateId = values[1];
-
-        // return the actual replacement
-        return MBUtils.getNodeTemplateInstance(serviceTemplateInstanceId, nodeTemplateId);
+    public MBUtils(NodeTemplateInstanceRepository nodeTemplateInstanceRepository) {
+        this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
     }
 
     /**
@@ -288,60 +215,6 @@ public class MBUtils {
         } else {
             return null;
         }
-    }
-
-    @Nullable
-    public static NodeTemplateInstance getNodeTemplateInstance(final Long serviceTemplateInstanceId, final TNodeTemplate nodeTemplate) {
-        return getNodeTemplateInstance(serviceTemplateInstanceId, nodeTemplate.getId());
-    }
-
-    /**
-     * Retrieve the NodeTemplateInstance which is contained in a certain ServiceTemplateInstance and has a certain
-     * template ID.
-     *
-     * @param serviceTemplateInstanceID this ID identifies the ServiceTemplateInstance
-     * @param nodeTemplateID            the template ID to identify the correct instance
-     * @return the found NodeTemplateInstance or <tt>null</tt> if no instance was found that matches the parameters
-     */
-    @Nullable
-    public static NodeTemplateInstance getNodeTemplateInstance(final Long serviceTemplateInstanceID,
-                                                               final String nodeTemplateID) {
-        LOG.debug("Trying to retrieve NodeTemplateInstance for ServiceTemplateInstance ID {} and NodeTemplate ID {} ...",
-            serviceTemplateInstanceID, nodeTemplateID);
-
-        final Optional<ServiceTemplateInstance> serviceTemplateInstance = serviceTemplateInstanceRepository.find(serviceTemplateInstanceID);
-
-        if (serviceTemplateInstance.isPresent()) {
-            return nodeTemplateInstanceRepository.find(serviceTemplateInstance.get(), nodeTemplateID)
-                .stream().filter(nti -> nti.getState() == NodeTemplateInstanceState.CREATED || nti.getState() == NodeTemplateInstanceState.STARTED)
-                .findFirst().orElse(null);
-        } else {
-            LOG.warn("Unable to find ServiceTemplateInstance!");
-            return null;
-        }
-    }
-
-    /**
-     * Get the next NodeTemplateInstance connected with a HostedOn/DeployedOn/... Relation.
-     *
-     * @param currentNode the current NodeTemplateInstance
-     * @return an Optional containing the next NodeTemplateInstance if one is connected with one of the supported
-     * Relation Types or an empty Optional otherwise
-     */
-    public static Optional<NodeTemplateInstance> getNextNodeTemplateInstance(final NodeTemplateInstance currentNode) {
-
-        Optional<NodeTemplateInstance> nextNode = getConnectedNodeTemplateInstance(currentNode, Types.hostedOnRelationType);
-
-        if (nextNode.isEmpty()) {
-            nextNode = getConnectedNodeTemplateInstance(currentNode, Types.deployedOnRelationType);
-        }
-
-        // quick hack to ensure instantiated properties - this should be done somehow in the RelationshipTemplates
-        if (nextNode.isPresent()) {
-            return nodeTemplateInstanceRepository.find(nextNode.get().getId());
-        }
-
-        return Optional.empty();
     }
 
     /**
@@ -498,5 +371,137 @@ public class MBUtils {
             LOG.error("Failed to transform document to string:", e);
             return null;
         }
+    }
+
+    @Nullable // contaminated by MBUtils#getNodeTemplateInstances
+    public NodeTemplateInstance getAbstractOSReplacementInstance(NodeTemplateInstance nodeTemplateInstance) {
+        final Map<String, String> propMap = nodeTemplateInstance.getPropertiesAsMap();
+        if (propMap == null) {
+            // return original node template instance
+            return nodeTemplateInstance;
+        }
+        if (!propMap.containsKey(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF)) {
+            // no instance reference stored in the node template instance, so no replacement available
+            return nodeTemplateInstance;
+        }
+        LOG.debug("Found instanceRef Property with value: {}", propMap.get(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF));
+        /*
+         * values are sent from frontend delimited by "," in the following format:
+         * service-template-instance-id,node-template-id
+         */
+        final String[] values = propMap.get(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEREF).split(",");
+        if (values.length != 2) {
+            LOG.warn("input format for instance reference was incorrect. Received value {}", String.join(", ", values));
+            // to avoid messing this up
+            return nodeTemplateInstance;
+        }
+        final Long serviceTemplateInstanceId = Long.parseLong(values[0]);
+        final String nodeTemplateId = values[1];
+
+        // return the actual replacement
+        return getNodeTemplateInstance(serviceTemplateInstanceId, nodeTemplateId);
+    }
+
+    @Nullable
+    public NodeTemplateInstance getNodeTemplateInstance(final Long serviceTemplateInstanceId, final TNodeTemplate nodeTemplate) {
+        return getNodeTemplateInstance(serviceTemplateInstanceId, nodeTemplate.getId());
+    }
+
+    /**
+     * Retrieve the NodeTemplateInstance which is contained in a certain ServiceTemplateInstance and has a certain
+     * template ID.
+     *
+     * @param serviceTemplateInstanceID this ID identifies the ServiceTemplateInstance
+     * @param nodeTemplateID            the template ID to identify the correct instance
+     * @return the found NodeTemplateInstance or <tt>null</tt> if no instance was found that matches the parameters
+     */
+    @Nullable
+    public NodeTemplateInstance getNodeTemplateInstance(final Long serviceTemplateInstanceID,
+                                                        final String nodeTemplateID) {
+        LOG.debug("Trying to retrieve NodeTemplateInstance for ServiceTemplateInstance ID {} and NodeTemplate ID {} ...",
+            serviceTemplateInstanceID, nodeTemplateID);
+
+        final Optional<ServiceTemplateInstance> serviceTemplateInstance = serviceTemplateInstanceRepository.find(serviceTemplateInstanceID);
+
+        if (serviceTemplateInstance.isPresent()) {
+            return nodeTemplateInstanceRepository.findByServiceTemplateInstanceAndTemplateId(serviceTemplateInstance.get(), nodeTemplateID)
+                .stream().filter(nti -> nti.getState() == NodeTemplateInstanceState.CREATED || nti.getState() == NodeTemplateInstanceState.STARTED)
+                .findFirst().orElse(null);
+        } else {
+            LOG.warn("Unable to find ServiceTemplateInstance!");
+            return null;
+        }
+    }
+
+    /**
+     * Get the next NodeTemplateInstance connected with a HostedOn/DeployedOn/... Relation.
+     *
+     * @param currentNode the current NodeTemplateInstance
+     * @return an Optional containing the next NodeTemplateInstance if one is connected with one of the supported
+     * Relation Types or an empty Optional otherwise
+     */
+    public Optional<NodeTemplateInstance> getNextNodeTemplateInstance(final NodeTemplateInstance currentNode) {
+
+        Optional<NodeTemplateInstance> nextNode = getConnectedNodeTemplateInstance(currentNode, Types.hostedOnRelationType);
+
+        if (nextNode.isEmpty()) {
+            nextNode = getConnectedNodeTemplateInstance(currentNode, Types.deployedOnRelationType);
+        }
+
+        // quick hack to ensure instantiated properties - this should be done somehow in the RelationshipTemplates
+        if (nextNode.isPresent()) {
+            return nodeTemplateInstanceRepository.findById(nextNode.get().getId());
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * Finds the operating system node template, optionally requiring that it has a NodeInstance associated with a given
+     * serviceTemplateInstanceId.
+     *
+     * @return The OperatingSystem NodeTemplate.
+     */
+    @Nullable
+    public TNodeTemplate getOperatingSystemNodeTemplate(final Csar csar,
+                                                        final TServiceTemplate serviceTemplate,
+                                                        final TNodeTemplate nodeTemplate,
+                                                        boolean mustHaveNodeInstance,
+                                                        Long serviceTemplateInstanceId) {
+
+        // Need to do exhaustive checking of all osNodeTypes for NodeInstance criteria
+        final Queue<TNodeTemplate> osNodeTemplates = new LinkedList<>();
+        final Queue<TNodeTemplate> nodeTemplateGraph = new LinkedList<>();
+        final Set<TNodeTemplate> traversedTemplates = new HashSet<>();
+        nodeTemplateGraph.add(nodeTemplate);
+        while (!nodeTemplateGraph.isEmpty()) {
+            final TNodeTemplate current = nodeTemplateGraph.poll();
+            if (!traversedTemplates.add(current)) {
+                // skip templates we already traversed
+                continue;
+            }
+            final TNodeType currentNodeType = ToscaEngine.resolveNodeType(csar, current);
+            if (isOperatingSystemNodeType(csar, currentNodeType)) {
+                // just return the first result if we don't need to check for a node instance
+                if (!mustHaveNodeInstance) {
+                    return current;
+                }
+                osNodeTemplates.add(current);
+                continue;
+            }
+            // nodeType was not an OS node type, therefore traverse the Graph "downwards"
+            ToscaEngine.getRelatedNodeTemplates(serviceTemplate, current,
+                    Types.hostedOnRelationType, Types.deployedOnRelationType, Types.dependsOnRelationType)
+                // avoid cycles in the graph
+                .filter(t -> !traversedTemplates.contains(t))
+                .forEach(nodeTemplateGraph::add);
+        }
+        // return the first result that has an instance
+        for (TNodeTemplate osTemplate : osNodeTemplates) {
+            if (getNodeTemplateInstance(serviceTemplateInstanceId, osTemplate) != null) {
+                return osTemplate;
+            }
+        }
+        return null;
     }
 }

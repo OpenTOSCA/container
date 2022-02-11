@@ -131,14 +131,16 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     private final DeploymentPluginCapabilityChecker capabilityChecker;
     private final CsarStorageService storage;
     private final ChoreographyHandler choreographyHandler;
+    private final MBUtils mbUtils;
 
     @Inject
     public ManagementBusServiceImpl(DeploymentDistributionDecisionMaker decisionMaker,
                                     CollaborationContext collaborationContext, ICoreEndpointService endpointService,
                                     ParameterHandler parameterHandler, PluginHandler pluginHandler,
                                     PluginRegistry pluginRegistry, DeploymentPluginCapabilityChecker capabilityChecker,
-                                    CsarStorageService storage, ChoreographyHandler choreographyHandler) {
+                                    CsarStorageService storage, ChoreographyHandler choreographyHandler, MBUtils mbUtils) {
         LOG.info("Instantiating ManagementBus Service");
+        this.mbUtils = mbUtils;
         this.decisionMaker = decisionMaker;
         this.collaborationContext = collaborationContext;
         this.endpointService = endpointService;
@@ -328,7 +330,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final RelationshipTemplateInstance relationshipInstance;
         if (Objects.nonNull(arguments.nodeTemplateId)) {
             nodeInstance =
-                MBUtils.getNodeTemplateInstance(arguments.serviceTemplateInstanceId, arguments.nodeTemplateId);
+                mbUtils.getNodeTemplateInstance(arguments.serviceTemplateInstanceId, arguments.nodeTemplateId);
             relationshipInstance = null;
         } else if (Objects.nonNull(arguments.relationshipTemplateId)) {
             relationshipInstance = MBUtils.getRelationshipTemplateInstance(arguments.serviceTemplateInstanceId,
@@ -351,7 +353,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         Csar replacementCsar = null;
         if (typeID.equals(Types.abstractOperatingSystemNodeType)) {
             // replace abstract operating system node instance
-            nodeInstance = MBUtils.getAbstractOSReplacementInstance(nodeInstance);
+            nodeInstance = mbUtils.getAbstractOSReplacementInstance(nodeInstance);
             assert nodeInstance != null; // if not, we're fucked anyways
             final ServiceTemplateInstance replacementSTI = nodeInstance.getServiceTemplateInstance();
             replacementCsar = this.storage.findById(replacementSTI.getCsarId());
