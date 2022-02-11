@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = Endpoint.TABLE_NAME)
+@Table(name = Capability.TABLE_NAME)
 public class Capability extends PersistenceObject {
 
     public static final String TABLE_NAME = "CAPABILITIES";
