@@ -5,7 +5,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.next.model.endpoints.Endpoint;
+import org.opentosca.container.core.next.model.Endpoint;
 
 /**
  * This interface provides methods to retrieve and store endpoints. It is meant to be used by the Engines.

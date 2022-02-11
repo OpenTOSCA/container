@@ -60,7 +60,7 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.next.model.endpoints.Endpoint;
+import org.opentosca.container.core.next.model.Endpoint;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;

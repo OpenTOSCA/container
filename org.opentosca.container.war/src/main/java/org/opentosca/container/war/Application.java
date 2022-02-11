@@ -8,10 +8,8 @@ import javax.servlet.ServletContext;
 import ch.qos.logback.ext.spring.web.LogbackConfigListener;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.ImportResource;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 @SpringBootApplication

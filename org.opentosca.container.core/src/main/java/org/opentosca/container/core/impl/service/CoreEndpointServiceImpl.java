@@ -6,7 +6,7 @@ import java.util.Objects;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.next.model.endpoints.Endpoint;
+import org.opentosca.container.core.next.model.Endpoint;
 import org.opentosca.container.core.next.repository.EndpointRepository;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.slf4j.Logger;

@@ -16,7 +16,7 @@
 
     <!-- entities -->
     <class>org.opentosca.container.core.next.model.PersistenceObject</class>
-    <class>org.opentosca.container.core.next.model.endpoints.Endpoint</class>
+    <class>org.opentosca.container.core.next.model.Endpoint</class>
     <class>org.opentosca.container.core.next.model.Property</class>
     <class>org.opentosca.container.core.next.model.ServiceTemplateInstance</class>
     <class>org.opentosca.container.core.next.model.ServiceTemplateInstanceProperty</class>

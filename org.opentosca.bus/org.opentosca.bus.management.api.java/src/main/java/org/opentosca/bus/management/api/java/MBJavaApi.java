@@ -39,7 +39,7 @@ import org.opentosca.container.core.engine.management.IManagementBus;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.next.model.endpoints.Endpoint;
+import org.opentosca.container.core.next.model.Endpoint;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.opentosca.container.core.next.model.PlanInstanceInput;

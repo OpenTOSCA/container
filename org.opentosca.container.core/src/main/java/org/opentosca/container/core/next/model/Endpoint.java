@@ -1,4 +1,4 @@
-package org.opentosca.container.core.next.model.endpoints;
+package org.opentosca.container.core.next.model;
 
 import java.net.URI;
 import java.util.Map;
@@ -18,7 +18,6 @@ import org.opentosca.container.core.common.jpa.CsarIdConverter;
 import org.opentosca.container.core.common.jpa.QNameConverter;
 import org.opentosca.container.core.common.jpa.UriConverter;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.next.model.PersistenceObject;
 
 @Entity
 @Data
