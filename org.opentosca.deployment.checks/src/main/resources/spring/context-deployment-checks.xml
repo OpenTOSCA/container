@@ -11,6 +11,8 @@
     Register the beans within the remote management bus invocation plugin.
   </description>
   <context:annotation-config />
+  <context:component-scan base-package="org.opentosca.container.core.next.repository"/>
+  <context:component-scan base-package="org.opentosca.container.core.impl.service"/>
 
   <camel:camelContext id="deployment-checks-camel-context">
     <camel:packageScan>
