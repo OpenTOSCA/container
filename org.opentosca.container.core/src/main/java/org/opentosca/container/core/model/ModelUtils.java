@@ -33,6 +33,8 @@ import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TEntityType;
+import org.eclipse.winery.model.tosca.TExportedInterface;
+import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -70,7 +72,7 @@ public abstract class ModelUtils {
             .replace(":", "_");
     }
 
-    public static TOperation findOperation(Csar csar, String interfaceName, String operationName) {
+    public static TOperation findNodeOperation(Csar csar, String interfaceName, String operationName) {
         for (TDefinitions defs : csar.definitions()) {
             for (TNodeType nodeType : defs.getNodeTypes()) {
                 if (Objects.nonNull(nodeType.getInterfaces())) {
@@ -86,6 +88,24 @@ public abstract class ModelUtils {
                 }
             }
         }
+        return null;
+    }
+
+    public static TExportedOperation findServiceTemplateOperation(TDefinitions defs, String interfaceName, String operationName) {
+            for (TServiceTemplate serviceTemplate : defs.getServiceTemplates()) {
+                if (serviceTemplate.getBoundaryDefinitions() == null) {
+                    continue;
+                }
+                for (TExportedInterface anInterface : serviceTemplate.getBoundaryDefinitions().getInterfaces()) {
+                    if (anInterface.getName().equals(interfaceName)) {
+                        for (TExportedOperation op : anInterface.getOperation()) {
+                            if (op.getName().equals(operationName)) {
+                                return op;
+                            }
+                        }
+                    }
+                }
+            }
         return null;
     }
 

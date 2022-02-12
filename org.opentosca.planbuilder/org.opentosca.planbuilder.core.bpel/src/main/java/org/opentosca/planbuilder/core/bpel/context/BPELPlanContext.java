@@ -110,8 +110,8 @@ public class BPELPlanContext extends PlanContext {
     }
 
     public boolean addUsedOperation(String interfaceName, String operationName, String compensationInterfaceName, String compensationOperationName, Csar csar) {
-        TOperation op = ModelUtils.findOperation(csar, interfaceName, operationName);
-        TOperation compensationOp = ModelUtils.findOperation(csar, compensationInterfaceName, compensationOperationName);
+        TOperation op = ModelUtils.findNodeOperation(csar, interfaceName, operationName);
+        TOperation compensationOp = ModelUtils.findNodeOperation(csar, compensationInterfaceName, compensationOperationName);
         if (op != null) {
             this.addUsedOperation(op, compensationOp);
             return true;

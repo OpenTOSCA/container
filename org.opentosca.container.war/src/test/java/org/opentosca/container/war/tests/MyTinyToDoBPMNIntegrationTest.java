@@ -57,6 +57,7 @@ public class MyTinyToDoBPMNIntegrationTest {
         TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
 
         TPlan buildPlan = null;
+        TPlan terminationPlan = null;
         List<TPlan> plans = serviceTemplate.getPlans();
 
         for (TPlan plan : plans) {
@@ -67,14 +68,23 @@ public class MyTinyToDoBPMNIntegrationTest {
                         buildPlan = plan;
                     }
                     break;
+                case TERMINATION:
+                    if (!plan.getId().toLowerCase().contains("freeze")) {
+                        terminationPlan = plan;
+                    }
                 default:
                     break;
             }
         }
 
         Assert.assertNotNull("BuildPlan not found", buildPlan);
+        Assert.assertNotNull("TerminationPlan not found", terminationPlan);
         ServiceTemplateInstance serviceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
         this.checkStateAfterBuild(serviceTemplateInstance);
+
+        String serviceInstanceUrl = TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString());
+        TestUtils.runTerminationPlanExecution(this.planService, csar, serviceInstanceUrl, serviceTemplate, serviceTemplateInstance, terminationPlan);
+
         TestUtils.clearContainer(this.storage, this.control);
     }
 
