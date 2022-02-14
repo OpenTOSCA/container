@@ -85,16 +85,19 @@ public class MBJavaApi implements IManagementBus {
     private final ICoreEndpointService endpointService;
     private final BpelPlanEnginePlugin bpelDeployPlugin;
     private final CsarStorageService storage;
+    private final SituationRepository situationRepository;
 
     @Inject
     public MBJavaApi(CamelContext camelContext, Importer importer, WineryExporter exporter,
-                     ICoreEndpointService endpointService, BpelPlanEnginePlugin bpelPlanEnginePlugin, CsarStorageService storage) {
+                     ICoreEndpointService endpointService, BpelPlanEnginePlugin bpelPlanEnginePlugin,
+                     CsarStorageService storage, SituationRepository situationRepository) {
         this.camelContext = camelContext;
         this.importer = importer;
         this.exporter = exporter;
         this.endpointService = endpointService;
         this.bpelDeployPlugin = bpelPlanEnginePlugin;
         this.storage = storage;
+        this.situationRepository = situationRepository;
         LOG.info("Starting direct Java invocation API for Management Bus");
     }
 
@@ -496,11 +499,7 @@ public class MBJavaApi implements IManagementBus {
     }
 
     private boolean isSituationActive(final Long situationId) {
-        return getSituationRepository().find(situationId).get().isActive();
-    }
-
-    private SituationRepository getSituationRepository() {
-        return new SituationRepository();
+        return situationRepository.findById(situationId).get().isActive();
     }
 
     private Map<String, String> createRequestBody(final CsarId csarID, final String serviceTemplateID,

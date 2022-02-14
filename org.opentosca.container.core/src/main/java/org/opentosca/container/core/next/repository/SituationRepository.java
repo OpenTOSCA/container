@@ -1,15 +1,9 @@
 package org.opentosca.container.core.next.repository;
 
 import org.opentosca.container.core.next.model.Situation;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public class SituationRepository extends JpaRepository2<Situation> {
-
-    public SituationRepository() {
-        super(Situation.class);
-    }
-
-    @Override
-    protected void initializeInstance(Situation instance) {
-        // no dependent bags or other stuff to be fetched
-    }
+@Repository
+public interface SituationRepository extends JpaRepository<Situation, Long> {
 }

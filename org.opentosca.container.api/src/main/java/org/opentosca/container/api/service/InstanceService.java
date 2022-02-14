@@ -69,10 +69,10 @@ public class InstanceService {
     private final RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository;
 
     // situations
-    private final SituationRepository sitRepo = new SituationRepository();
+    private final SituationRepository sitRepo;
     private final SituationTriggerRepository sitTrig = new SituationTriggerRepository();
     private final SituationTriggerInstanceRepository sitTrigInst = new SituationTriggerInstanceRepository();
-    private final SituationsMonitorRepository situationsMonitorRepo = new SituationsMonitorRepository();
+    private final SituationsMonitorRepository situationsMonitorRepo;
 
     private final RelationshipTemplateService relationshipTemplateService;
     private final NodeTemplateService nodeTemplateService;
@@ -84,12 +84,15 @@ public class InstanceService {
     @Inject
     public InstanceService(ServiceTemplateInstanceRepository serviceTemplateInstanceRepository,
                            NodeTemplateInstanceRepository nodeTemplateInstanceRepository,
-                           RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository, RelationshipTemplateService relationshipTemplateService,
+                           RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository, SituationRepository sitRepo,
+                           SituationsMonitorRepository situationsMonitorRepo, RelationshipTemplateService relationshipTemplateService,
                            NodeTemplateService nodeTemplateService, ServiceTemplateService serviceTemplateService,
                            CsarStorageService storage) {
         this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
         this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
         this.relationshipTemplateInstanceRepository = relationshipTemplateInstanceRepository;
+        this.sitRepo = sitRepo;
+        this.situationsMonitorRepo = situationsMonitorRepo;
         this.relationshipTemplateService = relationshipTemplateService;
         this.nodeTemplateService = nodeTemplateService;
         this.serviceTemplateService = serviceTemplateService;
@@ -637,13 +640,13 @@ public class InstanceService {
         newInstance.setEventProbability(eventProbability);
         newInstance.setEventTime(eventTime);
 
-        this.sitRepo.add(newInstance);
+        this.sitRepo.save(newInstance);
 
         return newInstance;
     }
 
     public Situation getSituation(final Long id) {
-        final Optional<Situation> instance = this.sitRepo.find(id);
+        final Optional<Situation> instance = this.sitRepo.findById(id);
         if (instance.isPresent()) {
             return instance.get();
         }
@@ -656,7 +659,7 @@ public class InstanceService {
 
     public boolean removeSituation(final Long situationId) {
         if (this.sitTrig.findSituationTriggersBySituationId(situationId).isEmpty()) {
-            this.sitRepo.find(situationId).ifPresent(x -> this.sitRepo.remove(x));
+            this.sitRepo.findById(situationId).ifPresent(x -> this.sitRepo.delete(x));
             return true;
         }
         return false;
@@ -725,7 +728,7 @@ public class InstanceService {
     }
 
     public void updateSituation(final Situation situation) {
-        this.sitRepo.update(situation);
+        this.sitRepo.save(situation);
     }
 
     public SituationTriggerInstance getSituationTriggerInstance(final Long id) {
@@ -735,13 +738,13 @@ public class InstanceService {
 
     public SituationsMonitor createNewSituationsMonitor(final ServiceTemplateInstance instance,
                                                         final Map<String, Collection<Long>> situations) {
-        final SituationsMonitor monitor = new SituationsMonitor();
+        SituationsMonitor monitor = new SituationsMonitor();
 
         monitor.setServiceInstance(instance);
 
         monitor.setNode2Situations(situations);
 
-        this.situationsMonitorRepo.add(monitor);
+        monitor = this.situationsMonitorRepo.save(monitor);
         return monitor;
     }
 

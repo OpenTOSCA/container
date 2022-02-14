@@ -29,10 +29,12 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 public class SituationListener {
 
     final private static Logger LOG = LoggerFactory.getLogger(SituationListener.class);
-    final SituationRepository sitRepo = new SituationRepository();
     final SituationTriggerRepository sitTrigRepo = new SituationTriggerRepository();
     final SituationTriggerInstanceRepository sitTrigInstRepo = new SituationTriggerInstanceRepository();
-    final SituationsMonitorRepository sitMonRepo = new SituationsMonitorRepository();
+    @Autowired
+    private SituationsMonitorRepository sitMonRepo;
+    @Autowired
+    private SituationRepository sitRepo;
     // injection crutch to enable managementBus adaption
     @Autowired
     private IManagementBus managementBus;
@@ -53,7 +55,7 @@ public class SituationListener {
         LOG.info("Updating situation with template " + situation.getSituationTemplateId() + " and thing "
             + situation.getThingId() + " with active state " + situation.isActive());
 
-        final Situation sitInRepo = this.sitRepo.find(situation.getId()).get();
+        final Situation sitInRepo = this.sitRepo.findById(situation.getId()).get();
 
         if (situation.isActive() == sitInRepo.isActive()) {
             // nothing changed => do nothing
