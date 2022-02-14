@@ -150,10 +150,10 @@ public class SituationTriggerInstanceListener {
     private class SituationTriggerInstanceObserver implements Runnable {
 
         final private Logger LOG = LoggerFactory.getLogger(SituationTriggerInstanceObserver.class);
-
-        private final SituationTriggerInstanceRepository repo = new SituationTriggerInstanceRepository();
         private final PlanInstanceRepository planRepository = new PlanInstanceRepository();
         private final SituationTriggerInstance instance;
+        @Autowired
+        private SituationTriggerInstanceRepository repo;
         @Autowired
         private IPlanInvocationEngine planInvocEngine;
         @Autowired
@@ -166,7 +166,7 @@ public class SituationTriggerInstanceListener {
         @Override
         public void run() {
             this.instance.setStarted(true);
-            this.repo.update(this.instance);
+            this.repo.save(this.instance);
             this.LOG.debug("Started SituationTriggerInstance " + this.instance.getId());
 
             final String interfaceName = this.instance.getSituationTrigger().getInterfaceName();
@@ -268,7 +268,7 @@ public class SituationTriggerInstanceListener {
                         .add(new SituationTriggerInstanceProperty(x.getName(), x.getValue(), x.getType())));
 
                     instance.setFinished(true);
-                    repo.update(instance);
+                    repo.save(instance);
                 } catch (final InterruptedException e) {
                     throw new RuntimeException(e);
                 }

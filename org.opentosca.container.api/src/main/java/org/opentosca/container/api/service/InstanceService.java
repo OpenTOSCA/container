@@ -70,8 +70,8 @@ public class InstanceService {
 
     // situations
     private final SituationRepository sitRepo;
-    private final SituationTriggerRepository sitTrig = new SituationTriggerRepository();
-    private final SituationTriggerInstanceRepository sitTrigInst = new SituationTriggerInstanceRepository();
+    private final SituationTriggerRepository sitTrig;
+    private final SituationTriggerInstanceRepository sitTrigInst;
     private final SituationsMonitorRepository situationsMonitorRepo;
 
     private final RelationshipTemplateService relationshipTemplateService;
@@ -85,13 +85,17 @@ public class InstanceService {
     public InstanceService(ServiceTemplateInstanceRepository serviceTemplateInstanceRepository,
                            NodeTemplateInstanceRepository nodeTemplateInstanceRepository,
                            RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository, SituationRepository sitRepo,
-                           SituationsMonitorRepository situationsMonitorRepo, RelationshipTemplateService relationshipTemplateService,
+                           SituationTriggerRepository sitTrig, SituationTriggerInstanceRepository sitTrigInst,
+                           SituationsMonitorRepository situationsMonitorRepo,
+                           RelationshipTemplateService relationshipTemplateService,
                            NodeTemplateService nodeTemplateService, ServiceTemplateService serviceTemplateService,
                            CsarStorageService storage) {
         this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
         this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
         this.relationshipTemplateInstanceRepository = relationshipTemplateInstanceRepository;
         this.sitRepo = sitRepo;
+        this.sitTrig = sitTrig;
+        this.sitTrigInst = sitTrigInst;
         this.situationsMonitorRepo = situationsMonitorRepo;
         this.relationshipTemplateService = relationshipTemplateService;
         this.nodeTemplateService = nodeTemplateService;
@@ -676,7 +680,7 @@ public class InstanceService {
                                                       final String interfaceName, final String operationName,
                                                       final Set<SituationTriggerProperty> inputs,
                                                       final float eventProbability, final String eventTime) {
-        final SituationTrigger newInstance = new SituationTrigger();
+        SituationTrigger newInstance = new SituationTrigger();
 
         newInstance.setSituations(situations);
         newInstance.setCsarId(csarId);
@@ -705,13 +709,13 @@ public class InstanceService {
             newInstance.setEventTime(eventTime);
         }
 
-        this.sitTrig.add(newInstance);
+        newInstance = this.sitTrig.save(newInstance);
 
         return newInstance;
     }
 
     public SituationTrigger getSituationTrigger(final Long id) {
-        final Optional<SituationTrigger> opt = this.sitTrig.find(id);
+        final Optional<SituationTrigger> opt = this.sitTrig.findById(id);
 
         if (opt.isPresent()) {
             return opt.get();
@@ -722,9 +726,9 @@ public class InstanceService {
 
     public void removeSituationTrigger(Long situationTriggerId) {
 
-        this.sitTrigInst.findBySituationTriggerId(situationTriggerId).forEach(x -> this.sitTrigInst.remove(x));
+        this.sitTrigInst.deleteAll(this.sitTrigInst.findBySituationTriggerId(situationTriggerId));
 
-        this.sitTrig.find(situationTriggerId).ifPresent(x -> this.sitTrig.remove(x));
+        this.sitTrig.findById(situationTriggerId).ifPresent(this.sitTrig::delete);
     }
 
     public void updateSituation(final Situation situation) {
@@ -732,7 +736,7 @@ public class InstanceService {
     }
 
     public SituationTriggerInstance getSituationTriggerInstance(final Long id) {
-        return this.sitTrigInst.find(id)
+        return this.sitTrigInst.findById(id)
             .orElseThrow(() -> new RuntimeException("SituationTriggerInstance <" + id + "> not found."));
     }
 

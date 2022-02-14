@@ -29,8 +29,10 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 public class SituationListener {
 
     final private static Logger LOG = LoggerFactory.getLogger(SituationListener.class);
-    final SituationTriggerRepository sitTrigRepo = new SituationTriggerRepository();
-    final SituationTriggerInstanceRepository sitTrigInstRepo = new SituationTriggerInstanceRepository();
+    @Autowired
+    private SituationTriggerRepository sitTrigRepo;
+    @Autowired
+    private SituationTriggerInstanceRepository sitTrigInstRepo;
     @Autowired
     private SituationsMonitorRepository sitMonRepo;
     @Autowired
@@ -140,7 +142,7 @@ public class SituationListener {
                 }
             });
         }
-        this.sitTrigInstRepo.add(newInstances);
+        newInstances.forEach(instance -> this.sitTrigInstRepo.save(instance));
     }
 
     private void sendServiceInstanceAdaptionEvent(SituationsMonitor monitor) {
