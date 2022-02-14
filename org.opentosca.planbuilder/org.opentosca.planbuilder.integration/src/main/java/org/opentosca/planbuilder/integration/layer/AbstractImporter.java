@@ -27,7 +27,6 @@ import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELUpdateProces
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.container.core.model.ModelUtils;
-import org.springframework.ui.Model;
 
 /**
  * <p>
@@ -133,9 +132,6 @@ public abstract class AbstractImporter {
 
         final AbstractSimplePlanBuilder updatePlanBuilder = new BPELUpdateProcessBuilder(pluginRegistry);
 
-        TServiceTemplate servTemplate = defs.getServiceTemplates().iterator().next();
-
-
         if (ModelUtils.findServiceTemplateOperation(defs,"OpenTOSCA-Lifecycle-Interface", "initiate") == null) {
             plans.addAll(buildPlanBuilder.buildPlans(csar, defs));
         }
@@ -167,7 +163,7 @@ public abstract class AbstractImporter {
             plans.addAll(testPlanBuilder.buildPlans(csar, defs));
         }
 
-        // hard to check honestly, TODO
+        // hard to check honestly, TODO check if there are scaling plan definitions and if they are already available in the TOSCA interface of the service template
         plans.addAll(scalingPlanBuilder.buildPlans(csar, defs));
 
         return plans;

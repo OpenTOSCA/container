@@ -72,6 +72,7 @@ public class MyTinyToDoBPMNIntegrationTest {
                     if (!plan.getId().toLowerCase().contains("freeze")) {
                         terminationPlan = plan;
                     }
+                    break;
                 default:
                     break;
             }
@@ -98,6 +99,7 @@ public class MyTinyToDoBPMNIntegrationTest {
         Collection<RelationshipTemplateInstance> relationshipTemplateInstances = this.instanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false).getRelationshipTemplateInstances();
         Assert.assertTrue(nodeTemplateInstances.size() == 2);
         Assert.assertTrue(relationshipTemplateInstances.size() == 1);
+
 
         boolean foundDockerEngine = false;
         boolean foundTinyToDo = false;

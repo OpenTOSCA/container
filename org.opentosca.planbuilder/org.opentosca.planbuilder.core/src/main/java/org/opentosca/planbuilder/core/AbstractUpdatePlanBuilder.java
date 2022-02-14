@@ -178,7 +178,7 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
     }
 
     protected boolean isUpdatableService(final TServiceTemplate serviceTemplate, Csar csar) {
-        for (TNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()){
+        for (TNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             if (this.isUpdatableComponent(nodeTemplate, csar)) {
                 return true;
             }
