@@ -60,15 +60,17 @@ public class BoundaryDefinitionController {
 
     private final Logger logger = LoggerFactory.getLogger(BoundaryDefinitionController.class);
     private final CsarStorageService storage;
-    private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository = new ServiceTemplateInstanceRepository();
+    private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
     @Context
     private UriInfo uriInfo;
     @Context
     private Request request;
 
     @Inject
-    public BoundaryDefinitionController(CsarStorageService storage) {
+    public BoundaryDefinitionController(CsarStorageService storage,
+                                        ServiceTemplateInstanceRepository serviceTemplateInstanceRepository) {
         this.storage = storage;
+        this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
     }
 
     @GET

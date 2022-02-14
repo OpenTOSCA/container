@@ -32,16 +32,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class PlanService {
 
-    private static final PlanType[] ALL_PLAN_TYPES = PlanType.values();
     private static final Logger logger = LoggerFactory.getLogger(PlanService.class);
     private final OpenToscaControlService controlService;
     private final DeploymentTestService deploymentTestService;
+    private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
     private final PlanInstanceRepository planInstanceRepository = new PlanInstanceRepository();
 
     @Inject
-    public PlanService(OpenToscaControlService controlService, DeploymentTestService deploymentTestService) {
+    public PlanService(OpenToscaControlService controlService, DeploymentTestService deploymentTestService,
+                       ServiceTemplateInstanceRepository serviceTemplateInstanceRepository) {
         this.controlService = controlService;
         this.deploymentTestService = deploymentTestService;
+        this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
     }
 
     public PlanInstance getPlanInstance(Long id) {
@@ -49,8 +51,7 @@ public class PlanService {
     }
 
     public List<PlanInstance> getPlanInstances(final Csar csar, final PlanType... planTypes) {
-        final ServiceTemplateInstanceRepository repo = new ServiceTemplateInstanceRepository();
-        final Collection<ServiceTemplateInstance> serviceInstances = repo.findByCsarId(csar.id());
+        final Collection<ServiceTemplateInstance> serviceInstances = serviceTemplateInstanceRepository.findByCsarId(csar.id());
         return serviceInstances.stream()
             .flatMap(sti -> sti.getPlanInstances().stream())
             .filter(p -> {

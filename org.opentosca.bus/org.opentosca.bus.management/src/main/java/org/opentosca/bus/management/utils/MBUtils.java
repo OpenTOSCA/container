@@ -63,10 +63,11 @@ public class MBUtils {
     private static final Logger LOG = LoggerFactory.getLogger(MBUtils.class);
 
     // repository to access ServiceTemplateInstance data
-    private static final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository = new ServiceTemplateInstanceRepository();
-    private NodeTemplateInstanceRepository nodeTemplateInstanceRepository;
+    private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
+    private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository;
 
-    public MBUtils(NodeTemplateInstanceRepository nodeTemplateInstanceRepository) {
+    public MBUtils(ServiceTemplateInstanceRepository serviceTemplateInstanceRepository, NodeTemplateInstanceRepository nodeTemplateInstanceRepository) {
+        this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
         this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
     }
 
@@ -232,35 +233,6 @@ public class MBUtils {
             .map(RelationshipTemplateInstance::getTarget);
     }
 
-    /**
-     * Retrieve the RelationshipTemplateInstance which is contained in a certain ServiceTemplateInstance and has a
-     * certain template ID.
-     *
-     * @param serviceTemplateInstanceID this ID identifies the ServiceTemplateInstance
-     * @param relationshipTemplateName  the template ID to identify the correct instance
-     * @return the found RelationshipTemplateInstance or <tt>null</tt> if no instance was found that matches the
-     * parameters
-     */
-    @Nullable
-    public static RelationshipTemplateInstance getRelationshipTemplateInstance(final Long serviceTemplateInstanceID,
-                                                                               final String relationshipTemplateName) {
-        LOG.debug("Trying to retrieve RelationshipTemplateInstance for ServiceTemplateInstance ID {} and RelationshipTemplate ID {} ...",
-            serviceTemplateInstanceID, relationshipTemplateName);
-
-        final Optional<ServiceTemplateInstance> serviceTemplateInstance =
-            serviceTemplateInstanceRepository.find(serviceTemplateInstanceID);
-
-        if (serviceTemplateInstance.isPresent()) {
-            return serviceTemplateInstance.get().getNodeTemplateInstances().stream()
-                .flatMap(nodeInstance -> nodeInstance.getOutgoingRelations().stream())
-                .filter(relationshipInstance -> relationshipInstance.getTemplateId().equals(relationshipTemplateName))
-                .findFirst().orElse(null);
-        } else {
-            LOG.warn("Unable to find ServiceTemplateInstance!");
-            return null;
-        }
-    }
-
     @Nullable
     public static QName findPlanByOperation(Csar csar, String interfaceName, String opName) {
         TExportedOperation op = csar.entryServiceTemplate().getBoundaryDefinitions().getInterfaces().stream()
@@ -373,6 +345,35 @@ public class MBUtils {
         }
     }
 
+    /**
+     * Retrieve the RelationshipTemplateInstance which is contained in a certain ServiceTemplateInstance and has a
+     * certain template ID.
+     *
+     * @param serviceTemplateInstanceID this ID identifies the ServiceTemplateInstance
+     * @param relationshipTemplateName  the template ID to identify the correct instance
+     * @return the found RelationshipTemplateInstance or <tt>null</tt> if no instance was found that matches the
+     * parameters
+     */
+    @Nullable
+    public RelationshipTemplateInstance getRelationshipTemplateInstance(final Long serviceTemplateInstanceID,
+                                                                        final String relationshipTemplateName) {
+        LOG.debug("Trying to retrieve RelationshipTemplateInstance for ServiceTemplateInstance ID {} and RelationshipTemplate ID {} ...",
+            serviceTemplateInstanceID, relationshipTemplateName);
+
+        final Optional<ServiceTemplateInstance> serviceTemplateInstance =
+            serviceTemplateInstanceRepository.findById(serviceTemplateInstanceID);
+
+        if (serviceTemplateInstance.isPresent()) {
+            return serviceTemplateInstance.get().getNodeTemplateInstances().stream()
+                .flatMap(nodeInstance -> nodeInstance.getOutgoingRelations().stream())
+                .filter(relationshipInstance -> relationshipInstance.getTemplateId().equals(relationshipTemplateName))
+                .findFirst().orElse(null);
+        } else {
+            LOG.warn("Unable to find ServiceTemplateInstance!");
+            return null;
+        }
+    }
+
     @Nullable // contaminated by MBUtils#getNodeTemplateInstances
     public NodeTemplateInstance getAbstractOSReplacementInstance(NodeTemplateInstance nodeTemplateInstance) {
         final Map<String, String> propMap = nodeTemplateInstance.getPropertiesAsMap();
@@ -421,7 +422,7 @@ public class MBUtils {
         LOG.debug("Trying to retrieve NodeTemplateInstance for ServiceTemplateInstance ID {} and NodeTemplate ID {} ...",
             serviceTemplateInstanceID, nodeTemplateID);
 
-        final Optional<ServiceTemplateInstance> serviceTemplateInstance = serviceTemplateInstanceRepository.find(serviceTemplateInstanceID);
+        final Optional<ServiceTemplateInstance> serviceTemplateInstance = serviceTemplateInstanceRepository.findById(serviceTemplateInstanceID);
 
         if (serviceTemplateInstance.isPresent()) {
             return nodeTemplateInstanceRepository.findByServiceTemplateInstanceAndTemplateId(serviceTemplateInstance.get(), nodeTemplateID)

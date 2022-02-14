@@ -23,7 +23,6 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
-import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,14 +56,12 @@ public class ContainerProxy {
     private static final Logger LOG = LoggerFactory.getLogger(ContainerProxy.class);
 
     private final NodeTemplateInstanceRepository nodeInstanceRepo;
-    private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
     private final CsarStorageService storageService;
 
     @Inject
     public ContainerProxy(CsarStorageService storageService, NodeTemplateInstanceRepository nodeInstanceRepo) {
         this.storageService = storageService;
         this.nodeInstanceRepo = nodeInstanceRepo;
-        this.serviceTemplateInstanceRepository = new ServiceTemplateInstanceRepository();
     }
 
     private static String getIpProperty(Map<String, String> props) {

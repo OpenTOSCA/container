@@ -132,14 +132,16 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     private final CsarStorageService storage;
     private final ChoreographyHandler choreographyHandler;
     private final MBUtils mbUtils;
+    private final PlanInstanceHandler planInstanceHandler;
 
     @Inject
     public ManagementBusServiceImpl(DeploymentDistributionDecisionMaker decisionMaker,
                                     CollaborationContext collaborationContext, ICoreEndpointService endpointService,
                                     ParameterHandler parameterHandler, PluginHandler pluginHandler,
                                     PluginRegistry pluginRegistry, DeploymentPluginCapabilityChecker capabilityChecker,
-                                    CsarStorageService storage, ChoreographyHandler choreographyHandler, MBUtils mbUtils) {
+                                    CsarStorageService storage, ChoreographyHandler choreographyHandler, MBUtils mbUtils, PlanInstanceHandler planInstanceHandler) {
         LOG.info("Instantiating ManagementBus Service");
+        this.planInstanceHandler = planInstanceHandler;
         this.mbUtils = mbUtils;
         this.decisionMaker = decisionMaker;
         this.collaborationContext = collaborationContext;
@@ -333,7 +335,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 mbUtils.getNodeTemplateInstance(arguments.serviceTemplateInstanceId, arguments.nodeTemplateId);
             relationshipInstance = null;
         } else if (Objects.nonNull(arguments.relationshipTemplateId)) {
-            relationshipInstance = MBUtils.getRelationshipTemplateInstance(arguments.serviceTemplateInstanceId,
+            relationshipInstance = mbUtils.getRelationshipTemplateInstance(arguments.serviceTemplateInstanceId,
                 arguments.relationshipTemplateId);
             // assuming type is a TRelationshipType, because otherwise this should be unreachable
             final TRelationshipType relationshipType = (TRelationshipType) type;
@@ -940,7 +942,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     arguments.planId);
             } else {
                 try {
-                    plan = PlanInstanceHandler.createPlanInstance(arguments.csar, arguments.serviceTemplateId,
+                    plan = planInstanceHandler.createPlanInstance(arguments.csar, arguments.serviceTemplateId,
                         arguments.serviceTemplateInstanceId, arguments.planId,
                         arguments.operationName, arguments.correlationId,
                         arguments.chorCorrelationId, arguments.chorPartners,

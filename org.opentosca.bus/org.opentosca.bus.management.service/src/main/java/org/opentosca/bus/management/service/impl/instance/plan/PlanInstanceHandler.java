@@ -31,6 +31,7 @@ import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * Utility class which handles the creation and updating of plan instance data.<br>
@@ -38,77 +39,15 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Copyright 2019 IAAS University of Stuttgart
  */
+@Service
 public class PlanInstanceHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(PlanInstanceHandler.class);
-
-    private final static ServiceTemplateInstanceRepository stiRepo = new ServiceTemplateInstanceRepository();
     private final static PlanInstanceRepository planRepo = new PlanInstanceRepository();
+    private final ServiceTemplateInstanceRepository stiRepo;
 
-    /**
-     * Create a plan instance for the instance API and add the details about name, type, input parameters, etc.
-     *
-     * @param csar                      the CSAR the plan belongs to
-     * @param serviceTemplateId         the Id of the ServiceTemplate the plan belongs to
-     * @param serviceTemplateInstanceId the Id of the ServiceTemplate instance the plan belongs to
-     * @param planId                    the ID of the plan
-     * @param correlationId             the correlation Id that uniquely identifies the plan instance
-     * @param input                     the input parameters of the plan instance
-     * @return the created PlanInstance or <code>null</code> if the creation failed
-     */
-    public static PlanInstance createPlanInstance(final Csar csar, final QName serviceTemplateId,
-                                                  final long serviceTemplateInstanceId, final QName planId,
-                                                  final String operationName, final String correlationId, final String chorCorrelationId,
-                                                  final String choreographyPartners, final Object input) throws CorrelationIdAlreadySetException {
-
-        if (Objects.isNull(planId)) {
-            LOG.error("Plan ID is null! Unable to create PlanInstance!");
-            return null;
-        }
-
-        final TPlan storedPlan;
-        try {
-            storedPlan = ToscaEngine.resolvePlanReference(csar, planId);
-        } catch (NotFoundException e) {
-            LOG.error("Plan with ID {} does not exist in CSAR {}!", planId, csar.id().csarName());
-            return null;
-        }
-
-        // create a new plan instance
-        final PlanInstance plan = new PlanInstance();
-        plan.setCorrelationId(correlationId);
-        plan.setChoreographyCorrelationId(chorCorrelationId);
-        plan.setChoreographyPartners(choreographyPartners);
-        plan.setLanguage(PlanLanguage.fromString(storedPlan.getPlanLanguage()));
-        plan.setType(PlanType.fromString(storedPlan.getPlanType()));
-        plan.setState(PlanInstanceState.RUNNING);
-        plan.setTemplateId(planId);
-
-        // check if plan instance with that correlation ID is already present
-        final Optional<PlanInstance> planOptional =
-            planRepo.findAll().stream().filter(p -> p.getCorrelationId().equals(correlationId)).findFirst();
-        if (planOptional.isPresent()) {
-            throw new CorrelationIdAlreadySetException(
-                "Plan instance with correlation ID " + correlationId + " is already existing.");
-        }
-
-        // cast input parameters for the plan invocation
-        Map<String, String> inputMap = new HashMap<>();
-        if (input instanceof HashMap) {
-            inputMap = (HashMap<String, String>) input;
-        }
-
-        // add input parameters to the plan instance
-        for (final TParameter param : storedPlan.getInputParameters()) {
-            new PlanInstanceInput(param.getName(), inputMap.getOrDefault(param.getName(), ""),
-                param.getType()).setPlanInstance(plan);
-        }
-        // add connection to the service template and update the repository
-        stiRepo.find(serviceTemplateInstanceId)
-            .ifPresent(serviceTemplateInstance -> plan.setServiceTemplateInstance(serviceTemplateInstance));
-        planRepo.add(plan);
-
-        return plan;
+    public PlanInstanceHandler(ServiceTemplateInstanceRepository stiRepo) {
+        this.stiRepo = stiRepo;
     }
 
     /**
@@ -240,5 +179,71 @@ public class PlanInstanceHandler {
         final String resp = (String) responseBody;
         final String instanceID = resp.substring(resp.indexOf("href\":\"") + 7);
         return instanceID.substring(instanceID.lastIndexOf("/") + 1, instanceID.indexOf("\""));
+    }
+
+    /**
+     * Create a plan instance for the instance API and add the details about name, type, input parameters, etc.
+     *
+     * @param csar                      the CSAR the plan belongs to
+     * @param serviceTemplateId         the Id of the ServiceTemplate the plan belongs to
+     * @param serviceTemplateInstanceId the Id of the ServiceTemplate instance the plan belongs to
+     * @param planId                    the ID of the plan
+     * @param correlationId             the correlation Id that uniquely identifies the plan instance
+     * @param input                     the input parameters of the plan instance
+     * @return the created PlanInstance or <code>null</code> if the creation failed
+     */
+    public PlanInstance createPlanInstance(final Csar csar, final QName serviceTemplateId,
+                                           final long serviceTemplateInstanceId, final QName planId,
+                                           final String operationName, final String correlationId, final String chorCorrelationId,
+                                           final String choreographyPartners, final Object input) throws CorrelationIdAlreadySetException {
+
+        if (Objects.isNull(planId)) {
+            LOG.error("Plan ID is null! Unable to create PlanInstance!");
+            return null;
+        }
+
+        final TPlan storedPlan;
+        try {
+            storedPlan = ToscaEngine.resolvePlanReference(csar, planId);
+        } catch (NotFoundException e) {
+            LOG.error("Plan with ID {} does not exist in CSAR {}!", planId, csar.id().csarName());
+            return null;
+        }
+
+        // create a new plan instance
+        final PlanInstance plan = new PlanInstance();
+        plan.setCorrelationId(correlationId);
+        plan.setChoreographyCorrelationId(chorCorrelationId);
+        plan.setChoreographyPartners(choreographyPartners);
+        plan.setLanguage(PlanLanguage.fromString(storedPlan.getPlanLanguage()));
+        plan.setType(PlanType.fromString(storedPlan.getPlanType()));
+        plan.setState(PlanInstanceState.RUNNING);
+        plan.setTemplateId(planId);
+
+        // check if plan instance with that correlation ID is already present
+        final Optional<PlanInstance> planOptional =
+            planRepo.findAll().stream().filter(p -> p.getCorrelationId().equals(correlationId)).findFirst();
+        if (planOptional.isPresent()) {
+            throw new CorrelationIdAlreadySetException(
+                "Plan instance with correlation ID " + correlationId + " is already existing.");
+        }
+
+        // cast input parameters for the plan invocation
+        Map<String, String> inputMap = new HashMap<>();
+        if (input instanceof HashMap) {
+            inputMap = (HashMap<String, String>) input;
+        }
+
+        // add input parameters to the plan instance
+        for (final TParameter param : storedPlan.getInputParameters()) {
+            new PlanInstanceInput(param.getName(), inputMap.getOrDefault(param.getName(), ""),
+                param.getType()).setPlanInstance(plan);
+        }
+        // add connection to the service template and update the repository
+        stiRepo.findById(serviceTemplateInstanceId)
+            .ifPresent(serviceTemplateInstance -> plan.setServiceTemplateInstance(serviceTemplateInstance));
+        planRepo.add(plan);
+
+        return plan;
     }
 }

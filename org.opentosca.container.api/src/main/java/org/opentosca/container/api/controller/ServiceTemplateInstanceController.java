@@ -68,17 +68,20 @@ public class ServiceTemplateInstanceController {
     private final InstanceService instanceService;
     private final PlanService planService;
     private final DeploymentTestService deploymentTestService;
+    private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
     @Context
     private UriInfo uriInfo;
 
     public ServiceTemplateInstanceController(final Csar csar, final TServiceTemplate serviceTemplate,
                                              final InstanceService instanceService, final PlanService planService,
-                                             final DeploymentTestService deploymentTestService) {
+                                             final DeploymentTestService deploymentTestService,
+                                             ServiceTemplateInstanceRepository serviceTemplateInstanceRepository) {
         this.csar = csar;
         this.serviceTemplate = serviceTemplate;
         this.instanceService = instanceService;
         this.planService = planService;
         this.deploymentTestService = deploymentTestService;
+        this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
     }
 
     @GET
@@ -389,7 +392,7 @@ public class ServiceTemplateInstanceController {
     public Response getDeploymentTests(@PathParam("id") final Integer id) {
         logger.debug("Invoking getDeploymentTests");
         // TODO: Check if instance belongs to CSAR and Service Template
-        final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
+        final ServiceTemplateInstance sti = serviceTemplateInstanceRepository.findById(Long.valueOf(id)).orElse(null);
         if (sti == null) {
             logger.info("Service template instance \"" + id + "\" of template \"" + serviceTemplate.getId()
                 + "\" could not be found");
@@ -421,7 +424,7 @@ public class ServiceTemplateInstanceController {
                                       @PathParam("deploymenttest") final Integer deploymenttest) {
         logger.debug("Invoking getDeploymentTest");
         // TODO: Check if instance belongs to CSAR and Service Template
-        final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
+        final ServiceTemplateInstance sti = serviceTemplateInstanceRepository.findById(Long.valueOf(id)).orElse(null);
         if (sti == null) {
             logger.info("Service template instance \"" + id + "\" of template \"" + serviceTemplate.getId()
                 + "\" could not be found");
@@ -449,7 +452,7 @@ public class ServiceTemplateInstanceController {
     public Response createDeploymentTest(@PathParam("id") final Integer id) {
         logger.debug("Invoking createDeploymentTest");
         // TODO: Check if instance belongs to CSAR and Service Template
-        final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
+        final ServiceTemplateInstance sti = serviceTemplateInstanceRepository.findById(Long.valueOf(id)).orElse(null);
         if (sti == null) {
             logger.info("Service template instance \"" + id + "\" of template \"" + serviceTemplate.getId()
                 + "\" could not be found");
