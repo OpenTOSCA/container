@@ -32,11 +32,15 @@ public class DeploymentTestService {
 
     private final ExecutorService pool = Executors.newFixedThreadPool(5);
 
+    private final PlanInstanceRepository planInstanceRepository;
+
     private final TestExecutor executor;
 
     @Inject
-    public DeploymentTestService(DeploymentTestRepository deploymentTestRepository, TestExecutor executor, CsarStorageService csarStorage) {
+    public DeploymentTestService(DeploymentTestRepository deploymentTestRepository, TestExecutor executor,
+                                 CsarStorageService csarStorage, PlanInstanceRepository planInstanceRepository) {
         logger.debug("Instantiating DeploymentTestService");
+        this.planInstanceRepository = planInstanceRepository;
         this.executor = executor;
         this.deploymentTestRepository = deploymentTestRepository;
         this.csarStorage = csarStorage;
@@ -59,7 +63,7 @@ public class DeploymentTestService {
                 PlanInstance pi = null;
                 boolean finished = false;
                 try {
-                    pi = new PlanInstanceRepository().findByCorrelationId(correlationId);
+                    pi = planInstanceRepository.findByCorrelationId(correlationId);
                     finished = pi.getState().equals(PlanInstanceState.FINISHED);
                 } catch (final Exception e) {
                     finished = false;

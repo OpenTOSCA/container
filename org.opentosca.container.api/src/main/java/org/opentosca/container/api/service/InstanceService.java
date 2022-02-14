@@ -78,6 +78,7 @@ public class InstanceService {
     private final NodeTemplateService nodeTemplateService;
     private final ServiceTemplateService serviceTemplateService;
     private final CsarStorageService storage;
+    private final PlanInstanceRepository planInstanceRepository;
 
     private final DocumentConverter converter = new DocumentConverter();
 
@@ -89,7 +90,7 @@ public class InstanceService {
                            SituationsMonitorRepository situationsMonitorRepo,
                            RelationshipTemplateService relationshipTemplateService,
                            NodeTemplateService nodeTemplateService, ServiceTemplateService serviceTemplateService,
-                           CsarStorageService storage) {
+                           CsarStorageService storage, PlanInstanceRepository planInstanceRepository) {
         this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
         this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
         this.relationshipTemplateInstanceRepository = relationshipTemplateInstanceRepository;
@@ -101,6 +102,7 @@ public class InstanceService {
         this.nodeTemplateService = nodeTemplateService;
         this.serviceTemplateService = serviceTemplateService;
         this.storage = storage;
+        this.planInstanceRepository = planInstanceRepository;
     }
 
     public Document convertPropertyToDocument(final Property property) {
@@ -226,11 +228,10 @@ public class InstanceService {
         IllegalAccessException,
         IllegalArgumentException {
         final CsarId csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateName);
-        final PlanInstanceRepository repository = new PlanInstanceRepository();
-        PlanInstance pi = null;
+        PlanInstance pi;
 
         try {
-            pi = repository.findByCorrelationId(correlationId);
+            pi = planInstanceRepository.findByCorrelationId(correlationId);
         } catch (final Exception e) {
             final String msg =
                 String.format("The given correlation id %s is either malformed, does not belong to an existing plan instance",
@@ -274,7 +275,7 @@ public class InstanceService {
         instance.addPlanInstance(buildPlanInstance);
         instance.setCreationCorrelationId(buildPlanInstance.getCorrelationId());
         instance = this.serviceTemplateInstanceRepository.save(instance);
-        new PlanInstanceRepository().update(buildPlanInstance);
+        planInstanceRepository.save(buildPlanInstance);
 
         return instance;
     }

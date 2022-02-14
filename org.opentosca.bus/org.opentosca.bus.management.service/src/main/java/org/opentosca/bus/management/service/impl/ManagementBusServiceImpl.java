@@ -133,14 +133,17 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     private final ChoreographyHandler choreographyHandler;
     private final MBUtils mbUtils;
     private final PlanInstanceHandler planInstanceHandler;
+    private final PlanInstanceRepository planInstanceRepository;
 
     @Inject
     public ManagementBusServiceImpl(DeploymentDistributionDecisionMaker decisionMaker,
                                     CollaborationContext collaborationContext, ICoreEndpointService endpointService,
                                     ParameterHandler parameterHandler, PluginHandler pluginHandler,
                                     PluginRegistry pluginRegistry, DeploymentPluginCapabilityChecker capabilityChecker,
-                                    CsarStorageService storage, ChoreographyHandler choreographyHandler, MBUtils mbUtils, PlanInstanceHandler planInstanceHandler) {
+                                    CsarStorageService storage, ChoreographyHandler choreographyHandler, MBUtils mbUtils,
+                                    PlanInstanceHandler planInstanceHandler, PlanInstanceRepository planInstanceRepository) {
         LOG.info("Instantiating ManagementBus Service");
+        this.planInstanceRepository = planInstanceRepository;
         this.planInstanceHandler = planInstanceHandler;
         this.mbUtils = mbUtils;
         this.decisionMaker = decisionMaker;
@@ -238,11 +241,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.debug("Correlation ID: {}", correlationID);
         if (Objects.nonNull(correlationID)) {
             // update plan in repository with new log event
-            final PlanInstanceRepository repo = new PlanInstanceRepository();
-            final PlanInstance plan = repo.findByCorrelationId(correlationID);
+            final PlanInstance plan = planInstanceRepository.findByCorrelationId(correlationID);
             if (Objects.nonNull(plan)) {
                 plan.addEvent(event);
-                repo.update(plan);
+                planInstanceRepository.save(plan);
             }
         }
 
@@ -259,12 +261,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             event.setExecutionDuration(duration);
 
             // update plan in repository with new log event
-            final PlanInstanceRepository repo = new PlanInstanceRepository();
-            final PlanInstance plan = repo.findByCorrelationId(correlationID);
+            final PlanInstance plan = planInstanceRepository.findByCorrelationId(correlationID);
 
             if (Objects.nonNull(plan)) {
                 plan.addEvent(event);
-                repo.update(plan);
+                planInstanceRepository.save(plan);
             }
         }
     }
@@ -688,7 +689,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         // generate new unique correlation ID if no ID is passed
         if (Objects.isNull(correlationID)) {
-            correlationID = PlanInstanceHandler.createCorrelationId();
+            correlationID = planInstanceHandler.createCorrelationId();
             message.setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), correlationID);
 
             // update message body with correlation id
@@ -930,7 +931,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         synchronized (this) {
 
             if (!isReceiveNotify && arguments.chorCorrelationId != null
-                && new PlanInstanceRepository().findByChoreographyCorrelationId(arguments.chorCorrelationId,
+                && planInstanceRepository.findByChoreographyCorrelationIdAndTemplateId(arguments.chorCorrelationId,
                 arguments.planId) != null) {
                 LOG.warn("Skipping the plan invocation of choreography build plan with choreography id {}",
                     arguments.chorCorrelationId);
@@ -938,8 +939,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             }
 
             if (isReceiveNotify) {
-                plan = new PlanInstanceRepository().findByChoreographyCorrelationId(arguments.chorCorrelationId,
-                    arguments.planId);
+                plan = planInstanceRepository
+                    .findByChoreographyCorrelationIdAndTemplateId(arguments.chorCorrelationId, arguments.planId);
             } else {
                 try {
                     plan = planInstanceHandler.createPlanInstance(arguments.csar, arguments.serviceTemplateId,
@@ -1067,10 +1068,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
 
         // update plan in repository with new log event
-        final PlanInstanceRepository repo = new PlanInstanceRepository();
-        plan = repo.findByCorrelationId(arguments.correlationId);
+        plan = planInstanceRepository.findByCorrelationId(arguments.correlationId);
         plan.addEvent(event);
-        repo.update(plan);
+        planInstanceRepository.save(plan);
 
         // Undeploy IAs for the related ServiceTemplateInstance if a termination plan was executed.
         if (plan.getType().equals(PlanType.TERMINATION)) {
@@ -1084,13 +1084,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
 
         // update plan in repository with new log event
-        plan = repo.findByCorrelationId(arguments.correlationId);
+        plan = planInstanceRepository.findByCorrelationId(arguments.correlationId);
         plan.addEvent(event);
-        repo.update(plan);
+        planInstanceRepository.save(plan);
 
         if (exchange != null) {
             // update the output parameters in the plan instance
-            PlanInstanceHandler.updatePlanInstanceOutput(plan, arguments.csar, exchange.getIn().getBody());
+            planInstanceHandler.updatePlanInstanceOutput(plan, arguments.csar, exchange.getIn().getBody());
 
             handleResponse(exchange);
         }

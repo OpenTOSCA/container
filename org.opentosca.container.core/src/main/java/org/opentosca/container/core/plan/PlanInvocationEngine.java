@@ -47,18 +47,19 @@ import org.springframework.stereotype.Service;
 public class PlanInvocationEngine implements IPlanInvocationEngine {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlanInvocationEngine.class);
-    private static final PlanInstanceRepository planRepo = new PlanInstanceRepository();
 
+    private final PlanInstanceRepository planRepo;
     private final IManagementBus managementBus;
     private final CsarStorageService csarStorage;
     private final RulesChecker rulesChecker;
     private final ChoreographyHandler choreographyHandler;
 
     @Inject
-    public PlanInvocationEngine(IManagementBus managementBus,
+    public PlanInvocationEngine(PlanInstanceRepository planRepo, IManagementBus managementBus,
                                 CsarStorageService csarStorage,
                                 RulesChecker rulesChecker,
                                 ChoreographyHandler choreographyHandler) {
+        this.planRepo = planRepo;
         this.managementBus = managementBus;
         this.csarStorage = csarStorage;
         this.rulesChecker = rulesChecker;

@@ -27,6 +27,7 @@ import org.opentosca.container.core.next.model.PlanInstanceOutput;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.next.model.PlanType;
+import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.slf4j.Logger;
@@ -43,10 +44,11 @@ import org.springframework.stereotype.Service;
 public class PlanInstanceHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(PlanInstanceHandler.class);
-    private final static PlanInstanceRepository planRepo = new PlanInstanceRepository();
+    private final PlanInstanceRepository planRepo;
     private final ServiceTemplateInstanceRepository stiRepo;
 
-    public PlanInstanceHandler(ServiceTemplateInstanceRepository stiRepo) {
+    public PlanInstanceHandler(PlanInstanceRepository planRepo, ServiceTemplateInstanceRepository stiRepo) {
+        this.planRepo = planRepo;
         this.stiRepo = stiRepo;
     }
 
@@ -55,7 +57,7 @@ public class PlanInstanceHandler {
      *
      * @return the unique correlation ID
      */
-    public static String createCorrelationId() {
+    public String createCorrelationId() {
         // generate CorrelationId for the plan execution
         while (true) {
             final String correlationId = String.valueOf(System.currentTimeMillis());
@@ -76,7 +78,7 @@ public class PlanInstanceHandler {
      * @param csar the Id of the CSAR the plan belongs to
      * @param body the body of the camel envelope resulting from the invocation and containing the output parameters
      */
-    public static void updatePlanInstanceOutput(final PlanInstance plan, final Csar csar, final Object body) {
+    public void updatePlanInstanceOutput(final PlanInstance plan, final Csar csar, final Object body) {
 
         final TPlan planModel;
         try {
@@ -166,7 +168,7 @@ public class PlanInstanceHandler {
         }
 
         // update the repo with the changed plan instance
-        planRepo.update(plan);
+        planRepo.save(plan);
     }
 
     /**
@@ -211,7 +213,7 @@ public class PlanInstanceHandler {
         }
 
         // create a new plan instance
-        final PlanInstance plan = new PlanInstance();
+        PlanInstance plan = new PlanInstance();
         plan.setCorrelationId(correlationId);
         plan.setChoreographyCorrelationId(chorCorrelationId);
         plan.setChoreographyPartners(choreographyPartners);
@@ -240,9 +242,11 @@ public class PlanInstanceHandler {
                 param.getType()).setPlanInstance(plan);
         }
         // add connection to the service template and update the repository
-        stiRepo.findById(serviceTemplateInstanceId)
-            .ifPresent(serviceTemplateInstance -> plan.setServiceTemplateInstance(serviceTemplateInstance));
-        planRepo.add(plan);
+        Optional<ServiceTemplateInstance> optional = stiRepo.findById(serviceTemplateInstanceId);
+        if (optional.isPresent()) {
+            plan.setServiceTemplateInstance(optional.get());
+        }
+        plan = planRepo.save(plan);
 
         return plan;
     }

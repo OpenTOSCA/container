@@ -36,18 +36,19 @@ public class PlanService {
     private final OpenToscaControlService controlService;
     private final DeploymentTestService deploymentTestService;
     private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
-    private final PlanInstanceRepository planInstanceRepository = new PlanInstanceRepository();
+    private final PlanInstanceRepository planInstanceRepository;
 
     @Inject
     public PlanService(OpenToscaControlService controlService, DeploymentTestService deploymentTestService,
-                       ServiceTemplateInstanceRepository serviceTemplateInstanceRepository) {
+                       ServiceTemplateInstanceRepository serviceTemplateInstanceRepository, PlanInstanceRepository planInstanceRepository) {
         this.controlService = controlService;
         this.deploymentTestService = deploymentTestService;
         this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
+        this.planInstanceRepository = planInstanceRepository;
     }
 
     public PlanInstance getPlanInstance(Long id) {
-        return this.planInstanceRepository.find(id).orElse(null);
+        return this.planInstanceRepository.findById(id).orElse(null);
     }
 
     public List<PlanInstance> getPlanInstances(final Csar csar, final PlanType... planTypes) {
@@ -84,8 +85,7 @@ public class PlanService {
     }
 
     public PlanInstance resolvePlanInstance(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, String planId, String correlationId, PlanType... planTypes) {
-        final PlanInstanceRepository repository = new PlanInstanceRepository();
-        final PlanInstance pi = repository.findByCorrelationId(correlationId);
+        final PlanInstance pi = planInstanceRepository.findByCorrelationId(correlationId);
 
         if (pi == null) {
             final String msg = "Plan instance with correlationId '" + correlationId + "' not found";
@@ -104,7 +104,7 @@ public class PlanService {
     public boolean updatePlanInstanceState(PlanInstance instance, PlanInstanceState newState) {
         try {
             instance.setState(newState);
-            this.planInstanceRepository.update(instance);
+            this.planInstanceRepository.save(instance);
             return true;
         } catch (final IllegalArgumentException e) {
             logger.info("The given state {} is an illegal plan instance state.", newState);
@@ -114,7 +114,7 @@ public class PlanService {
 
     public void addLogToPlanInstance(PlanInstance instance, PlanInstanceEvent event) {
         instance.addEvent(event);
-        planInstanceRepository.update(instance);
+        planInstanceRepository.save(instance);
     }
 
     public String invokePlan(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, String planId, List<TParameter> parameters, PlanType... planTypes) {

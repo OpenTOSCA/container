@@ -23,6 +23,7 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.Endpoint;
+import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.plan.ChoreographyHandler;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -72,16 +73,18 @@ public class Route extends RouteBuilder {
     private final ICoreEndpointService endpointService;
     private final ContainerEngine containerEngine;
     private final ChoreographyHandler choreoHandler;
+    private final PlanInstanceRepository planInstanceRepository;
 
     @Inject
     public Route(CsarStorageService csarStorageService, IManagementBusService managementBusService,
                  ICoreEndpointService endpointService, ContainerEngine containerEngine,
-                 ChoreographyHandler choreoHandler) {
+                 ChoreographyHandler choreoHandler, PlanInstanceRepository planInstanceRepository) {
         this.csarStorageService = csarStorageService;
         this.managementBusService = managementBusService;
         this.endpointService = endpointService;
         this.containerEngine = containerEngine;
         this.choreoHandler = choreoHandler;
+        this.planInstanceRepository = planInstanceRepository;
 
         storeManagementEndpoint();
     }
@@ -124,7 +127,7 @@ public class Route extends RouteBuilder {
         responseJaxb.setPartNamespace(new QName("http://siserver.org/schema", "invokeResponse"));
 
         final Processor requestProcessor = new RequestProcessor(this.csarStorageService, this.containerEngine,
-            this.managementBusService, this.choreoHandler);
+            this.managementBusService, this.choreoHandler, this.planInstanceRepository);
         final Processor responseProcessor = new ResponseProcessor();
 
         this.from(INVOKE_ENDPOINT).unmarshal(requestJaxb).process(requestProcessor).choice().when(this.IS_INVOKE_IA)

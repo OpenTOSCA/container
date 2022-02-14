@@ -62,7 +62,6 @@ public class Settings {
      * OpenTOSCA Container database location
      */
     public static final Path DBDIR = Paths.get(System.getProperty("java.io.tmpdir"), "opentosca", "db");
-    public static final Path DBDIR2 = Paths.get(System.getProperty("java.io.tmpdir"), "opentosca2", "db");
 
     public final static String OPENTOSCA_COLLABORATION_MODE = settings.getProperty("org.opentosca.container.collaboration.mode", "false");
     public final static String OPENTOSCA_COLLABORATION_HOSTNAMES = settings.getProperty("org.opentosca.container.collaboration.hostnames");

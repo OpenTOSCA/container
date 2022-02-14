@@ -46,6 +46,9 @@ public class SituationTriggerInstanceListener {
 
     private static Map<String, List<String>> planToOperationMap = new HashMap<>();
 
+    @Autowired
+    private PlanInstanceRepository planInstanceRepository;
+
     @PostPersist
     public void startSituationTriggerInstanceObserver(final SituationTriggerInstance instance) {
         final SituationTriggerInstanceObserver obs = new SituationTriggerInstanceObserver(instance);
@@ -91,8 +94,7 @@ public class SituationTriggerInstanceListener {
         final List<String> allOperationsInPlan = planNameToOperationsMap.get(plan.getId());
 
         // get all previously completed PlanInstances from DB
-        final PlanInstanceRepository planRepo = new PlanInstanceRepository();
-        final Collection<PlanInstance> allOccurences = planRepo.findAll();
+        final Collection<PlanInstance> allOccurences = planInstanceRepository.findAll();
 
         // iterate all instances until match is found
         if (allOperationsInPlan != null) {
@@ -150,8 +152,9 @@ public class SituationTriggerInstanceListener {
     private class SituationTriggerInstanceObserver implements Runnable {
 
         final private Logger LOG = LoggerFactory.getLogger(SituationTriggerInstanceObserver.class);
-        private final PlanInstanceRepository planRepository = new PlanInstanceRepository();
         private final SituationTriggerInstance instance;
+        @Autowired
+        private PlanInstanceRepository planRepository;
         @Autowired
         private SituationTriggerInstanceRepository repo;
         @Autowired
