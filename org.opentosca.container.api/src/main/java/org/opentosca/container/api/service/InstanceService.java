@@ -66,8 +66,7 @@ public class InstanceService {
 
     private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
     private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository;
-    private final RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository =
-        new RelationshipTemplateInstanceRepository();
+    private final RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository;
 
     // situations
     private final SituationRepository sitRepo = new SituationRepository();
@@ -85,11 +84,12 @@ public class InstanceService {
     @Inject
     public InstanceService(ServiceTemplateInstanceRepository serviceTemplateInstanceRepository,
                            NodeTemplateInstanceRepository nodeTemplateInstanceRepository,
-                           RelationshipTemplateService relationshipTemplateService,
+                           RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository, RelationshipTemplateService relationshipTemplateService,
                            NodeTemplateService nodeTemplateService, ServiceTemplateService serviceTemplateService,
                            CsarStorageService storage) {
         this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
         this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
+        this.relationshipTemplateInstanceRepository = relationshipTemplateInstanceRepository;
         this.relationshipTemplateService = relationshipTemplateService;
         this.nodeTemplateService = nodeTemplateService;
         this.serviceTemplateService = serviceTemplateService;
@@ -486,7 +486,7 @@ public class InstanceService {
 
     private RelationshipTemplateInstance getRelationshipTemplateInstance(final Long id) {
         logger.debug("Requesting relationship template instance <{}>...", id);
-        final Optional<RelationshipTemplateInstance> instance = this.relationshipTemplateInstanceRepository.find(id);
+        final Optional<RelationshipTemplateInstance> instance = this.relationshipTemplateInstanceRepository.findById(id);
 
         if (instance.isPresent()) {
             return instance.get();
@@ -522,7 +522,7 @@ public class InstanceService {
         final RelationshipTemplateInstance relationship =
             resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, id);
         relationship.setState(newState);
-        this.relationshipTemplateInstanceRepository.update(relationship);
+        this.relationshipTemplateInstanceRepository.save(relationship);
     }
 
     public Document getRelationshipTemplateInstanceProperties(final String serviceTemplateQName,
@@ -553,7 +553,7 @@ public class InstanceService {
             final RelationshipTemplateInstanceProperty property =
                 this.convertDocumentToProperty(properties, RelationshipTemplateInstanceProperty.class);
             relationship.addProperty(property);
-            this.relationshipTemplateInstanceRepository.update(relationship);
+            this.relationshipTemplateInstanceRepository.save(relationship);
         } catch (InstantiationException | IllegalAccessException e) { // This is not supposed to happen at all!
             final String msg = String.format("An error occurred while instantiating an instance of the %s class.",
                 RelationshipTemplateInstanceProperty.class);
@@ -586,7 +586,7 @@ public class InstanceService {
             throw new NotFoundException(e.getMessage(), e);
         }
 
-        final RelationshipTemplateInstance newInstance = new RelationshipTemplateInstance();
+        RelationshipTemplateInstance newInstance = new RelationshipTemplateInstance();
         final RelationshipTemplateDTO dto =
             this.relationshipTemplateService.getRelationshipTemplateById(csarId, serviceTemplateName,
                 relationshipTemplateId);
@@ -613,7 +613,7 @@ public class InstanceService {
         newInstance.setTarget(getNodeTemplateInstance(request.getTargetNodeTemplateInstanceId()));
         newInstance.setServiceTemplateInstance(serviceTemplateInstanceRepository.findById(request.getServiceInstanceId()).get());
 
-        this.relationshipTemplateInstanceRepository.add(newInstance);
+        newInstance = this.relationshipTemplateInstanceRepository.save(newInstance);
 
         return newInstance;
     }
@@ -623,7 +623,7 @@ public class InstanceService {
         // throws exception if not found
         final RelationshipTemplateInstance instance =
             resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, instanceId);
-        this.relationshipTemplateInstanceRepository.remove(instance);
+        this.relationshipTemplateInstanceRepository.delete(instance);
     }
 
     /* Situations */
