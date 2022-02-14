@@ -1,6 +1,7 @@
 package org.opentosca.container.core.impl.service;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -8,13 +9,15 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.TypedQuery;
 
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.deployment.ia.IADeploymentInfo;
-import org.opentosca.container.core.model.deployment.ia.IADeploymentState;
 import org.opentosca.container.core.model.deployment.plan.PlanDeploymentInfo;
 import org.opentosca.container.core.model.deployment.plan.PlanDeploymentState;
-import org.opentosca.container.core.model.deployment.process.DeploymentProcessInfo;
-import org.opentosca.container.core.model.deployment.process.DeploymentProcessState;
 import org.opentosca.container.core.next.jpa.EntityManagerProvider;
+import org.opentosca.container.core.next.model.DeploymentProcessInfo;
+import org.opentosca.container.core.next.model.DeploymentProcessState;
+import org.opentosca.container.core.next.model.IADeploymentInfo;
+import org.opentosca.container.core.next.model.IADeploymentState;
+import org.opentosca.container.core.next.repository.DeploymentProcessInfoRepository;
+import org.opentosca.container.core.next.repository.IADeploymentInfoRepository;
 import org.opentosca.container.core.service.DeploymentTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,22 +30,25 @@ public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
 
     private final EntityManager em = EntityManagerProvider.createEntityManager();
 
-    public DeploymentTrackerImpl() {
+    private final DeploymentProcessInfoRepository deploymentProcessInfoRepository;
+    private final IADeploymentInfoRepository iaDeploymentInfoRepository;
+
+    public DeploymentTrackerImpl(DeploymentProcessInfoRepository deploymentProcessInfoRepository, IADeploymentInfoRepository iaDeploymentInfoRepository) {
+        this.deploymentProcessInfoRepository = deploymentProcessInfoRepository;
+        this.iaDeploymentInfoRepository = iaDeploymentInfoRepository;
     }
 
     @Override
     public synchronized void storeDeploymentState(CsarId csar, DeploymentProcessState state) {
         LOGGER.trace("Storing deployment state {} for Csar {}.", state, csar.csarName());
-        em.getTransaction().begin();
 
         final DeploymentProcessInfo currentInformation = getDeploymentInfo(csar);
         if (currentInformation == null) {
-            em.persist(new DeploymentProcessInfo(csar, state));
+            deploymentProcessInfoRepository.save(new DeploymentProcessInfo(csar, state));
         } else {
             currentInformation.setDeploymentProcessState(state);
-            em.persist(currentInformation);
+            deploymentProcessInfoRepository.save(currentInformation);
         }
-        em.getTransaction().commit();
         LOGGER.debug("Completed storing deployment state {} for Csar {}", state, csar.csarName());
     }
 
@@ -59,24 +65,22 @@ public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
 
     private synchronized DeploymentProcessInfo getDeploymentInfo(CsarId csar) {
         LOGGER.trace("Retrieving deployment information for Csar {} from database", csar.csarName());
-        final TypedQuery<DeploymentProcessInfo> select = em.createNamedQuery(DeploymentProcessInfo.getDeploymentProcessInfoByCSARID, DeploymentProcessInfo.class);
-        select.setParameter("csarID", csar);
-        try {
-            return select.getSingleResult();
-        } catch (NoResultException e) {
+        List<DeploymentProcessInfo> deploymentProcessInfoList = deploymentProcessInfoRepository.findByCsarID(csar);
+        if (deploymentProcessInfoList.isEmpty()) {
             LOGGER.debug("No deployment information associated with Csar {} found", csar.csarName());
             return null;
-        } catch (NonUniqueResultException e) {
+        }
+        if (deploymentProcessInfoList.size() > 1) {
             LOGGER.warn("Multiple deployment information results found for Csar {}", csar.csarName());
             return null;
         }
+        return deploymentProcessInfoList.get(0);
     }
 
     @Override
     public synchronized void storeIADeploymentInfo(IADeploymentInfo info) {
         LOGGER.trace("Storing deployment state {} for IA \"{}\" of CSAR \"{}\"...",
             info.getDeploymentState(), info.getRelPath(), info.getCsarID().csarName());
-        em.getTransaction().begin();
 
         // check if deployment info for this IA already exists
         final IADeploymentInfo storedIA = getIADeploymentInfo(info.getCsarID(), info.getRelPath());
@@ -105,8 +109,7 @@ public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
             info.setAttempt(info.getAttempt() + 1);
         }
 
-        this.em.persist(info);
-        this.em.getTransaction().commit();
+        iaDeploymentInfoRepository.save(info);
         LOGGER.debug("Stored deployment state {} for IA [{}] of CSAR [{}].", info.getDeploymentState(), info.getRelPath(), info.getCsarID().csarName());
     }
 
@@ -115,25 +118,18 @@ public class DeploymentTrackerImpl implements DeploymentTracker, AutoCloseable {
     @Override
     public synchronized IADeploymentInfo getIADeploymentInfo(CsarId csar, String iaRelPath) {
         LOGGER.trace("Retrieving IA Deployment info for IA [{}] in Csar {}", iaRelPath, csar.csarName());
-        final TypedQuery<IADeploymentInfo> select = em.createNamedQuery(IADeploymentInfo.getIADeploymentInfoByCSARIDAndRelPath, IADeploymentInfo.class);
-        select.setParameter("iaRelPath", iaRelPath);
-        select.setParameter("csarID", csar);
-        try {
-            return select.getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        } catch (NonUniqueResultException e) {
-            LOGGER.warn("More than one IA deployment information stored for IA [{}] of Csar {}", iaRelPath, csar.csarName());
+        List<IADeploymentInfo> iaDeploymentInfoList = iaDeploymentInfoRepository.findByCsarIDAndRelPath(csar, iaRelPath);
+        if (iaDeploymentInfoList.size() != 1) {
+            LOGGER.warn("Unequal 1 IA deployment information stored for IA [{}] of Csar {}: {}", iaRelPath, csar.csarName(), iaDeploymentInfoList.size());
             return null;
         }
+        return iaDeploymentInfoList.get(0);
     }
 
     @Override
     public synchronized Collection<IADeploymentInfo> getIADeployments(CsarId csar) {
         LOGGER.trace("Retrieving IA Deployment info for all IAs in Csar {}", csar.csarName());
-        final TypedQuery<IADeploymentInfo> select = em.createNamedQuery(IADeploymentInfo.getIADeploymentInfoByCSARID, IADeploymentInfo.class);
-        select.setParameter("csarID", csar);
-        return select.getResultList();
+        return iaDeploymentInfoRepository.findByCsarID(csar);
     }
 
     @Override
