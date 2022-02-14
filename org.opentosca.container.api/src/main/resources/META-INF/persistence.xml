@@ -43,7 +43,7 @@
 
     <class>org.opentosca.container.core.model.credentials.Credentials</class>
     <class>org.opentosca.container.core.next.model.IADeploymentInfo</class>
-    <class>org.opentosca.container.core.model.deployment.plan.PlanDeploymentInfo</class>
+    <class>org.opentosca.container.core.next.model.PlanDeploymentInfo</class>
     <class>org.opentosca.container.core.next.model.DeploymentProcessInfo</class>
     <class>org.opentosca.container.core.model.deployment.AbstractDeploymentInfo</class>
     <class>org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo</class>

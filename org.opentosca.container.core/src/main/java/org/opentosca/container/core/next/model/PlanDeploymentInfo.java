@@ -1,4 +1,4 @@
-package org.opentosca.container.core.model.deployment.plan;
+package org.opentosca.container.core.next.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +11,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import lombok.NoArgsConstructor;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo;
 
@@ -19,29 +20,13 @@ import org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@NamedQueries( {
-    @NamedQuery(name = PlanDeploymentInfo.getPlanDeploymentInfoByCSARIDAndRelPath,
-        query = PlanDeploymentInfo.getPlanDeploymentInfoByCSARIDAndRelPathQuery),
-    @NamedQuery(name = PlanDeploymentInfo.getPlanDeploymentInfoByCSARID,
-        query = PlanDeploymentInfo.getPlanDeploymentInfoByCSARIDQuery)
-})
-@Table(name = PlanDeploymentInfo.tableName,
+@Table(name = PlanDeploymentInfo.TABLE_NAME,
     uniqueConstraints = @UniqueConstraint(columnNames = {"csarID", "RelPath"})
 )
+@NoArgsConstructor
 public class PlanDeploymentInfo extends AbstractFileDeploymentInfo {
 
-    public static final String getPlanDeploymentInfoByCSARID = "PlanDeploymentInfo.ByCSARID";
-    public static final String getPlanDeploymentInfoByCSARIDAndRelPath = "PlanDeploymentInfo.ByCSARIDAndRelPath";
-
-    protected final static String tableName = "PlanDeploymentInfo";
-
-    /*
-     * JPQL Queries
-     */
-    protected static final String getPlanDeploymentInfoByCSARIDAndRelPathQuery =
-        "select t from " + PlanDeploymentInfo.tableName + " t where t.relPath = :planRelPath and t.csarID = :csarID";
-    protected static final String getPlanDeploymentInfoByCSARIDQuery =
-        "select t from " + PlanDeploymentInfo.tableName + " t where t.csarID = :csarID";
+    protected final static String TABLE_NAME = "PlanDeploymentInfo";
 
     /**
      * Deployment state of this Plan.
@@ -49,10 +34,6 @@ public class PlanDeploymentInfo extends AbstractFileDeploymentInfo {
     @Enumerated(EnumType.STRING)
     @Column(name = "DeploymentState")
     private PlanDeploymentState deploymentState;
-
-    protected PlanDeploymentInfo() {
-
-    }
 
     public PlanDeploymentInfo(final CsarId csarID, final String relPath, final PlanDeploymentState deploymentState) {
         super(csarID, relPath);
