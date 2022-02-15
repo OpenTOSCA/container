@@ -146,7 +146,7 @@ public abstract class TestUtils {
 
         // inject the current path to the repository factory
         IRepository repository;
-        if(!isInitializedRepo) {
+        if (!isInitializedRepo) {
             RepositoryFactory.reconfigure(
                 new GitBasedRepositoryConfiguration(false, new FileBasedRepositoryConfiguration(repositoryPath, provider))
             );
