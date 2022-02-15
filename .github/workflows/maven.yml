@@ -27,7 +27,6 @@ jobs:
       with:
         repository: OpenTOSCA/tosca-definitions-test-applications
         ref: 'main'
-        token: '${{secrets.OPENTOSCAPRIVATEREPOACCESS}}'
         path: 'tosca-definitions-test-applications'
         lfs: 'true'
     - name: Copy TOSCA internal repository to tmp

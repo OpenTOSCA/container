@@ -38,7 +38,7 @@ import static org.junit.Assert.assertNotNull;
 @TestPropertySource(properties = "server.port=1337")
 public class AdaptMultiMyTinyToDoIntegrationTest {
 
-    public static final String TestApplicationsRepository = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
+    public static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
 
     public QName csarId = new QName("http://opentosca.org/test/applications/servicetemplates", "MutliMyTinyToDo-DockerEngine-Test_w1-wip1");
 
@@ -55,7 +55,7 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
 
     @Test
     public void test() throws Exception {
-        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage, TestApplicationsRepository);
+        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage, TESTAPPLICATIONSREPOSITORY);
         TestUtils.generatePlans(this.csarService, csar);
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
         assertNotNull(serviceTemplate);
@@ -105,8 +105,6 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
 
         serviceTemplateInstance = TestUtils.runAdaptationPlanExecution(this.planService, this.instanceService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan, TestUtils.getTerminationPlanInputParameters(TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString())));
         assertNotNull(serviceTemplateInstance);
-
-        TestUtils.clearContainer(this.storage, this.control);
     }
 
     @After

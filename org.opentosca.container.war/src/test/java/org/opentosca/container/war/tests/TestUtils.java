@@ -145,7 +145,6 @@ public abstract class TestUtils {
         }
 
         // inject the current path to the repository factory
-        IRepository repository;
         if (!isInitializedRepo) {
             RepositoryFactory.reconfigure(
                 new GitBasedRepositoryConfiguration(false, new FileBasedRepositoryConfiguration(repositoryPath, provider))
@@ -154,7 +153,7 @@ public abstract class TestUtils {
             RepositoryFactory.reconfigure(new FileBasedRepositoryConfiguration(repositoryPath, provider));
         }
 
-        repository = RepositoryFactory.getRepository();
+        IRepository repository = RepositoryFactory.getRepository();
         LOGGER.debug("Initialized test repository");
 
         CsarExporter exporter = new CsarExporter(repository);
@@ -378,5 +377,41 @@ public abstract class TestUtils {
         if (contains != null && !contains.isEmpty()) {
             Assert.assertTrue(content.toString().contains(contains));
         }
+    }
+
+    public static TPlan getBuildPlan(List<TPlan> plans) {
+        for (TPlan plan : plans) {
+            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.BUILD) && !plan.getId().toLowerCase().contains("defrost") && plan.getId().toLowerCase().contains("_buildPlan")) {
+                return plan;
+            }
+        }
+        return null;
+    }
+
+    public static TPlan getTerminationPlan(List<TPlan> plans) {
+        for (TPlan plan : plans) {
+            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.TERMINATION) && !plan.getId().toLowerCase().contains("freeze") && plan.getId().toLowerCase().contains("_terminationPlan")) {
+                return plan;
+            }
+        }
+        return null;
+    }
+
+    public static TPlan getScaleOutPlan(List<TPlan> plans) {
+        for (TPlan plan : plans) {
+            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.MANAGEMENT) && plan.getId().toLowerCase().contains("scale")) {
+                return plan;
+            }
+        }
+        return null;
+    }
+
+    public static TPlan getTransformationPlan(List<TPlan> plans) {
+        for (TPlan plan : plans) {
+            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.TRANSFORMATION)) {
+                return plan;
+            }
+        }
+        return null;
     }
 }

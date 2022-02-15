@@ -32,7 +32,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @TestPropertySource(properties = "server.port=1337")
 public class MyTinyToDoBPMNIntegrationTest {
 
-    public static final String TestApplicationsRepository = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
+    public static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
 
     public QName csarId = new QName("http://opentosca.org/test/applications/servicetemplates", "MyTinyToDo-DockerEngine-BPMN-Test_w1-wip1");
 
@@ -49,34 +49,18 @@ public class MyTinyToDoBPMNIntegrationTest {
 
     @Test
     public void test() throws Exception {
-        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage, TestApplicationsRepository);
+        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage, TESTAPPLICATIONSREPOSITORY);
         TestUtils.generatePlans(this.csarService, csar);
 
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
 
         TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
 
-        TPlan buildPlan = null;
-        TPlan terminationPlan = null;
         List<TPlan> plans = serviceTemplate.getPlans();
+        Assert.assertNotNull(plans);
 
-        for (TPlan plan : plans) {
-            PlanType type = PlanType.fromString(plan.getPlanType());
-            switch (type) {
-                case BUILD:
-                    if (!plan.getId().toLowerCase().contains("defrost")) {
-                        buildPlan = plan;
-                    }
-                    break;
-                case TERMINATION:
-                    if (!plan.getId().toLowerCase().contains("freeze")) {
-                        terminationPlan = plan;
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
+        TPlan buildPlan = TestUtils.getBuildPlan(plans);
+        TPlan terminationPlan = TestUtils.getTerminationPlan(plans);
 
         Assert.assertNotNull("BuildPlan not found", buildPlan);
         Assert.assertNotNull("TerminationPlan not found", terminationPlan);
@@ -85,8 +69,6 @@ public class MyTinyToDoBPMNIntegrationTest {
 
         String serviceInstanceUrl = TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString());
         TestUtils.runTerminationPlanExecution(this.planService, csar, serviceInstanceUrl, serviceTemplate, serviceTemplateInstance, terminationPlan);
-
-        TestUtils.clearContainer(this.storage, this.control);
     }
 
     @After

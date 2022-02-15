@@ -12,6 +12,7 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opentosca.container.api.service.CsarService;
@@ -20,7 +21,6 @@ import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.model.csar.Csar;
-import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.service.CsarStorageService;
@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNotNull;
 @TestPropertySource(properties = "server.port=1337")
 public class QHAnaTest {
 
-    public static final String TestApplicationsRepository = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
+    public static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
 
     public QName csarId = QName.valueOf("{https://ust-quantil.github.io/quantum/applications/servicetemplates}QHAna_w1");
 
@@ -54,7 +54,7 @@ public class QHAnaTest {
 
     @Test
     public void testDeployment() throws Exception {
-        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage, TestApplicationsRepository);
+        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage, TESTAPPLICATIONSREPOSITORY);
         TestUtils.generatePlans(this.csarService, csar);
 
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
@@ -63,12 +63,10 @@ public class QHAnaTest {
         List<TPlan> plans = serviceTemplate.getPlans();
         assertNotNull(plans);
 
-        TPlan buildPlan = plans.stream()
-            .filter(tPlan -> tPlan.getPlanType().equals(PlanType.BUILD.toString()))
-            .filter(tPlan -> !tPlan.getId().toLowerCase().contains("defrost"))
-            .findFirst()
-            .orElse(null);
+        TPlan buildPlan = TestUtils.getBuildPlan(plans);
+        TPlan terminationPlan = TestUtils.getTerminationPlan(plans);
         assertNotNull(buildPlan);
+        assertNotNull(terminationPlan);
 
         TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
 
@@ -97,6 +95,15 @@ public class QHAnaTest {
                 HttpResponse.BodyHandlers.ofString())
             .join();
         assertEquals(200, pluginRunnerResponse.statusCode());
+
+        String serviceInstanceUrl = TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString());
+
+        TestUtils.runTerminationPlanExecution(this.planService, csar, serviceInstanceUrl, serviceTemplate, serviceTemplateInstance, terminationPlan);
+    }
+
+    @After
+    public void cleanUpContainer() {
+        TestUtils.clearContainer(this.storage, this.control);
     }
 
     private List<TParameter> getBuildPlanInputParameters() {

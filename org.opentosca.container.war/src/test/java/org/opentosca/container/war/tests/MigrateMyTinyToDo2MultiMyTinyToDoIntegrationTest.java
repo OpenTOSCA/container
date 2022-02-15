@@ -43,7 +43,7 @@ import static org.junit.Assert.assertNotNull;
 @TestPropertySource(properties = "server.port=1337")
 public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
 
-    public static final String TestApplicationsRepository = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
+    public static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest.class);
 
@@ -63,8 +63,8 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
 
     @Test
     public void test() throws Exception {
-        Csar myTinyToDoCsar = TestUtils.setupCsarTestRepository(this.myTinyToDocsarId, this.storage, TestApplicationsRepository);
-        Csar multiMyTinyToDoCsar = TestUtils.setupCsarTestRepository(this.multiMyTinyToDoCsarId, this.storage, TestApplicationsRepository);
+        Csar myTinyToDoCsar = TestUtils.setupCsarTestRepository(this.myTinyToDocsarId, this.storage, TESTAPPLICATIONSREPOSITORY);
+        Csar multiMyTinyToDoCsar = TestUtils.setupCsarTestRepository(this.multiMyTinyToDoCsarId, this.storage, TESTAPPLICATIONSREPOSITORY);
         TestUtils.generatePlans(this.csarService, myTinyToDoCsar);
         TestUtils.generatePlans(this.csarService, multiMyTinyToDoCsar);
 
@@ -76,39 +76,17 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         TestUtils.invokePlanDeployment(this.control, myTinyToDoCsar.id(), myTinyToDoServiceTemplate);
         TestUtils.invokePlanDeployment(this.control, multiMyTinyToDoCsar.id(), multiMyTinyToDoServiceTemplate);
 
-        TPlan myTinyToDoBuildPlan = null;
-        TPlan myTinyToMultiTinyTransformationPlan = null;
-        TPlan multiTinyTerminationPlan = null;
-
         assertNotNull(myTinyToDoServiceTemplate);
         assertNotNull(multiMyTinyToDoServiceTemplate);
         List<TPlan> myTinyToDoPlans = myTinyToDoServiceTemplate.getPlans();
         List<TPlan> multiMyTinyToDoPlans = multiMyTinyToDoServiceTemplate.getPlans();
 
         assertNotNull(myTinyToDoPlans);
-        for (TPlan plan : myTinyToDoPlans) {
-            PlanType type = PlanType.fromString(plan.getPlanType());
-            switch (type) {
-                case BUILD:
-                    if (!plan.getId().toLowerCase().contains("defrost")) {
-                        myTinyToDoBuildPlan = plan;
-                    }
-                    break;
-                case TRANSFORMATION:
-                    myTinyToMultiTinyTransformationPlan = plan;
-                    break;
-                default:
-                    break;
-            }
-        }
+        TPlan myTinyToDoBuildPlan = TestUtils.getBuildPlan(myTinyToDoPlans);
+        TPlan myTinyToMultiTinyTransformationPlan = TestUtils.getTransformationPlan(myTinyToDoPlans);
 
         assertNotNull(multiMyTinyToDoPlans);
-        for (TPlan plan : multiMyTinyToDoPlans) {
-            PlanType type = PlanType.fromString(plan.getPlanType());
-            if (type == PlanType.TERMINATION && !plan.getId().toLowerCase().contains("freeze")) {
-                multiTinyTerminationPlan = plan;
-            }
-        }
+        TPlan multiTinyTerminationPlan = TestUtils.getTerminationPlan(multiMyTinyToDoPlans);
 
         assertNotNull("BuildPlan not found", myTinyToDoBuildPlan);
         assertNotNull("TransformationPlan not found", myTinyToMultiTinyTransformationPlan);
@@ -127,8 +105,6 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         this.checkStateAfterMigration(multiInstance);
 
         TestUtils.runTerminationPlanExecution(this.planService, multiMyTinyToDoCsar, multiMyTinyToDoServiceInstanceUrl, multiMyTinyToDoServiceTemplate, multiInstance, multiTinyTerminationPlan);
-
-        TestUtils.clearContainer(this.storage, this.control);
     }
 
     @After
