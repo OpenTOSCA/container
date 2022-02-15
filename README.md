@@ -24,6 +24,7 @@ The OpenTOSCA Container is java/maven based runtime for deploying and managing T
 ## Tests
 
 1.  Update [application.properties](org.opentosca.container.core/src/main/resources/application.properties) and replace `localhost` with your external IP address, e.g., `192.168.1.100`.
+2. 	Be sure that your Dockerengine is running and is accessible via its REST API on tcp://your-ip:2375 (Or you change the port in the test cases under `org.opentosca.container.war/src/test`).
 2.  Make sure the docker containers defined in `./test.yml` are running (E.g. via `docker compose -f test.yml up`) and the ports match the ports in your application.properties.
 3.  Afterwards, you can either start the test via `mvn package` or start the JUnit tests under `org.opentosca.container.war/src/test` within your preferred IDE directly.
 4.  The test cases download the test applications from the (test repository)[https://github.com/OpenTOSCA/tosca-definitions-test-applications/] themselves. However, you can configure to use a local clone or another test repository by adding the line `org.opentosca.test.local.repository.path=/path/to/repository/tosca-definitions-test-applications` to application.properties.

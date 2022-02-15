@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -97,7 +98,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
      */
     private BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
                                final TServiceTemplate serviceTemplate) {
-        LOG.info("Creating Freeze Plan...");
+        LOG.debug("Creating Freeze Plan...");
 
         if (!this.isStateful(serviceTemplate, csar)) {
             LOG.warn("Couldn't create FreezePlan for ServiceTemplate {} in Definitions {} of CSAR {}",
@@ -215,8 +216,12 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
     }
 
     private boolean isStateful(final TServiceTemplate serviceTemplate, Csar csar) {
-        return serviceTemplate.getTopologyTemplate().getNodeTemplates().stream()
-            .filter(node -> isStateful(node, csar)).findFirst().isPresent();
+        for (TNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+            if (isStateful(nodeTemplate, csar)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isStateful(final TNodeTemplate nodeTemplate, Csar csar) {

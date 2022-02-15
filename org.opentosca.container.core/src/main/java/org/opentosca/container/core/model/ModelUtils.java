@@ -874,10 +874,29 @@ public abstract class ModelUtils {
         return getInterfaceOfNodeType(csar, nodeType, interfaceName, null);
     }
 
+    private static TNodeType getDerivedFrom(Csar csar, TNodeType nodeType) {
+        if (nodeType.getDerivedFrom() == null) {
+            return null;
+        }
+        return csar.nodeTypes().stream().filter(x -> x.getQName().equals(nodeType.getDerivedFrom().getTypeAsQName())).findFirst().orElse(null);
+    }
+
     private static TInterface getInterfaceOfNodeType(Csar csar, TNodeType startingNodeType, String interfaceName, TInterface interfaceOfStartingNodeType) {
         // Search for the interface at the current NodeType
+        if (startingNodeType == null) {
+            return null;
+        }
+
         TInterface foundInterface = getInterfaceFromNodeTypeWithoutHierarchy(startingNodeType, interfaceName);
 
+        if (foundInterface == null) {
+            return getInterfaceOfNodeType(csar, getDerivedFrom(csar, startingNodeType), interfaceName);
+        }
+        return foundInterface;
+        // I really don't know what this here is but I assume it should be part of some
+        // isImplemented(TInterface) or isImplemented(TOperation method) which checks
+        // whether there is a nodetypeimpl which implements the operation of an interface
+        /*
         // Use the interface with the given name at the lowest hierarchy level
         TInterface baseInterface = Objects.nonNull(interfaceOfStartingNodeType)
             ? interfaceOfStartingNodeType
@@ -946,7 +965,7 @@ public abstract class ModelUtils {
             }
         }
 
-        return baseInterface;
+        return baseInterface;*/
     }
 
     /**

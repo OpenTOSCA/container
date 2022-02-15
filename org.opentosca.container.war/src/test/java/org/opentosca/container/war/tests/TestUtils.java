@@ -126,7 +126,6 @@ public abstract class TestUtils {
                         );
                 } catch (Exception e) {
                     try {
-                        LOGGER.error("Error while checking Git Repository!");
                         isCorrectRepository = Git.open(repositoryPath.resolve(DEFAULT_LOCAL_REPO_NAME).toFile())
                             .remoteList().call()
                             .stream().anyMatch(remote ->
@@ -355,11 +354,16 @@ public abstract class TestUtils {
 
     public static void checkViaHTTPGET(String url, int expectedStatus, String contains) throws IOException {
         URL location = new URL(url);
+        int retries = 0;
+        int maxRetries = 10;
+        int status = -1;
+        HttpURLConnection con;
 
-        HttpURLConnection con = (HttpURLConnection) location.openConnection();
-        con.setRequestMethod("GET");
-
-        int status = con.getResponseCode();
+        do {
+            con = (HttpURLConnection) location.openConnection();
+            con.setRequestMethod("GET");
+            status = con.getResponseCode();
+        } while (status != expectedStatus && retries++ < maxRetries);
 
         Assert.assertEquals(expectedStatus, status);
 
@@ -381,7 +385,7 @@ public abstract class TestUtils {
 
     public static TPlan getBuildPlan(List<TPlan> plans) {
         for (TPlan plan : plans) {
-            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.BUILD) && !plan.getId().toLowerCase().contains("defrost") && plan.getId().toLowerCase().contains("_buildPlan")) {
+            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.BUILD) && !plan.getId().toLowerCase().contains("defrost") && plan.getId().toLowerCase().contains("buildplan")) {
                 return plan;
             }
         }
@@ -390,7 +394,7 @@ public abstract class TestUtils {
 
     public static TPlan getTerminationPlan(List<TPlan> plans) {
         for (TPlan plan : plans) {
-            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.TERMINATION) && !plan.getId().toLowerCase().contains("freeze") && plan.getId().toLowerCase().contains("_terminationPlan")) {
+            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.TERMINATION) && !plan.getId().toLowerCase().contains("freeze") && plan.getId().toLowerCase().contains("terminationplan")) {
                 return plan;
             }
         }
@@ -409,6 +413,33 @@ public abstract class TestUtils {
     public static TPlan getTransformationPlan(List<TPlan> plans) {
         for (TPlan plan : plans) {
             if (PlanType.fromString(plan.getPlanType()).equals(PlanType.TRANSFORMATION)) {
+                return plan;
+            }
+        }
+        return null;
+    }
+
+    public static TPlan getFreezePlan(List<TPlan> plans) {
+        for (TPlan plan : plans) {
+            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.TERMINATION) && plan.getId().toLowerCase().contains("freezeplan")) {
+                return plan;
+            }
+        }
+        return null;
+    }
+
+    public static TPlan getDefrostPlan(List<TPlan> plans) {
+        for (TPlan plan : plans) {
+            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.BUILD) && plan.getId().toLowerCase().contains("defrostplan")) {
+                return plan;
+            }
+        }
+        return null;
+    }
+
+    public static TPlan getBackupPlan(List<TPlan> plans) {
+        for (TPlan plan : plans) {
+            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.MANAGEMENT) && plan.getId().toLowerCase().contains("backupmanagementplan")) {
                 return plan;
             }
         }
