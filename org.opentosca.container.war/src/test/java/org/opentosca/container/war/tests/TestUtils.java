@@ -101,48 +101,60 @@ public abstract class TestUtils {
         throws Exception {
         Path repositoryPath = repositoryInputPath;
         LOGGER.info("Testing with repository directory '{}'", repositoryPath);
-
+        boolean isInitializedRepo = false;
         if (!Files.exists(repositoryPath)) {
             Files.createDirectory(repositoryPath);
         }
 
-        if (!Files.exists(repositoryPath.resolve(".git"))) {
+        if (!Files.exists(repositoryPath.resolve(".git")) && remoteUrl != null && !Files.exists(repositoryPath.resolve(DEFAULT_LOCAL_REPO_NAME).resolve(".git"))) {
             LOGGER.info("No git repository found, cloning repository from " + remoteUrl);
             cloneRepo(repositoryPath, remoteUrl);
         } else {
-            LOGGER.info("Found git repository under " + repositoryPath);
-            boolean isCorrectRepository;
-            try {
-                isCorrectRepository = Git.open(repositoryPath.toFile())
-                    .remoteList().call()
-                    .stream().anyMatch(remote ->
-                        remote.getURIs().stream().anyMatch(uri -> uri.toASCIIString().equals(remoteUrl))
-                    );
-            } catch (Exception e) {
+            if (remoteUrl == null) {
+                LOGGER.info("Remote URL is undefined");
+                if (Files.exists(repositoryPath.resolve(DEFAULT_LOCAL_REPO_NAME).resolve(".git"))) {
+                    LOGGER.info("Found git repo under /workspace in '{}'", repositoryPath);
+                    isInitializedRepo = true;
+                }
+            } else {
+                boolean isCorrectRepository;
                 try {
-                    LOGGER.error("Error while checking Git Repository!", e);
-                    isCorrectRepository = Git.open(repositoryPath.resolve(DEFAULT_LOCAL_REPO_NAME).toFile())
+                    isCorrectRepository = Git.open(repositoryPath.toFile())
                         .remoteList().call()
                         .stream().anyMatch(remote ->
                             remote.getURIs().stream().anyMatch(uri -> uri.toASCIIString().equals(remoteUrl))
                         );
-                } catch (Exception e1) {
-                    LOGGER.error("Something went badly wrong!", e);
-                    isCorrectRepository = false;
+                } catch (Exception e) {
+                    try {
+                        LOGGER.error("Error while checking Git Repository!");
+                        isCorrectRepository = Git.open(repositoryPath.resolve(DEFAULT_LOCAL_REPO_NAME).toFile())
+                            .remoteList().call()
+                            .stream().anyMatch(remote ->
+                                remote.getURIs().stream().anyMatch(uri -> uri.toASCIIString().equals(remoteUrl))
+                            );
+                    } catch (Exception e1) {
+                        LOGGER.error("Something went badly wrong!", e);
+                        isCorrectRepository = false;
+                    }
                 }
-            }
-            if (!isCorrectRepository && remoteUrl != null && !remoteUrl.isEmpty()) {
-                repositoryPath = getRepositoryPath(remoteUrl);
-                cloneRepo(repositoryPath, remoteUrl);
+                if (!isCorrectRepository && remoteUrl != null && !remoteUrl.isEmpty()) {
+                    repositoryPath = getRepositoryPath(remoteUrl);
+                    cloneRepo(repositoryPath, remoteUrl);
+                }
             }
         }
 
         // inject the current path to the repository factory
-        RepositoryFactory.reconfigure(
-            new GitBasedRepositoryConfiguration(false, new FileBasedRepositoryConfiguration(repositoryPath, provider))
-        );
-        IRepository repository = RepositoryFactory.getRepository();
+        IRepository repository;
+        if(!isInitializedRepo) {
+            RepositoryFactory.reconfigure(
+                new GitBasedRepositoryConfiguration(false, new FileBasedRepositoryConfiguration(repositoryPath, provider))
+            );
+        } else {
+            RepositoryFactory.reconfigure(new FileBasedRepositoryConfiguration(repositoryPath, provider));
+        }
 
+        repository = RepositoryFactory.getRepository();
         LOGGER.debug("Initialized test repository");
 
         CsarExporter exporter = new CsarExporter(repository);

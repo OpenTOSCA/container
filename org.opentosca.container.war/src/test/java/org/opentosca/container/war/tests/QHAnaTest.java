@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNotNull;
 @TestPropertySource(properties = "server.port=1337")
 public class QHAnaTest {
 
-    public static final String QcApplicationsRepository = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
+    public static final String TestApplicationsRepository = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
 
     public QName csarId = QName.valueOf("{https://ust-quantil.github.io/quantum/applications/servicetemplates}QHAna_w1");
 
@@ -54,8 +54,7 @@ public class QHAnaTest {
 
     @Test
     public void testDeployment() throws Exception {
-        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage,
-            QcApplicationsRepository);
+        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage, TestApplicationsRepository);
         TestUtils.generatePlans(this.csarService, csar);
 
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();

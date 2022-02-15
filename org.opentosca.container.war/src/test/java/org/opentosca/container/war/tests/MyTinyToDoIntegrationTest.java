@@ -57,6 +57,7 @@ public class MyTinyToDoIntegrationTest {
 
     @Test
     public void test() throws Exception {
+
         Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage, TestApplicationsRepository);
         TestUtils.generatePlans(this.csarService, csar);
 
