@@ -253,11 +253,13 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
         if (!endpoint.endsWith("?wsdl")) {
             endpoint = endpoint + "?wsdl";
         }
-        LOG.info("Parsing WSDL at: {}.", endpoint);
+        LOG.debug("Parsing WSDL at: {}.", endpoint);
         WSDLFactory wsdlFactory = null;
         try {
             wsdlFactory = WSDLFactory.newInstance();
             final WSDLReader wsdlDefinitionReader = wsdlFactory.newWSDLReader();
+            // deactives logging of 'Retrieving documant at...'
+            wsdlDefinitionReader.setFeature("javax.wsdl.verbose", false);
             return wsdlDefinitionReader.readWSDL(endpoint);
         } catch (final WSDLException e) {
             LOG.warn("Could not read WSDL definitions from endpoint {} due to WSDLException", endpoint, e);

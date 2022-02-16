@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -56,6 +57,9 @@ import org.eclipse.winery.repository.datatypes.ids.elements.SelfServiceMetaDataI
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.eclipse.winery.repository.export.CsarExporter;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.tika.mime.MediaType;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -70,10 +74,11 @@ public class CsarImpl implements Csar {
     @NonNull
     private final CsarId id;
     private final Optional<ServiceTemplateId> entryServiceTemplate;
-	
+
     // TODO evaluate putting the save-location into an additional field here!
     private final IRepository wineryRepo;
 
+    private final Map<QName, TDefinitions> definitions;
     private final Map<QName, TArtifactTemplate> artifactTemplates;
     private final Map<QName, TArtifactType> artifactTypes;
     private final Map<QName, TNodeType> nodeTypes;
@@ -86,6 +91,7 @@ public class CsarImpl implements Csar {
         this.id = id;
         this.wineryRepo = RepositoryFactory.getRepository(location);
         entryServiceTemplate = readEntryServiceTemplate(location);
+        this.definitions = this.getQNameToDefinitionsMap();
         this.artifactTemplates = this.wineryRepo.getQNameToElementMapping(ArtifactTemplateId.class);
         this.artifactTypes = this.wineryRepo.getQNameToElementMapping(ArtifactTypeId.class);
         this.nodeTypes = this.wineryRepo.getQNameToElementMapping(NodeTypeId.class);
@@ -198,9 +204,7 @@ public class CsarImpl implements Csar {
 
     @Override
     public @NonNull List<TDefinitions> definitions() {
-        return wineryRepo.getAllDefinitionsChildIds().stream()
-            .map(wineryRepo::getDefinitions)
-            .collect(Collectors.toList());
+        return Lists.newArrayList(this.definitions.values());
     }
 
     @Override
@@ -297,5 +301,12 @@ public class CsarImpl implements Csar {
     @Override
     public @NonNull String toString() {
         return id().csarName();
+    }
+
+    private Map<QName, TDefinitions> getQNameToDefinitionsMap() {
+       Map<QName, TDefinitions> result = Maps.newHashMap();
+       Collection<DefinitionsChildId> ids = this.wineryRepo.getAllDefinitionsChildIds();
+       ids.forEach(x -> result.put(x.getQName(),this.wineryRepo.getDefinitions(x)));
+       return result;
     }
 }

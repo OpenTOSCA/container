@@ -842,25 +842,22 @@ public class BPELPlanHandler {
             + " is already imported");
         for (final Element importElement : buildPlan.getBpelImportElements()) {
             BPELPlanHandler.LOG.debug("Checking import element");
-            int checkInt = 0;
-            if (importElement.hasAttribute("namespace") && importElement.getAttribute("namespace").equals(namespace)) {
-                BPELPlanHandler.LOG.debug("Found import with same namespace");
-                checkInt++;
+            // namespace doesn't fit, continue
+            if (importElement.hasAttribute("namespace") && !importElement.getAttribute("namespace").equals(namespace)) {
+                continue;
             }
-            if (importElement.hasAttribute("location") && importElement.getAttribute("location").equals(location)) {
-                BPELPlanHandler.LOG.debug("Found import with same location");
-                checkInt++;
+            // location doesn't fit, continue
+            if (importElement.hasAttribute("location") && !importElement.getAttribute("location").equals(location)) {
+                continue;
             }
-            if (checkInt == 2) {
-                return true;
+
+            // type doesn't fit, continue
+            if (importElement.hasAttribute("type") && !importElement.getAttribute("type").equals(type.toString())) {
+                continue;
             }
-            if (importElement.hasAttribute("type") && importElement.getAttribute("type").equals(type.toString())) {
-                BPELPlanHandler.LOG.debug("Found import with same type");
-                checkInt++;
-            }
-            if (checkInt == 3) {
-                return true;
-            }
+
+            // if everything fits
+            return true;
         }
         return false;
     }

@@ -1198,6 +1198,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     // create exchange for the undeployment plug-in invocation
                     Exchange exchange = new DefaultExchange(this.collaborationContext.getCamelContext());
                     exchange.getIn().setHeader(MBHeader.ENDPOINT_URI.toString(), serviceEndpoint.getURI());
+                    exchange.getIn().setHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), artifactType);
 
                     // get plug-in for the undeployment
                     IManagementBusDeploymentPluginService deploymentPlugin;
