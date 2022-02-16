@@ -47,7 +47,7 @@ jobs:
       run: curl -X GET http://localhost:2375/images/json
     - name: Start test environment
       run: docker-compose -f test.yml up -d
-    - name: Sleep for 45 seconds
+    - name: Sleep for 120 seconds
       uses: whatnick/wait-action@master
       with:
         time: '45s'

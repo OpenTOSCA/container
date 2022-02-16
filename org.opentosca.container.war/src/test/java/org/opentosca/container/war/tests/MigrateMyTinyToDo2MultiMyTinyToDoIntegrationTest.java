@@ -104,7 +104,7 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         String multiMyTinyToDoServiceInstanceUrl = TestUtils.createServiceInstanceUrl(multiMyTinyToDoCsar.id().csarName(), multiMyTinyToDoServiceTemplate.getId(), multiInstance.getId().toString());
         this.checkStateAfterMigration(multiInstance);
 
-        TestUtils.runTerminationPlanExecution(this.planService, multiMyTinyToDoCsar, multiMyTinyToDoServiceInstanceUrl, multiMyTinyToDoServiceTemplate, multiInstance, multiTinyTerminationPlan);
+        TestUtils.runTerminationPlanExecution(this.planService, multiMyTinyToDoCsar, multiMyTinyToDoServiceTemplate, multiInstance, multiTinyTerminationPlan);
     }
 
     @After

@@ -88,7 +88,7 @@ public class MyTinyToDoIntegrationTest {
 
         this.checkStateAfterScaleOut(serviceTemplateInstance);
 
-        TestUtils.runTerminationPlanExecution(this.planService, csar, serviceInstanceUrl, serviceTemplate, serviceTemplateInstance, terminationPlan);
+        TestUtils.runTerminationPlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
     }
 
     @After

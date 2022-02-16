@@ -250,16 +250,8 @@ public abstract class ModelUtils {
     public static Collection<TArtifactType> fetchAllArtifactTypes(Csar csar) {
 
         Set<TArtifactType> resultSet = Sets.newHashSet();
-        fetchAllDefs(csar).forEach(x -> resultSet.addAll(x.getArtifactTypes()));
+        csar.definitions().forEach(x -> resultSet.addAll(x.getArtifactTypes()));
         return resultSet;
-    }
-
-    public static Collection<TDefinitions> fetchAllDefs(Csar csar) {
-        IRepository repo = RepositoryFactory.getRepository(csar.getSaveLocation());
-        Collection<DefinitionsChildId> ids = repo.getAllDefinitionsChildIds();
-        Set<TDefinitions> defs = Sets.newHashSet();
-        ids.forEach(x -> defs.add(repo.getDefinitions(x)));
-        return defs;
     }
 
     public static String getNamespace(TEntityTemplate.Properties properties) {
@@ -642,7 +634,7 @@ public abstract class ModelUtils {
     public static Collection<TNodeType> fetchAllNodeTypes(Csar csar) {
 
         Set<TNodeType> resultSet = Sets.newHashSet();
-        fetchAllDefs(csar).forEach(x -> resultSet.addAll(x.getNodeTypes()));
+        csar.definitions().forEach(x -> resultSet.addAll(x.getNodeTypes()));
         return resultSet;
     }
 
@@ -753,7 +745,7 @@ public abstract class ModelUtils {
     public static Collection<TRelationshipType> fetchAllRelationshipTypes(Csar csar) {
 
         Set<TRelationshipType> resultSet = Sets.newHashSet();
-        fetchAllDefs(csar).forEach(x -> resultSet.addAll(x.getRelationshipTypes()));
+        csar.definitions().forEach(x -> resultSet.addAll(x.getRelationshipTypes()));
         return resultSet;
     }
 

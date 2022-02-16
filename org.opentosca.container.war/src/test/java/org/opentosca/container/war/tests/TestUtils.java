@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,10 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.common.configuration.FileBasedRepositoryConfiguration;
 import org.eclipse.winery.common.configuration.GitBasedRepositoryConfiguration;
 import org.eclipse.winery.common.configuration.RepositoryConfigurationObject;
@@ -26,6 +29,7 @@ import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
+import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.eclipse.winery.repository.export.CsarExporter;
 
 import org.apache.commons.io.FileUtils;
@@ -36,6 +40,7 @@ import org.junit.Assert;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.connector.winery.WineryConnector;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
@@ -61,6 +66,50 @@ public abstract class TestUtils {
         return setupCsarTestRepository(csarId, storage, Settings.OPENTOSCA_TEST_REMOTE_REPOSITORY_URL);
     }
 
+    public static Collection<QName> getServiceTemplateIdsFromWineryRepository(String wineryRepositoryUrl) {
+        WineryConnector connector = new WineryConnector();
+        return connector.getServiceTemplates(wineryRepositoryUrl);
+    }
+
+    public static void enrichCsarFile(Path file, String wineryLocation) {
+        WineryConnector connector = new WineryConnector();
+        connector.performManagementFeatureEnrichment(file.toFile(), wineryLocation);
+    }
+
+    public static void clearWineryRepository(String wineryRepositoryUrl) {
+        WineryConnector connector = new WineryConnector();
+        connector.clearRepository(wineryRepositoryUrl);
+    }
+
+    public static void uploadCsarToWineryRepository(QName serviceTemplateId, String wineryRepositoryUrl, String testRemoteRepositoryUrl) throws GitAPIException, IOException, AccountabilityException, RepositoryCorruptException, ExecutionException, InterruptedException, URISyntaxException {
+        String testLocalRepositoryPath = Settings.OPENTOSCA_TEST_LOCAL_REPOSITORY_PATH;
+
+        Path repositoryPath;
+        if (testLocalRepositoryPath != null && !testLocalRepositoryPath.isEmpty()) {
+            repositoryPath = Paths.get(testLocalRepositoryPath);
+        } else {
+            repositoryPath = getRepositoryPath(testRemoteRepositoryUrl);
+        }
+
+        String remoteUrl;
+        if (testRemoteRepositoryUrl != null && !testRemoteRepositoryUrl.isEmpty()) {
+            remoteUrl = testRemoteRepositoryUrl;
+        } else {
+            remoteUrl = null;
+        }
+
+        IRepository repository = fetchRepository(RepositoryConfigurationObject.RepositoryProvider.FILE,  repositoryPath, remoteUrl);
+
+        CsarExporter exporter = new CsarExporter(repository);
+        Path csarFilePath = Files.createTempDirectory(serviceTemplateId.getLocalPart() + "_Test").resolve(serviceTemplateId.getLocalPart() + ".csar");
+
+        Map<String, Object> exportConfiguration = new HashMap<>();
+        exporter.writeCsar(new ServiceTemplateId(serviceTemplateId), Files.newOutputStream(csarFilePath), exportConfiguration);
+
+        WineryConnector connector = new WineryConnector();
+        connector.uploadCSAR(csarFilePath.toFile(),true, wineryRepositoryUrl);
+    }
+
     public static Csar setupCsarTestRepository(QName csarId, CsarStorageService storage, String testRemoteRepositoryUrl) throws Exception {
         String testLocalRepositoryPath = Settings.OPENTOSCA_TEST_LOCAL_REPOSITORY_PATH;
 
@@ -78,7 +127,7 @@ public abstract class TestUtils {
             remoteUrl = null;
         }
 
-        return TestUtils.fetchCSARFromRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, csarId, storage, repositoryPath, remoteUrl);
+        return TestUtils.loadCSARFromRepositoryIntoStorage(RepositoryConfigurationObject.RepositoryProvider.FILE, csarId, storage, repositoryPath, remoteUrl);
     }
 
     private static Path getRepositoryPath(String testRemoteRepositoryUrl) {
@@ -96,9 +145,65 @@ public abstract class TestUtils {
         return repositoryPath;
     }
 
-    public static Csar fetchCSARFromRepository(RepositoryConfigurationObject.RepositoryProvider provider, QName serviceTemplateId,
-                                               CsarStorageService storage, Path repositoryInputPath, String remoteUrl)
+    public static Csar loadCSARFromRepositoryIntoStorage(RepositoryConfigurationObject.RepositoryProvider provider, QName serviceTemplateId,
+                                                         CsarStorageService storage, Path repositoryInputPath, String remoteUrl)
         throws Exception {
+        IRepository repository = fetchRepository(provider, repositoryInputPath, remoteUrl);
+        LOGGER.debug("Initialized test repository");
+
+        Path csarFilePath = exportCsarFromRepository(repository, serviceTemplateId);
+
+        return storeCsarFileIntoStorage(serviceTemplateId, storage, csarFilePath);
+    }
+
+    public static Path exportCsarFromRepository(IRepository repository, QName serviceTemplateId) throws IOException, AccountabilityException, RepositoryCorruptException, ExecutionException, InterruptedException {
+        CsarExporter exporter = new CsarExporter(repository);
+        Path csarFilePath = Files.createTempDirectory(serviceTemplateId.getLocalPart() + "_Test").resolve(serviceTemplateId.getLocalPart() + ".csar");
+
+        Map<String, Object> exportConfiguration = new HashMap<>();
+        exporter.writeCsar(new ServiceTemplateId(serviceTemplateId), Files.newOutputStream(csarFilePath), exportConfiguration);
+        return csarFilePath;
+    }
+
+    public static Csar storeCsarFileIntoStorage(QName serviceTemplateId, CsarStorageService storage, Path csarFilePath) throws SystemException, UserException {
+        CsarId csarId = new CsarId(serviceTemplateId.getLocalPart() + ".csar");
+        Set<Csar> csars = storage.findAll();
+        Collection<CsarId> csarIds = csars.stream()
+            .map(Csar::id)
+            .filter(id -> id.equals(csarId))
+            .collect(Collectors.toList());
+
+        if (!csarIds.contains(csarId)) {
+            storage.storeCSAR(csarFilePath);
+        }
+        return storage.findById(csarId);
+    }
+
+    public static IRepository fetchRepository(String testRemoteRepositoryUrl) throws GitAPIException, IOException {
+        String testLocalRepositoryPath = Settings.OPENTOSCA_TEST_LOCAL_REPOSITORY_PATH;
+
+        Path repositoryPath;
+        if (testLocalRepositoryPath != null && !testLocalRepositoryPath.isEmpty()) {
+            repositoryPath = Paths.get(testLocalRepositoryPath);
+        } else {
+            repositoryPath = getRepositoryPath(testRemoteRepositoryUrl);
+        }
+
+        String remoteUrl;
+        if (testRemoteRepositoryUrl != null && !testRemoteRepositoryUrl.isEmpty()) {
+            remoteUrl = testRemoteRepositoryUrl;
+        } else {
+            remoteUrl = null;
+        }
+        return fetchRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, repositoryPath, remoteUrl);
+    }
+
+
+    public static IRepository fetchRepository(Path repositoryInputPath, String remoteUrl) throws GitAPIException, IOException {
+        return fetchRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, repositoryInputPath, remoteUrl);
+    }
+
+    private static IRepository fetchRepository(RepositoryConfigurationObject.RepositoryProvider provider, Path repositoryInputPath, String remoteUrl) throws GitAPIException, IOException {
         Path repositoryPath = repositoryInputPath;
         LOGGER.info("Testing with repository directory '{}'", repositoryPath);
         boolean isInitializedRepo = false;
@@ -152,26 +257,7 @@ public abstract class TestUtils {
             RepositoryFactory.reconfigure(new FileBasedRepositoryConfiguration(repositoryPath, provider));
         }
 
-        IRepository repository = RepositoryFactory.getRepository();
-        LOGGER.debug("Initialized test repository");
-
-        CsarExporter exporter = new CsarExporter(repository);
-        Path csarFilePath = Files.createTempDirectory(serviceTemplateId.getLocalPart() + "_Test").resolve(serviceTemplateId.getLocalPart() + ".csar");
-
-        Map<String, Object> exportConfiguration = new HashMap<>();
-        exporter.writeCsar(new ServiceTemplateId(serviceTemplateId), Files.newOutputStream(csarFilePath), exportConfiguration);
-
-        CsarId csarId = new CsarId(serviceTemplateId.getLocalPart() + ".csar");
-        Set<Csar> csars = storage.findAll();
-        Collection<CsarId> csarIds = csars.stream()
-            .map(Csar::id)
-            .filter(id -> id.equals(csarId))
-            .collect(Collectors.toList());
-
-        if (!csarIds.contains(csarId)) {
-            storage.storeCSAR(csarFilePath);
-        }
-        return storage.findById(csarId);
+        return RepositoryFactory.getRepository();
     }
 
     private static void cloneRepo(Path repositoryPath, String remoteUrl) throws IOException, GitAPIException {
@@ -201,8 +287,8 @@ public abstract class TestUtils {
         control.invokePlanDeployment(csarId, serviceTemplate);
     }
 
-    public static void runTerminationPlanExecution(PlanService planService, Csar csar, String serviceInstanceUrl, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan terminationPlan) {
-        List<org.opentosca.container.core.extension.TParameter> terminationOutInputParams = TestUtils.getTerminationPlanInputParameters(serviceInstanceUrl);
+    public static void runTerminationPlanExecution(PlanService planService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan terminationPlan) {
+        List<org.opentosca.container.core.extension.TParameter> terminationOutInputParams = TestUtils.getTerminationPlanInputParameters(TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString()));
         String terminationPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), terminationPlan.getId(), terminationOutInputParams, PlanType.TERMINATION);
         PlanInstance terminationPlanInstance = planService.getPlanInstanceByCorrelationId(terminationPlanCorrelationId);
         while (terminationPlanInstance == null) {
@@ -214,6 +300,49 @@ public abstract class TestUtils {
             terminationPlanInstance = planService.getPlanInstance(terminationPlanInstance.getId());
             terminationPlanInstanceState = terminationPlanInstance.getState();
         }
+    }
+
+    public static void runFreezePlanExecution(PlanService planService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan terminationPlan, String wineryRepositoryUrl) {
+        List<org.opentosca.container.core.extension.TParameter> terminationOutInputParams = TestUtils.getFreezePlanInputParameters(TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString()), wineryRepositoryUrl);
+        String freezePlanCorrelationId = planService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), terminationPlan.getId(), terminationOutInputParams, PlanType.TERMINATION);
+        PlanInstance freezePlanInstance = planService.getPlanInstanceByCorrelationId(freezePlanCorrelationId);
+        while (freezePlanInstance == null) {
+            freezePlanInstance = planService.getPlanInstanceByCorrelationId(freezePlanCorrelationId);
+        }
+
+        PlanInstanceState terminationPlanInstanceState = freezePlanInstance.getState();
+        while (!terminationPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
+            freezePlanInstance = planService.getPlanInstance(freezePlanInstance.getId());
+            terminationPlanInstanceState = freezePlanInstance.getState();
+        }
+    }
+
+    public static List<org.opentosca.container.core.extension.TParameter> getFreezePlanInputParameters(String serviceInstanceUrl, String wineryUrl) {
+        List<org.opentosca.container.core.extension.TParameter> inputParams = TestUtils.getBaseInputParams();
+
+        org.opentosca.container.core.extension.TParameter serviceInstanceUrlParam = new org.opentosca.container.core.extension.TParameter();
+        serviceInstanceUrlParam.setName("OpenTOSCAContainerAPIServiceInstanceURL");
+        serviceInstanceUrlParam.setType("String");
+        serviceInstanceUrlParam.setValue(serviceInstanceUrl);
+        serviceInstanceUrlParam.setRequired(true);
+
+        org.opentosca.container.core.extension.TParameter containerApiAddress = new org.opentosca.container.core.extension.TParameter();
+        containerApiAddress.setName("containerApiAddress");
+        containerApiAddress.setType("String");
+        containerApiAddress.setValue(null);
+        containerApiAddress.setRequired(true);
+
+        org.opentosca.container.core.extension.TParameter storeStateEndpoint = new org.opentosca.container.core.extension.TParameter();
+        storeStateEndpoint.setName("StoreStateServiceEndpoint");
+        storeStateEndpoint.setRequired(true);
+        storeStateEndpoint.setType("String");
+        storeStateEndpoint.setValue(wineryUrl);
+
+        inputParams.add(serviceInstanceUrlParam);
+        inputParams.add(containerApiAddress);
+        inputParams.add(storeStateEndpoint);
+
+        return inputParams;
     }
 
     public static List<org.opentosca.container.core.extension.TParameter> getTerminationPlanInputParameters(String serviceInstanceUrl) {
@@ -296,6 +425,13 @@ public abstract class TestUtils {
         return instanceService.getServiceTemplateInstance(buildPlanInstance.getServiceTemplateInstance().getId(), false);
     }
 
+    public static Path downloadServiceTemplateFromWinery(QName serviceTemplateId, String wineryRepository) throws IOException {
+        WineryConnector connector = new WineryConnector();
+        Path csarFilePath = Files.createTempDirectory(serviceTemplateId.getLocalPart() + "_Test").resolve(serviceTemplateId.getLocalPart() + ".csar");
+        connector.downloadServiceTemplate(csarFilePath,serviceTemplateId, wineryRepository);
+        return csarFilePath;
+    }
+
     public static ServiceTemplateInstance runBuildPlanExecution(PlanService planService, InstanceService instanceService, Csar csar, TServiceTemplate serviceTemplate, TPlan buildPlan, List<org.opentosca.container.core.extension.TParameter> buildPlanInputParams) {
         String buildPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, -1L, buildPlan.getId(), buildPlanInputParams, PlanType.BUILD);
         if (buildPlan.getPlanLanguage().contains("BPMN")) {
@@ -330,6 +466,40 @@ public abstract class TestUtils {
         return instanceService.getServiceTemplateInstance(buildPlanInstance.getServiceTemplateInstance().getId(), false);
     }
 
+    public static ServiceTemplateInstance runDefrostPlanExecution(PlanService planService, InstanceService instanceService, Csar csar, TServiceTemplate serviceTemplate, TPlan defrostPlan, List<org.opentosca.container.core.extension.TParameter> buildPlanInputParams) {
+        String defrostPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, -1L, defrostPlan.getId(), buildPlanInputParams, PlanType.BUILD);
+        if (defrostPlan.getPlanLanguage().contains("BPMN")) {
+            Collection<ServiceTemplateInstance> coll = instanceService.getServiceTemplateInstances(serviceTemplate.getId());
+            ServiceTemplateInstance s = new ServiceTemplateInstance();
+            while (coll.size() != 1) {
+                coll = instanceService.getServiceTemplateInstances(serviceTemplate.getId());
+            }
+
+            for (ServiceTemplateInstance serviceTemplateInstance: coll) {
+                s = serviceTemplateInstance;
+            }
+            ServiceTemplateInstanceState state = instanceService.getServiceTemplateInstanceState(s.getId());
+
+            while ((state != ServiceTemplateInstanceState.CREATED)) {
+                state = instanceService.getServiceTemplateInstanceState(s.getId());
+            }
+            return s;
+        }
+
+        PlanInstance defrostPlanInstance = planService.getPlanInstanceByCorrelationId(defrostPlanCorrelationId);
+        while (defrostPlanInstance == null) {
+            defrostPlanInstance = planService.getPlanInstanceByCorrelationId(defrostPlanCorrelationId);
+        }
+
+        PlanInstanceState buildPlanInstanceState = defrostPlanInstance.getState();
+        while (!buildPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
+            defrostPlanInstance = planService.getPlanInstance(defrostPlanInstance.getId());
+            buildPlanInstanceState = defrostPlanInstance.getState();
+        }
+
+        return instanceService.getServiceTemplateInstance(defrostPlanInstance.getServiceTemplateInstance().getId(), false);
+    }
+
     public static void runManagementPlanExecution(PlanService planService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan scaleOutPlan, List<org.opentosca.container.core.extension.TParameter> inputParams) {
         String scaleOurPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), scaleOutPlan.getId(), inputParams, PlanType.MANAGEMENT);
         PlanInstance scaleOutPlanInstance = planService.getPlanInstanceByCorrelationId(scaleOurPlanCorrelationId);
@@ -341,6 +511,20 @@ public abstract class TestUtils {
         while (!scaleOutPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
             scaleOutPlanInstance = planService.getPlanInstance(scaleOutPlanInstance.getId());
             scaleOutPlanInstanceState = scaleOutPlanInstance.getState();
+        }
+    }
+
+    public static void runBackupPlanExecution(PlanService planService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan backupPlan, List<org.opentosca.container.core.extension.TParameter> inputParams) {
+        String scaleOurPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), backupPlan.getId(), inputParams, PlanType.MANAGEMENT);
+        PlanInstance backupPlanInstance = planService.getPlanInstanceByCorrelationId(scaleOurPlanCorrelationId);
+        while (backupPlanInstance == null) {
+            backupPlanInstance = planService.getPlanInstanceByCorrelationId(scaleOurPlanCorrelationId);
+        }
+
+        PlanInstanceState backupPlanInstanceState = backupPlanInstance.getState();
+        while (!backupPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
+            backupPlanInstance = planService.getPlanInstance(backupPlanInstance.getId());
+            backupPlanInstanceState = backupPlanInstance.getState();
         }
     }
 
