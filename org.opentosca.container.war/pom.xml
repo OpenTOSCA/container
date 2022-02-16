@@ -458,7 +458,39 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>org.opentosca</groupId>
+            <artifactId>org.opentosca.planbuilder.type.plugin.createnodeinstance</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.opentosca</groupId>
+            <artifactId>org.opentosca.planbuilder.type.plugin.setnodeproperty</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.opentosca</groupId>
+            <artifactId>org.opentosca.planbuilder.type.plugin.callnodeoperation</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>org.opentosca</groupId>
             <artifactId>org.opentosca.broker.mqtt</artifactId>

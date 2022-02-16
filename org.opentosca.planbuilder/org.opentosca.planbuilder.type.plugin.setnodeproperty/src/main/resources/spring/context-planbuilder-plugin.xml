@@ -2,5 +2,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <description>
+        Register the beans within the planbuilder setnodeproperty type plugin
+    </description>
     <bean class="org.opentosca.planbuilder.type.plugin.setnodeproperty.bpmn.BPMNSetNodePropertyPlugin"/>
 </beans>
