@@ -3,6 +3,7 @@
 
 [![Java CI with Maven](https://github.com/OpenTOSCA/container/actions/workflows/maven.yml/badge.svg)](https://github.com/OpenTOSCA/container/actions/workflows/maven.yml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/cf7cfef4836942e7a14d889869546575)](https://www.codacy.com/gh/OpenTOSCA/container/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=OpenTOSCA/container&amp;utm_campaign=Badge_Grade)
 
 Part of the [OpenTOSCA Ecosystem](http://www.opentosca.org)
 
