@@ -850,7 +850,6 @@ public class BPELPlanHandler {
             if (importElement.hasAttribute("location") && !importElement.getAttribute("location").equals(location)) {
                 continue;
             }
-
             // type doesn't fit, continue
             if (importElement.hasAttribute("type") && !importElement.getAttribute("type").equals(type.toString())) {
                 continue;

@@ -96,8 +96,6 @@ public class QHAnaTest {
             .join();
         assertEquals(200, pluginRunnerResponse.statusCode());
 
-        String serviceInstanceUrl = TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString());
-
         TestUtils.runTerminationPlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
     }
 

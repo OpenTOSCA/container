@@ -198,7 +198,6 @@ public abstract class TestUtils {
         return fetchRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, repositoryPath, remoteUrl);
     }
 
-
     public static IRepository fetchRepository(Path repositoryInputPath, String remoteUrl) throws GitAPIException, IOException {
         return fetchRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, repositoryInputPath, remoteUrl);
     }
