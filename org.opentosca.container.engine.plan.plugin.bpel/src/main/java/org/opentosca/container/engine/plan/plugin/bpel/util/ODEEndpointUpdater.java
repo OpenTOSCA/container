@@ -71,8 +71,6 @@ public class ODEEndpointUpdater {
     // @hahnml: The type of plan engine used (BPS or ODE)
     private final String engineType;
 
-    // private static IToscaEngineService toscaEngineService = null;
-
     /**
      * Contructor *
      *
