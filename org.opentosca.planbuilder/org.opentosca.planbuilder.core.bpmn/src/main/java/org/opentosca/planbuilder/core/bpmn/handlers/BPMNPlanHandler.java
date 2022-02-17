@@ -21,6 +21,7 @@ import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNDiagramElement;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNScopeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -247,12 +248,26 @@ public class BPMNPlanHandler {
     public void generateBPMNDiagram(BPMNPlan bpmnPlan) {
         LOG.debug("Generating BPMN Diagram with plan {}", bpmnPlan);
         BPMNScope start = bpmnPlan.getBpmnStartEventElement();
+        generateBPMNDiagramFromStartEvent(start, 0, 0);
+        LOG.debug("Total of {} diagrams are generated from {} BPMN elements", bpmnPlan.getDiagramElements().size(), bpmnPlan.getTemplateBuildPlans().size());
+    }
+
+    /**
+     * Generates diagram elements from the startEvent, this is particular helpful with subprocess generation
+     * @param startEvent event in a process or subprocess
+     * @param xs start position in x direction
+     * @param ys start position in y direction
+     */
+    public void generateBPMNDiagramFromStartEvent(BPMNScope startEvent, int xs, int ys) {
+        LOG.debug("Generating BPMN Diagram from start event {}", startEvent.getId());
+        BPMNPlan bpmnPlan = startEvent.getBuildPlan();
+        //BPMNScope start = bpmnPlan.getBpmnStartEventElement();
         // {current scope, current start point [x, y]}
         Deque<Pair<BPMNScope, int[]>> q = new LinkedList<>();
         Set<BPMNScope> visited = new HashSet<>();
 
-        q.offer(new Pair(start, new int[]{0, 0}));
-        visited.add(start);
+        q.offer(new Pair(startEvent, new int[]{xs, ys}));
+        visited.add(startEvent);
         while (!q.isEmpty()) {
             int size = q.size();
             // TODO: consider with parallel case, where y should be split
@@ -262,7 +277,21 @@ public class BPMNPlanHandler {
                 BPMNScope curScope = cur.getValue0();
                 int curX = cur.getValue1()[0];
                 int curY = cur.getValue1()[1];
+
                 BPMNDiagramElement diagram = diagramHandler.createDiagramElementFromScope(curX, curY, curScope, bpmnPlan);
+
+                // recursively generate diagram for subprocess with start Event
+                if (curScope.getBpmnScopeType() == BPMNScopeType.SUBPROCESS) {
+                    // the start position of subprocess start event needs to include a buffer
+                    /*
+                        |
+                        |<--buffer-> X
+                        |           startEvent in subprocess
+                        left boundary of shape of subprocess
+                     */
+                    generateBPMNDiagramFromStartEvent(curScope.getSubStartEvent(), curX + diagram.getBufferLength(), curY);
+                }
+
                 for (BPMNScope nxtScope : curScope.getOutgoingLinks()) {
                     if (visited.contains(nxtScope)) {
                         continue;

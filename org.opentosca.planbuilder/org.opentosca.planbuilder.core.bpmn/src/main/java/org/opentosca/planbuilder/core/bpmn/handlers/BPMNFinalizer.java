@@ -58,7 +58,7 @@ public class BPMNFinalizer {
         final Element processElement = buildPlan.getBpmnProcessElement();
         for (BPMNScope bpmnScope : scopeList) {
             Node node = processFragments.createBPMNScopeAsNode(bpmnScope);
-            processElement.appendChild(doc.importNode(node, true));
+            processElement.appendChild(node);
         }
 
         // Create and import XML diagram element to document
@@ -66,6 +66,7 @@ public class BPMNFinalizer {
         List<BPMNDiagramElement> diagramList = buildPlan.getDiagramElements();
         for (BPMNDiagramElement diagram : diagramList) {
             Node node = diagramFragments.createBPMNDiagramElementAsNode(diagram);
+            //
             planeElement.appendChild(doc.importNode(node, true));
         }
         LOG.info("BPMN build Plan is finalized");

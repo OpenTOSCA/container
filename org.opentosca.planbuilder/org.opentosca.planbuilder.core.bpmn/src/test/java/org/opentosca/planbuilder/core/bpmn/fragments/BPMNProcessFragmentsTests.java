@@ -2,6 +2,8 @@ package org.opentosca.planbuilder.core.bpmn.fragments;
 
 import java.io.IOException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -39,6 +41,9 @@ public class BPMNProcessFragmentsTests {
     public void init() throws ParserConfigurationException {
         fragments = new BPMNProcessFragments();
         bpmnPlan = new BPMNPlan("tid", PlanType.BUILD, null, null, null, null);
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+        bpmnPlan.setBpmnDocument(docBuilder.newDocument());
         bpmnScopeHandler = new BPMNScopeHandler();
     }
 
@@ -113,24 +118,38 @@ public class BPMNProcessFragmentsTests {
     public void testCreateNodeTemplateInstance() {
         BPMNScope createNodeInstanceTask = new BPMNScope(
             BPMNScopeType.CREATE_NODE_INSTANCE_TASK, "Task_0");
+        createNodeInstanceTask.setBuildPlan(bpmnPlan);
         Element sNode = (Element) fragments.createBPMNScopeAsNode(createNodeInstanceTask);
         assertThat(sNode.getAttribute("id"), is(createNodeInstanceTask.getId()));
+        assertThat(sNode.getOwnerDocument(), is(createNodeInstanceTask.getBpmnDocument()));
     }
 
     @Test
     public void testCreateNodeOperation() {
         BPMNScope createNodeInstanceTask = new BPMNScope(
             BPMNScopeType.CALL_NODE_OPERATION_TASK, "Task_0");
+        createNodeInstanceTask.setBuildPlan(bpmnPlan);
         Element sNode = (Element) fragments.createBPMNScopeAsNode(createNodeInstanceTask);
         assertThat(sNode.getAttribute("id"), is(createNodeInstanceTask.getId()));
+        assertThat(sNode.getOwnerDocument(), is(createNodeInstanceTask.getBpmnDocument()));
     }
 
     @Test
     public void testCreateSetProperties() {
         BPMNScope createNodeInstanceTask = new BPMNScope(
             BPMNScopeType.SET_NODE_PROPERTY_TASK, "Task_0");
+        createNodeInstanceTask.setBuildPlan(bpmnPlan);
         Element sNode = (Element) fragments.createBPMNScopeAsNode(createNodeInstanceTask);
         assertThat(sNode.getAttribute("id"), is(createNodeInstanceTask.getId()));
+    }
+
+    @Test
+    public void testCreateXMLNodeShouldBelongToSameDocument() {
+        BPMNScope startEvent = new BPMNScope(
+            BPMNScopeType.START_EVENT, "Event_0");
+        startEvent.setBuildPlan(bpmnPlan);
+        Element node = (Element) fragments.createBPMNScopeAsNode(startEvent);
+        assertThat(node.getOwnerDocument(), is(bpmnPlan.getBpmnDocument()));
     }
 
     // for debugging purpose, don't remove

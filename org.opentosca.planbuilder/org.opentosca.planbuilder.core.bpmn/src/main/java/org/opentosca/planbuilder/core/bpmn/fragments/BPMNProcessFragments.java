@@ -41,7 +41,8 @@ public class BPMNProcessFragments {
     }
 
     /**
-     * Create XML node from BPMNScope object
+     * Creates XML node from BPMNScope object, the XML node already imported to
+     * the same XML document as BPMNPlan
      * @param bpmnScope
      * @return
      */
@@ -91,10 +92,25 @@ public class BPMNProcessFragments {
         return node;
     }
 
+    /**
+     * Creates Node from String and imported to the BPMNPlan Document from BPMNScope
+     * @param bpmnScope
+     * @param s
+     * @return
+     */
+    private Node createImportNodeFromString(BPMNScope bpmnScope, String s) throws IOException, SAXException {
+        Node transformedNode = this.transformStringToNode(s);
+        Document doc = bpmnScope.getBpmnDocument();
+
+        // make sure all elements belongs to same document
+        Node importedNode = doc.importNode(transformedNode, true);
+        bpmnScope.setBpmnScopeElement((Element) importedNode);
+        return importedNode;
+    }
+
     private Node createSetPropertiesAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
         String template = createSetProperties(bpmnScope.getId());
-        Node node = this.transformStringToNode(template);
-        bpmnScope.setBpmnScopeElement((Element) node);
+        Node node = createImportNodeFromString(bpmnScope, template);
         addIncomings(bpmnScope);
         addOutgoings(bpmnScope);
         return node;
@@ -109,8 +125,7 @@ public class BPMNProcessFragments {
 
     private Node createNodeOperationAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
         String template = createNodeOperation(bpmnScope.getId());
-        Node node = this.transformStringToNode(template);
-        bpmnScope.setBpmnScopeElement((Element) node);
+        Node node = this.createImportNodeFromString(bpmnScope, template);
         addIncomings(bpmnScope);
         addOutgoings(bpmnScope);
         return node;
@@ -118,8 +133,7 @@ public class BPMNProcessFragments {
 
     private Node createNodeTemplateInstanceAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
         String template = createNodeTemplateInstance(bpmnScope.getId());
-        Node node = this.transformStringToNode(template);
-        bpmnScope.setBpmnScopeElement((Element) node);
+        Node node = this.createImportNodeFromString(bpmnScope, template);
         addIncomings(bpmnScope);
         addOutgoings(bpmnScope);
         return node;
@@ -127,8 +141,7 @@ public class BPMNProcessFragments {
 
     private Node createRelationshipTemplateInstanceAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
         String template = createRelationshipTemplateInstance(bpmnScope.getId());
-        Node node =  this.transformStringToNode(template);
-        bpmnScope.setBpmnScopeElement((Element) node);
+        Node node =  this.createImportNodeFromString(bpmnScope, template);
         addIncomings(bpmnScope);
         addOutgoings(bpmnScope);
         return node;
@@ -139,7 +152,7 @@ public class BPMNProcessFragments {
             bpmnScope.getIncomingLinks().iterator().next().getId(),
             bpmnScope.getOutgoingLinks().iterator().next().getId()
         );
-        return this.transformStringToNode(template);
+        return this.createImportNodeFromString(bpmnScope, template);
     }
 
     public Node transformStringToNode(String xmlString) throws SAXException, IOException {
@@ -182,6 +195,7 @@ public class BPMNProcessFragments {
 
     public String createBPMNSequenceFlow(String FlowID, String incomingFlowName, String outgoingFlowName) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNSequenceFlow.xml"));
+        // each sequence flow is guaranteed to only two ends
         template = template.replaceAll("Flow_IdToReplace", FlowID);
         template = template.replaceAll("SourceToReplace", incomingFlowName);
         template = template.replaceAll("TargetToReplace", outgoingFlowName);
@@ -299,16 +313,14 @@ public class BPMNProcessFragments {
 
     public Node createBPMNSubprocessAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
         final String templateString = createBPMNSubprocess(bpmnScope.getId());
-        Node node = this.transformStringToNode(templateString);
-        Document doc = bpmnScope.getBpmnDocument();
-        bpmnScope.setBpmnScopeElement((Element) node);
+        Node node = this.createImportNodeFromString(bpmnScope, templateString);
         this.addIncomings(bpmnScope);
         this.addOutgoings(bpmnScope);
 
-        // Creating Elements within Subprocess recursivly
+        // importing all elements within Subprocess recursively
         for (BPMNScope subScope : bpmnScope.getSubprocessBPMNScopes()) {
             Node child = this.createBPMNScopeAsNode(subScope);
-            bpmnScope.getBpmnScopeElement().appendChild(doc.importNode(child, true));
+            bpmnScope.getBpmnScopeElement().appendChild(child);
         }
         return node;
     }
@@ -329,8 +341,7 @@ public class BPMNProcessFragments {
 
     public Node createSetServiceTemplateStateAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
         final String templateString = createSetServiceTemplateStateAsNode(bpmnScope.getId());
-        Node node = this.transformStringToNode(templateString);
-        bpmnScope.setBpmnScopeElement((Element) node);
+        Node node = this.createImportNodeFromString(bpmnScope, templateString);
         this.addIncomings(bpmnScope);
         this.addOutgoings(bpmnScope);
         return node;
@@ -352,8 +363,7 @@ public class BPMNProcessFragments {
 
     public Node createServiceTemplateInstanceAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
         final String templateString = createServiceTemplateInstanceAsNode(bpmnScope.getId());
-        Node node = this.transformStringToNode(templateString);
-        bpmnScope.setBpmnScopeElement((Element) node);
+        Node node = this.createImportNodeFromString(bpmnScope, templateString);
         this.addIncomings(bpmnScope);
         this.addOutgoings(bpmnScope);
         return node;
@@ -362,7 +372,10 @@ public class BPMNProcessFragments {
     private String createServiceTemplateInstanceAsNode(String id) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateServiceTemplateInstanceScriptTask.xml"));
         template = template.replace("ServiceTemplateInstance_IdToReplace", id);
+        // TODO: consider change hardcoded name to dynamic
         template = template.replace("StateToSet", "CREATING");
+        template = template.replace("ResultVariableToSet", "ServiceInstanceURL");
+        template = template.replace("NameToSet", "Create ServiceTemplate Instance");
         return template;
     }
 
@@ -406,17 +419,18 @@ public class BPMNProcessFragments {
     }
 
     public Node createBPMNStartEventAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
-        final String templateString = createBPMNStartEvent(bpmnScope.getId());
-        Node node =  this.transformStringToNode(templateString);
-        bpmnScope.setBpmnScopeElement((Element) node);
+        final String template = createBPMNStartEvent(bpmnScope.getId());
+        Node node =  this.createImportNodeFromString(bpmnScope, template);
+        // Out Event only has outgoing Flows
         addOutgoings(bpmnScope);
         return node;
     }
 
+
     public Node createBPMNEndEventAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
-        final String templateString = createBPMNEndEvent(bpmnScope.getId());
-        Node node =  this.transformStringToNode(templateString);
-        bpmnScope.setBpmnScopeElement((Element) node);
+        final String template = createBPMNEndEvent(bpmnScope.getId());
+        Node node =  this.createImportNodeFromString(bpmnScope, template);
+        // End Event only has incoming Flows
         addIncomings(bpmnScope);
         return node;
     }

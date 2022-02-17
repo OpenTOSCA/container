@@ -23,7 +23,7 @@ import org.w3c.dom.NodeList;
 
 /**
  * <p>
- * This class is part of the Facade to handle actions on BPMN process components.
+ * This class is part of the Facade to handle actions on BPMN process components BPMNProcessElement.
  * This particular class handle XML related operations
  * on TemplateBuildPlans
  * </p>
@@ -67,6 +67,7 @@ public class BPMNScopeHandler {
         startEvent.setParentProcess(bpmnSubprocess);
 
         bpmnSubprocess.addScopeToSubprocess(startEvent);
+        bpmnSubprocess.setSubStartEvent(startEvent);
         return startEvent;
     }
 
@@ -77,6 +78,7 @@ public class BPMNScopeHandler {
         endEvent.setParentProcess(bpmnSubprocess);
 
         bpmnSubprocess.addScopeToSubprocess(endEvent);
+        bpmnSubprocess.setSubEndEvent((endEvent));
         return endEvent;
     }
 
@@ -107,11 +109,13 @@ public class BPMNScopeHandler {
         String idPrefix = "";
         final BPMNScope templateBuildPlan;
         if (activity instanceof NodeTemplateActivity) {
+            NodeTemplateActivity ntActivity = (NodeTemplateActivity) activity;
             idPrefix = BPMNScopeType.SUBPROCESS.toString();
-            templateBuildPlan = new BPMNScope(activity, BPMNScopeType.SUBPROCESS, idPrefix + "_" + activity.getId());
+            templateBuildPlan = new BPMNScope(ntActivity, BPMNScopeType.SUBPROCESS, idPrefix + "_" + activity.getId());
         } else if (activity instanceof RelationshipTemplateActivity) {
+            RelationshipTemplateActivity rtActivity = (RelationshipTemplateActivity) activity;
             idPrefix = BPMNScopeType.CREATE_RT_INSTANCE.toString();
-            templateBuildPlan = new BPMNScope(activity, BPMNScopeType.CREATE_RT_INSTANCE, idPrefix + "_" + activity.getId());
+            templateBuildPlan = new BPMNScope(rtActivity, BPMNScopeType.CREATE_RT_INSTANCE, idPrefix + "_" + activity.getId());
         } else {
             templateBuildPlan = null;
         }
@@ -122,6 +126,13 @@ public class BPMNScopeHandler {
         return templateBuildPlan;
     }
 
+    /**
+     * Creates BPMN Sequence Flow inside the given subprocess with the source and target
+     * @param src
+     * @param trg
+     * @param bpmnSubprocess
+     * @return
+     */
     public BPMNScope createSequenceFlowSubprocess(BPMNScope src, BPMNScope trg, final BPMNScope bpmnSubprocess) {
         BPMNPlan buildPlan = bpmnSubprocess.getBuildPlan();
         String idPrefix = BPMNScopeType.SEQUENCE_FLOW.name();

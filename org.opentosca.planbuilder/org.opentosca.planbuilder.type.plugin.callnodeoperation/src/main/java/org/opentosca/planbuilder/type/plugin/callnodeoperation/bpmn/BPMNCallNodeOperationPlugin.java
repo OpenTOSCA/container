@@ -34,7 +34,7 @@ public class BPMNCallNodeOperationPlugin implements IPlanBuilderTypeCallNodeOper
         subprocess.setSubProCallOperationTask(callNodeOperationTask);
         subprocess.addScopeToSubprocess(callNodeOperationTask);
         callNodeOperationTask.setParentProcess(subprocess);
-
+        callNodeOperationTask.setBuildPlan(buildPlan);
         return callNodeOperationTask != null;
     }
 
@@ -55,7 +55,8 @@ public class BPMNCallNodeOperationPlugin implements IPlanBuilderTypeCallNodeOper
 
     @Override
     public boolean canHandleCreate(Csar csar, TNodeTemplate nodeTemplate) {
-        return false;
+        // TODO: may need nodeTemplate type check if multiple plugins are implemented
+        return true;
     }
 
     @Override
@@ -71,6 +72,6 @@ public class BPMNCallNodeOperationPlugin implements IPlanBuilderTypeCallNodeOper
     @Override
     public boolean canHandleTerminate(Csar csar, TRelationshipTemplate relationshipTemplate) {
         // TODO: may need nodeTemplate type check if multiple plugins are implemented
-        return true;
+        return false;
     }
 }

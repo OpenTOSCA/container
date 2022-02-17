@@ -24,8 +24,6 @@ public class BPMNDiagramElement {
     private int xWaypointOut;
     private int yWaypointOut;
 
-
-
     // only edge contains
     public int length;
 
@@ -33,6 +31,8 @@ public class BPMNDiagramElement {
     public int width;
     public int height;
 
+    // only for subprocess shape
+    public int bufferLength;
 
     public BPMNDiagramElement(BPMNDiagramType type, int startX, int startY, String id) {
         this.type = type;
@@ -112,5 +112,13 @@ public class BPMNDiagramElement {
 
     public void setLength(int length) {
         this.length = length;
+    }
+
+    public int getBufferLength() {
+        return bufferLength;
+    }
+
+    public void setBufferLength(int bufferLength) {
+        this.bufferLength = bufferLength;
     }
 }

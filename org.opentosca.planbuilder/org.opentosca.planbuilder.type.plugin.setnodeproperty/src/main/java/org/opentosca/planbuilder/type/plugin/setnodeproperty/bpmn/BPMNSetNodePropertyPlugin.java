@@ -34,6 +34,7 @@ public class BPMNSetNodePropertyPlugin implements IPlanBuilderTypeSetPropertyPlu
         subprocess.setSubProSetNodePropertyTask(setNodePropertyTask);
         subprocess.addScopeToSubprocess(setNodePropertyTask);
         setNodePropertyTask.setParentProcess(subprocess);
+        setNodePropertyTask.setBuildPlan(buildPlan);
         return setNodePropertyTask != null;
     }
 
@@ -55,7 +56,7 @@ public class BPMNSetNodePropertyPlugin implements IPlanBuilderTypeSetPropertyPlu
     @Override
     public boolean canHandleCreate(Csar csar, TNodeTemplate nodeTemplate) {
         // TODO: may need nodeTemplate type check if multiple plugins are implemented
-        return false;
+        return true;
     }
 
     @Override

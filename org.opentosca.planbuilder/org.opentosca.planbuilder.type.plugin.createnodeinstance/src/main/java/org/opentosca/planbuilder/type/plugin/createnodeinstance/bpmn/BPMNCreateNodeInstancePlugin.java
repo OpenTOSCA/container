@@ -34,6 +34,7 @@ public class BPMNCreateNodeInstancePlugin implements IPlanBuilderTypeCreateInsta
         subprocess.setSubProCreateNodeInstanceTask(createNodeInstanceTask);
         subprocess.addScopeToSubprocess(createNodeInstanceTask);
         createNodeInstanceTask.setParentProcess(subprocess);
+        createNodeInstanceTask.setBuildPlan(buildPlan);
         return createNodeInstanceTask != null;
     }
 

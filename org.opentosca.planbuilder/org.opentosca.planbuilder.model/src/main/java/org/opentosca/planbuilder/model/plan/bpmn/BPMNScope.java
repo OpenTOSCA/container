@@ -7,6 +7,8 @@ import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
+import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
+import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,52 +43,12 @@ public class BPMNScope {
     // parent process for current BPMNScope contained within subprocess
     private BPMNScope parentProcess;
 
-    public BPMNScope getSubProStartEvent() {
-        return subProStartEvent;
-    }
-
-    public void setSubProStartEvent(BPMNScope subProStartEvent) {
-        this.subProStartEvent = subProStartEvent;
-    }
-
-    public BPMNScope getSubProCreateNodeInstanceTask() {
-        return subProCreateNodeInstanceTask;
-    }
-
-    public void setSubProCreateNodeInstanceTask(BPMNScope subProCreateNodeInstanceTask) {
-        this.subProCreateNodeInstanceTask = subProCreateNodeInstanceTask;
-    }
-
-    public BPMNScope getSubProCallOperationTask() {
-        return subProCallOperationTask;
-    }
-
-    public void setSubProCallOperationTask(BPMNScope subProCallOperationTask) {
-        this.subProCallOperationTask = subProCallOperationTask;
-    }
-
-    public BPMNScope getSubProSetNodePropertyTask() {
-        return subProSetNodePropertyTask;
-    }
-
-    public void setSubProSetNodePropertyTask(BPMNScope subProSetNodePropertyTask) {
-        this.subProSetNodePropertyTask = subProSetNodePropertyTask;
-    }
-
-    public BPMNScope getSubProEndEvent() {
-        return subProEndEvent;
-    }
-
-    public void setSubProEndEvent(BPMNScope subProEndEvent) {
-        this.subProEndEvent = subProEndEvent;
-    }
-
     // events and elements contains in a Node subprocess
-    private BPMNScope subProStartEvent;
+    private BPMNScope subStartEvent;
     private BPMNScope subProCreateNodeInstanceTask;
     private BPMNScope subProCallOperationTask;
     private BPMNScope subProSetNodePropertyTask;
-    private BPMNScope subProEndEvent;
+    private BPMNScope subEndEvent;
 
     // bpmn elements this templatebuildplan controls
     private Element bpmnScopeElement;
@@ -123,6 +85,23 @@ public class BPMNScope {
         this.usedOperations = new HashMap<TOperation, TOperation>();
         this.id = id;
     }
+
+    public BPMNScope(NodeTemplateActivity activity, BPMNScopeType bpmnScopeType, String id) {
+        this.act = activity;
+        this.nodeTemplate = activity.getNodeTemplate();
+        this.bpmnScopeType = bpmnScopeType;
+        this.usedOperations = new HashMap<TOperation, TOperation>();
+        this.id = id;
+    }
+
+    public BPMNScope(RelationshipTemplateActivity activity, BPMNScopeType bpmnScopeType, String id) {
+        this.act = activity;
+        this.relationshipTemplate = activity.getRelationshipTemplate();
+        this.bpmnScopeType = bpmnScopeType;
+        this.usedOperations = new HashMap<TOperation, TOperation>();
+        this.id = id;
+    }
+
     // Use Case: for Link
     public BPMNScope(BPMNScopeType bpmnScopeType, String id) {
         this.act = null;
@@ -505,6 +484,47 @@ public class BPMNScope {
     public Set<BPMNScope> getSubprocessBPMNScopes() {
         return subprocessBPMNScopes;
     }
+
+    public BPMNScope getSubStartEvent() {
+        return subStartEvent;
+    }
+
+    public void setSubStartEvent(BPMNScope subStartEvent) {
+        this.subStartEvent = subStartEvent;
+    }
+
+    public BPMNScope getSubProCreateNodeInstanceTask() {
+        return subProCreateNodeInstanceTask;
+    }
+
+    public void setSubProCreateNodeInstanceTask(BPMNScope subProCreateNodeInstanceTask) {
+        this.subProCreateNodeInstanceTask = subProCreateNodeInstanceTask;
+    }
+
+    public BPMNScope getSubProCallOperationTask() {
+        return subProCallOperationTask;
+    }
+
+    public void setSubProCallOperationTask(BPMNScope subProCallOperationTask) {
+        this.subProCallOperationTask = subProCallOperationTask;
+    }
+
+    public BPMNScope getSubProSetNodePropertyTask() {
+        return subProSetNodePropertyTask;
+    }
+
+    public void setSubProSetNodePropertyTask(BPMNScope subProSetNodePropertyTask) {
+        this.subProSetNodePropertyTask = subProSetNodePropertyTask;
+    }
+
+    public BPMNScope getSubEndEvent() {
+        return subEndEvent;
+    }
+
+    public void setSubEndEvent(BPMNScope subEndEvent) {
+        this.subEndEvent = subEndEvent;
+    }
+
     public enum BPELScopePhaseType {
         PRE, PROVISIONING, POST
     }

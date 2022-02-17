@@ -8,6 +8,7 @@ import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNScopeHandler;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.ActivityType;
+import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
@@ -85,5 +86,33 @@ public class BPMNScopeHandlerTests {
         assertThat(rt.getBpmnScopeType(), is(BPMNScopeType.CREATE_RT_INSTANCE));
         assertThat(Integer.parseInt(rt.getId().substring(rt.getId().length() - 1)), is(createdId));
 
+    }
+
+    @Test
+    public void testCreateSubprocessFromNodeTemplate() {
+        int createdId = bpmnPlan.getInternalCounterId();
+        AbstractActivity activity = new NodeTemplateActivity("" + createdId, ActivityType.PROVISIONING, null);
+        BPMNScope subprocess = bpmnScopeHandler.createTemplateBuildPlan(activity, bpmnPlan);
+        assertThat(subprocess.getBpmnScopeType(), is(BPMNScopeType.SUBPROCESS));
+    }
+
+    @Test
+    public void testCreateStartEventFromSubprocess() {
+        int createdId = bpmnPlan.getInternalCounterId();
+        AbstractActivity activity = new NodeTemplateActivity("" + createdId, ActivityType.PROVISIONING, null);
+        BPMNScope subprocess = bpmnScopeHandler.createTemplateBuildPlan(activity, bpmnPlan);
+        BPMNScope startEvent = bpmnScopeHandler.createStartEventSubprocess(bpmnPlan, subprocess);
+        assertThat(startEvent.getParentProcess(), is(subprocess));
+        assertThat(subprocess.getSubStartEvent(), is(startEvent));
+    }
+
+    @Test
+    public void testCreateEndEventFromSubprocess() {
+        int createdId = bpmnPlan.getInternalCounterId();
+        AbstractActivity activity = new NodeTemplateActivity("" + createdId, ActivityType.PROVISIONING, null);
+        BPMNScope subprocess = bpmnScopeHandler.createTemplateBuildPlan(activity, bpmnPlan);
+        BPMNScope endEvent = bpmnScopeHandler.createStartEventSubprocess(bpmnPlan, subprocess);
+        assertThat(endEvent.getParentProcess(), is(subprocess));
+        assertThat(subprocess.getSubStartEvent(), is(endEvent));
     }
 }

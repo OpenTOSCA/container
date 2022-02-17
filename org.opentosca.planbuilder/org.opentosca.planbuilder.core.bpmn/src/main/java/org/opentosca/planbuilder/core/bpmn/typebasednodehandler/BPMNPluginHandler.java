@@ -31,7 +31,7 @@ public class BPMNPluginHandler {
 
 
     public boolean handleActivity(BPMNPlanContext context, BPMNScope bpmnScope, TNodeTemplate nodeTemplate) {
-        LOG.debug("Handling BPMN Activity with type {}", bpmnScope.getActivity().getType());
+        LOG.debug("Handling BPMN Activity with {}", bpmnScope.getActivity());
         boolean result = false;
         switch (bpmnScope.getActivity().getType()) {
             case PROVISIONING:

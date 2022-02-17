@@ -170,6 +170,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
         return null;
     }
 
+    // TODO: remove from normal flow, this is debugging only
     public void writeXML(BPMNPlan newBuildPlan) {
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transformer = null;
@@ -203,25 +204,27 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
     private void runPlugins(final BPMNPlan buildPlan, final Property2VariableMapping map,
                             final String serviceInstanceUrl, final String serviceInstanceID,
                             final String serviceTemplateUrl, final String planInstanceUrl, final Csar csar) {
-        LOG.debug("Running Plugins for each bpmnScope");
+        LOG.debug("Running plugins for each bpmnScope");
         // iterating through all BPMNScope to find matching plugin
         for (final BPMNScope bpmnScope : buildPlan.getTemplateBuildPlans()) {
             final BPMNPlanContext context = new BPMNPlanContext(buildPlan, bpmnScope, map, buildPlan.getServiceTemplate(),
                 serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csar);
-
+            LOG.debug("Running plugins for BPMN activity {}", bpmnScope.getActivity());
             if (bpmnScope.getNodeTemplate() != null) {
                 final TNodeTemplate nodeTemplate = bpmnScope.getNodeTemplate();
-
+                LOG.debug("Running plugins for node template {}", nodeTemplate);
                 // if this nodeTemplate has the label running (Property: State=Running), skip
                 // provisioning and just generate instance data handling
                 // extended check for OperatingSystem node type
+                // TODO: DockerEngine is labeled as running, need to review
+                /*
                 if (isRunning(nodeTemplate)
                     || ModelUtils.findNodeType(nodeTemplate, csar).getName().equals(Types.abstractOperatingSystemNodeType.getLocalPart())) {
                     LOG.debug("Skipping the provisioning of NodeTemplate "
                         + bpmnScope.getNodeTemplate().getId() + "  because state=running is set.");
                     continue;
                 }
-
+                */
                 // generate detail for activity
                 this.bpmnPluginHandler.handleActivity(context, bpmnScope, nodeTemplate);
             } else if (bpmnScope.getRelationshipTemplate() != null) {
