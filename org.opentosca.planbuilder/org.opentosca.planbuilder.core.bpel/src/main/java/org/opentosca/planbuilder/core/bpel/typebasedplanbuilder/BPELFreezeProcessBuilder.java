@@ -19,6 +19,7 @@ import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import com.google.common.collect.Lists;
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
@@ -217,6 +218,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
     private boolean isStateful(final TServiceTemplate serviceTemplate, Csar csar) {
         for (TNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             if (isStateful(nodeTemplate, csar)) {
+
                 return true;
             }
         }
@@ -380,8 +382,12 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
                     inputs.put(getSaveStateParameter(getSaveStateOperation(nodeTemplate, csar)), saveStateUrlVar);
 
-                    context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
+                    boolean addedOperationCall = context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE, inputs);
+
+                    if (!addedOperationCall) {
+                        LOG.error("Couldn´t generate freeze operation call, maybe you miss an IA or Parameters?");
+                    }
                 }
                 this.bpelPluginHandler.handleActivity(context, templatePlan, nodeTemplate);
             }

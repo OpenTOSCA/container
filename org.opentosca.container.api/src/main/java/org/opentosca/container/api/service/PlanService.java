@@ -82,20 +82,19 @@ public class PlanService {
         return planInstanceRepository.findByCorrelationId(correlationId);
     }
 
-    public PlanInstance resolvePlanInstance(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, String planId, String correlationId, PlanType... planTypes) {
+    public PlanInstance resolvePlanInstance(Long serviceTemplateInstanceId, String correlationId) {
         final PlanInstanceRepository repository = new PlanInstanceRepository();
         final PlanInstance pi = repository.findByCorrelationId(correlationId);
 
         if (pi == null) {
             final String msg = "Plan instance with correlationId '" + correlationId + "' not found";
-            logger.info(msg);
+            logger.error(msg);
             throw new NotFoundException(msg);
         }
 
-        final Long id = pi.getServiceTemplateInstance().getId();
-        if (serviceTemplateInstanceId != null && serviceTemplateInstanceId != id) {
+        if (pi.getServiceTemplateInstance() != null && serviceTemplateInstanceId != null && serviceTemplateInstanceId != pi.getServiceTemplateInstance().getId()) {
             throw new NotFoundException(String.format("The passed service template instance id <%s> does not match the service template instance id that is associated with the plan instance <%s> ",
-                serviceTemplateInstanceId, id, correlationId));
+                serviceTemplateInstanceId, correlationId));
         }
         return pi;
     }

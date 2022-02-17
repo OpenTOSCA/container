@@ -808,6 +808,26 @@ public abstract class ModelUtils {
     }
 
     /**
+     * Finds all NodeTypeImplementations of a nodeTemplate and its complete hierarchy
+     * @param nodeTemplate the nodeTemplate
+     * @param csar the csar it belongs to
+     * @return a list of nodetype implementations usable on the hierachy of the nodetype
+     */
+    public static Collection<TNodeTypeImplementation>  findAllNodeTypeImplemenations(TNodeTemplate nodeTemplate, Csar csar) {
+        return findAllNodeTypeImplemenations(findNodeType(nodeTemplate, csar), csar);
+    }
+
+    /**
+     * Finds all NodeTypeImplementations of a nodetype and its complete hierarchy
+     * @param nodeType the nodeType
+     * @param csar the csar it belongs to
+     * @return a list of nodetype implementations usable on the hierachy of the nodetype
+     */
+    public static Collection<TNodeTypeImplementation>  findAllNodeTypeImplemenations(TNodeType nodeType, Csar csar) {
+        return getNodeTypeHierarchy(nodeType, csar).stream().map(typeId -> findNodeType(typeId, csar)).map(type -> findNodeTypeImplementation(type, csar)).flatMap(l -> l.stream()).collect(Collectors.toList());
+    }
+
+    /**
      * Transforms the given string to a DOM node
      *
      * @param xmlString the xml to transform as String
@@ -871,6 +891,64 @@ public abstract class ModelUtils {
             return null;
         }
         return csar.nodeTypes().stream().filter(x -> x.getQName().equals(nodeType.getDerivedFrom().getTypeAsQName())).findFirst().orElse(null);
+    }
+
+    public static boolean isOperationImplemented(Csar csar, TNodeType nodeType, String interfaceName, String operationName) {
+        TOperation op = getOperation(csar, nodeType, interfaceName, operationName);
+
+        if (op == null) {
+            return false;
+        }
+
+        Collection<TNodeTypeImplementation> impls = findAllNodeTypeImplemenations(nodeType, csar);
+
+        for (TNodeTypeImplementation nodeImpl : impls) {
+            if (isOperationImplemented(csar, nodeImpl, interfaceName, operationName)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static TNodeTypeImplementation getDerivedFrom(Csar csar, TNodeTypeImplementation nodeTypeImpl) {
+        return csar.nodeTypeImplementations().stream().filter(impl -> impl.getQName().equals(nodeTypeImpl.getDerivedFrom().getType())).findFirst().orElse(null);
+    }
+
+    private static boolean isOperationImplemented(Csar csar, TNodeTypeImplementation nodeImpl, String interfaceName, String operationName) {
+        // at some point we didn't find an implementation along the type hierarchy
+        if (nodeImpl == null) {
+            return false;
+        }
+        for (TImplementationArtifact ia : nodeImpl.getImplementationArtifacts()) {
+            if (isOperationImplemented(ia, interfaceName, operationName)) {
+                return true;
+            }
+        }
+        return isOperationImplemented(csar, getDerivedFrom(csar, nodeImpl), interfaceName, operationName);
+    }
+
+    private static boolean isOperationImplemented(TImplementationArtifact ia, String interfaceName, String operationName) {
+        if (!ia.getInterfaceName().equals(interfaceName)) {
+            return false;
+        }
+        if (ia.getOperationName() == null) {
+            // if the ia has no operation defined but the interface names fit -> implemented
+            return true;
+        } else {
+            if (!ia.getOperationName().equals(operationName)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static TOperation getOperation(Csar csar, TNodeType nodeType, String interfaceName, String operationName) {
+        TInterface iface = getInterfaceOfNodeType(csar, nodeType, interfaceName);
+        if (iface == null) {
+            return null;
+        }
+        return iface.getOperations().stream().filter(op -> op.getName().equals(operationName)).findFirst().orElse(null);
     }
 
     private static TInterface getInterfaceOfNodeType(Csar csar, TNodeType startingNodeType, String interfaceName, TInterface interfaceOfStartingNodeType) {

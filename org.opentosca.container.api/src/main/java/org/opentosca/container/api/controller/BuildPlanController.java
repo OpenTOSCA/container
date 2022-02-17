@@ -149,7 +149,7 @@ public class BuildPlanController {
                                          @ApiParam("correlation ID") @PathParam("instance") final String instance,
                                          @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstance");
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
+        PlanInstance pi = planService.resolvePlanInstance(null, instance);
 
         final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
         // Add service template instance link
@@ -178,7 +178,7 @@ public class BuildPlanController {
                                               @ApiParam("correlation ID") @PathParam("instance") final String instance,
                                               @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstanceState");
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
+        PlanInstance pi = planService.resolvePlanInstance(null, instance);
         return Response.ok(pi.getState().toString()).build();
     }
 
@@ -190,7 +190,7 @@ public class BuildPlanController {
                                                  @PathParam("instance") final String instance,
                                                  @Context final UriInfo uriInfo, final String request) {
         LOGGER.debug("Invoking changeBuildPlanInstanceState");
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
+        PlanInstance pi = planService.resolvePlanInstance( null, instance);
         return planService.updatePlanInstanceState(pi, PlanInstanceState.valueOf(request))
             ? Response.ok().build()
             : Response.status(Status.BAD_REQUEST).build();
@@ -205,7 +205,7 @@ public class BuildPlanController {
                                              @ApiParam("Correlation ID") @PathParam("instance") final String instance,
                                              @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstanceLogs");
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
+        PlanInstance pi = planService.resolvePlanInstance( null, instance);
 
         final PlanInstanceDTO piDto = PlanInstanceDTO.Converter.convert(pi);
         final PlanInstanceEventListDTO dto = new PlanInstanceEventListDTO(piDto.getLogs());
@@ -228,7 +228,7 @@ public class BuildPlanController {
             LOGGER.info("Log entry is empty!");
             return Response.status(Status.BAD_REQUEST).build();
         }
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
+        PlanInstance pi = planService.resolvePlanInstance( null, instance);
         final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_LOG", entry);
         planService.addLogToPlanInstance(pi, event);
 

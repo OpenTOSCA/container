@@ -31,6 +31,7 @@ import org.opentosca.container.api.dto.plan.PlanInstanceListDTO;
 import org.opentosca.container.api.dto.plan.PlanListDTO;
 import org.opentosca.container.api.dto.request.CreatePlanInstanceLogEntryRequest;
 import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.model.csar.Csar;
@@ -151,7 +152,7 @@ public class ManagementPlanController {
     public Response getManagementPlanInstance(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
                                               @ApiParam("correlation ID") @PathParam("instance") final String instance,
                                               @Context final UriInfo uriInfo) {
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, planTypes);
+        PlanInstance pi = planService.resolvePlanInstance( null, instance);
 
         final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
         // Add service template instance link
@@ -179,7 +180,7 @@ public class ManagementPlanController {
     public Response getManagementPlanInstanceState(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
                                                    @ApiParam("correlation ID") @PathParam("instance") final String instance,
                                                    @Context final UriInfo uriInfo) {
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, planTypes);
+        PlanInstance pi = planService.resolvePlanInstance( null, instance);
         return Response.ok(pi.getState().toString()).build();
     }
 
@@ -190,7 +191,7 @@ public class ManagementPlanController {
     public Response changeManagementPlanInstanceState(@PathParam("plan") final String plan,
                                                       @PathParam("instance") final String instance,
                                                       @Context final UriInfo uriInfo, final String request) {
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, planTypes);
+        PlanInstance pi = planService.resolvePlanInstance( null, instance);
         return planService.updatePlanInstanceState(pi, PlanInstanceState.valueOf(request))
             ? Response.ok().build()
             : Response.status(Status.BAD_REQUEST).build();
@@ -204,7 +205,7 @@ public class ManagementPlanController {
     public Response getManagementPlanInstanceLogs(@ApiParam("management plan id") @PathParam("plan") final String plan,
                                                   @ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
                                                   @Context final UriInfo uriInfo) {
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, planTypes);
+        PlanInstance pi = planService.resolvePlanInstance( null, instance);
 
         final PlanInstanceDTO piDto = PlanInstanceDTO.Converter.convert(pi);
         final PlanInstanceEventListDTO dto = new PlanInstanceEventListDTO(piDto.getLogs());
@@ -221,14 +222,19 @@ public class ManagementPlanController {
     public Response addManagementPlanLogEntry(@PathParam("plan") final String plan,
                                               @PathParam("instance") final String instance,
                                               @Context final UriInfo uriInfo,
-                                              final CreatePlanInstanceLogEntryRequest logEntry) {
+                                              final CreatePlanInstanceLogEntryRequest logEntry) throws NotFoundException {
         final String entry = logEntry.getLogEntry();
         if (entry == null || entry.length() <= 0) {
-            LOGGER.info("Log entry is empty!");
+            LOGGER.error("Log entry is empty!");
             return Response.status(Status.BAD_REQUEST).build();
         }
 
         PlanInstance pi = planService.getPlanInstanceByCorrelationId(instance);
+
+        if (pi == null) {
+            LOGGER.error("No plan instance found");
+            throw new NotFoundException("No plan instance found");
+        }
         final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_LOG", entry);
         planService.addLogToPlanInstance(pi, event);
 

@@ -116,6 +116,20 @@ public class OperationChain {
     }
 
     /**
+     * Checks whether this operation chain is valid, in the sense code generation is possible and there is an IA which implements the operations in the chain
+     * @return true if there is a plugin which can generate code for the operations and there are IA implementing them
+     */
+    public boolean isValid() {
+        if (this.provCandidates.isEmpty()) {
+            return false;
+        }
+        if (this.provCandidates.size() != this.iaCandidates.size()) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * <p>
      * Executes the first found ProvisioningCandidate to execute provisioning operations with the appropiate plugins set
      * in the candidate. The order of calling each operation provisioning is represented in the given list of strings

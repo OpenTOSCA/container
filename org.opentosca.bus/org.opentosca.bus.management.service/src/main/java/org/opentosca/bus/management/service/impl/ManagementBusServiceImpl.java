@@ -240,28 +240,17 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             final PlanInstanceRepository repo = new PlanInstanceRepository();
             final PlanInstance plan = repo.findByCorrelationId(correlationID);
             if (Objects.nonNull(plan)) {
-                plan.addEvent(event);
-                repo.update(plan);
-            }
-        }
+                // add end timestamp and log message with duration
+                event.setEndTimestamp(new Date());
+                final long duration = event.getEndTimestamp().getTime() - event.getStartTimestamp().getTime();
+                event.setMessage("Finished execution of IA for NodeTemplate '" + nodeTemplateID + "' interface '"
+                    + neededInterface + "' and operation '" + neededOperation + "' after " + duration + "ms");
+                LOG.info("IA execution duration: {}ms", duration);
+                event.setNodeTemplateID(nodeTemplateID);
+                event.setInterfaceName(neededInterface);
+                event.setOperationName(neededOperation);
+                event.setExecutionDuration(duration);
 
-        if (Objects.nonNull(correlationID)) {
-            // add end timestamp and log message with duration
-            event.setEndTimestamp(new Date());
-            final long duration = event.getEndTimestamp().getTime() - event.getStartTimestamp().getTime();
-            event.setMessage("Finished execution of IA for NodeTemplate '" + nodeTemplateID + "' interface '"
-                + neededInterface + "' and operation '" + neededOperation + "' after " + duration + "ms");
-            LOG.info("IA execution duration: {}ms", duration);
-            event.setNodeTemplateID(nodeTemplateID);
-            event.setInterfaceName(neededInterface);
-            event.setOperationName(neededOperation);
-            event.setExecutionDuration(duration);
-
-            // update plan in repository with new log event
-            final PlanInstanceRepository repo = new PlanInstanceRepository();
-            final PlanInstance plan = repo.findByCorrelationId(correlationID);
-
-            if (Objects.nonNull(plan)) {
                 plan.addEvent(event);
                 repo.update(plan);
             }
@@ -949,7 +938,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                         arguments.chorCorrelationId, arguments.chorPartners,
                         exchange.getIn().getBody());
                 } catch (final CorrelationIdAlreadySetException e) {
-                    LOG.warn(e.getMessage() + " Skipping the plan invocation!");
+                    LOG.error(e.getMessage() + " Skipping the plan invocation!");
                     return;
                 }
             }
@@ -1072,8 +1061,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         // update plan in repository with new log event
         final PlanInstanceRepository repo = new PlanInstanceRepository();
         plan = repo.findByCorrelationId(arguments.correlationId);
-        plan.addEvent(event);
-        repo.update(plan);
 
         // Undeploy IAs for the related ServiceTemplateInstance if a termination plan was executed.
         if (plan.getType().equals(PlanType.TERMINATION)) {
@@ -1086,8 +1073,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             }
         }
 
-        // update plan in repository with new log event
-        plan = repo.findByCorrelationId(arguments.correlationId);
         plan.addEvent(event);
         repo.update(plan);
 
