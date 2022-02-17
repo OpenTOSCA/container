@@ -27,6 +27,7 @@ import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.common.RepositoryFileReference;
 
+import com.google.common.collect.Lists;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.container.connector.ode.OdeConnector;
@@ -68,6 +69,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
+    static final private String[] CAPABILITIES = {"http://docs.oasis-open.org/wsbpel/2.0/process/executable"};
+
     public static final String BPS_ENGINE = "BPS";
 
     private static final Logger LOG = LoggerFactory.getLogger(BpelPlanEnginePlugin.class);
@@ -95,11 +98,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
      */
     @Override
     public List<String> getCapabilties() {
-        final List<String> capabilities = new ArrayList<>();
-        for (final String capability : "http://docs.oasis-open.org/wsbpel/2.0/process/executable".split("[,;]")) {
-            capabilities.add(capability.trim());
-        }
-        return capabilities;
+        return Lists.newArrayList(CAPABILITIES);
     }
 
     public boolean deployPlanFile(final Path planLocation, final CsarId csarId, final QName planId, Map<String, String> endpointMetadata) {
