@@ -123,10 +123,7 @@ public class OperationChain {
         if (this.provCandidates.isEmpty()) {
             return false;
         }
-        if (this.provCandidates.size() != this.iaCandidates.size()) {
-            return false;
-        }
-        return true;
+        return this.provCandidates.size() == this.iaCandidates.size();
     }
 
     /**

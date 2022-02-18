@@ -287,8 +287,7 @@ public class BPELPlanContext extends PlanContext {
     public boolean isOperationExecutable(final TNodeTemplate nodeTemplate, final String interfaceName,
                                          final String operationName,
                                          final Map<TParameter, Variable> param2variableMapping) {
-        final OperationChain chain = scopeBuilder.createOperationCall(this, nodeTemplate, interfaceName, operationName);
-
+        scopeBuilder.createOperationCall(this, nodeTemplate, interfaceName, operationName);
         return true;
     }
 
