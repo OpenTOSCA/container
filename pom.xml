@@ -12,7 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <apache.cxf.version>3.1.18</apache.cxf.version>
-        <camel.version>3.8.0</camel.version>
+        <camel.version>3.15.0</camel.version>
         <commons-io.version>2.6</commons-io.version>
         <jacoco.reportPath>${project.build.directory}/jacoco.exec</jacoco.reportPath>
         <jacoco.append>false</jacoco.append>
