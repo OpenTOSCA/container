@@ -216,15 +216,11 @@ public class InstanceService {
         final CsarId csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateName);
         final PlanInstanceRepository repository = new PlanInstanceRepository();
         PlanInstance pi = null;
+        int retries = 0;
+        int maxRetries = 20;
 
-        try {
+        while (pi == null && (retries++ < maxRetries)) {
             pi = repository.findByCorrelationId(correlationId);
-        } catch (final Exception e) {
-            final String msg =
-                String.format("The given correlation id %s is either malformed, does not belong to an existing plan instance",
-                    correlationId);
-            logger.error(msg, e);
-            throw new NotFoundException(msg, e);
         }
 
         // if no instance was found it is possible that live-modeling was started, just create an empty instance
@@ -262,6 +258,9 @@ public class InstanceService {
         instance.addPlanInstance(buildPlanInstance);
         instance.setCreationCorrelationId(buildPlanInstance.getCorrelationId());
         this.serviceTemplateInstanceRepository.add(instance);
+        if (buildPlanInstance.getServiceTemplateInstance() == null) {
+            buildPlanInstance.setServiceTemplateInstance(instance);
+        }
         new PlanInstanceRepository().update(buildPlanInstance);
 
         return instance;

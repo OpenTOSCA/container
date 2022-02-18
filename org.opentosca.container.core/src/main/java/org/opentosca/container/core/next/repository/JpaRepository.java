@@ -21,61 +21,48 @@ public abstract class JpaRepository<T> implements Repository<T, Long> {
 
     @Override
     public void add(final T entity) {
-        final EntityManager em = EntityManagerProvider.createEntityManager();
-        try {
+        System.out.println("Adding following entity with class " + entity.getClass().getCanonicalName() + " entity: " + entity.toString());
+        try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
             em.getTransaction().begin();
             em.persist(entity);
             em.getTransaction().commit();
-        } finally {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
-            em.close();
+        } catch (final Exception e) {
+            logger.error("Failed to add instance of class {} with id {} in persistence context.", clazz.getSimpleName(), entity.toString(), e);
+            e.printStackTrace();
         }
     }
 
     @Override
     public void add(final Iterable<T> items) {
-        final EntityManager em = EntityManagerProvider.createEntityManager();
-        try {
+        try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
             em.getTransaction().begin();
             items.forEach(em::persist);
             em.getTransaction().commit();
-        } finally {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
-            em.close();
+        } catch (final Exception e) {
+            logger.error("Failed to add instances of class {} with id {} in persistence context.", clazz.getSimpleName(), items.toString(), e);
+            e.printStackTrace();
         }
     }
 
     @Override
     public void update(final T entity) {
-        final EntityManager em = EntityManagerProvider.createEntityManager();
-        try {
+        try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
             em.getTransaction().begin();
             em.merge(entity);
             em.getTransaction().commit();
-        } finally {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
-            em.close();
+        } catch (final Exception e) {
+            logger.error("Failed to update instance of class {} with id {} in persistence context.", clazz.getSimpleName(), entity.toString(), e);
         }
     }
 
     @Override
     public void remove(final T entity) {
-        final EntityManager em = EntityManagerProvider.createEntityManager();
-        try {
+        try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
             em.getTransaction().begin();
             em.remove(em.merge(entity));
             em.getTransaction().commit();
-        } finally {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
-            em.close();
+        } catch (final Exception e) {
+            logger.error("Failed to update instance of class {} with id {} in persistence context.", clazz.getSimpleName(), entity.toString(), e);
         }
     }
 
@@ -90,7 +77,7 @@ public abstract class JpaRepository<T> implements Repository<T, Long> {
             initializeInstance(entity);
             return Optional.of(entity);
         } catch (final Exception e) {
-            logger.info("Failed to find instance of class {} with id {} in persistence context.", clazz.getSimpleName(), id, e);
+            logger.error("Failed to find instance of class {} with id {} in persistence context.", clazz.getSimpleName(), id, e);
             return Optional.empty();
         }
     }
