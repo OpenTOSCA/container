@@ -85,12 +85,7 @@ public class PlanInstanceRepository extends JpaRepository<PlanInstance> {
         Hibernate.initialize(instance.getOutputs());
     }
 
-    private PlanInstance initInstance(PlanInstance instance) {
-        initializeInstance(instance);
-        return instance;
-    }
-
     protected void initializeInstance(Collection<PlanInstance> instance) {
-        instance.forEach(i -> initializeInstance(i));
+        instance.forEach(this::initializeInstance);
     }
 }
