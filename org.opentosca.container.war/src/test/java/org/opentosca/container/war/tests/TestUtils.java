@@ -457,7 +457,7 @@ public abstract class TestUtils {
         }
 
         PlanInstanceState buildPlanInstanceState = buildPlanInstance.getState();
-        while (!buildPlanInstanceState.equals(PlanInstanceState.FINISHED) || buildPlanInstance.getServiceTemplateInstance() == null) {
+        while (!buildPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
             buildPlanInstance = planService.getPlanInstance(buildPlanInstance.getId());
             buildPlanInstanceState = buildPlanInstance.getState();
         }

@@ -85,20 +85,14 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
 
     @Override
     public String createCorrelationId() {
-        // generate CorrelationId for the plan execution
-        while (true) {
-            final String correlationId = String.valueOf(System.currentTimeMillis());
+        PlanInstance instance;
+        String correlationId;
+        do {
+            correlationId = String.valueOf(System.currentTimeMillis()) + Math.random();
+            instance = planRepo.findByCorrelationId(correlationId);
 
-            try {
-                PlanInstance instance = planRepo.findByCorrelationId(correlationId);
-                if (instance == null) {
-                    return correlationId;
-                }
-                LOG.debug("CorrelationId {} already in use.", correlationId);
-            } catch (final NoResultException e) {
-                return correlationId;
-            }
-        }
+        } while (instance != null);
+        return correlationId;
     }
 
     @Override
