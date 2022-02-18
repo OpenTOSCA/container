@@ -125,7 +125,7 @@ public class PlanService {
         final PlanDTO dto = new PlanDTO(plan);
 
         dto.setId(plan.getId());
-        enhanceInputParameters(csar, serviceTemplate, serviceTemplateInstanceId, parameters);
+        enhanceInputParameters(parameters);
         dto.setInputParameters(parameters);
 
         final String correlationId = controlService.invokePlanInvocation(csar.id(), serviceTemplate,
@@ -140,7 +140,7 @@ public class PlanService {
     }
 
     // @TODO move or merge this with MBJavaAPI#createRequestBody
-    private void enhanceInputParameters(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, List<TParameter> parameters) {
+    private void enhanceInputParameters(List<TParameter> parameters) {
         // set "meta" params
         for (final TParameter param : parameters) {
             if (param.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT)
