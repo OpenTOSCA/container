@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,10 +68,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
-    static final private String[] CAPABILITIES = {"http://docs.oasis-open.org/wsbpel/2.0/process/executable"};
-
     public static final String BPS_ENGINE = "BPS";
-
+    private static final String[] CAPABILITIES = {"http://docs.oasis-open.org/wsbpel/2.0/process/executable"};
     private static final Logger LOG = LoggerFactory.getLogger(BpelPlanEnginePlugin.class);
     private static final String DEFAULT_ENGINE_LANGUAGE = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
 
