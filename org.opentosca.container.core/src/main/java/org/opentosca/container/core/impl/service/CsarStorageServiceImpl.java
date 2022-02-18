@@ -101,7 +101,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
             }
             return csarImpls.get(id);
         }
-        LOGGER.info("CSAR '{}' could not be found", id.csarName());
+        LOGGER.debug("CSAR '{}' could not be found", id.csarName());
         throw new NoSuchElementException();
     }
 
@@ -200,7 +200,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
 
     @Override
     public void deleteCSAR(CsarId csarId) throws SystemException, UserException {
-        LOGGER.info("Deleting CSAR \"{}\"...", csarId.csarName());
+        LOGGER.debug("Deleting CSAR \"{}\"...", csarId.csarName());
         FileUtils.forceDelete(basePath.resolve(csarId.csarName()));
         LOGGER.info("Deleted CSAR \"{}\"...", csarId.csarName());
     }
@@ -239,7 +239,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
                 FileUtils.forceDelete(csarTarget);
             }
             csar.exportTo(csarTarget);
-            LOGGER.info("Successfully exported CSAR to {}", csarTarget);
+            LOGGER.debug("Successfully exported CSAR to {}", csarTarget);
             return csarTarget;
         } catch (final IOException e) {
             throw new SystemException("An IO Exception occured.", e);

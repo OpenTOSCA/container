@@ -1,6 +1,5 @@
 package org.opentosca.bus.management.invocation.plugin.soaphttp;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +17,7 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
+import com.google.common.collect.Lists;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.Exchange;
@@ -53,8 +53,8 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
 
     private static final Logger LOG = LoggerFactory.getLogger(ManagementBusInvocationPluginSoapHttp.class);
 
-    // Supported types defined in messages.properties.
-    private static final String TYPES = "SOAP/HTTP";
+    static final private String[] TYPES = {"SOAP/HTTP"};
+
     private static final Map<String, Exchange> EXCHANGE_MAP = Collections.synchronizedMap(new HashMap<>());
     private final CamelContext camelContext;
     private final CsarStorageService storage;
@@ -253,11 +253,13 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
         if (!endpoint.endsWith("?wsdl")) {
             endpoint = endpoint + "?wsdl";
         }
-        LOG.info("Parsing WSDL at: {}.", endpoint);
+        LOG.debug("Parsing WSDL at: {}.", endpoint);
         WSDLFactory wsdlFactory = null;
         try {
             wsdlFactory = WSDLFactory.newInstance();
             final WSDLReader wsdlDefinitionReader = wsdlFactory.newWSDLReader();
+            // deactives logging of 'Retrieving documant at...'
+            wsdlDefinitionReader.setFeature("javax.wsdl.verbose", false);
             return wsdlDefinitionReader.readWSDL(endpoint);
         } catch (final WSDLException e) {
             LOG.warn("Could not read WSDL definitions from endpoint {} due to WSDLException", endpoint, e);
@@ -342,13 +344,8 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
 
     @Override
     public List<String> getSupportedTypes() {
-        LOG.debug("Getting Types: {}.", ManagementBusInvocationPluginSoapHttp.TYPES);
-        final List<String> types = new ArrayList<>();
-
-        for (final String type : ManagementBusInvocationPluginSoapHttp.TYPES.split("[,;]")) {
-            types.add(type.trim());
-        }
-        return types;
+        LOG.debug("Getting Types: {}.", TYPES);
+        return Lists.newArrayList(TYPES);
     }
 
     private enum MessagingPattern {

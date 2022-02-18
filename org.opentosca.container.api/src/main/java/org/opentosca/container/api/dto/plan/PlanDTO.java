@@ -62,16 +62,22 @@ public class PlanDTO extends ResourceSupport {
         this.name = plan.getName();
         this.planType = plan.getPlanType();
         this.planLanguage = plan.getPlanLanguage();
-        this.inputParameters.addAll(
-            plan.getInputParameters().stream()
-                .map(TParameter::new)
-                .collect(Collectors.toList())
-        );
-        this.outputParameters.addAll(
-            plan.getOutputParameters().stream()
-                .map(TParameter::new)
-                .collect(Collectors.toList())
-        );
+        if (plan.getInputParameters() != null) {
+            this.inputParameters.addAll(
+                plan.getInputParameters().stream()
+                    .map(TParameter::new)
+                    .collect(Collectors.toList())
+            );
+        }
+
+        if (plan.getOutputParameters() != null) {
+            this.outputParameters.addAll(
+                plan.getOutputParameters().stream()
+                    .map(TParameter::new)
+                    .collect(Collectors.toList())
+            );
+        }
+
         this.planModelReference = plan.getPlanModelReference().getReference();
         this.calculatedWCET = Long.parseLong(
             plan.getOtherAttributes()

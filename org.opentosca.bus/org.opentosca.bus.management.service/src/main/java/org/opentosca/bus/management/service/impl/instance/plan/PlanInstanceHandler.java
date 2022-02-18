@@ -194,33 +194,35 @@ public class PlanInstanceHandler {
             }
 
             // get output parameters of the plan from the process instance variables
-            for (final TParameter param : planModel.getOutputParameters()) {
-                final String path = Settings.ENGINE_PLAN_BPMN_URL + Constants.HISTORY_PATH;
+            if (planModel.getOutputParameters() != null) {
+                for (final TParameter param : planModel.getOutputParameters()) {
+                    final String path = Settings.ENGINE_PLAN_BPMN_URL + Constants.HISTORY_PATH;
 
-                // get variable instances of the process instance with the param name
-                webResource = client.target(path);
-                webResource = webResource.queryParam("processInstanceId", planInstanceID);
-                webResource = webResource.queryParam("activityInstanceIdIn", planInstanceID);
-                webResource = webResource.queryParam("variableName", param.getName());
-                final String responseStr = webResource.request().get().readEntity(String.class);
+                    // get variable instances of the process instance with the param name
+                    webResource = client.target(path);
+                    webResource = webResource.queryParam("processInstanceId", planInstanceID);
+                    webResource = webResource.queryParam("activityInstanceIdIn", planInstanceID);
+                    webResource = webResource.queryParam("variableName", param.getName());
+                    final String responseStr = webResource.request().get().readEntity(String.class);
 
-                if (responseStr.equals("[]")) {
-                    LOG.warn("Unable to find variable instance for output parameter: {}", param.getName());
-                    continue;
+                    if (responseStr.equals("[]")) {
+                        LOG.warn("Unable to find variable instance for output parameter: {}", param.getName());
+                        continue;
+                    }
+
+                    String value = null;
+                    try {
+                        final JsonParser parser = new JsonParser();
+                        final JsonObject json =
+                            (JsonObject) parser.parse(responseStr.substring(1, responseStr.length() - 1));
+                        value = json.get("value").getAsString();
+                    } catch (final ClassCastException e) {
+                        LOG.trace("value is null");
+                        value = "";
+                    }
+                    LOG.debug("For variable \"{}\" the output value is \"{}\"", param.getName(), value);
+                    new PlanInstanceOutput(param.getName(), value, param.getType()).setPlanInstance(plan);
                 }
-
-                String value = null;
-                try {
-                    final JsonParser parser = new JsonParser();
-                    final JsonObject json =
-                        (JsonObject) parser.parse(responseStr.substring(1, responseStr.length() - 1));
-                    value = json.get("value").getAsString();
-                } catch (final ClassCastException e) {
-                    LOG.trace("value is null");
-                    value = "";
-                }
-                LOG.debug("For variable \"{}\" the output value is \"{}\"", param.getName(), value);
-                new PlanInstanceOutput(param.getName(), value, param.getType()).setPlanInstance(plan);
             }
         } else {
             LOG.error("Unable to handle response for plan invocations with the plan language: {}", plan.getLanguage());

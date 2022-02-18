@@ -86,7 +86,7 @@ public abstract class AbstractImporter {
      * @param csar the CSAR the given Definitions is contained in
      * @return a List of Plans
      */
-    public List<AbstractPlan> buildPlans(final TDefinitions defs, final Csar csar) {
+    public List<AbstractPlan> generatePlans(final TDefinitions defs, final Csar csar) {
 
         final List<AbstractPlan> plans = new ArrayList<>();
 
@@ -132,18 +132,39 @@ public abstract class AbstractImporter {
 
         final AbstractSimplePlanBuilder updatePlanBuilder = new BPELUpdateProcessBuilder(pluginRegistry);
 
-        TServiceTemplate servTemplate = defs.getServiceTemplates().iterator().next();
-
-        if (ModelUtils.doesNotHaveBuildPlan(servTemplate) | !ModelUtils.hasTerminationPlan(servTemplate)) {
-            plans.addAll(scalingPlanBuilder.buildPlans(csar, defs));
+        if (ModelUtils.findServiceTemplateOperation(defs,"OpenTOSCA-Lifecycle-Interface", "initiate") == null) {
             plans.addAll(buildPlanBuilder.buildPlans(csar, defs));
+        }
+
+        if (ModelUtils.findServiceTemplateOperation(defs,"OpenTOSCA-Lifecycle-Interface", "terminate") == null) {
             plans.addAll(terminationPlanBuilder.buildPlans(csar, defs));
+        }
+
+        // most of these builders have some kind of check whether they can generate a plan or not, therefore the collection they return are empty.
+        // However, in this state we don't properly check whether there IS already such a plan provided, e.g., a freeze plan and so forth.
+        // Therefore here is now a TODO to properly check via the service template interface operation implementing e.g. freeze and check whether there is an implementation behind that operation
+        if (ModelUtils.findServiceTemplateOperation(defs,"OpenTOSCA-Stateful-Lifecycle-Interface", "freeze") == null) {
             plans.addAll(freezePlanBuilder.buildPlans(csar, defs));
+        }
+
+        if (ModelUtils.findServiceTemplateOperation(defs, "OpenTOSCA-Stateful-Lifecycle-Interface", "defrost") == null) {
             plans.addAll(defreezePlanBuilder.buildPlans(csar, defs));
-            plans.addAll(backupPlanBuilder.buildPlans(csar, defs));
-            plans.addAll(testPlanBuilder.buildPlans(csar, defs));
+        }
+
+        if (ModelUtils.findServiceTemplateOperation(defs, "OpenTOSCA-Stateful-Lifecycle-Interface", "update") == null) {
             plans.addAll(updatePlanBuilder.buildPlans(csar, defs));
         }
+
+        if (ModelUtils.findServiceTemplateOperation(defs, "OpenTOSCA-Management-Feature-Interface", "backup") == null) {
+            plans.addAll(backupPlanBuilder.buildPlans(csar, defs));
+        }
+
+        if (ModelUtils.findServiceTemplateOperation(defs, "OpenTOSCA-Management-Feature-Interface", "test") == null) {
+            plans.addAll(testPlanBuilder.buildPlans(csar, defs));
+        }
+
+        // hard to check honestly, TODO check if there are scaling plan definitions and if they are already available in the TOSCA interface of the service template
+        plans.addAll(scalingPlanBuilder.buildPlans(csar, defs));
 
         return plans;
     }

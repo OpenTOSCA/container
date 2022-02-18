@@ -98,7 +98,7 @@ public class MBJavaApi implements IManagementBus {
         LOG.info("Starting direct Java invocation API for Management Bus");
     }
 
-    private void invokePlan(final String operationName, final String messageID, final Long serviceInstanceID,
+    private void invokePlan(final String operationName, final String correlationId, final Long serviceInstanceID,
                             final QName serviceTemplateID, final Object message, final CsarId csarId,
                             final QName planID, final String planLanguage) {
 
@@ -107,7 +107,7 @@ public class MBJavaApi implements IManagementBus {
         headers.put(MBHeader.CSARID.toString(), csarId.csarName());
         headers.put(MBHeader.PLANID_QNAME.toString(), planID);
         headers.put(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
-        headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), messageID);
+        headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), correlationId);
         headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
         // FIXME considering that this is constant, we bind to the bean directly.
         // Is this used downstream?
@@ -135,7 +135,7 @@ public class MBJavaApi implements IManagementBus {
         // templates to communicate with the Management Bus
         final ProducerTemplate template = this.camelContext.createProducerTemplate();
 
-        LOG.debug("Correlation id: {}", messageID);
+        LOG.debug("Correlation id: {}", correlationId);
         LOG.debug("Sending message {}", message);
 
         // forward request to the Management Bus
@@ -159,7 +159,7 @@ public class MBJavaApi implements IManagementBus {
         final CsarId csarID = (CsarId) eventValues.get("CSARID");
         final QName planID = (QName) eventValues.get("PLANID");
         final String operationName = (String) eventValues.get("OPERATIONNAME");
-        final String messageID = (String) eventValues.get("MESSAGEID");
+        final String correlationID = (String) eventValues.get("MESSAGEID");
 
         // Optional parameter if message is of type HashMap. Not needed for Document.
         final Long serviceInstanceID = (Long) eventValues.get("SERVICEINSTANCEID");
@@ -176,11 +176,11 @@ public class MBJavaApi implements IManagementBus {
         }
 
         final Map<String, String> message =
-            createRequestBody(csarID, serviceTemplateID.toString(), serviceInstanceID, inputParameter, messageID);
+            createRequestBody(csarID, serviceTemplateID.toString(), serviceInstanceID, inputParameter, correlationID);
 
         // there is no necessity to set up response handling for the invocation,
         // because the ManagementBus does the updating of outputs for us through the PlanInstanceHandler
-        invokePlan(operationName, messageID, serviceInstanceID, serviceTemplateID, message, csarID, planID,
+        invokePlan(operationName, correlationID, serviceInstanceID, serviceTemplateID, message, csarID, planID,
             planLanguage);
     }
 

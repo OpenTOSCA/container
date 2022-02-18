@@ -52,7 +52,7 @@ public class Importer extends AbstractImporter {
      */
     public List<AbstractPlan> generatePlans(final Csar csar) {
         final TDefinitions defs = this.createContext(csar);
-        final List<AbstractPlan> plans = this.buildPlans(defs, csar);
+        final List<AbstractPlan> plans = this.generatePlans(defs, csar);
         return plans;
     }
 
