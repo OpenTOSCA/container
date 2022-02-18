@@ -9,9 +9,7 @@
 
     <!-- code under our direct control -->
     <logger name="org.opentosca" level="INFO"/>
-    <logger name="org.opentosca.container.core.plan" level="DEBUG"/>
     <logger name="org.opentosca.bus.management" level="INFO"/>
-    <logger name="org.opentosca.container.connector.winery" level="DEBUG"/>
 
     <!-- Reducing logging noise  -->
     <logger name="com.predic8" level="WARN"/>
@@ -29,7 +27,7 @@
     <logger name="org.jclouds" level="INFO"/>
     <logger name="org.springframework" level="INFO"/>
     <logger name="org.apache.axis.utils.JavaUtils" level="OFF"/>
-    <logger name="org.eclipse.winery" level="INFO"/>
+    <logger name="org.eclipse.winery" level="ERROR"/>
 
     <root level="debug">
         <appender-ref ref="STDOUT"/>

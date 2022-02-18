@@ -18,3 +18,12 @@ services:
     image: opentosca/camunda-bpmn:latest
     ports:
       - '8092:8080'
+  container-repository:
+    image: opentosca/winery:latest
+    environment:
+      WINERY_PORT: 8091
+      WORKFLOWMODELER_PORT: 8091
+      TOPOLOGYMODELER_PORT: 8091
+      WINERY_REPOSITORY_URL: https://github.com/OpenTOSCA/tosca-definitions-management-features
+    ports:
+      - '8091:8080'

@@ -110,8 +110,8 @@ public class BPELPlanContext extends PlanContext {
     }
 
     public boolean addUsedOperation(String interfaceName, String operationName, String compensationInterfaceName, String compensationOperationName, Csar csar) {
-        TOperation op = ModelUtils.findOperation(csar, interfaceName, operationName);
-        TOperation compensationOp = ModelUtils.findOperation(csar, compensationInterfaceName, compensationOperationName);
+        TOperation op = ModelUtils.findNodeOperation(csar, interfaceName, operationName);
+        TOperation compensationOp = ModelUtils.findNodeOperation(csar, compensationInterfaceName, compensationOperationName);
         if (op != null) {
             this.addUsedOperation(op, compensationOp);
             return true;
@@ -284,6 +284,13 @@ public class BPELPlanContext extends PlanContext {
         return this.buildPlanHandler.createGlobalStringVariable(varName, initVal, this.templateBuildPlan.getBuildPlan());
     }
 
+    public boolean isOperationExecutable(final TNodeTemplate nodeTemplate, final String interfaceName,
+                                         final String operationName,
+                                         final Map<TParameter, Variable> param2variableMapping) {
+        scopeBuilder.createOperationCall(this, nodeTemplate, interfaceName, operationName);
+        return true;
+    }
+
     /**
      * Executes the operation of the given NodeTemplate
      *
@@ -314,28 +321,23 @@ public class BPELPlanContext extends PlanContext {
 
         // create context from this context and set the given nodeTemplate as
         // the node for the scope
-        final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
-            this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csar);
-
-        context.templateBuildPlan.setNodeTemplate(nodeTemplate);
-        context.templateBuildPlan.setRelationshipTemplate(null);
+        final BPELPlanContext context = this.createContext(nodeTemplate);
 
         /*
          * chain.executeIAProvisioning(context); chain.executeDAProvisioning(context);
          */
+        boolean executeProvOps = false;
         if (param2variableMapping == null) {
-            chain.executeOperationProvisioning(context, opNames);
+            executeProvOps = chain.executeOperationProvisioning(context, opNames);
         } else {
-            boolean executeProvOps = chain.executeOperationProvisioning(context, opNames, param2variableMapping);
-            LOG.debug("Execute Operation Provisioning successful: {}", executeProvOps);
+            executeProvOps = chain.executeOperationProvisioning(context, opNames, param2variableMapping);
         }
 
         // re-set the orginal configuration of the templateBuildPlan
         this.templateBuildPlan.setNodeTemplate(nodeBackup);
         this.templateBuildPlan.setRelationshipTemplate(relationBackup);
 
-        return true;
+        return executeProvOps;
     }
 
     /**
@@ -445,12 +447,7 @@ public class BPELPlanContext extends PlanContext {
 
         // create context from this context and set the given nodeTemplate as
         // the node for the scope
-        final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
-            this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csar);
-
-        context.templateBuildPlan.setNodeTemplate(nodeTemplate);
-        context.templateBuildPlan.setRelationshipTemplate(null);
+        final BPELPlanContext context = this.createContext(nodeTemplate);
 
         /*
          * chain.executeIAProvisioning(context); chain.executeDAProvisioning(context);
@@ -471,6 +468,16 @@ public class BPELPlanContext extends PlanContext {
         this.templateBuildPlan.setRelationshipTemplate(relationBackup);
 
         return true;
+    }
+
+    private BPELPlanContext createContext(TNodeTemplate nodeTemplate) {
+        final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
+            this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
+            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csar);
+
+        context.templateBuildPlan.setNodeTemplate(nodeTemplate);
+        context.templateBuildPlan.setRelationshipTemplate(null);
+        return context;
     }
 
     public boolean executeOperation(final TNodeTemplate nodeTemplate, final String interfaceName,
@@ -496,12 +503,7 @@ public class BPELPlanContext extends PlanContext {
 
         // create context from this context and set the given nodeTemplate as
         // the node for the scope
-        final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
-            this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csar);
-
-        context.templateBuildPlan.setNodeTemplate(nodeTemplate);
-        context.templateBuildPlan.setRelationshipTemplate(null);
+        final BPELPlanContext context = this.createContext(nodeTemplate);
 
         /*
          * chain.executeIAProvisioning(context); chain.executeDAProvisioning(context);

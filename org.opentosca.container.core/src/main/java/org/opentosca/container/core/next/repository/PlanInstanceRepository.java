@@ -14,4 +14,5 @@ public interface PlanInstanceRepository extends JpaRepository<PlanInstance, Long
     PlanInstance findByChoreographyCorrelationId(String choreographyCorrelationId);
 
     PlanInstance findByChoreographyCorrelationIdAndTemplateId(String choreographyCorrelationId, QName templateId);
+
 }

@@ -76,7 +76,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
     private BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
                                final TServiceTemplate serviceTemplate) {
-        BPELDefrostProcessBuilder.LOG.info("Making Concrete Plans");
+        BPELDefrostProcessBuilder.LOG.debug("Making Concrete Plans");
 
         if (!this.isDefrostable(serviceTemplate, csar)) {
             BPELDefrostProcessBuilder.LOG.warn("Couldn't create DeFreezePlan for ServiceTemplate {} in Definitions {} of CSAR {}",

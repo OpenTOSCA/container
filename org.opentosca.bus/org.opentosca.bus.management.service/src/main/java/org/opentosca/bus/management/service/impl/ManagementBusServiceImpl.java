@@ -243,27 +243,17 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             // update plan in repository with new log event
             final PlanInstance plan = planInstanceRepository.findByCorrelationId(correlationID);
             if (Objects.nonNull(plan)) {
-                plan.addEvent(event);
-                planInstanceRepository.save(plan);
-            }
-        }
+                // add end timestamp and log message with duration
+                event.setEndTimestamp(new Date());
+                final long duration = event.getEndTimestamp().getTime() - event.getStartTimestamp().getTime();
+                event.setMessage("Finished execution of IA for NodeTemplate '" + nodeTemplateID + "' interface '"
+                    + neededInterface + "' and operation '" + neededOperation + "' after " + duration + "ms");
+                LOG.info("IA execution duration: {}ms", duration);
+                event.setNodeTemplateID(nodeTemplateID);
+                event.setInterfaceName(neededInterface);
+                event.setOperationName(neededOperation);
+                event.setExecutionDuration(duration);
 
-        if (Objects.nonNull(correlationID)) {
-            // add end timestamp and log message with duration
-            event.setEndTimestamp(new Date());
-            final long duration = event.getEndTimestamp().getTime() - event.getStartTimestamp().getTime();
-            event.setMessage("Finished execution of IA for NodeTemplate '" + nodeTemplateID + "' interface '"
-                + neededInterface + "' and operation '" + neededOperation + "' after " + duration + "ms");
-            LOG.info("IA execution duration: {}ms", duration);
-            event.setNodeTemplateID(nodeTemplateID);
-            event.setInterfaceName(neededInterface);
-            event.setOperationName(neededOperation);
-            event.setExecutionDuration(duration);
-
-            // update plan in repository with new log event
-            final PlanInstance plan = planInstanceRepository.findByCorrelationId(correlationID);
-
-            if (Objects.nonNull(plan)) {
                 plan.addEvent(event);
                 planInstanceRepository.save(plan);
             }
@@ -949,7 +939,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                         arguments.chorCorrelationId, arguments.chorPartners,
                         exchange.getIn().getBody());
                 } catch (final CorrelationIdAlreadySetException e) {
-                    LOG.warn(e.getMessage() + " Skipping the plan invocation!");
+                    LOG.error(e.getMessage() + " Skipping the plan invocation!");
                     return;
                 }
             }
@@ -1069,8 +1059,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         // update plan in repository with new log event
         plan = planInstanceRepository.findByCorrelationId(arguments.correlationId);
-        plan.addEvent(event);
-        planInstanceRepository.save(plan);
 
         // Undeploy IAs for the related ServiceTemplateInstance if a termination plan was executed.
         if (plan.getType().equals(PlanType.TERMINATION)) {
@@ -1083,8 +1071,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             }
         }
 
-        // update plan in repository with new log event
-        plan = planInstanceRepository.findByCorrelationId(arguments.correlationId);
         plan.addEvent(event);
         planInstanceRepository.save(plan);
 
@@ -1195,6 +1181,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     // create exchange for the undeployment plug-in invocation
                     Exchange exchange = new DefaultExchange(this.collaborationContext.getCamelContext());
                     exchange.getIn().setHeader(MBHeader.ENDPOINT_URI.toString(), serviceEndpoint.getUri());
+                    exchange.getIn().setHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), artifactType);
 
                     // get plug-in for the undeployment
                     IManagementBusDeploymentPluginService deploymentPlugin;

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,6 +26,7 @@ import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.common.RepositoryFileReference;
 
+import com.google.common.collect.Lists;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opentosca.container.connector.ode.OdeConnector;
@@ -69,16 +69,9 @@ import org.springframework.stereotype.Service;
 public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
     public static final String BPS_ENGINE = "BPS";
-
+    private static final String[] CAPABILITIES = {"http://docs.oasis-open.org/wsbpel/2.0/process/executable"};
     private static final Logger LOG = LoggerFactory.getLogger(BpelPlanEnginePlugin.class);
-    private static final String DEFAULT_ENGINE_URL = "http://localhost:9763/ode";
-    private static final String DEFAULT_ENGINE = "ODE";
-    private static final String DEFAULT_SERVICE_URL = "http://localhost:9763/ode/processes";
     private static final String DEFAULT_ENGINE_LANGUAGE = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
-
-    private final String processEngine;
-    private final String url;
-    private final String servicesUrl;
 
     private final ICoreEndpointService endpointService;
     private final CsarStorageService storage;
@@ -87,10 +80,6 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
     public BpelPlanEnginePlugin(ICoreEndpointService endpointService, CsarStorageService storage) {
         this.endpointService = endpointService;
         this.storage = storage;
-
-        this.processEngine = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.engine", DEFAULT_ENGINE);
-        this.url = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.url", DEFAULT_ENGINE_URL);
-        this.servicesUrl = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.services.url", DEFAULT_SERVICE_URL);
     }
 
     /**
@@ -106,11 +95,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
      */
     @Override
     public List<String> getCapabilties() {
-        final List<String> capabilities = new ArrayList<>();
-        for (final String capability : "http://docs.oasis-open.org/wsbpel/2.0/process/executable".split("[,;]")) {
-            capabilities.add(capability.trim());
-        }
-        return capabilities;
+        return Lists.newArrayList(CAPABILITIES);
     }
 
     public boolean deployPlanFile(final Path planLocation, final CsarId csarId, final QName planId, Map<String, String> endpointMetadata) {
@@ -135,7 +120,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         // till end the process can't be instantiated by the container
         QName portType = null;
         try {
-            odeUpdater = new ODEEndpointUpdater(servicesUrl, processEngine, endpointService);
+            odeUpdater = new ODEEndpointUpdater(Settings.ENGINE_PLAN_BPEL_URL_SERVICES, Settings.ENGINE_PLAN_BPEL_ENGINE, endpointService);
             portType = odeUpdater.getPortType(planContents);
             if (!odeUpdater.changeEndpoints(planContents, csarId)) {
                 LOG.error("Not all endpoints used by the plan {} have been changed",
@@ -163,12 +148,12 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         String processId = "";
         Map<String, URI> endpoints = Collections.emptyMap();
         try {
-            if (processEngine.equalsIgnoreCase(BPS_ENGINE)) {
+            if (Settings.ENGINE_PLAN_BPEL_ENGINE.equalsIgnoreCase(BPS_ENGINE)) {
                 LOG.error("BPS ENGINE IS NO LONGER SUPPORTED!!");
             } else {
                 final OdeConnector connector = new OdeConnector();
-                processId = connector.deploy(tempPlan.toFile(), url);
-                endpoints = connector.getEndpointsForPID(processId, url);
+                processId = connector.deploy(tempPlan.toFile(), Settings.ENGINE_PLAN_BPEL_URL);
+                endpoints = connector.getEndpointsForPID(processId, Settings.ENGINE_PLAN_BPEL_URL);
             }
         } catch (final Exception e) {
             e.printStackTrace();
@@ -262,11 +247,11 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
         LOG.info("Removing Plan: {}", planLocation.getFileName().toString());
         boolean wasUndeployed = false;
-        if (processEngine.equalsIgnoreCase(BPS_ENGINE)) {
+        if (Settings.ENGINE_PLAN_BPEL_ENGINE.equalsIgnoreCase(BPS_ENGINE)) {
             LOG.error("BPS Engine is no longer supported");
         } else {
             final OdeConnector connector = new OdeConnector();
-            wasUndeployed = connector.undeploy(planLocation.toFile(), url);
+            wasUndeployed = connector.undeploy(planLocation.toFile(), Settings.ENGINE_PLAN_BPEL_URL);
         }
 
         // remove endpoint from core
