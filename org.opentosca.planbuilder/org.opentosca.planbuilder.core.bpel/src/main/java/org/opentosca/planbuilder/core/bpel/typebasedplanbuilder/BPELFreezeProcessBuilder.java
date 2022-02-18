@@ -215,13 +215,8 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
     }
 
     private boolean isStateful(final TServiceTemplate serviceTemplate, Csar csar) {
-        for (TNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
-            if (isStateful(nodeTemplate, csar)) {
-
-                return true;
-            }
-        }
-        return false;
+        return serviceTemplate.getTopologyTemplate().getNodeTemplates().stream()
+            .filter(node -> isStateful(node, csar)).findFirst().isPresent();
     }
 
     private boolean isStateful(final TNodeTemplate nodeTemplate, Csar csar) {
