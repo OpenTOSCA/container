@@ -31,7 +31,7 @@ import org.opentosca.container.core.model.ModelUtils;
 
 public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuilder {
 
-    static QName freezableComponentPolicy = new QName("http://opentosca.org/policytypes", "FreezableComponent");
+    static QName freezableComponentPolicy = new QName("http://opentosca.org/management/features/policytypes", "FreezableComponent");
 
     public AbstractDefrostPlanBuilder(PluginRegistry pluginRegistry) {
         super(pluginRegistry);

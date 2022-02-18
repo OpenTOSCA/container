@@ -123,13 +123,13 @@ public class ServiceTemplateInstanceController {
 
             return Response.ok(uri).build();
         } catch (final IllegalArgumentException e) {
-            logger.debug("Illegal Argument when creating serviceTemplateInstance", e);
+            logger.error("Illegal Argument when creating serviceTemplateInstance", e);
             return Response.status(Status.CONFLICT).build();
         } catch (InstantiationException | IllegalAccessException e) {
-            logger.debug("Internal error occurred: {}", e.getMessage());
+            logger.error("Internal error occurred: {}", e.getMessage());
             return Response.serverError().build();
         } catch (final NotFoundException e) {
-            logger.debug("Didn't find PlanInstances with given correlationId: {}", e.getMessage());
+            logger.error("Didn't find PlanInstances with given correlationId: {}", e.getMessage());
             return Response.status(Status.BAD_REQUEST).entity("Didn't find PlanInstances with given correlationId")
                 .build();
         }

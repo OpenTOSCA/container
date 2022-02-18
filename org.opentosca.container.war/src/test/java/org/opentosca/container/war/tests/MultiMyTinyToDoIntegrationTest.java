@@ -39,7 +39,9 @@ import static org.junit.Assert.assertNotNull;
 @TestPropertySource(properties = "server.port=1337")
 public class MultiMyTinyToDoIntegrationTest {
 
-    public QName csarId = new QName("http://opentosca.org/servicetemplates", "Multi_MyTinyToDo_Bare_Docker_w1-wip1");
+    public static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
+
+    public QName csarId = new QName("http://opentosca.org/test/applications/servicetemplates", "MutliMyTinyToDo-DockerEngine-Test_w1-wip1");
 
     @Inject
     public OpenToscaControlService control;
@@ -54,42 +56,20 @@ public class MultiMyTinyToDoIntegrationTest {
 
     @Test
     public void test() throws Exception {
-        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage);
+        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage, TESTAPPLICATIONSREPOSITORY);
         TestUtils.generatePlans(this.csarService, csar);
 
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
 
         TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
 
-        TPlan buildPlan = null;
-        TPlan scaleOutPlan = null;
-        TPlan terminationPlan = null;
         assertNotNull(serviceTemplate);
         List<TPlan> plans = serviceTemplate.getPlans();
         assertNotNull(plans);
 
-        for (TPlan plan : plans) {
-            PlanType type = PlanType.fromString(plan.getPlanType());
-            switch (type) {
-                case BUILD:
-                    if (!plan.getId().toLowerCase().contains("defrost")) {
-                        buildPlan = plan;
-                    }
-                    break;
-                case MANAGEMENT:
-                    if (plan.getId().toLowerCase().contains("scale")) {
-                        scaleOutPlan = plan;
-                    }
-                    break;
-                case TERMINATION:
-                    if (!plan.getId().toLowerCase().contains("freeze")) {
-                        terminationPlan = plan;
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
+        TPlan buildPlan = TestUtils.getBuildPlan(plans);
+        TPlan scaleOutPlan = TestUtils.getScaleOutPlan(plans);
+        TPlan terminationPlan = TestUtils.getTerminationPlan(plans);
 
         assertNotNull("BuildPlan not found", buildPlan);
         assertNotNull("ScaleOutPlan not found", scaleOutPlan);
@@ -106,9 +86,7 @@ public class MultiMyTinyToDoIntegrationTest {
 
         this.checkStateAfterScaleOut(serviceTemplateInstance);
 
-        TestUtils.runTerminationPlanExecution(this.planService, csar, serviceInstanceUrl, serviceTemplate, serviceTemplateInstance, terminationPlan);
-
-        TestUtils.clearContainer(this.storage, this.control);
+        TestUtils.runTerminationPlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
     }
 
     @After

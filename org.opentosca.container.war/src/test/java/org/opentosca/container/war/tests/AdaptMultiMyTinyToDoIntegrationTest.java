@@ -38,7 +38,9 @@ import static org.junit.Assert.assertNotNull;
 @TestPropertySource(properties = "server.port=1337")
 public class AdaptMultiMyTinyToDoIntegrationTest {
 
-    public QName csarId = new QName("http://opentosca.org/servicetemplates", "Multi_MyTinyToDo_Bare_Docker_w1-wip1");
+    public static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
+
+    public QName csarId = new QName("http://opentosca.org/test/applications/servicetemplates", "MutliMyTinyToDo-DockerEngine-Test_w1-wip1");
 
     @Inject
     public OpenToscaControlService control;
@@ -53,20 +55,20 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
 
     @Test
     public void test() throws Exception {
-        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage);
+        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage, TESTAPPLICATIONSREPOSITORY);
         TestUtils.generatePlans(this.csarService, csar);
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
         assertNotNull(serviceTemplate);
 
         Collection<String> targetNodeTemplateIds = new ArrayList<>();
-        targetNodeTemplateIds.add("MyTinyToDoDockerContainer");
-        targetNodeTemplateIds.add("MyTinyToDoDockerContainer_0");
-        targetNodeTemplateIds.add("MyTinyToDoDockerContainer_1");
-        targetNodeTemplateIds.add("DockerEngine");
+        targetNodeTemplateIds.add("MyTinyToDoDockerContainer_w1_0");
+        targetNodeTemplateIds.add("MyTinyToDoDockerContainer_w1_1");
+        targetNodeTemplateIds.add("MyTinyToDoDockerContainer_w1_2");
+        targetNodeTemplateIds.add("DockerEngine_w1_0");
         Collection<String> targetRelationshipTemplateIds = new ArrayList<>();
-        targetRelationshipTemplateIds.add("con_17");
         targetRelationshipTemplateIds.add("con_HostedOn_0");
         targetRelationshipTemplateIds.add("con_HostedOn_1");
+        targetRelationshipTemplateIds.add("con_HostedOn_2");
         String buildPlanId = this.csarService.generateAdaptationPlan(csar,
             new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()),
             new ArrayList<>(), new ArrayList<>(), targetNodeTemplateIds, targetRelationshipTemplateIds).planId;
@@ -103,8 +105,6 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
 
         serviceTemplateInstance = TestUtils.runAdaptationPlanExecution(this.planService, this.instanceService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan, TestUtils.getTerminationPlanInputParameters(TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString())));
         assertNotNull(serviceTemplateInstance);
-
-        TestUtils.clearContainer(this.storage, this.control);
     }
 
     @After

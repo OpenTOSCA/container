@@ -21,6 +21,7 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProcessEvents;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
@@ -33,7 +34,6 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.CDATASection;
@@ -842,23 +842,11 @@ public class BPELPlanHandler {
             + " is already imported");
         for (final Element importElement : buildPlan.getBpelImportElements()) {
             BPELPlanHandler.LOG.debug("Checking import element");
-            int checkInt = 0;
-            if (importElement.hasAttribute("namespace") && importElement.getAttribute("namespace").equals(namespace)) {
-                BPELPlanHandler.LOG.debug("Found import with same namespace");
-                checkInt++;
-            }
-            if (importElement.hasAttribute("location") && importElement.getAttribute("location").equals(location)) {
-                BPELPlanHandler.LOG.debug("Found import with same location");
-                checkInt++;
-            }
-            if (checkInt == 2) {
-                return true;
-            }
-            if (importElement.hasAttribute("type") && importElement.getAttribute("type").equals(type.toString())) {
-                BPELPlanHandler.LOG.debug("Found import with same type");
-                checkInt++;
-            }
-            if (checkInt == 3) {
+
+            // namespace doesn't fit, continue
+            if ((!importElement.hasAttribute("namespace") || importElement.getAttribute("namespace").equals(namespace))
+                && (!importElement.hasAttribute("location") || importElement.getAttribute("location").equals(location))
+                && (!importElement.hasAttribute("type") || importElement.getAttribute("type").equals(type.toString()))) {
                 return true;
             }
         }

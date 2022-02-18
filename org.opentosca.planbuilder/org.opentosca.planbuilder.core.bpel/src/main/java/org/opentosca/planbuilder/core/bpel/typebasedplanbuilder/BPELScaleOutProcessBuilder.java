@@ -657,7 +657,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate, context.getCsar());
         if (plugin != null) {
 
-            LOG.info("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(),
+            LOG.debug("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(),
                 plugin.getID());
             plugin.handleCreate(context, nodeTemplate);
         } else {
@@ -683,7 +683,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         // TemplateBuildPlan is broken here!
         // TODO implement fallback
         if (this.pluginRegistry.findTypePluginForCreation(relationshipTemplate, context.getCsar()) != null) {
-            LOG.info("Handling RelationshipTemplate {} with type plugin",
+            LOG.debug("Handling RelationshipTemplate {} with type plugin",
                 relationshipTemplate.getId());
             IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(relationshipTemplate, context.getCsar());
             this.pluginRegistry.handleCreateWithTypePlugin(context, relationshipTemplate, plugin);

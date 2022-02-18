@@ -85,6 +85,10 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
     }
 
     private BPELPlan buildPlan(Csar csar, TDefinitions definitions, TServiceTemplate serviceTemplate) {
+        if (!this.isUpdatableService(serviceTemplate, csar)) {
+            return null;
+        }
+
         final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_updatePlan");
         final String processNamespace = serviceTemplate.getTargetNamespace() + "_updatePlan";
 
@@ -195,11 +199,14 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
 
             LOG.debug("ServiceTemplate {} has no Update Plan, generating Update Plan",
                 serviceTemplate.getId());
-            final BPELPlan newUpdatePlan = buildPlan(csar, definitions, serviceTemplate);
 
-            if (newUpdatePlan != null) {
-                LOG.debug("Created Update Plan " + newUpdatePlan.getBpelProcessElement().getAttribute("name"));
-                plans.add(newUpdatePlan);
+            if (this.isUpdatableService(serviceTemplate, csar)) {
+                final BPELPlan newUpdatePlan = buildPlan(csar, definitions, serviceTemplate);
+
+                if (newUpdatePlan != null) {
+                    LOG.debug("Created Update Plan " + newUpdatePlan.getBpelProcessElement().getAttribute("name"));
+                    plans.add(newUpdatePlan);
+                }
             }
         }
         if (!plans.isEmpty()) {

@@ -30,8 +30,8 @@ import org.opentosca.container.core.model.ModelUtils;
 
 public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilder {
 
-    QName statefulComponentPolicy = new QName("http://opentosca.org/policytypes", "StatefulComponent");
-    QName freezableComponentPolicy = new QName("http://opentosca.org/policytypes", "FreezableComponent");
+    QName statefulComponentPolicy = new QName("http://opentosca.org/management/features/policytypes", "StatefulComponent");
+    QName freezableComponentPolicy = new QName("http://opentosca.org/management/features/policytypes", "FreezableComponent");
 
     public AbstractFreezePlanBuilder(PluginRegistry pluginRegistry) {
         super(pluginRegistry);
