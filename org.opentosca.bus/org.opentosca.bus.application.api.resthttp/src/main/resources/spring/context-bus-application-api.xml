@@ -9,11 +9,5 @@
 
   <context:annotation-config />
 
-  <!-- processors are not ready for DI -->
-  <camel:camelContext id="mb-application-api-resthttp-camel-context">
-    <camel:packageScan>
-      <camel:package>org.opentosca.bus.application.api.resthttp.route</camel:package>
-    </camel:packageScan>
-  </camel:camelContext>
-
+  <context:component-scan base-package="org.opentosca.bus.application.api.resthttp.route" />
 </beans>

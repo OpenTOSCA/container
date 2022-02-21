@@ -8,10 +8,5 @@
                            http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
   <context:annotation-config />
 
-  <!-- Processors are not ready for DI -->
-  <camel:camelContext id="mb-application-plugin-jsonhttp-camel-context">
-    <camel:packageScan>
-      <camel:package>org.opentosca.bus.application.plugin.jsonhttp.service.impl.route</camel:package>
-    </camel:packageScan>
-  </camel:camelContext>
+  <context:component-scan base-package="org.opentosca.bus.application.plugin.jsonhttp.service.impl.route" />
 </beans>

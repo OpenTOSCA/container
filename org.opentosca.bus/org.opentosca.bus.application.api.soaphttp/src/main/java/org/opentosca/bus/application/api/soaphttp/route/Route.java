@@ -2,6 +2,7 @@ package org.opentosca.bus.application.api.soaphttp.route;
 
 import java.net.URL;
 
+import javax.inject.Named;
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 
@@ -11,6 +12,7 @@ import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.opentosca.bus.application.api.soaphttp.processor.RequestProcessor;
 import org.opentosca.bus.application.api.soaphttp.processor.ResponseProcessor;
 import org.opentosca.bus.application.model.exception.ApplicationBusInternalException;
+import org.springframework.stereotype.Component;
 
 /**
  * Route of the Application Bus-SOAP/HTTP-API.<br>
@@ -21,6 +23,8 @@ import org.opentosca.bus.application.model.exception.ApplicationBusInternalExcep
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
+@Component
+@Named("application-bus-soaphttp-route")
 public class Route extends RouteBuilder {
 
     private final static String ENDPOINT = "http://0.0.0.0:8082/appBus";
