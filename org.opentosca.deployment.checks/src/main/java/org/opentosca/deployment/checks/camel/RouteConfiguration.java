@@ -4,7 +4,9 @@ import javax.inject.Inject;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.opentosca.bus.management.service.IManagementBusService;
+import org.springframework.stereotype.Service;
 
+@Service
 public class RouteConfiguration extends RouteBuilder {
 
     private final IManagementBusService managementBusService;

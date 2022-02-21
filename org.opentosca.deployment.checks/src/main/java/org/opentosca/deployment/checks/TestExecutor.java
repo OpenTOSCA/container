@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.camel.CamelContext;
+import org.apache.camel.impl.DefaultCamelContext;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.DeploymentTestResult;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
@@ -42,8 +43,8 @@ public class TestExecutor {
 
     @Inject
     @Deprecated
-    public TestExecutor(CamelContext camelContext) {
-        this(Lists.newArrayList(new HttpTest(), new ManagementOperationTest(camelContext), new TcpPingTest()
+    public TestExecutor() {
+        this(Lists.newArrayList(new HttpTest(), new ManagementOperationTest(new DefaultCamelContext()), new TcpPingTest()
             // new PortBindingTest(),
             // new SqlConnectionTest()
         ));

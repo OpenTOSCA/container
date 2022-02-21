@@ -7,6 +7,7 @@ import javax.inject.Named;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
+import org.apache.camel.impl.DefaultCamelContext;
 import org.opentosca.bus.management.service.impl.Constants;
 import org.opentosca.bus.management.service.impl.collaboration.route.ReceiveRequestRoute;
 import org.opentosca.bus.management.service.impl.collaboration.route.ReceiveResponseRoute;
@@ -36,8 +37,8 @@ public class CollaborationContext {
     private final ProducerTemplate producer;
 
     @Inject
-    public CollaborationContext(@Named("collaboration-camel-context") CamelContext camelContext) {
-        this.camelContext = camelContext;
+    public CollaborationContext() {
+        this.camelContext = new DefaultCamelContext();
         // Create a producer template for all components of the Management Bus implementation.
         // This is recommended by camel to avoid the usage of too many threads.
         this.producer = camelContext.createProducerTemplate();

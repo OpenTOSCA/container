@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  */
+@Service
 public class Importer extends AbstractImporter {
 
     @Inject

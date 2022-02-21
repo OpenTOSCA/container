@@ -11,9 +11,4 @@
   </description>
 
   <context:annotation-config />
-
-  <!-- define beans we expose -->
-  <bean class="org.opentosca.planbuilder.export.WineryExporter" />
-  <bean class="org.opentosca.planbuilder.importer.Importer" />
-
 </beans>

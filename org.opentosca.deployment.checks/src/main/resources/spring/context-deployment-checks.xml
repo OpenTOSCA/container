@@ -13,15 +13,8 @@
   <context:annotation-config />
   <context:component-scan base-package="org.opentosca.container.core.next.repository"/>
   <context:component-scan base-package="org.opentosca.container.core.impl.service"/>
+  <context:component-scan base-package="org.opentosca.deployment.checks.camel"/>
 
-  <camel:camelContext id="deployment-checks-camel-context">
-    <camel:packageScan>
-      <camel:package>org.opentosca.deployment.checks.camel</camel:package>
-    </camel:packageScan>
-  </camel:camelContext>
-  <bean class="org.opentosca.deployment.checks.TestExecutor" >
-    <constructor-arg type="org.apache.camel.CamelContext" ref="deployment-checks-camel-context" />
-  </bean>
-
+  <bean class="org.opentosca.deployment.checks.TestExecutor" />
   <bean class="org.opentosca.deployment.checks.DeploymentTestService" />
 </beans>
