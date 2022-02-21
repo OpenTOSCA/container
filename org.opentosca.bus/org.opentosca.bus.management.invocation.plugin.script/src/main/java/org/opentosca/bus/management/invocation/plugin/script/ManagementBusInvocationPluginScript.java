@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TArtifactReference;
@@ -31,6 +30,7 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
+import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opentosca.bus.management.header.MBHeader;
@@ -85,11 +85,12 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
     private final MBUtils mbUtils;
 
     @Inject
-    public ManagementBusInvocationPluginScript(ArtifactTypesHandler typesHandler, CsarStorageService storage, ContainerEngine containerEngine, @Named("fallback") CamelContext camelContext, MBUtils mbUtils) {
+    public ManagementBusInvocationPluginScript(ArtifactTypesHandler typesHandler, CsarStorageService storage,
+                                               ContainerEngine containerEngine, MBUtils mbUtils) {
         this.typesHandler = typesHandler;
         this.storage = storage;
         this.containerEngine = containerEngine;
-        this.camelContext = camelContext;
+        this.camelContext = new DefaultCamelContext();
         this.mbUtils = mbUtils;
     }
 
