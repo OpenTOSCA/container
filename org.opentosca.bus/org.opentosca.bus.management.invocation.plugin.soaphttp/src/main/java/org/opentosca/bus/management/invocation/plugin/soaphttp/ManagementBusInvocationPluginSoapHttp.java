@@ -23,6 +23,7 @@ import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
+import org.apache.camel.impl.DefaultCamelContext;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.invocation.plugin.soaphttp.route.AsyncRoute;
@@ -60,8 +61,8 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
     private final CsarStorageService storage;
 
     @Inject
-    public ManagementBusInvocationPluginSoapHttp(CamelContext camelContext, CsarStorageService storage) {
-        this.camelContext = camelContext;
+    public ManagementBusInvocationPluginSoapHttp(CsarStorageService storage) {
+        this.camelContext = new DefaultCamelContext();
         this.storage = storage;
     }
 

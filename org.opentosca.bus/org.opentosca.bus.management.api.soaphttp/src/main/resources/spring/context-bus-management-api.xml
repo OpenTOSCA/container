@@ -8,13 +8,7 @@
                            http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
   <context:annotation-config />
 
-  <!-- processors are not ready for DI -->
-  <camel:camelContext id="mb-api-soaphttp-camel-context" >
-    <camel:packageScan>
-      <camel:package>org.opentosca.bus.management.api.soaphttp.route</camel:package>
-    </camel:packageScan>
-  </camel:camelContext>
-
+  <context:component-scan base-package="org.opentosca.bus.management.api.soaphttp.route" />
 
   <bean id="dropAllMessageHeadersStrategy" class="org.apache.camel.component.cxf.common.header.CxfHeaderFilterStrategy">
     <!--   Set relayHeaders to false to drop all SOAP headers  -->

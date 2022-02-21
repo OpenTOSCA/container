@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.HashMap;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 
@@ -47,7 +48,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 // named to avoid clashing with other RouteBuilders just called Route across the project
-// @Named("management-bus-soaphttp-route")
+@Named("management-bus-soaphttp-route")
 public class Route extends RouteBuilder {
 
     public final static String PUBLIC_ENDPOINT = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8081/invoker";
