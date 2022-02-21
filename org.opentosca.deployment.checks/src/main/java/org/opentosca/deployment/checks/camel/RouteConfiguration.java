@@ -18,7 +18,6 @@ public class RouteConfiguration extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        this.from("direct:invokeIA").to("stream:out").bean(managementBusService, "invokeIA").end();
         this.from("direct-vm:" + "org.opentosca.deployment.checks").recipientList(this.simple("direct:response-${id}")).end();
     }
 }
