@@ -5,6 +5,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.opentosca.bus.management.invocation.plugin.soaphttp.processor.CallbackProcessor;
 import org.opentosca.bus.management.invocation.plugin.soaphttp.processor.HeaderProcessor;
 import org.opentosca.container.core.common.Settings;
+import org.springframework.stereotype.Component;
 
 /**
  * Asynchronous route of SOAP/HTTP-Invocation-Management-Bus-Plug-in.<br>
@@ -18,6 +19,7 @@ import org.opentosca.container.core.common.Settings;
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
+@Component
 public class AsyncRoute extends RouteBuilder {
 
     public final static String PUBLIC_CALLBACKADDRESS =
