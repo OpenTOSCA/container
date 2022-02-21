@@ -59,7 +59,6 @@ import org.springframework.stereotype.Service;
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  */
-@Service
 public class WineryExporter extends AbstractExporter {
 
     private final static Logger LOG = LoggerFactory.getLogger(WineryExporter.class);

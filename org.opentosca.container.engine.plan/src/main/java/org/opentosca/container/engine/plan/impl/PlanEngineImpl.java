@@ -62,7 +62,11 @@ public class PlanEngineImpl implements IPlanEngineService {
         }
         if (referencePlugins != null) {
             referencePlugins.forEach(rp -> capabilityService.storeCapabilities(rp.getCapabilties(), rp.toString(), ProviderType.PLAN_PLUGIN));
-            this.planReferencePlugins.putAll(referencePlugins.stream().collect(Collectors.toMap(IPlanEnginePlanRefPluginService::getLanguageUsed, Function.identity())));
+            referencePlugins.forEach(plugin -> {
+                if (!this.planReferencePlugins.containsKey(plugin.getLanguageUsed())) {
+                    this.planReferencePlugins.put(plugin.getLanguageUsed(), plugin);
+                }
+            });
         }
     }
 
