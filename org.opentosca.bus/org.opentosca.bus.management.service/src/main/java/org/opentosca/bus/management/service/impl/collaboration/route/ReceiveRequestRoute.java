@@ -26,7 +26,6 @@ import org.springframework.stereotype.Component;
  * <p>
  * Copyright 2018 IAAS University of Stuttgart
  */
-@Component
 public class ReceiveRequestRoute extends RouteBuilder {
 
     final private static Logger LOG = LoggerFactory.getLogger(ReceiveResponseRoute.class);

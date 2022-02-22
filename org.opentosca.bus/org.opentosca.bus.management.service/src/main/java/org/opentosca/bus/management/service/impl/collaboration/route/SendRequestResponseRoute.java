@@ -26,7 +26,6 @@ import org.springframework.stereotype.Component;
  * <p>
  * Copyright 2018 IAAS University of Stuttgart
  */
-@Component
 public class SendRequestResponseRoute extends RouteBuilder {
 
     // MQTT broker credentials
