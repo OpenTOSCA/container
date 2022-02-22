@@ -3,13 +3,16 @@ package org.opentosca.bus.application.plugin.jsonhttp.service.impl.route;
 import org.apache.camel.Exchange;
 import org.apache.camel.Predicate;
 import org.apache.camel.builder.PredicateBuilder;
+
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.ValueBuilder;
+
 import org.opentosca.bus.application.model.constants.ApplicationBusConstants;
 import org.opentosca.bus.application.model.exception.ApplicationBusExternalException;
 import org.opentosca.bus.application.plugin.jsonhttp.service.impl.ApplicationBusJsonHttpPluginServiceImpl;
 import org.opentosca.bus.application.plugin.jsonhttp.service.impl.processor.RequestProcessor;
 import org.opentosca.bus.application.plugin.jsonhttp.service.impl.processor.ResponseProcessor;
+import org.springframework.stereotype.Component;
 
 /**
  * Route of the Application Bus-JSON/HTTP-Plugin.<br>
@@ -21,6 +24,7 @@ import org.opentosca.bus.application.plugin.jsonhttp.service.impl.processor.Resp
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
+@Component
 public class Route extends RouteBuilder {
 
     private static final String APPINVOKER_ENDPOINT_SUFFIX = "/OTABProxy/v1/appInvoker";

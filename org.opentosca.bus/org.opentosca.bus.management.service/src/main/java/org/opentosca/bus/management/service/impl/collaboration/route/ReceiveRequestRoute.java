@@ -12,6 +12,7 @@ import org.opentosca.bus.management.service.impl.collaboration.model.RemoteOpera
 import org.opentosca.bus.management.service.impl.collaboration.processor.IncomingProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * This route is intended to receive requests made by other OpenTOSCA Containers.<br>
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Copyright 2018 IAAS University of Stuttgart
  */
+@Component
 public class ReceiveRequestRoute extends RouteBuilder {
 
     final private static Logger LOG = LoggerFactory.getLogger(ReceiveResponseRoute.class);

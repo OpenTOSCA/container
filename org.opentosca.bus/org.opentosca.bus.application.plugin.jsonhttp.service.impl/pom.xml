@@ -22,6 +22,11 @@
       <version>${camel.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-spring</artifactId>
+      <version>${camel.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.bus.application.plugin.service</artifactId>
       <version>${project.version}</version>
