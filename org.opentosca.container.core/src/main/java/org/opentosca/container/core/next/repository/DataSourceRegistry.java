@@ -9,7 +9,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 public class DataSourceRegistry {
 
     @Bean
-    public DataSource dataSource() {
+    public DataSource opentoscaDataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
 
         dataSource.setDriverClassName("org.h2.Driver");
