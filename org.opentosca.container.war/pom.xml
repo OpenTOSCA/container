@@ -15,7 +15,6 @@
 
     <properties>
         <tomcat.version>9.0.43</tomcat.version>
-        <springboot.version>1.5.22.RELEASE</springboot.version>
         <cargo-maven3-plugin.version>1.9.2</cargo-maven3-plugin.version>
     </properties>
 
@@ -552,19 +551,6 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.2.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>${springboot.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <version>${springboot.version}</version>
-            <scope>test</scope>
         </dependency>
 
         <!-- Used to test mysql component -->

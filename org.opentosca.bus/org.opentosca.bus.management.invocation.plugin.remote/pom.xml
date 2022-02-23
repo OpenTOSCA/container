@@ -17,11 +17,6 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-core</artifactId>
-      <version>${camel.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.bus.management.invocation.plugin</artifactId>
       <version>${project.version}</version>
