@@ -12,7 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <apache.cxf.version>3.1.18</apache.cxf.version>
-        <camel.version>3.8.0</camel.version>
+        <camel.version>3.15.0</camel.version>
         <commons-io.version>2.6</commons-io.version>
         <jacoco.reportPath>${project.build.directory}/jacoco.exec</jacoco.reportPath>
         <jacoco.append>false</jacoco.append>
@@ -21,8 +21,8 @@
         <logback.version>1.1.11</logback.version>
         <!-- needs to match the jersey version used in winery to avoid conflicts -->
         <jersey.version>2.30.1</jersey.version>
-        <spring.version>4.3.25.RELEASE</spring.version>
-        <springboot.version>1.5.22.RELEASE</springboot.version>
+        <spring.version>5.3.15</spring.version>
+        <springboot.version>2.6.3</springboot.version>
         <swagger.version>1.5.24</swagger.version>
         <tomcat.version>9.0.43</tomcat.version>
     </properties>
