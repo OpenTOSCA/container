@@ -58,7 +58,7 @@ public abstract class AbstractEndpoint {
      * Bus endpoint as this endpoint is CSAR independent. To avoid null values "***" is set for this endpoint.
      */
     @Convert(converter = CsarIdConverter.class)
-    @Column(name = "csarID")
+    @Column(name = "csarId")
     private CsarId csarId;
 
     /**

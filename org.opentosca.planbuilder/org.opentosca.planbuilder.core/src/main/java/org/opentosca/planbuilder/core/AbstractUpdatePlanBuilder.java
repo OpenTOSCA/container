@@ -177,6 +177,15 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
         return ModelUtils.hasInterface(nodeTemplate, "UpdateManagementInterface", csar);
     }
 
+    protected boolean isUpdatableService(final TServiceTemplate serviceTemplate, Csar csar) {
+        for (TNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+            if (this.isUpdatableComponent(nodeTemplate, csar)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected boolean hasUpdatableAncestor(final List<TRelationshipTemplate> relationshipTemplates, final TNodeTemplate nodeTemplate, Csar csar) {
         Queue<TNodeTemplate> ancestorQueue = new LinkedList<>();
         ancestorQueue.add(nodeTemplate);

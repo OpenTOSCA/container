@@ -8,16 +8,23 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Objects;
 
 import javax.xml.namespace.QName;
 
+import com.google.common.collect.Lists;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -83,6 +90,10 @@ public class WineryConnector {
     }
 
     public URI getServiceTemplateURI(final QName serviceTemplateId) {
+        return this.getServiceTemplateURI(serviceTemplateId, this.wineryPath);
+    }
+
+    public URI getServiceTemplateURI(final QName serviceTemplateId, String wineryPath) {
         try {
             LOG.debug("Trying to fetch URI to Service Template" + serviceTemplateId.toString());
             String uri = String.format("%sservicetemplates/%s/%s", wineryPath,
@@ -95,7 +106,42 @@ public class WineryConnector {
         }
     }
 
-    private String uploadCSARToWinery(final File file, final boolean overwrite) throws URISyntaxException, IOException {
+    public void clearRepository(String wineryUrl) {
+        String clearUrl = wineryUrl + "/admin/repository";
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            // get all available features for the given CSAR
+            final HttpDelete delete = new HttpDelete();
+            delete.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
+            delete.setURI(new URI(clearUrl));
+            CloseableHttpResponse resp = httpClient.execute(delete);
+            resp.close();
+        } catch (Exception e) {
+            LOG.error("Couldn't delete repository contents", e);
+        }
+    }
+
+    public Collection<QName> getServiceTemplates(String wineryUrl) {
+        Collection<QName> result = Lists.newArrayList();
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            // get all available features for the given CSAR
+            final HttpGet get = new HttpGet();
+            get.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
+            get.setURI(new URI(wineryUrl + "/servicetemplates"));
+            CloseableHttpResponse resp = httpClient.execute(get);
+            JsonElement jsonResponse = new JsonParser().parse(EntityUtils.toString(resp.getEntity()));
+            Iterator<JsonElement> iter = jsonResponse.getAsJsonArray().iterator();
+            while (iter.hasNext()) {
+                String qnameString = iter.next().getAsJsonObject().get("qName").getAsString();
+                result.add(QName.valueOf(qnameString));
+            }
+            resp.close();
+        } catch (Exception e) {
+            return Lists.newArrayList();
+        }
+        return result;
+    }
+
+    private String uploadCSARToWinery(final File file, final boolean overwrite, String url) throws URISyntaxException, IOException {
         final MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 
         final ContentBody fileBody = new FileBody(file);
@@ -109,7 +155,7 @@ public class WineryConnector {
 
         final HttpPost wineryPost = new HttpPost();
 
-        wineryPost.setURI(new URI(this.wineryPath));
+        wineryPost.setURI(new URI(url));
         wineryPost.setEntity(entity);
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
@@ -127,8 +173,16 @@ public class WineryConnector {
         }
     }
 
+    private String uploadCSARToWinery(final File file, final boolean overwrite) throws URISyntaxException, IOException {
+        return this.uploadCSARToWinery(file,overwrite, this.wineryPath);
+    }
+
     public QName uploadCSAR(final File file, final boolean overwrite) throws URISyntaxException, IOException {
-        final String location = uploadCSARToWinery(file, overwrite);
+        return this.uploadCSAR(file, overwrite, this.wineryPath);
+    }
+
+    public QName uploadCSAR(final File file, final boolean overwrite, String url) throws URISyntaxException, IOException {
+        final String location = uploadCSARToWinery(file, overwrite, url);
         if (Objects.isNull(location)) {
             return null;
         }
@@ -206,5 +260,58 @@ public class WineryConnector {
         } catch (final Exception e) {
             LOG.error("{} while performing management feature enrichment: {}", e.getClass().getSimpleName(), e.getMessage(), e);
         }
+    }
+
+    public void performManagementFeatureEnrichment(final File file, String wineryLocation) {
+        if (!isWineryRepositoryAvailable()) {
+            LOG.error("Management feature enrichment enabled, but Container Repository is not available!");
+            return;
+        }
+        LOG.debug("Container Repository is available. Uploading file {} to repo...", file.getName());
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            // upload CSAR to enable enrichment in Winery
+            final String location = uploadCSARToWinery(file, true, wineryLocation);
+
+            if (Objects.isNull(location)) {
+                LOG.error("Upload return location equal to null!");
+                return;
+            }
+
+            LOG.debug("Stored CSAR at location: {}", location);
+
+            // get all available features for the given CSAR
+            final HttpGet get = new HttpGet();
+            get.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
+            get.setURI(new URI(location + FEATURE_ENRICHMENT_SUFFIX));
+            CloseableHttpResponse resp = httpClient.execute(get);
+            final String jsonResponse = EntityUtils.toString(resp.getEntity());
+            resp.close();
+
+            LOG.debug("Container Repository returned the following features: {}", jsonResponse);
+
+            // apply the found features to the CSAR
+            final HttpPut put = new HttpPut();
+            put.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
+            put.setURI(new URI(location + FEATURE_ENRICHMENT_SUFFIX));
+            final StringEntity stringEntity = new StringEntity(jsonResponse);
+            put.setEntity(stringEntity);
+            resp = httpClient.execute(put);
+            resp.close();
+
+            LOG.debug("Feature enrichment returned status line: {}", resp.getStatusLine());
+
+            // retrieve updated CSAR from winery
+            final URL url = new URL(location + "/?csar");
+            Files.copy(url.openStream(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            LOG.debug("Updated CSAR file in the Container with enriched topology.");
+        } catch (final Exception e) {
+            LOG.error("{} while performing management feature enrichment: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+        }
+    }
+
+    public void downloadServiceTemplate(Path targetPath, QName serviceTemplateId, String wineryRepository) throws IOException {
+        URI serviceTemplateUri = this.getServiceTemplateURI(serviceTemplateId, wineryRepository);
+        final URL url = new URL(serviceTemplateUri.toString() + "/?csar");
+        Files.copy(url.openStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
     }
 }

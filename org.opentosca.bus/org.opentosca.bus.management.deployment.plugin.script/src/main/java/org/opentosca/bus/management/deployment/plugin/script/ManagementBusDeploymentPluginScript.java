@@ -2,7 +2,6 @@ package org.opentosca.bus.management.deployment.plugin.script;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -37,7 +36,7 @@ public class ManagementBusDeploymentPluginScript implements IManagementBusDeploy
         "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}CloudFoundry",
         "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}UnixShell",
         "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}ScriptArtifact"};
-    static final private String CAPABILITIES = "";
+    static final private String[] CAPABILITIES = {};
 
     static final private Logger LOG = LoggerFactory.getLogger(ManagementBusDeploymentPluginScript.class);
 
@@ -75,11 +74,6 @@ public class ManagementBusDeploymentPluginScript implements IManagementBusDeploy
      */
     public List<String> getCapabilties() {
         LOG.debug("Getting Plugin-Capabilities: {}.", CAPABILITIES);
-        final List<String> capabilities = new ArrayList<>();
-
-        for (final String capability : CAPABILITIES.split("[,;]")) {
-            capabilities.add(capability.trim());
-        }
-        return capabilities;
+        return Lists.newArrayList(CAPABILITIES);
     }
 }

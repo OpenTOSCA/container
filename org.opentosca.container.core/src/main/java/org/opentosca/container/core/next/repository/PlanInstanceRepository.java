@@ -73,19 +73,19 @@ public class PlanInstanceRepository extends JpaRepository<PlanInstance> {
             initializeInstance(result);
             return result;
         } catch (NoResultException e) {
-            logger.debug("Didn't find plan for columnName " + columnName + " and columnValue " + columnValue);
             return null;
         }
     }
 
     @Override
     protected void initializeInstance(PlanInstance instance) {
+        Hibernate.initialize(instance.getServiceTemplateInstance());
         Hibernate.initialize(instance.getEvents());
         Hibernate.initialize(instance.getInputs());
         Hibernate.initialize(instance.getOutputs());
     }
 
     protected void initializeInstance(Collection<PlanInstance> instance) {
-        instance.forEach(i -> initializeInstance(i));
+        instance.forEach(this::initializeInstance);
     }
 }

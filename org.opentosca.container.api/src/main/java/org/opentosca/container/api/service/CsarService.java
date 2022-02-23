@@ -52,14 +52,14 @@ public class CsarService {
             return false;
         }
 
-        final List<AbstractPlan> buildPlans = planBuilderImporter.generatePlans(csar);
+        final List<AbstractPlan> plans = planBuilderImporter.generatePlans(csar);
         // no plans, save ourselves some work by returning early
-        if (buildPlans.isEmpty()) {
+        if (plans.isEmpty()) {
             return true;
         }
         IRepository repo = RepositoryFactory.getRepository(csar.getSaveLocation());
 
-        final Path file = planBuilderExporter.exportToCSAR(buildPlans, csar.id(), repo, this.storage).csarFile;
+        final Path file = planBuilderExporter.exportToCSAR(plans, csar.id(), repo, this.storage).csarFile;
         logger.debug("Exported BuildPlan under {}", file);
 
         return true;

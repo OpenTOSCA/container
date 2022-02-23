@@ -106,7 +106,7 @@ public class InstanceService {
         if (propertyDoc == null) {
             final String msg =
                 String.format("The set of parameters of an instance of type %s cannot be null", type.getName());
-            logger.debug(msg);
+            logger.error(msg);
             throw new IllegalArgumentException(msg);
         }
         final String propertyAsString = this.converter.convertToDatabaseColumn(propertyDoc);
@@ -158,7 +158,7 @@ public class InstanceService {
         } catch (final Exception e) {
             final String msg =
                 String.format("The given state %s is an illegal service template instance state.", state);
-            logger.debug(msg);
+            logger.error(msg, e);
             throw new IllegalArgumentException(msg, e);
         }
 
@@ -179,7 +179,7 @@ public class InstanceService {
         } catch (InstantiationException | IllegalAccessException e) { // This is not supposed to happen at all!
             final String msg = String.format("An error occurred while instantiating an instance of the %s class.",
                 ServiceTemplateInstanceProperty.class);
-            logger.debug(msg);
+            logger.error(msg, e);
             throw e;
         }
     }
@@ -216,15 +216,11 @@ public class InstanceService {
         final CsarId csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateName);
         final PlanInstanceRepository repository = new PlanInstanceRepository();
         PlanInstance pi = null;
+        int retries = 0;
+        int maxRetries = 20;
 
-        try {
+        while (pi == null && (retries++ < maxRetries)) {
             pi = repository.findByCorrelationId(correlationId);
-        } catch (final Exception e) {
-            final String msg =
-                String.format("The given correlation id %s is either malformed, does not belong to an existing plan instance",
-                    correlationId);
-            logger.info(msg);
-            throw new NotFoundException(msg);
         }
 
         // if no instance was found it is possible that live-modeling was started, just create an empty instance
@@ -240,7 +236,7 @@ public class InstanceService {
             return this.createServiceTemplateInstance(csar, serviceTemplateName, pi);
         } else {
             final String msg = "The build plan instance is already associted with a service template instance!";
-            logger.info(msg);
+            logger.error(msg);
             throw new IllegalArgumentException(msg);
         }
     }
@@ -262,6 +258,9 @@ public class InstanceService {
         instance.addPlanInstance(buildPlanInstance);
         instance.setCreationCorrelationId(buildPlanInstance.getCorrelationId());
         this.serviceTemplateInstanceRepository.add(instance);
+        if (buildPlanInstance.getServiceTemplateInstance() == null) {
+            buildPlanInstance.setServiceTemplateInstance(instance);
+        }
         new PlanInstanceRepository().update(buildPlanInstance);
 
         return instance;
@@ -293,7 +292,7 @@ public class InstanceService {
 
             return doc;
         } catch (final ParserConfigurationException e) {
-            logger.info("Cannot create a new DocumentBuilder: {}", e.getMessage());
+            logger.error("Cannot create a new DocumentBuilder: {}", e.getMessage());
         }
 
         return null; // this should never happen
@@ -317,7 +316,7 @@ public class InstanceService {
         final NodeTemplateInstance instance = getNodeTemplateInstance(id);
         if (!(instance.getTemplateId().equals(nodeTemplateId)
             && instance.getServiceTemplateInstance().getTemplateId().equals(serviceTemplateName))) {
-            logger.info("Node template instance <{}> could not be found", id);
+            logger.error("Node template instance <{}> could not be found", id);
             throw new NotFoundException(String.format("Node template instance <%s> could not be found", id));
         }
 
@@ -352,7 +351,7 @@ public class InstanceService {
             newState = NodeTemplateInstanceState.valueOf(state);
         } catch (final Exception e) {
             final String msg = String.format("The given state %s is an illegal node template instance state.", state);
-            logger.debug(msg);
+            logger.error(msg, e);
             throw new IllegalArgumentException(msg, e);
         }
 
@@ -388,7 +387,7 @@ public class InstanceService {
         } catch (InstantiationException | IllegalAccessException e) { // This is not supposed to happen at all!
             final String msg = String.format("An error occurred while instantiating an instance of the %s class.",
                 NodeTemplateInstanceProperty.class);
-            logger.debug(msg);
+            logger.error(msg, e);
             throw e;
         }
     }
@@ -434,7 +433,7 @@ public class InstanceService {
             final String msg =
                 String.format("Service template instance id <%s> does not belong to service template: %s",
                     serviceTemplateInstanceId, serviceTemplate.getName());
-            logger.debug(msg);
+            logger.error(msg);
             throw new IllegalArgumentException(msg);
         }
         newInstance.setServiceTemplateInstance(serviceTemplateInstance);
@@ -471,7 +470,7 @@ public class InstanceService {
         final RelationshipTemplateInstance instance = getRelationshipTemplateInstance(instanceId);
         if (!(instance.getTemplateId().equals(relationshipTemplateId)
             && instance.getServiceTemplateInstance().getTemplateId().equals(serviceTemplateName))) {
-            logger.info("Relationship template instance <{}> could not be found", instanceId);
+            logger.error("Relationship template instance <{}> could not be found", instanceId);
             throw new NotFoundException(
                 String.format("Relationship template instance <%s> could not be found", instanceId));
         }
@@ -510,7 +509,7 @@ public class InstanceService {
         } catch (final Exception e) {
             final String msg =
                 String.format("The given state %s is an illegal relationship template instance state.", state);
-            logger.debug(msg);
+            logger.error(msg, e);
             throw new IllegalArgumentException(msg, e);
         }
 
@@ -552,7 +551,7 @@ public class InstanceService {
         } catch (InstantiationException | IllegalAccessException e) { // This is not supposed to happen at all!
             final String msg = String.format("An error occurred while instantiating an instance of the %s class.",
                 RelationshipTemplateInstanceProperty.class);
-            logger.debug(msg);
+            logger.error(msg, e);
             throw e;
         }
     }
@@ -567,7 +566,7 @@ public class InstanceService {
         if (request == null || request.getSourceNodeTemplateInstanceId() == null
             || request.getTargetNodeTemplateInstanceId() == null) {
             final String msg = "Relationship template instance creation request is empty or missing content";
-            logger.info(msg);
+            logger.error(msg);
             throw new IllegalArgumentException(msg);
         }
 

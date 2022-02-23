@@ -38,9 +38,13 @@ public class Settings {
     public final static String OPENTOSCA_CONTAINER_CONTENT_API_ARTIFACTREFERENCE = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/content/{artifactreference}";
 
     public final static String ENGINE_PLAN_BPMN_ENGINE = settings.getProperty("org.opentosca.container.engine.plan.plugin.bpmn.engine", "Camunda");
-    public final static String ENGINE_PLAN_BPMN_URL = settings.getProperty("org.opentosca.container.engine.plan.plugin.bpmn.url", "http://localhost:808/engine-rest");
+    public final static String ENGINE_PLAN_BPMN_URL = settings.getProperty("org.opentosca.container.engine.plan.plugin.bpmn.url", "http://localhost:8092/engine-rest");
     public final static String ENGINE_PLAN_BPMN_USERNAME = settings.getProperty("org.opentosca.container.engine.plan.plugin.bpmn.username", "admin");
     public final static String ENGINE_PLAN_BPMN_PASSWORD = settings.getProperty("org.opentosca.container.engine.plan.plugin.bpmn.password", "admin");
+
+    public final static String ENGINE_PLAN_BPEL_ENGINE = settings.getProperty("org.opentosca.container.engine.plan.plugin.bpel.engine", "ODE");
+    public final static String ENGINE_PLAN_BPEL_URL = settings.getProperty("org.opentosca.container.engine.plan.plugin.bpel.url", "http://localhost:9763/ode");
+    public final static String ENGINE_PLAN_BPEL_URL_SERVICES = settings.getProperty("org.opentosca.container.engine.plan.plugin.bpel.services.url", "http://localhost:9763/ode/processes");
 
     public final static String ENGINE_IA_TOMCAT_URL = settings.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.url", "http://localhost:8090");
     public final static String ENGINE_IA_TOMCAT_USERNAME = settings.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.username", "admin");

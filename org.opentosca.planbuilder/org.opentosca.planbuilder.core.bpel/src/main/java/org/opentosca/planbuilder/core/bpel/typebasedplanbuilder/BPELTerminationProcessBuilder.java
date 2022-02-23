@@ -189,7 +189,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
-            if (ModelUtils.doesNotHaveBuildPlan(serviceTemplate)) {
+            if (ModelUtils.findServiceTemplateOperation(definitions,"OpenTOSCA-Lifecycle-Interface", "terminate") == null) {
                 LOG.debug("ServiceTemplate {} has no TerminationPlan, generating TerminationPlan",
                     serviceTemplate.getId());
                 final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
