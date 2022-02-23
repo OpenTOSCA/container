@@ -1,15 +1,21 @@
 package org.opentosca.container.war;
 
 import java.util.Collections;
+import java.util.Map;
 
 import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContext;
 
 import ch.qos.logback.ext.spring.web.LogbackConfigListener;
+import com.google.common.collect.Maps;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 @SpringBootApplication
@@ -17,7 +23,10 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 public class Application implements ServletContextInitializer {
     public static void main(String[] args) {
         SpringApplication application = new SpringApplication(Application.class);
-        application.setDefaultProperties(Collections.singletonMap("server.port", "1337"));
+        Map<String, Object> props = Maps.newHashMap();
+        props.put("server.port", "1337");
+        props.put("spring.main.allow-bean-definition-overriding",true);
+        application.setDefaultProperties(props);
         application.run(args);
     }
 
