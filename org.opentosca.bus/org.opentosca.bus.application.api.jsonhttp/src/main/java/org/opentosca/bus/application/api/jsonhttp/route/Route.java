@@ -2,13 +2,13 @@ package org.opentosca.bus.application.api.jsonhttp.route;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.opentosca.bus.application.api.jsonhttp.processor.AppBusJsonInvocationRequestProcessor;
 import org.opentosca.bus.application.api.jsonhttp.processor.ExceptionProcessor;
 import org.opentosca.bus.application.api.jsonhttp.processor.GetResultRequestProcessor;
 import org.opentosca.bus.application.api.jsonhttp.processor.GetResultResponseProcessor;
-import org.opentosca.bus.application.api.jsonhttp.processor.InvocationRequestProcessor;
 import org.opentosca.bus.application.api.jsonhttp.processor.InvocationResponseProcessor;
 import org.opentosca.bus.application.api.jsonhttp.processor.IsFinishedRequestProcessor;
-import org.opentosca.bus.application.api.jsonhttp.processor.IsFinishedResponseProcessor;
+import org.opentosca.bus.application.api.jsonhttp.processor.AppBusJsonIsFinishedResponseProcessor;
 import org.opentosca.bus.application.model.exception.ApplicationBusInternalException;
 
 /**
@@ -35,10 +35,10 @@ public class Route extends RouteBuilder {
     @Override
     public void configure() throws Exception {
 
-        final InvocationRequestProcessor invocationRequestProcessor = new InvocationRequestProcessor();
+        final AppBusJsonInvocationRequestProcessor appBusJsonInvocationRequestProcessor = new AppBusJsonInvocationRequestProcessor();
         final InvocationResponseProcessor invocationResponseProcessor = new InvocationResponseProcessor();
         final IsFinishedRequestProcessor isFinishedRequestProcessor = new IsFinishedRequestProcessor();
-        final IsFinishedResponseProcessor isFinishedResponseProcessor = new IsFinishedResponseProcessor();
+        final AppBusJsonIsFinishedResponseProcessor appBusJsonIsFinishedResponseProcessor = new AppBusJsonIsFinishedResponseProcessor();
         final GetResultRequestProcessor getResultRequestProcessor = new GetResultRequestProcessor();
         final GetResultResponseProcessor getResultResponseProcessor = new GetResultResponseProcessor();
         final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
@@ -50,7 +50,7 @@ public class Route extends RouteBuilder {
 
         // invoke route
         from("rest:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT
-            + "?method=post").process(invocationRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).choice()
+            + "?method=post").process(appBusJsonInvocationRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).choice()
             .when(exchangeProperty(Exchange.EXCEPTION_CAUGHT).isNull())
             .process(invocationResponseProcessor).removeHeaders("*").otherwise()
             .process(exceptionProcessor);
@@ -58,7 +58,7 @@ public class Route extends RouteBuilder {
         // isFinished route
         from("rest:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT + "?method=get").process(isFinishedRequestProcessor)
             .to(Route.TO_APP_BUS_ENDPOINT)
-            .process(isFinishedResponseProcessor)
+            .process(appBusJsonIsFinishedResponseProcessor)
             .removeHeaders("*");
 
         // getResult route

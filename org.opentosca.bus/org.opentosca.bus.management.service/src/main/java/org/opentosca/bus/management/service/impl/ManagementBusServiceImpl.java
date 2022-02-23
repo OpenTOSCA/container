@@ -127,7 +127,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     private final ICoreEndpointService endpointService;
     private final ParameterHandler parameterHandler;
     private final PluginHandler pluginHandler;
-    private final PluginRegistry pluginRegistry;
+    private final ManagementBusPluginRegistry managementBusPluginRegistry;
     private final DeploymentPluginCapabilityChecker capabilityChecker;
     private final ContainerEngine containerEngine;
     private final CsarStorageService storage;
@@ -137,7 +137,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     public ManagementBusServiceImpl(DeploymentDistributionDecisionMaker decisionMaker,
                                     CollaborationContext collaborationContext, ICoreEndpointService endpointService,
                                     ParameterHandler parameterHandler, PluginHandler pluginHandler,
-                                    PluginRegistry pluginRegistry, DeploymentPluginCapabilityChecker capabilityChecker,
+                                    ManagementBusPluginRegistry managementBusPluginRegistry, DeploymentPluginCapabilityChecker capabilityChecker,
                                     ContainerEngine containerEngine, CsarStorageService storage,
                                     ChoreographyHandler choreographyHandler) {
         LOG.info("Instantiating ManagementBus Service");
@@ -146,7 +146,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         this.endpointService = endpointService;
         this.parameterHandler = parameterHandler;
         this.pluginHandler = pluginHandler;
-        this.pluginRegistry = pluginRegistry;
+        this.managementBusPluginRegistry = managementBusPluginRegistry;
         this.capabilityChecker = capabilityChecker;
         this.storage = storage;
         this.containerEngine = containerEngine;
@@ -568,7 +568,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             LOG.debug("Checking if all required features are met by the deployment plug-in or the environment.");
 
             final IManagementBusDeploymentPluginService deploymentPlugin =
-                this.pluginRegistry.getDeploymentPluginServices().get(deploymentType);
+                this.managementBusPluginRegistry.getDeploymentPluginServices().get(deploymentType);
             // retrieve required features for the TypeImplementation
             final List<TRequiredContainerFeature> requiredFeatures = typeImplementation.getRequiredContainerFeatures();
 
@@ -1189,10 +1189,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     IManagementBusDeploymentPluginService deploymentPlugin;
                     if (deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
                         LOG.debug("Undeployment is done locally.");
-                        deploymentPlugin = this.pluginRegistry.getDeploymentPluginServices().get(artifactType);
+                        deploymentPlugin = this.managementBusPluginRegistry.getDeploymentPluginServices().get(artifactType);
                     } else {
                         LOG.debug("Undeployment is done on a remote Container.");
-                        deploymentPlugin = this.pluginRegistry.getDeploymentPluginServices().get(Constants.REMOTE_TYPE);
+                        deploymentPlugin = this.managementBusPluginRegistry.getDeploymentPluginServices().get(Constants.REMOTE_TYPE);
 
                         // add header fields that are needed for the undeployment on a
                         // remote OpenTOSCA Container

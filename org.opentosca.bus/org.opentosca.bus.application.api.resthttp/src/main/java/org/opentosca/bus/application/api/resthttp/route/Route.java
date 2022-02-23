@@ -5,7 +5,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.opentosca.bus.application.api.resthttp.processor.ExceptionProcessor;
 import org.opentosca.bus.application.api.resthttp.processor.GetResultRequestProcessor;
 import org.opentosca.bus.application.api.resthttp.processor.GetResultResponseProcessor;
-import org.opentosca.bus.application.api.resthttp.processor.InvocationRequestProcessor;
+import org.opentosca.bus.application.api.resthttp.processor.AppBusRestInvocationRequestProcessor;
 import org.opentosca.bus.application.api.resthttp.processor.InvocationResponseProcessor;
 import org.opentosca.bus.application.api.resthttp.processor.IsFinishedRequestProcessor;
 import org.opentosca.bus.application.api.resthttp.processor.IsFinishedResponseProcessor;
@@ -56,7 +56,7 @@ public class Route extends RouteBuilder {
     @Override
     public void configure() throws Exception {
 
-        final InvocationRequestProcessor invocationRequestProcessor = new InvocationRequestProcessor();
+        final AppBusRestInvocationRequestProcessor appBusRestInvocationRequestProcessor = new AppBusRestInvocationRequestProcessor();
         final InvocationResponseProcessor invocationResponseProcessor = new InvocationResponseProcessor();
         final IsFinishedRequestProcessor isFinishedRequestProcessor = new IsFinishedRequestProcessor();
         final IsFinishedResponseProcessor isFinishedResponseProcessor = new IsFinishedResponseProcessor();
@@ -76,7 +76,7 @@ public class Route extends RouteBuilder {
         this.from("rest:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT_NI + "?method=post").to("direct:invoke");
 
         // invoke route
-        this.from("direct:invoke").process(invocationRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).choice()
+        this.from("direct:invoke").process(appBusRestInvocationRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).choice()
             .when(exchangeProperty(Exchange.EXCEPTION_CAUGHT).isNull()).process(invocationResponseProcessor)
             .removeHeaders("*").otherwise().process(exceptionProcessor);
 

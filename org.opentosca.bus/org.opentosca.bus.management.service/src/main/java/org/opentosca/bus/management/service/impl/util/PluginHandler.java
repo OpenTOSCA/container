@@ -9,7 +9,7 @@ import org.apache.camel.Exchange;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.service.impl.Constants;
-import org.opentosca.bus.management.service.impl.PluginRegistry;
+import org.opentosca.bus.management.service.impl.ManagementBusPluginRegistry;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.engine.ToscaEngine;
@@ -31,11 +31,11 @@ public class PluginHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(PluginHandler.class);
 
-    private final PluginRegistry pluginRegistry;
+    private final ManagementBusPluginRegistry managementBusPluginRegistry;
 
     @Inject
-    public PluginHandler(PluginRegistry pluginRegistry) {
-        this.pluginRegistry = pluginRegistry;
+    public PluginHandler(ManagementBusPluginRegistry managementBusPluginRegistry) {
+        this.managementBusPluginRegistry = managementBusPluginRegistry;
     }
 
     /**
@@ -79,12 +79,12 @@ public class PluginHandler {
         LOG.debug("Searching a matching invocation plug-in for InvocationType {} and deployment location {}",
             invocationType, deploymentLocation);
 
-        IManagementBusInvocationPluginService invocationPlugin = pluginRegistry.getInvocationPluginServices().get(invocationType);
+        IManagementBusInvocationPluginService invocationPlugin = managementBusPluginRegistry.getInvocationPluginServices().get(invocationType);
         // redirect invocation call to 'remote' plug-in if deployment location is not the local Container and we're invoking the Script plugin
         if (!deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
             if (invocationPlugin.getSupportedTypes().contains(Types.scriptArtifactType.toString())) {
                 LOG.debug("Deployment location is remote. Redirecting invocation to remote plug-in.");
-                invocationPlugin = pluginRegistry.getInvocationPluginServices().get(Constants.REMOTE_TYPE);
+                invocationPlugin = managementBusPluginRegistry.getInvocationPluginServices().get(Constants.REMOTE_TYPE);
             }
         }
 
@@ -118,7 +118,7 @@ public class PluginHandler {
             deploymentType = Constants.REMOTE_TYPE;
         }
 
-        final IManagementBusDeploymentPluginService deploymentPlugin = pluginRegistry.getDeploymentPluginServices().get(deploymentType);
+        final IManagementBusDeploymentPluginService deploymentPlugin = managementBusPluginRegistry.getDeploymentPluginServices().get(deploymentType);
         if (deploymentPlugin != null) {
             exchange = deploymentPlugin.invokeImplementationArtifactDeployment(exchange);
         } else {
@@ -137,11 +137,11 @@ public class PluginHandler {
     public String getSupportedDeploymentType(final QName artifactType) {
         LOG.debug("Searching if a deployment plug-in supports the type {}", artifactType);
         // Check if the ArtifactType can be deployed by a plug-in
-        if (pluginRegistry.getDeploymentPluginServices().containsKey(artifactType.toString())) {
+        if (managementBusPluginRegistry.getDeploymentPluginServices().containsKey(artifactType.toString())) {
             return artifactType.toString();
         }
 
-        LOG.debug("Did not find a plugin in the list of currently known plugins: {}", pluginRegistry.getDeploymentPluginServices().toString());
+        LOG.debug("Did not find a plugin in the list of currently known plugins: {}", managementBusPluginRegistry.getDeploymentPluginServices().toString());
         return null;
     }
 
@@ -157,21 +157,21 @@ public class PluginHandler {
 
         LOG.debug("Searching if a invocation plug-in supports the type {}", artifactType);
         // First check if a plug-in is registered that supports the ArtifactType.
-        if (pluginRegistry.getInvocationPluginServices().containsKey(artifactType.toString())) {
+        if (managementBusPluginRegistry.getInvocationPluginServices().containsKey(artifactType.toString())) {
             return artifactType.toString();
         } else {
             final Document properties = ToscaEngine.getEntityTemplateProperties(artifactTemplate);
             // Second check if a invocation-type is specified in TOSCA definition
             final String invocationType = getInvocationType(properties);
             if (invocationType != null) {
-                if (pluginRegistry.getInvocationPluginServices().containsKey(invocationType)) {
+                if (managementBusPluginRegistry.getInvocationPluginServices().containsKey(invocationType)) {
                     LOG.debug("Found a supported invocation type in the artifact template properties");
                     return invocationType;
                 }
             }
         }
 
-        LOG.debug("Artifact type was not found in the list of currently supported types: {}", pluginRegistry.getInvocationPluginServices().toString());
+        LOG.debug("Artifact type was not found in the list of currently supported types: {}", managementBusPluginRegistry.getInvocationPluginServices().toString());
         return null;
     }
 }

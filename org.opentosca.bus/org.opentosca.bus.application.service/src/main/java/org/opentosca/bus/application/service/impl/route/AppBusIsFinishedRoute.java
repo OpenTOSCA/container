@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
 @Component
-public class IsFinishedRoute extends RouteBuilder {
+public class AppBusIsFinishedRoute extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {

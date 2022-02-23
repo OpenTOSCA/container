@@ -3,7 +3,7 @@ package org.opentosca.bus.management.api.resthttp.route;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.opentosca.bus.management.api.resthttp.processor.ExceptionProcessor;
-import org.opentosca.bus.management.api.resthttp.processor.GetResultProcessor;
+import org.opentosca.bus.management.api.resthttp.processor.ManagementBusGetResultProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.GetResultRequestProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.GetResultResponseProcessor;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,7 @@ public class GetRestResultRoute extends RouteBuilder {
 
         final GetResultRequestProcessor getResultRequestProcessor = new GetResultRequestProcessor();
         final GetResultResponseProcessor getResultResponseProcessor = new GetResultResponseProcessor();
-        final GetResultProcessor getResultProcessor = new GetResultProcessor();
+        final ManagementBusGetResultProcessor managementBusGetResultProcessor = new ManagementBusGetResultProcessor();
         final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
         // handle exceptions
@@ -32,7 +32,7 @@ public class GetRestResultRoute extends RouteBuilder {
             .process(exceptionProcessor);
 
         from("jetty://" + InvocationRoute.ENDPOINT + InvocationRoute.GET_RESULT_ENDPOINT
-            + "?httpMethodRestrict=get").process(getResultRequestProcessor).process(getResultProcessor)
+            + "?httpMethodRestrict=get").process(getResultRequestProcessor).process(managementBusGetResultProcessor)
             .process(getResultResponseProcessor);
     }
 }

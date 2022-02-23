@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Singleton
-public class PluginRegistry {
+public class ManagementBusPluginRegistry {
 
     private final Map<String, IManagementBusInvocationPluginService> invocationPluginServices =
         Collections.synchronizedMap(new HashMap<>());
@@ -23,8 +23,8 @@ public class PluginRegistry {
         Collections.synchronizedMap(new HashMap<>());
 
     @Inject
-    public PluginRegistry(@Autowired(required = false) Collection<IManagementBusDeploymentPluginService> deploymentPlugins,
-                          @Autowired(required = false) Collection<IManagementBusInvocationPluginService> invocationPlugins) {
+    public ManagementBusPluginRegistry(@Autowired(required = false) Collection<IManagementBusDeploymentPluginService> deploymentPlugins,
+                                       @Autowired(required = false) Collection<IManagementBusInvocationPluginService> invocationPlugins) {
         // must be marked as not required to allow having no plugin at all discovered
         // unfortunately Spring then injects null instead of an empty collection
         if (deploymentPlugins != null) {

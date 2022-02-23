@@ -39,7 +39,7 @@ import org.w3c.dom.Node;
 @NonNullByDefault
 public class InvocationRequestProcessor implements Processor {
 
-    public static final String BEAN_NAME = "invocationRequestProcessor";
+    public static final String BEAN_NAME = "appBusInvocationRequestProcessor";
     final private static Logger LOG = LoggerFactory.getLogger(InvocationRequestProcessor.class);
 
     private final ContainerProxy containerProxy;

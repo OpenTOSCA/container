@@ -19,7 +19,7 @@ import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPl
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.service.impl.ManagementBusServiceImpl;
-import org.opentosca.bus.management.service.impl.PluginRegistry;
+import org.opentosca.bus.management.service.impl.ManagementBusPluginRegistry;
 import org.opentosca.bus.management.service.impl.collaboration.model.BodyType;
 import org.opentosca.bus.management.service.impl.collaboration.model.CollaborationMessage;
 import org.opentosca.bus.management.service.impl.collaboration.model.Doc;
@@ -53,17 +53,17 @@ public class RequestReceiver {
     private final CollaborationContext collaborationContext;
     private final DeploymentDistributionDecisionMaker decisionMaker;
     private final ICoreEndpointService endpointService;
-    private final PluginRegistry pluginRegistry;
+    private final ManagementBusPluginRegistry managementBusPluginRegistry;
 
     @Inject
     public RequestReceiver(CollaborationContext context,
                            DeploymentDistributionDecisionMaker decisionMaker,
                            ICoreEndpointService endpointService,
-                           PluginRegistry pluginRegistry) {
+                           ManagementBusPluginRegistry managementBusPluginRegistry) {
         this.collaborationContext = context;
         this.decisionMaker = decisionMaker;
         this.endpointService = endpointService;
-        this.pluginRegistry = pluginRegistry;
+        this.managementBusPluginRegistry = managementBusPluginRegistry;
     }
 
     /**
@@ -209,7 +209,7 @@ public class RequestReceiver {
                 LOG.debug("IA not yet deployed. Trying to deploy...");
 
                 final IManagementBusDeploymentPluginService deploymentPlugin =
-                    pluginRegistry.getDeploymentPluginServices().get(artifactType);
+                    managementBusPluginRegistry.getDeploymentPluginServices().get(artifactType);
 
                 if (deploymentPlugin != null) {
                     LOG.debug("Deployment plug-in: {}. Deploying IA...", deploymentPlugin.toString());
@@ -299,7 +299,7 @@ public class RequestReceiver {
                 final WSDLEndpoint endpoint = endpoints.get(0);
                 endpointService.removeWSDLEndpoint(endpoint);
 
-                final IManagementBusDeploymentPluginService deploymentPlugin = pluginRegistry.getDeploymentPluginServices().get(artifactType);
+                final IManagementBusDeploymentPluginService deploymentPlugin = managementBusPluginRegistry.getDeploymentPluginServices().get(artifactType);
                 if (deploymentPlugin != null) {
                     LOG.debug("Undeploying IA...");
                     exchange = deploymentPlugin.invokeImplementationArtifactUndeployment(exchange);
@@ -407,7 +407,7 @@ public class RequestReceiver {
         }
 
         // call the operation with the related invocation plug-in
-        final IManagementBusInvocationPluginService invocationPlugin = pluginRegistry.getInvocationPluginServices().get(invocationType);
+        final IManagementBusInvocationPluginService invocationPlugin = managementBusPluginRegistry.getInvocationPluginServices().get(invocationType);
         if (invocationPlugin == null) {
             LOG.error("No invocation plug-in found for invocation type: {}", invocationType);
             return;

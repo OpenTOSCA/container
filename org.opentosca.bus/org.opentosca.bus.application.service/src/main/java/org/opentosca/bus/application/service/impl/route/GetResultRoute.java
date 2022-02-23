@@ -2,7 +2,7 @@ package org.opentosca.bus.application.service.impl.route;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
-import org.opentosca.bus.application.service.impl.processor.GetResultProcessor;
+import org.opentosca.bus.application.service.impl.processor.AppBusGetResultProcessor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -19,6 +19,6 @@ public class GetResultRoute extends RouteBuilder {
     public void configure() throws Exception {
         // handle exceptions
         onException(Exception.class).setBody(exchangeProperty(Exchange.EXCEPTION_CAUGHT));
-        from(MainRoute.GET_RESULT_ENDPOINT).process(GetResultProcessor.BEAN_NAME);
+        from(MainRoute.GET_RESULT_ENDPOINT).process(AppBusGetResultProcessor.BEAN_NAME);
     }
 }

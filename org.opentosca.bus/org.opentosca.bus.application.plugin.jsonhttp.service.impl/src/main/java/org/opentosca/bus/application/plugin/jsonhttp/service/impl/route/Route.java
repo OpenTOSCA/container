@@ -5,6 +5,7 @@ import org.apache.camel.Predicate;
 import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.SimpleBuilder;
+import org.apache.camel.builder.ValueBuilder;
 import org.opentosca.bus.application.model.constants.ApplicationBusConstants;
 import org.opentosca.bus.application.model.exception.ApplicationBusExternalException;
 import org.opentosca.bus.application.plugin.jsonhttp.service.impl.ApplicationBusJsonHttpPluginServiceImpl;
@@ -38,9 +39,9 @@ public class Route extends RouteBuilder {
         final Predicate PENDING = PredicateBuilder.and(OK, body().isEqualTo(PENDING_STRING));
         final Predicate RESULT_RECEIVED = PredicateBuilder.and(OK, PredicateBuilder.not(PENDING));
 
-        final SimpleBuilder INVOKE_ENDPOINT = simple("${header."
+        final ValueBuilder INVOKE_ENDPOINT = simple("${header."
             + ApplicationBusConstants.INVOCATION_ENDPOINT_URL.toString() + "}" + APPINVOKER_ENDPOINT_SUFFIX);
-        final SimpleBuilder POLL_ENDPOINT = simple("${header.Location}");
+        final ValueBuilder POLL_ENDPOINT = simple("${header.Location}");
 
         final RequestProcessor requestProcessor = new RequestProcessor();
         final ResponseProcessor responseProcessor = new ResponseProcessor();
