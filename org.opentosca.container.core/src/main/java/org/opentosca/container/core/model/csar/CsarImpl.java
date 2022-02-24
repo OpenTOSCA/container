@@ -72,6 +72,7 @@ public class CsarImpl implements Csar {
     @NonNull
     private final CsarId id;
     private final Optional<ServiceTemplateId> entryServiceTemplate;
+    private final TServiceTemplate entryServiceTemplateModel;
 
     // TODO evaluate putting the save-location into an additional field here!
     private final IRepository wineryRepo;
@@ -88,7 +89,8 @@ public class CsarImpl implements Csar {
     public CsarImpl(@NonNull CsarId id, @NonNull Path location) {
         this.id = id;
         this.wineryRepo = RepositoryFactory.getRepository(location);
-        entryServiceTemplate = readEntryServiceTemplate(location);
+        this.entryServiceTemplate = readEntryServiceTemplate(location);
+        this.entryServiceTemplateModel = this.entryServiceTemplate();
         this.definitions = this.getQNameToDefinitionsMap();
         this.artifactTemplates = this.wineryRepo.getQNameToElementMapping(ArtifactTemplateId.class);
         this.artifactTypes = this.wineryRepo.getQNameToElementMapping(ArtifactTypeId.class);
@@ -105,6 +107,9 @@ public class CsarImpl implements Csar {
             qname = Files.readString(csarLocation.resolve(ENTRY_SERVICE_TEMPLATE_LOCATION));
         } catch (IOException e) {
             // Swallow, no helping this
+            //
+            // How about swallowing, we throw something more useful?
+            throw new RuntimeException("Couldn't find entryServiceTemplate", e);
         }
         return qname == null ? Optional.empty()
             : Optional.of(new ServiceTemplateId(QName.valueOf(qname)));
@@ -194,10 +199,12 @@ public class CsarImpl implements Csar {
     @Override
     public TServiceTemplate entryServiceTemplate() {
         // FIXME stop mapping between Optional and nullable.
-        if (entryServiceTemplate.isPresent()) {
-            return wineryRepo.getElement(entryServiceTemplate.get());
+        if(this.entryServiceTemplateModel == null) {
+            if (entryServiceTemplate.isPresent()) {
+                return wineryRepo.getElement(entryServiceTemplate.get());
+            }
         }
-        return null;
+        return this.entryServiceTemplateModel;
     }
 
     @Override
