@@ -86,6 +86,8 @@ public class CsarService {
             logger.error("Could not store repackaged CSAR: {}", e.getMessage(), e);
         }
 
+        csar.reload();
+
         return null;
     }
 
@@ -94,6 +96,7 @@ public class CsarService {
         IRepository repo = RepositoryFactory.getRepository(sourceCsar.getSaveLocation());
         final Path file = planBuilderExporter.exportToCSAR(plans, sourceCsar.id(), repo, this.storage).csarFile;
         logger.debug("Exported TransformationPlan under {}", file);
+        sourceCsar.reload();
         return plans;
     }
 
