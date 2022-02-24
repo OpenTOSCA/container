@@ -71,25 +71,31 @@ public class CsarImpl implements Csar {
 
     @NonNull
     private final CsarId id;
-    private final Optional<ServiceTemplateId> entryServiceTemplate;
-    private final TServiceTemplate entryServiceTemplateModel;
+    private Optional<ServiceTemplateId> entryServiceTemplate;
+    private TServiceTemplate entryServiceTemplateModel;
 
     // TODO evaluate putting the save-location into an additional field here!
+    private final Path location;
     private final IRepository wineryRepo;
 
-    private final Map<QName, TDefinitions> definitions;
-    private final Map<QName, TArtifactTemplate> artifactTemplates;
-    private final Map<QName, TArtifactType> artifactTypes;
-    private final Map<QName, TNodeType> nodeTypes;
-    private final Map<QName, TNodeTypeImplementation> nodeTypeImplementations;
-    private final Map<QName, TPolicyTemplate> policyTemplates;
-    private final Map<QName, TRelationshipType> relationshipTypes;
-    private final Map<QName, TRelationshipTypeImplementation> relationshipTypeImplementations;
+    private Map<QName, TDefinitions> definitions;
+    private Map<QName, TArtifactTemplate> artifactTemplates;
+    private Map<QName, TArtifactType> artifactTypes;
+    private Map<QName, TNodeType> nodeTypes;
+    private Map<QName, TNodeTypeImplementation> nodeTypeImplementations;
+    private Map<QName, TPolicyTemplate> policyTemplates;
+    private Map<QName, TRelationshipType> relationshipTypes;
+    private Map<QName, TRelationshipTypeImplementation> relationshipTypeImplementations;
 
     public CsarImpl(@NonNull CsarId id, @NonNull Path location) {
         this.id = id;
+        this.location = location;
         this.wineryRepo = RepositoryFactory.getRepository(location);
-        this.entryServiceTemplate = readEntryServiceTemplate(location);
+        this.loadContents();
+    }
+
+    private void loadContents() {
+        this.entryServiceTemplate = readEntryServiceTemplate(this.location);
         this.entryServiceTemplateModel = this.entryServiceTemplate();
         this.definitions = this.getQNameToDefinitionsMap();
         this.artifactTemplates = this.wineryRepo.getQNameToElementMapping(ArtifactTemplateId.class);
@@ -301,6 +307,12 @@ public class CsarImpl implements Csar {
     @Override
     public @NonNull Path getSaveLocation() {
         return this.wineryRepo.getRepositoryRoot();
+    }
+
+    @Override
+    public void reload() {
+        this.entryServiceTemplateModel = null;
+        this.loadContents();
     }
 
     @Override

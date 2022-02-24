@@ -62,6 +62,7 @@ public class CsarService {
         final Path file = planBuilderExporter.exportToCSAR(plans, csar.id(), repo, this.storage).csarFile;
         logger.debug("Exported BuildPlan under {}", file);
 
+        csar.reload();
         return true;
     }
 
