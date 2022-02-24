@@ -69,13 +69,11 @@ public class BPELPlanContext extends PlanContext {
     private final BPELScope templateBuildPlan;
     private final BPELScopeBuilder scopeBuilder;
     private final BPELScopeHandler bpelTemplateHandler;
+    private final WSDLFactory factory;
+    private final WSDLReader reader;
     private BPELPlanHandler buildPlanHandler;
     private BPELPlanHandler bpelProcessHandler;
     private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
-    final WSDLFactory factory;
-    final WSDLReader reader;
-
-
 
     public BPELPlanContext(BPELScopeBuilder scopeBuilder, final BPELPlan plan, final BPELScope templateBuildPlan, final Property2VariableMapping map,
                        final TServiceTemplate serviceTemplate, String serviceInstanceURLVarName,

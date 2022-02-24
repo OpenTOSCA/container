@@ -114,7 +114,7 @@ public class CsarImpl implements Csar {
         } catch (IOException e) {
             // Swallow, no helping this
             //
-            // How about swallowing, we throw something more useful?
+            // How about instead of swallowing, we throw something more useful?
             throw new RuntimeException("Couldn't find entryServiceTemplate", e);
         }
         return qname == null ? Optional.empty()
@@ -205,10 +205,8 @@ public class CsarImpl implements Csar {
     @Override
     public TServiceTemplate entryServiceTemplate() {
         // FIXME stop mapping between Optional and nullable.
-        if(this.entryServiceTemplateModel == null) {
-            if (entryServiceTemplate.isPresent()) {
-                return wineryRepo.getElement(entryServiceTemplate.get());
-            }
+        if (this.entryServiceTemplateModel == null && entryServiceTemplate.isPresent()) {
+            return wineryRepo.getElement(entryServiceTemplate.get());
         }
         return this.entryServiceTemplateModel;
     }
