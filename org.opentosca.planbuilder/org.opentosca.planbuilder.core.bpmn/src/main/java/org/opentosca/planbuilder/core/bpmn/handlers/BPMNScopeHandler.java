@@ -103,6 +103,36 @@ public class BPMNScopeHandler {
         return endEvent;
     }
 
+    /**
+     * Creates Scope within the Subprocess and type.
+     * Activity is assumed to be NodeActivity because subprocess are created only with NodeActivity
+     * @param parentSubrocess
+     * @param type
+     * @return
+     */
+    public BPMNScope createBPMNScopeWithinSubprocess(BPMNScope parentSubrocess, BPMNScopeType type) {
+        LOG.debug("Create BPMN Scope with ScopeType {} within subprocess {}", type.name(), parentSubrocess.getId());
+        BPMNPlan buildPlan = parentSubrocess.getBuildPlan();
+        String idPrefix = type.toString();
+        NodeTemplateActivity nodeTemplateActivity = (NodeTemplateActivity) parentSubrocess.getActivity();
+        BPMNScope createdScope = new BPMNScope(nodeTemplateActivity,
+            type, idPrefix + "_" + buildPlan.getIdForNamesAndIncrement());
+        if (type == BPMNScopeType.CREATE_NODE_INSTANCE_TASK) {
+            parentSubrocess.setSubProCreateNodeInstanceTask(createdScope);
+        } else if (type == BPMNScopeType.CALL_NODE_OPERATION_TASK){
+            parentSubrocess.setSubProCallOperationTask(createdScope);
+        } else if (type == BPMNScopeType.SET_NODE_PROPERTY_TASK) {
+            parentSubrocess.setSubProSetNodePropertyTask(createdScope);
+        }
+        LOG.debug("NodeTemplate {}", createdScope.getNodeTemplate());
+        parentSubrocess.addScopeToSubprocess(createdScope);
+        createdScope.setParentProcess(parentSubrocess);
+        createdScope.setBuildPlan(buildPlan);
+        LOG.debug("Created Scope {}", createdScope);
+        return createdScope;
+    }
+
+    // TODO: Refactoring the method name
     public BPMNScope createTemplateBuildPlan(final AbstractActivity activity, final  BPMNPlan buildPlan) {
         LOG.debug("Create template build plan with Abstract activity: {} type: {}", activity.getId(), activity.getType());
         // reuse activity id with prefix

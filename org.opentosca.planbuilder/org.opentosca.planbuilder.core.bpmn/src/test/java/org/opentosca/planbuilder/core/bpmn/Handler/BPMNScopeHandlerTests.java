@@ -115,4 +115,18 @@ public class BPMNScopeHandlerTests {
         assertThat(endEvent.getParentProcess(), is(subprocess));
         assertThat(subprocess.getSubStartEvent(), is(endEvent));
     }
+
+    @Test
+    public void testcreateBPMNScopeWithinSubprocess() {
+        int createdId = bpmnPlan.getInternalCounterId();
+        AbstractActivity activity = new NodeTemplateActivity("" + createdId, ActivityType.PROVISIONING, null);
+        BPMNScope subprocess = bpmnScopeHandler.createTemplateBuildPlan(activity, bpmnPlan);
+        BPMNScopeType type = BPMNScopeType.CREATE_NODE_INSTANCE_TASK;
+        BPMNScope createdScope = bpmnScopeHandler.createBPMNScopeWithinSubprocess(subprocess, type);
+        assertThat(createdScope.getParentProcess(), is(subprocess));
+        assertThat(createdScope.getActivity(), is(activity));
+        assertThat(createdScope.getBpmnScopeType(), is(type));
+        assertThat(createdScope.getBuildPlan(), is(bpmnPlan));
+
+    }
 }

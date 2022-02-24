@@ -4,12 +4,22 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
+import org.opentosca.planbuilder.core.bpmn.handlers.BPMNScopeHandler;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypeSetPropertyPlugin;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScopeType;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 public class BPMNSetNodePropertyPlugin implements IPlanBuilderTypeSetPropertyPlugin<BPMNPlanContext> {
+
+    private final BPMNScopeHandler bpmnScopeHandler;
+
+    public BPMNSetNodePropertyPlugin() throws ParserConfigurationException {
+        this.bpmnScopeHandler = new BPMNScopeHandler();
+    }
+
     @Override
     public String getID() {
         return null;
@@ -23,18 +33,10 @@ public class BPMNSetNodePropertyPlugin implements IPlanBuilderTypeSetPropertyPlu
     @Override
     public boolean handleCreate(BPMNPlanContext templateContext, TNodeTemplate nodeTemplate) {
         BPMNScope subprocess = templateContext.getBpmnScope();
-        BPMNPlan buildPlan = subprocess.getBuildPlan();
-        String idPrefix = BPMNScopeType.SET_NODE_PROPERTY_TASK.toString();
-        final BPMNScope setNodePropertyTask = new BPMNScope(
-            BPMNScopeType.SET_NODE_PROPERTY_TASK,
-            idPrefix + "_" + buildPlan.getIdForNamesAndIncrement()
-        );
+        final BPMNScope setNodePropertyTask = bpmnScopeHandler.createBPMNScopeWithinSubprocess(subprocess, BPMNScopeType.SET_NODE_PROPERTY_TASK);
 
         // TODO: Handle Property2Variable Mapping
-        subprocess.setSubProSetNodePropertyTask(setNodePropertyTask);
-        subprocess.addScopeToSubprocess(setNodePropertyTask);
-        setNodePropertyTask.setParentProcess(subprocess);
-        setNodePropertyTask.setBuildPlan(buildPlan);
+
         return setNodePropertyTask != null;
     }
 

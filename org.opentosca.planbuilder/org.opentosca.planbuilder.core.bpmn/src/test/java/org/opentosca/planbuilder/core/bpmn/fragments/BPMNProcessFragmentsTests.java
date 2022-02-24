@@ -10,11 +10,13 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.bpmn.Handler.BPMNScopeHandlerTests;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNScopeHandler;
+import org.opentosca.planbuilder.model.plan.InstanceState;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScopeType;
@@ -23,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -119,8 +122,21 @@ public class BPMNProcessFragmentsTests {
         BPMNScope createNodeInstanceTask = new BPMNScope(
             BPMNScopeType.CREATE_NODE_INSTANCE_TASK, "Task_0");
         createNodeInstanceTask.setBuildPlan(bpmnPlan);
+        TNodeTemplate nodeTemplate = new TNodeTemplate();
+        nodeTemplate.setId("MyTinyTodoContainer_0");
+        createNodeInstanceTask.setInstanceState(InstanceState.STARTING.toString());
+        createNodeInstanceTask.setNodeTemplate(nodeTemplate);
+        bpmnPlan.addInstanceUrlVariableNameToNodeTemplate(nodeTemplate, "MyTinyTodoContainer_0_Url");
+
         Element sNode = (Element) fragments.createBPMNScopeAsNode(createNodeInstanceTask);
         assertThat(sNode.getAttribute("id"), is(createNodeInstanceTask.getId()));
+        assertThat(sNode.getAttribute("camunda:resultVariable"), is("MyTinyTodoContainer_0_Url"));
+        Element child = (Element) ((Element) sNode.getElementsByTagName("bpmn:extensionElements").item(0)).getElementsByTagName("camunda:inputOutput").item(0);
+        NodeList list = child.getElementsByTagName("camunda:inputParameter");
+        Node stateNode = list.item(0);
+        Node templateNode = list.item(1);
+        assertThat(stateNode.getTextContent(), is(InstanceState.STARTING.toString()));
+        assertThat(templateNode.getTextContent(), is("MyTinyTodoContainer_0"));
         assertThat(sNode.getOwnerDocument(), is(createNodeInstanceTask.getBpmnDocument()));
     }
 

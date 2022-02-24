@@ -9,7 +9,6 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
-import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -27,7 +26,14 @@ public class BPMNScope {
 
     private final String id;
     private final AbstractActivity act;
-    private final Map<TOperation, TOperation> usedOperations;
+    private final Map<TOperation, TOperation> usedOperations = new HashMap<TOperation, TOperation>();
+
+    // for groovy script InputName:InputValue
+    private final Map<String, String> inputParameters = new HashMap<>();
+
+    // from groovy script, unique for other script to identification
+    private String resultVariableName;
+
     private final BPMNScopeType bpmnScopeType;
 
     // bpmn entity could have multiple incoming and outgoing
@@ -58,20 +64,9 @@ public class BPMNScope {
     private Element bpmnTargetsElement;
     private Element bpmnVariablesElement;
 
-    // TODO: review necessity since the class is copied directly from BPELScope
-    private Element bpelPartnerLinks;
-    private Element bpelCorrelationSets;
-    private Element bpelMainSequenceElement;
-    private Element bpelSequencePrePhaseElement;
-    private Element bpelSequenceProvisioningPhaseElement;
-    private Element bpelSequencePostPhaseElement;
-    private Element bpelEventHandlersElement;
-
-    private BPMNScope bpelCompensationScope;
-    private BPMNScope bpelFaultScope;
-
     private TNodeTemplate nodeTemplate = null;
     private TRelationshipTemplate relationshipTemplate = null;
+    private String instanceState;
 
     /**
      *
@@ -82,7 +77,6 @@ public class BPMNScope {
     public BPMNScope(AbstractActivity activity, BPMNScopeType bpmnScopeType, String id) {
         this.act = activity;
         this.bpmnScopeType = bpmnScopeType;
-        this.usedOperations = new HashMap<TOperation, TOperation>();
         this.id = id;
     }
 
@@ -90,7 +84,6 @@ public class BPMNScope {
         this.act = activity;
         this.nodeTemplate = activity.getNodeTemplate();
         this.bpmnScopeType = bpmnScopeType;
-        this.usedOperations = new HashMap<TOperation, TOperation>();
         this.id = id;
     }
 
@@ -98,7 +91,6 @@ public class BPMNScope {
         this.act = activity;
         this.relationshipTemplate = activity.getRelationshipTemplate();
         this.bpmnScopeType = bpmnScopeType;
-        this.usedOperations = new HashMap<TOperation, TOperation>();
         this.id = id;
     }
 
@@ -106,20 +98,21 @@ public class BPMNScope {
     public BPMNScope(BPMNScopeType bpmnScopeType, String id) {
         this.act = null;
         this.bpmnScopeType = bpmnScopeType;
-        this.usedOperations = new HashMap<TOperation, TOperation>();
         this.id = id;
     }
 
     public BPMNScope(AbstractActivity activity) {
         this.act = activity;
         this.bpmnScopeType = null;
-        this.usedOperations = new HashMap<TOperation, TOperation>();
         this.id = null;
     }
 
     @Override
     public String toString() {
-        return "BPMNScope Plan: " + buildPlan.getId() + " Activity: " + this.act + ((this.getNodeTemplate() != null) ? " Node: " + this.nodeTemplate.getId() : " Relation: " + this.relationshipTemplate.getId());
+        return "BPMNScope ID: " + id + " Plan: " + buildPlan.getId() + " Activity: " + this.act +
+            ((this.getNodeTemplate() != null) ?
+                " Node: " + this.nodeTemplate.getId() :
+                " Relation: " + this.relationshipTemplate.getId());
     }
 
     public AbstractActivity getActivity() {
@@ -226,140 +219,6 @@ public class BPMNScope {
     }
 
     /**
-     * Gets the BPEL PartnerLinks element of this TemplateBuildPlan
-     *
-     * @return a DOM Element
-     */
-    public Element getBpelPartnerLinksElement() {
-        return this.bpelPartnerLinks;
-    }
-
-    /**
-     * Sets the BPEL PartnerLinks element of this TemplateBuildPlan
-     *
-     * @param bpelPartnerLinks a DOM Element
-     */
-    public void setBpelPartnerLinks(final Element bpelPartnerLinks) {
-        this.bpelPartnerLinks = bpelPartnerLinks;
-    }
-
-    /**
-     * Gets the main BPEL Sequence element of this TemplateBuildPlan
-     *
-     * @return a DOM Element
-     */
-    public Element getBpelMainSequenceElement() {
-        return this.bpelMainSequenceElement;
-    }
-
-    /**
-     * Sets the main BPEL Sequence element of this TemplateBuildPlan
-     *
-     * @param bpelMainSequenceElement a DOM Element
-     */
-    public void setBpelMainSequenceElement(final Element bpelMainSequenceElement) {
-        this.bpelMainSequenceElement = bpelMainSequenceElement;
-    }
-
-    /**
-     * Gets the BPEL Sequence element which is the PrePhase of this TemplateBuildPlan
-     *
-     * @return a DOM Element
-     */
-    public Element getBpelSequencePrePhaseElement() {
-        return this.bpelSequencePrePhaseElement;
-    }
-
-    /**
-     * Set the BPEL Sequence element which is the PrePhase of this TemplateBuildPlan
-     *
-     * @param bpelSequencePrePhaseElement a DOM Element
-     */
-    public void setBpelSequencePrePhaseElement(final Element bpelSequencePrePhaseElement) {
-        this.bpelSequencePrePhaseElement = bpelSequencePrePhaseElement;
-    }
-
-    /**
-     * Gets the BPEL Sequence element which is the ProvisioningPhase of this TemplateBuildPlan
-     *
-     * @return a DOM Element
-     */
-    public Element getBpelSequenceProvisioningPhaseElement() {
-        return this.bpelSequenceProvisioningPhaseElement;
-    }
-
-    /**
-     * Set the BPEL Sequence element which is the ProvisioningPhase of this TemplateBuildPlan
-     *
-     * @param bpelSequenceProvisioningPhaseElement a DOM Element
-     */
-    public void setBpelSequenceProvisioningPhaseElement(final Element bpelSequenceProvisioningPhaseElement) {
-        this.bpelSequenceProvisioningPhaseElement = bpelSequenceProvisioningPhaseElement;
-    }
-
-    /**
-     * Gets the BPEL Sequence element which is the PostPhase of this TemplateBuildPlan
-     *
-     * @return a DOM Element
-     */
-    public Element getBpelSequencePostPhaseElement() {
-        return this.bpelSequencePostPhaseElement;
-    }
-
-    /**
-     * Sets the BPEL Sequence element which is the PostPhase of this TemplateBuildPlan
-     *
-     * @param bpelSequencePostPhaseElement a DOM Element
-     */
-    public void setBpelSequencePostPhaseElement(final Element bpelSequencePostPhaseElement) {
-        this.bpelSequencePostPhaseElement = bpelSequencePostPhaseElement;
-    }
-
-    /**
-     * Returns the scope containing the compensation activities of this scope
-     *
-     * @return a DOM Element
-     */
-    public BPMNScope getBpelCompensationHandlerScope() {
-        return bpelCompensationScope;
-    }
-
-    /**
-     * Sets the scope as the compensation handler of this scope
-     *
-     * @param bpelCompensationScope a BPEL DOM Element with a compensation handler
-     */
-    public void setBpelCompensationHandlerScope(BPMNScope bpelCompensationScope) {
-        this.bpelCompensationScope = bpelCompensationScope;
-        Element compensationHandlerElement = this.buildPlan.getBpmnDocument().createElementNS(BPELPlan.bpelNamespace, "compensationHandler");
-        compensationHandlerElement.appendChild(this.bpelCompensationScope.getBpmnScopeElement());
-        this.bpmnScopeElement.insertBefore(compensationHandlerElement, this.bpelMainSequenceElement);
-    }
-
-    /**
-     * Returns the scope containing the faul handling activities of this scope
-     */
-    public BPMNScope getBpelFaultHandlerScope() {
-        return this.bpelFaultScope;
-    }
-
-    /**
-     * Sets the scope as the fault handler of this scope
-     *
-     * @param bpelFaultScope a BPMN DOM Element with fault handler
-     */
-    public void setBpelFaultHandlerScope(BPMNScope bpelFaultScope) {
-        this.bpelFaultScope = bpelFaultScope;
-        Element rethrowElement = this.buildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace, "rethrow");
-        bpelFaultScope.getBpelSequencePostPhaseElement().appendChild(rethrowElement);
-        Element faultHandlersElement = this.buildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace, "faultHandlers");
-        Element catchAllElement = this.buildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace, "catchAll");
-        catchAllElement.appendChild(this.bpelFaultScope.getBpmnScopeElement());
-        faultHandlersElement.appendChild(catchAllElement);
-        this.bpmnScopeElement.insertBefore(faultHandlersElement, this.bpelMainSequenceElement);
-    }
-
-    /**
      * Gets the NodeTemplate this TemplateBuildPlan belongs to
      *
      * @return an TNodeTemplate, else null if this is a TemplateBuildPlan for a RelationshipTemplate
@@ -393,32 +252,6 @@ public class BPMNScope {
      */
     public void setRelationshipTemplate(final TRelationshipTemplate relationshipTemplate) {
         this.relationshipTemplate = relationshipTemplate;
-    }
-
-    /**
-     * Gets the BPEL CorrelationSets element of this TemplateBuildPlan
-     *
-     * @return a DOM Element
-     */
-    public Element getBpelCorrelationSets() {
-        return this.bpelCorrelationSets;
-    }
-
-    /**
-     * Sets the BPEL CorrelationSets element of this TemplateBuildPlan
-     *
-     * @param bpelCorrelationSets a DOM Element
-     */
-    public void setBpelCorrelationSets(final Element bpelCorrelationSets) {
-        this.bpelCorrelationSets = bpelCorrelationSets;
-    }
-
-    public Element getBpelEventHandlersElement() {
-        return bpelEventHandlersElement;
-    }
-
-    public void setBpelEventHandlersElement(Element bpelEventHandlersElement) {
-        this.bpelEventHandlersElement = bpelEventHandlersElement;
     }
 
     public Map<TOperation, TOperation> getUsedOperations() {
@@ -525,7 +358,19 @@ public class BPMNScope {
         this.subEndEvent = subEndEvent;
     }
 
-    public enum BPELScopePhaseType {
-        PRE, PROVISIONING, POST
+    public String getNodeState() {
+        return instanceState;
+    }
+
+    public void setInstanceState(String state) {
+        instanceState = state;
+    }
+
+    public String getInstanceState() {
+        return instanceState;
+    }
+
+    public String getInstanceUrlVariableName() {
+        return buildPlan.getNodeTemplateInstanceUrlVariableName(this.nodeTemplate);
     }
 }

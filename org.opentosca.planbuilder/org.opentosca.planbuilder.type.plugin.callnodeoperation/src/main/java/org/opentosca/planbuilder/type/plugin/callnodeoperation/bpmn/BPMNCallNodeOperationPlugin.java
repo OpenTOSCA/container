@@ -4,12 +4,21 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
+import org.opentosca.planbuilder.core.bpmn.handlers.BPMNScopeHandler;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypeCallNodeOperationPlugin;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScopeType;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 public class BPMNCallNodeOperationPlugin implements IPlanBuilderTypeCallNodeOperationPlugin<BPMNPlanContext> {
+    private final BPMNScopeHandler bpmnScopeHandler;
+
+    public BPMNCallNodeOperationPlugin() throws ParserConfigurationException {
+        this.bpmnScopeHandler = new BPMNScopeHandler();
+    }
+
     @Override
     public String getID() {
         return null;
@@ -24,17 +33,12 @@ public class BPMNCallNodeOperationPlugin implements IPlanBuilderTypeCallNodeOper
     public boolean handleCreate(BPMNPlanContext templateContext, TNodeTemplate nodeTemplate) {
         BPMNScope subprocess = templateContext.getBpmnScope();
         BPMNPlan buildPlan = subprocess.getBuildPlan();
-        String idPrefix = BPMNScopeType.CALL_NODE_OPERATION_TASK.toString();
-        final BPMNScope callNodeOperationTask = new BPMNScope(
-            BPMNScopeType.CREATE_NODE_INSTANCE_TASK,
+        final BPMNScope callNodeOperationTask = bpmnScopeHandler.createBPMNScopeWithinSubprocess(subprocess, BPMNScopeType.CALL_NODE_OPERATION_TASK);/*new BPMNScope(
+            BPMNScopeType.CALL_NODE_OPERATION_TASK,
             idPrefix + "_" + buildPlan.getIdForNamesAndIncrement()
-        );
+        );*/
 
         // TODO: Handle Property2Variable Mapping
-        subprocess.setSubProCallOperationTask(callNodeOperationTask);
-        subprocess.addScopeToSubprocess(callNodeOperationTask);
-        callNodeOperationTask.setParentProcess(subprocess);
-        callNodeOperationTask.setBuildPlan(buildPlan);
         return callNodeOperationTask != null;
     }
 

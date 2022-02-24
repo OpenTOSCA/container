@@ -4,21 +4,21 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import org.w3c.dom.Node;
 
 public class BPMNPlan extends AbstractPlan {
     public static final String bpmnNamespace = "http://www.omg.org/spec/BPMN/20100524/MODEL";
@@ -63,12 +63,28 @@ public class BPMNPlan extends AbstractPlan {
     private List<BPMNScope> templateBuildPlans = new ArrayList<>();
     private List<BPMNDiagramElement> diagramElements = new ArrayList<>();
 
-    public BPMNScope getBpmnStartEventElement() {
-        return bpmnStartEventElement;
+    // <id : variable name for url>, MyTinyToDoDockerContainer : MyTinyToDoDockerContainer_0NodeInstanceURL
+    private Map<TNodeTemplate, String> nodeTemplate2InstanceUrlVariableName = new HashMap<>();
+    private Map<TRelationshipTemplate, String> relationTemplate2InstanceUrlVariableName = new HashMap<>();
+
+    public boolean addInstanceUrlVariableNameToNodeTemplate(TNodeTemplate nodeTemplate, String variableName) {
+        if (nodeTemplate2InstanceUrlVariableName.containsKey(nodeTemplate)) {
+            return false;
+        }
+        nodeTemplate2InstanceUrlVariableName.put(nodeTemplate, variableName);
+        return true;
     }
 
-    public void setBpmnStartEventElement(BPMNScope bpmnStartEventElement) {
-        this.bpmnStartEventElement = bpmnStartEventElement;
+    public void addInstanceUrlVariableNameToRelationshipTemplateUrl(TRelationshipTemplate relationshipTemplate, String variableName) {
+        relationTemplate2InstanceUrlVariableName.put(relationshipTemplate, variableName);
+    }
+
+    public String getNodeTemplateInstanceUrlVariableName(TNodeTemplate nodeTemplate) {
+        return nodeTemplate2InstanceUrlVariableName.get(nodeTemplate);
+    }
+
+    public String getRelationshipTemplateInstanceUrlVariableName(TRelationshipTemplate relationshipTemplate) {
+        return relationTemplate2InstanceUrlVariableName.get(relationshipTemplate);
     }
 
     // for building diagram
@@ -244,5 +260,13 @@ public class BPMNPlan extends AbstractPlan {
 
     public void setDiagramElements(List<BPMNDiagramElement> diagramElements) {
         this.diagramElements = diagramElements;
+    }
+
+    public BPMNScope getBpmnStartEventElement() {
+        return bpmnStartEventElement;
+    }
+
+    public void setBpmnStartEventElement(BPMNScope bpmnStartEventElement) {
+        this.bpmnStartEventElement = bpmnStartEventElement;
     }
 }
