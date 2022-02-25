@@ -13,6 +13,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.opentosca.container.core.common.Settings;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.slf4j.Logger;
@@ -141,8 +142,9 @@ public class BPELFinalizer {
             buildPlan.setBpelExtensionsElement(null);
         }
 
-        // TODO: let's speed up the whole thing
-        makeSequential(buildPlan);
+        if (Boolean.valueOf(Settings.OPENTOSCA_PLANS_SEQUENTIAL)) {
+            makeSequential(buildPlan);
+        }
 
         for (final BPELScope templateBuildPlan : buildPlan.getTemplateBuildPlans()) {
             this.finalizeBPELScope(buildPlan, templateBuildPlan);

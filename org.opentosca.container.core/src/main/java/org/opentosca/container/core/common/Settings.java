@@ -61,6 +61,7 @@ public class Settings {
     public final static String OPENTOSCA_TEST_LOCAL_REPOSITORY_PATH = settings.getProperty("org.opentosca.test.local.repository.path");
     public final static String OPENTOSCA_TEST_REMOTE_REPOSITORY_URL = settings.getProperty("org.opentosca.test.remote.repository.url");
     public final static Path CONTAINER_STORAGE_BASEPATH = Paths.get(System.getProperty("java.io.tmpdir"), "opentosca", "container", "csar-storage");
+    public final static String OPENTOSCA_PLANS_SEQUENTIAL = settings.getProperty("org.opentosca.plans.sequential", "false");
 
     /**
      * OpenTOSCA Container database location
