@@ -5,6 +5,8 @@
     <display-name>OpenTOSCA Container API</display-name>
     <description>The OpenTOSCA ecosystem's tosca-container API application for REST-based csar deployment</description>
 
+    <absolute-ordering/>
+
     <context-param>
         <description>Logback configuration definition</description>
         <param-name>logbackConfigLocation</param-name>

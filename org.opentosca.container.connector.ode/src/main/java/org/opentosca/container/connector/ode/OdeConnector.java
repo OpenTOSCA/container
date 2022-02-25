@@ -279,10 +279,7 @@ public class OdeConnector {
     public boolean undeploy(final File file, final String uri) {
         // check input
         if (file == null) {
-            if (file == null) {
-                OdeConnector.LOG.error("BPEL process file is null");
-            }
-
+            OdeConnector.LOG.error("BPEL process file is null");
             return false;
         }
 
