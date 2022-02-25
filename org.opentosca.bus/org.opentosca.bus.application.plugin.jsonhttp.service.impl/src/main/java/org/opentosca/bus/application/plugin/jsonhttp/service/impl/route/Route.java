@@ -3,10 +3,8 @@ package org.opentosca.bus.application.plugin.jsonhttp.service.impl.route;
 import org.apache.camel.Exchange;
 import org.apache.camel.Predicate;
 import org.apache.camel.builder.PredicateBuilder;
-
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.ValueBuilder;
-
 import org.opentosca.bus.application.model.constants.ApplicationBusConstants;
 import org.opentosca.bus.application.model.exception.ApplicationBusExternalException;
 import org.opentosca.bus.application.plugin.jsonhttp.service.impl.ApplicationBusJsonHttpPluginServiceImpl;

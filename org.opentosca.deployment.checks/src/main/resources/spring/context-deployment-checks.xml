@@ -15,6 +15,9 @@
   <context:component-scan base-package="org.opentosca.container.core.impl.service"/>
   <context:component-scan base-package="org.opentosca.deployment.checks.camel"/>
 
-  <bean class="org.opentosca.deployment.checks.TestExecutor" />
-  <bean class="org.opentosca.deployment.checks.DeploymentTestService" />
+  <camel:camelContext id="deployment-checks-camel-context">
+    <camel:packageScan>
+      <camel:package>org.opentosca.deployment.checks.camel</camel:package>
+    </camel:packageScan>
+  </camel:camelContext>
 </beans>

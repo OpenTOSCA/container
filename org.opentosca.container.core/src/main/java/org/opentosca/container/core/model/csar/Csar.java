@@ -66,6 +66,8 @@ public interface Csar {
     @Deprecated
     Path getSaveLocation();
 
+    void reload();
+
     String toString();
 
     Map<QName, TArtifactType> artifactTypesMap();

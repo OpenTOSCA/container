@@ -69,6 +69,8 @@ public class BPELPlanContext extends PlanContext {
     private final BPELScope templateBuildPlan;
     private final BPELScopeBuilder scopeBuilder;
     private final BPELScopeHandler bpelTemplateHandler;
+    private final WSDLFactory factory;
+    private final WSDLReader reader;
     private BPELPlanHandler buildPlanHandler;
     private BPELPlanHandler bpelProcessHandler;
     private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
@@ -85,6 +87,7 @@ public class BPELPlanContext extends PlanContext {
                            String serviceInstanceIDVarName, String serviceTemplateURLVarName, String planInstanceUrlVarName, Csar csar) {
         super(plan, serviceTemplate, map, descriptorMap, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, planInstanceUrlVarName, csar);
 
+
         this.scopeBuilder = scopeBuilder;
         this.templateBuildPlan = templateBuildPlan;
         this.bpelTemplateHandler = new BPELScopeHandler();
@@ -92,8 +95,12 @@ public class BPELPlanContext extends PlanContext {
             this.buildPlanHandler = new BPELPlanHandler();
             this.bpelProcessHandler = new BPELPlanHandler();
             this.nodeRelationInstanceHandler = new NodeRelationInstanceVariablesHandler(this.bpelProcessHandler);
-        } catch (final ParserConfigurationException e) {
+            this.factory = WSDLFactory.newInstance();
+            this.reader = factory.newWSDLReader();
+            reader.setFeature("javax.wsdl.verbose", false);
+        } catch (final ParserConfigurationException | WSDLException e) {
             BPELPlanContext.LOG.warn("Coulnd't initialize internal handlers", e);
+            throw new RuntimeException("Coulnd't initialize internal handlers", e);
         }
     }
 
@@ -761,10 +768,7 @@ public class BPELPlanContext extends PlanContext {
      *                       failed
      */
     public boolean containsPortType(final QName portType, final Path wsdlFile) throws WSDLException {
-        final WSDLFactory factory = WSDLFactory.newInstance();
-        final WSDLReader reader = factory.newWSDLReader();
-        reader.setFeature("javax.wsdl.verbose", false);
-        final Definition wsdlInstance = reader.readWSDL(wsdlFile.toAbsolutePath().toString());
+        final Definition wsdlInstance = this.reader.readWSDL(wsdlFile.toAbsolutePath().toString());
         final Map<?, ?> portTypes = wsdlInstance.getAllPortTypes();
         for (final Object key : portTypes.keySet()) {
             final PortType portTypeInWsdl = (PortType) portTypes.get(key);
@@ -850,10 +854,7 @@ public class BPELPlanContext extends PlanContext {
     private List<Service> getServicesInWSDLFile(final Path wsdlFile, final QName portType) throws WSDLException {
         final List<Service> servicesInWsdl = new ArrayList<>();
 
-        final WSDLFactory factory = WSDLFactory.newInstance();
-        final WSDLReader reader = factory.newWSDLReader();
-        reader.setFeature("javax.wsdl.verbose", false);
-        final Definition wsdlInstance = reader.readWSDL(wsdlFile.toAbsolutePath().toString());
+        final Definition wsdlInstance = this.reader.readWSDL(wsdlFile.toAbsolutePath().toString());
         final Map<?, ?> services = wsdlInstance.getAllServices();
         for (final Object key : services.keySet()) {
             final Service service = (Service) services.get(key);
