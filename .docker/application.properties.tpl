@@ -40,3 +40,4 @@ org.opentosca.container.collaboration.ports={{ .Env.COLLABORATION_PORTS }}
 org.opentosca.deployment.tests={{ .Env.CONTAINER_DEPLOYMENT_TESTS }}
 org.opentosca.bus.management.mocking={{ .Env.CONTAINER_BUS_MANAGEMENT_MOCK }}
 org.opentosca.engine.ia.keepfiles={{ .Env.ENGINE_IA_KEEP_FILES }}
+org.opentosca.plans.sequential={{ .Env.CONTAINER_PLANS_SEQUENTIAL }}
