@@ -4,7 +4,7 @@ org.opentosca.container.hostname={{ .Env.CONTAINER_HOSTNAME }}
 org.opentosca.container.port={{ .Env.CONTAINER_PORT }}
 
 # IA Engine Configuration (endpoint and credentials)
-org.opentosca.container.engine.ia.plugin.tomcat.url=http://{{ .Env.ENGINE_IA_HOSTNAME }}:{{ .Env.ENGINE_IA_JAVA8_PORT }}
+org.opentosca.container.engine.ia.plugin.tomcat.url=http://{{ .Env.ENGINE_IA_HOSTNAME }}:{{ .Env.ENGINE_IA_PORT }}
 org.opentosca.container.engine.ia.plugin.tomcat.password={{ .Env.ENGINE_IA_PASSWORD }}
 org.opentosca.container.engine.ia.plugin.tomcat.username={{ .Env.ENGINE_IA_USER }}
 org.opentosca.container.engine.ia.plugin.tomcat.java17.url=http://{{ .Env.ENGINE_IA_JAVA17_HOSTNAME }}:{{ .Env.ENGINE_IA_JAVA17_PORT }}
