@@ -21,4 +21,9 @@
   <!-- import the context definitions for the different APIs we expose -->
   <import resource="classpath*:/spring/context-bus-management-api.xml" />
   <import resource="classpath*:/spring/context-bus-management.xml" />
+
+  <camel:camelContext id="collaboration-camel-context">
+    <!-- do not add RouteBuilders to the camel context, they are added through the CollaborationContext bean -->
+    <!-- <camel:package>org.opentosca.bus.management.service.impl.collaboration.route</camel:package> -->
+  </camel:camelContext>
 </beans>

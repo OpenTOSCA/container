@@ -3,10 +3,10 @@ package org.opentosca.bus.management.service.impl.collaboration;
 import java.util.concurrent.TimeoutException;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
-import org.apache.camel.impl.DefaultCamelContext;
 import org.opentosca.bus.management.service.impl.Constants;
 import org.opentosca.bus.management.service.impl.collaboration.route.ReceiveRequestRoute;
 import org.opentosca.bus.management.service.impl.collaboration.route.ReceiveResponseRoute;
@@ -36,8 +36,8 @@ public class CollaborationContext {
     private final ProducerTemplate producer;
 
     @Inject
-    public CollaborationContext() {
-        this.camelContext = new DefaultCamelContext();
+    public CollaborationContext(@Named("collaboration-camel-context") CamelContext camelContext) {
+        this.camelContext = camelContext;
         // Create a producer template for all components of the Management Bus implementation.
         // This is recommended by camel to avoid the usage of too many threads.
         this.producer = camelContext.createProducerTemplate();
