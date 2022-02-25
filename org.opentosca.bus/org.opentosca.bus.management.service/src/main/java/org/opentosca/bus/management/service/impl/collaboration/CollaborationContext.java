@@ -3,7 +3,6 @@ package org.opentosca.bus.management.service.impl.collaboration;
 import java.util.concurrent.TimeoutException;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
@@ -16,7 +15,6 @@ import org.opentosca.container.core.common.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 /**
  * CollaborationContext of the Management Bus.<br>

@@ -10,7 +10,6 @@ import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.impl.collaboration.model.ObjectFactory;
 import org.opentosca.bus.management.service.impl.collaboration.processor.OutgoingProcessor;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 /**
  * This route can be used to send Camel Exchanges via MQTT to other OpenTOSCA Containers. The broker details (IP + Port)
