@@ -62,6 +62,7 @@ public class CsarService {
         final Path file = planBuilderExporter.exportToCSAR(plans, csar.id(), repo, this.storage).csarFile;
         logger.debug("Exported BuildPlan under {}", file);
 
+        csar.reload();
         return true;
     }
 
@@ -79,12 +80,13 @@ public class CsarService {
             final WineryExporter.PlanExportResult result = planBuilderExporter.exportToCSAR(plans, csar.id(), repo, this.storage);
             final Path file = result.csarFile;
             logger.debug("Exported AdaptationPlan under {}", file);
-
+            csar.reload();
             return new AdaptationPlanGenerationResult(csar.id(), result.planIds.iterator().next());
         } catch (final Exception e) {
             logger.error("Could not store repackaged CSAR: {}", e.getMessage(), e);
         }
 
+        csar.reload();
         return null;
     }
 
@@ -93,6 +95,8 @@ public class CsarService {
         IRepository repo = RepositoryFactory.getRepository(sourceCsar.getSaveLocation());
         final Path file = planBuilderExporter.exportToCSAR(plans, sourceCsar.id(), repo, this.storage).csarFile;
         logger.debug("Exported TransformationPlan under {}", file);
+        sourceCsar.reload();
+        targetCsar.reload();
         return plans;
     }
 
