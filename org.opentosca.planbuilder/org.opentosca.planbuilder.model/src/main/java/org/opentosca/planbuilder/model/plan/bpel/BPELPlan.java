@@ -75,9 +75,6 @@ public class BPELPlan extends AbstractPlan {
     // the file name of the csar the serviceTemplate and this buildPlan belongs
     // to
     private Map<AbstractActivity, BPELScope> abstract2bpelMap;
-    // wsdl related stuff
-    private String toscaInterfaceName = null;
-    private String toscaOperationName = null;
 
     public BPELPlan(final String id, final PlanType type, final TDefinitions definitions,
                     final TServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
@@ -85,32 +82,8 @@ public class BPELPlan extends AbstractPlan {
         super(id, type, definitions, serviceTemplate, activities, links);
     }
 
-    public void setTOSCAOperationname(final String name) {
-        this.toscaOperationName = name;
-    }
-
-    public String getTOSCAInterfaceName() {
-        if (this.toscaInterfaceName != null) {
-            return this.toscaInterfaceName;
-        } else {
-            return this.bpelProcessElement.getAttribute("name");
-        }
-    }
-
-    public void setTOSCAInterfaceName(final String name) {
-        this.toscaInterfaceName = name;
-    }
-
     public String getProcessNamespace() {
         return this.bpelProcessElement.getAttribute("targetNamespace");
-    }
-
-    public String getTOSCAOperationName() {
-        if (this.toscaOperationName != null) {
-            return this.toscaOperationName;
-        } else {
-            return getBpelMainSequenceReceiveElement().getAttribute("operation");
-        }
     }
 
     /**

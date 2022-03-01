@@ -23,6 +23,9 @@ public abstract class AbstractPlan {
     private final Collection<AbstractActivity> activites;
     private final Collection<Link> links;
     private final String id;
+    // wsdl related stuff
+    protected String toscaInterfaceName = null;
+    protected String toscaOperationName = null;
     private PlanType type;
     private int internalCounterId = 0;
 
@@ -196,6 +199,22 @@ public abstract class AbstractPlan {
         }
 
         return toString;
+    }
+
+    public void setTOSCAOperationname(final String name) {
+        this.toscaOperationName = name;
+    }
+
+    public String getTOSCAInterfaceName() {
+        return this.toscaInterfaceName;
+    }
+
+    public void setTOSCAInterfaceName(final String name) {
+        this.toscaInterfaceName = name;
+    }
+
+    public String getTOSCAOperationName() {
+        return this.toscaOperationName;
     }
 
     public static class Link {
