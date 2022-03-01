@@ -23,11 +23,10 @@ public abstract class AbstractPlan {
     private final Collection<AbstractActivity> activites;
     private final Collection<Link> links;
     private final String id;
-    // wsdl related stuff
-    protected String toscaInterfaceName = null;
-    protected String toscaOperationName = null;
     private PlanType type;
     private int internalCounterId = 0;
+    protected String toscaInterfaceName = null;
+    protected String toscaOperationName = null;
 
     public AbstractPlan(final String id, final PlanType type, final TDefinitions definitions,
                         final TServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
