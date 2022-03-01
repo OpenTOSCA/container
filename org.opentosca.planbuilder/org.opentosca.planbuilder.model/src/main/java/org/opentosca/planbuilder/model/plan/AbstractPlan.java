@@ -25,8 +25,8 @@ public abstract class AbstractPlan {
     private final String id;
     private PlanType type;
     private int internalCounterId = 0;
-    protected String toscaInterfaceName = null;
-    protected String toscaOperationName = null;
+    private String toscaInterfaceName = null;
+    private String toscaOperationName = null;
 
     public AbstractPlan(final String id, final PlanType type, final TDefinitions definitions,
                         final TServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
