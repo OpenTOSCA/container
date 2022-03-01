@@ -362,10 +362,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                                 xpathQuery);
                         assignSaveStateURL = context.importNode(assignSaveStateURL);
                         context.getPrePhaseElement().appendChild(assignSaveStateURL);
-                    } catch (final IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (final SAXException e) {
+                    } catch (final IOException | SAXException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
@@ -380,7 +377,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE, inputs);
 
                     if (!addedOperationCall) {
-                        LOG.error("Couldn´t generate freeze operation call, maybe you miss an IA or Parameters?");
+                        LOG.error("Couldn't generate freeze operation call, maybe you miss an IA or Parameters?");
                     }
                 }
                 this.bpelPluginHandler.handleActivity(context, templatePlan, nodeTemplate);

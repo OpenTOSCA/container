@@ -14,6 +14,11 @@ import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TPlan;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.commons.io.FileUtils;
@@ -126,7 +131,7 @@ public class PlanbuilderWorker {
             state.currentMessage = "Downloaded CSAR";
             LOG.debug("CSAR download finished");
 
-            if (fileName == null) {
+            if (fileName.isBlank()) {
                 LOG.debug("CSAR Filename couldn't be determined");
                 state.currentState = PlanGenerationStates.CSARDOWNLOADFAILED;
                 state.currentMessage = "CSAR Filename couldn't be determined";
@@ -134,7 +139,7 @@ public class PlanbuilderWorker {
             }
 
             fileName = fileName.replace(".csar", "") + ".planbuilder" + System.currentTimeMillis() + ".csar";
-            // generate plan (assumption: the send csar contains only one topologytemplate => only one buildPlan will be generated)
+            // generate plan (assumption: the csar send contains only one topologyTemplate => only one buildPlan will be generated)
             LOG.debug("Storing CSAR");
 
             Path tempCsarLocation = csarStorage.storeCSARTemporarily(fileName, csarInputStream);
@@ -182,36 +187,40 @@ public class PlanbuilderWorker {
 
         LOG.debug("Plans to upload: " + buildPlans.size());
 
-        for (final AbstractPlan buildPlan : plansToUpload.keySet()) {
+        for (final AbstractPlan plan : plansToUpload.keySet()) {
 
             // write to tmp dir, only generating one plan
-            final File planTmpFile = plansToUpload.get(buildPlan);
+            final File planTmpFile = plansToUpload.get(plan);
 
-            final List<String> inputParameters = ((BPELPlan) buildPlan).getWsdl().getInputMessageLocalNames();
-            final List<String> outputParameters = ((BPELPlan) buildPlan).getWsdl().getOuputMessageLocalNames();
+            final List<String> inputParameters = ((BPELPlan) plan).getWsdl().getInputMessageLocalNames();
+            final List<String> outputParameters = ((BPELPlan) plan).getWsdl().getOuputMessageLocalNames();
 
-            final JsonObject obj = new JsonObject();
-            obj.addProperty("name", QName.valueOf(buildPlan.getId()).getLocalPart());
-            obj.addProperty("id", QName.valueOf(buildPlan.getId()).getLocalPart());
-            obj.addProperty("planType", buildPlan.getType().toString());
-            obj.addProperty("planLanguage", BPELPlan.bpelNamespace);
+            String planId = QName.valueOf(plan.getId()).getLocalPart();
+            TPlan tPlan = new TPlan.Builder(planId, plan.getType().toString(), BPELPlan.bpelNamespace)
+                .setName(planId)
+                .setInputParameters(
+                    inputParameters.stream()
+                        .map(input -> new TParameter.Builder(input, "xsd:string").build())
+                        .collect(Collectors.toList()))
+                .setOutputParameters(
+                    outputParameters.stream()
+                        .map(output -> new TParameter.Builder(output, "xsd:string").build())
+                        .collect(Collectors.toList())
+                )
+                .build();
+            ObjectMapper objectMapper = new ObjectMapper();
 
-            JsonArray inputParamList = new JsonArray();
-            createParameters(inputParameters).forEach(inputParamList::add);
-
-            JsonObject inputParametersJson = new JsonObject();
-            inputParametersJson.add("inputParameter", inputParamList);
-            obj.add("inputParameters", inputParametersJson);
-
-            JsonArray outputParamList = new JsonArray();
-            createParameters(outputParameters).forEach(outputParamList::add);
-
-            JsonObject outputParametersJson = new JsonObject();
-            outputParametersJson.add("outputParameter", outputParamList);
-            obj.add("outputParameters", outputParametersJson);
-
-            final HttpEntity ent =
-                EntityBuilder.create().setText(obj.toString()).setContentType(ContentType.APPLICATION_JSON).build();
+            final HttpEntity ent;
+            try {
+                ent = EntityBuilder.create()
+                    .setText(objectMapper.writeValueAsString(tPlan))
+                    .setContentType(ContentType.APPLICATION_JSON)
+                    .build();
+            } catch (JsonProcessingException e) {
+                LOG.error("Could not create json entity to create plan in Winery!", e);
+                forceDelete(csarId);
+                return;
+            }
 
             HttpResponse createPlanResponse = null;
             try {
@@ -236,7 +245,7 @@ public class PlanbuilderWorker {
                 return;
             }
 
-            String planLocation = state.getPostUrl() + "/" + QName.valueOf(buildPlan.getId()).getLocalPart();
+            String planLocation = state.getPostUrl() + "/" + planId;
 
             try {
                 state.currentState = PlanGenerationStates.PLANSENDING;
@@ -251,8 +260,7 @@ public class PlanbuilderWorker {
 
                 final HttpResponse uploadResponse = httpService.Put(planLocation + "/file", mpEntity.build());
                 if (uploadResponse.getStatusLine().getStatusCode() >= 300) {
-                    // we assume ,if the status code ranges from 300 to 5xx , that
-                    // an error occured
+                    // we assume if the status code ranges from 300 to 5xx , that an error occurred
                     state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
                     state.currentMessage =
                         "Couldn't send plan. Server send status " + uploadResponse.getStatusLine().getStatusCode();
@@ -270,7 +278,7 @@ public class PlanbuilderWorker {
                     final URL optionsUrl = new URL(state.getCsarUrl(), "selfserviceportal/options/");
                     LOG.debug("Sending options to " + optionsUrl.toString());
 
-                    final SelfServiceOptionWrapper option = Util.generateSelfServiceOption((BPELPlan) buildPlan);
+                    final SelfServiceOptionWrapper option = Util.generateSelfServiceOption((BPELPlan) plan);
                     LOG.debug("Sending the following option: " + option.toString());
 
                     // send plan back
@@ -293,23 +301,18 @@ public class PlanbuilderWorker {
                     }
 
                     // TODO here we should send a default image, instead of the message..
-                    final FileBody fileBody = new FileBody(option.planInputMessageFile);
-                    final ContentBody contentBody = fileBody;
-                    multipartBuilder.addPart("file", contentBody);
+                    multipartBuilder.addPart("file", new FileBody(option.planInputMessageFile));
 
                     final HttpResponse optionsResponse = httpService.Post(optionsUrl.toString(), multipartBuilder.build());
 
                     if (optionsResponse.getStatusLine().getStatusCode() >= 300) {
-                        // we assume ,if the status code ranges from 300 to 5xx , that an error occured
+                        // we assume if the status code ranges from 300 to 5xx , that an error occurred
                         state.currentState = PlanGenerationStates.OPTIONSENDINGFAILED;
                         state.currentMessage = "Couldn't send option to winery. Response: \n  StatusCode: "
                             + optionsResponse.getStatusLine().getStatusCode() + " \n Reason Phrase: \n"
                             + optionsResponse.getStatusLine().getReasonPhrase();
                         forceDelete(csarId);
                         return;
-                    } else {
-                        state.currentState = PlanGenerationStates.OPTIONSENT;
-                        state.currentMessage = "Sent option. Everythings okay.";
                     }
                 } catch (final IOException e) {
                     state.currentState = PlanGenerationStates.OPTIONSENDINGFAILED;
@@ -340,16 +343,5 @@ public class PlanbuilderWorker {
         } catch (UserException | SystemException e) {
             LOG.warn("Failed to delete csar {} for planbuilder worker [{}:{}] with exception", csarId.csarName(), state.currentState, state.currentMessage, e);
         }
-    }
-
-    private List<JsonObject> createParameters(final List<String> parameters) {
-        return parameters.stream().map(p -> {
-            JsonObject paramObject = new JsonObject();
-            paramObject.addProperty("name", p);
-            paramObject.addProperty("type", "xsd:string");
-            paramObject.addProperty("required", "NO");
-            return paramObject;
-        })
-            .collect(Collectors.toList());
     }
 }
