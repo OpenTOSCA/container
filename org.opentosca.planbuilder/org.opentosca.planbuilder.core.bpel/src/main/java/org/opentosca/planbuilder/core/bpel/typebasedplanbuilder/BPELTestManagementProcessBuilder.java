@@ -46,6 +46,9 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_ManagementFeatureInterface;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_TestPlanOperation;
+
 /**
  * <p>
  * This process builder creates a test management plan if one of the NodeTemplates in the topology is of a type that
@@ -119,12 +122,12 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
 
         abstractTestPlan.setType(PlanType.MANAGEMENT);
         final BPELPlan newTestPlan =
-            this.planHandler.createEmptyBPELPlan(processNamespace, processName, abstractTestPlan, "test");
+            this.planHandler.createEmptyBPELPlan(processNamespace, processName, abstractTestPlan, OpenTOSCA_TestPlanOperation);
 
         this.planHandler.initializeBPELSkeleton(newTestPlan, csar);
 
-        newTestPlan.setTOSCAInterfaceName("OpenTOSCA-Management-Feature-Interface");
-        newTestPlan.setTOSCAOperationname("test");
+        newTestPlan.setTOSCAInterfaceName(OpenTOSCA_ManagementFeatureInterface);
+        newTestPlan.setTOSCAOperationname(OpenTOSCA_TestPlanOperation);
 
         this.instanceVarsHandler.addInstanceURLVarToTemplatePlans(newTestPlan, serviceTemplate);
         this.instanceVarsHandler.addInstanceIDVarToTemplatePlans(newTestPlan, serviceTemplate);

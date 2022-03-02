@@ -258,7 +258,7 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
         try {
             wsdlFactory = WSDLFactory.newInstance();
             final WSDLReader wsdlDefinitionReader = wsdlFactory.newWSDLReader();
-            // deactives logging of 'Retrieving documant at...'
+            // deactivates logging of 'Retrieving document at...'
             wsdlDefinitionReader.setFeature("javax.wsdl.verbose", false);
             return wsdlDefinitionReader.readWSDL(endpoint);
         } catch (final WSDLException e) {

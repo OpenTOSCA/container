@@ -48,6 +48,9 @@ import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_BuildPlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_LifecycleInterface;
+
 /**
  * <p>
  * This Class represents the high-level algorithm of the concept in <a href= "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=BCLR-0043&mod=0&engl=1&inst=FAK"
@@ -129,10 +132,10 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
         LOG.debug(buildPlan.toString());
 
         final BPELPlan newBuildPlan =
-            this.planHandler.createEmptyBPELPlan(processNamespace, processName, buildPlan, "initiate");
+            this.planHandler.createEmptyBPELPlan(processNamespace, processName, buildPlan, OpenTOSCA_BuildPlanOperation);
 
-        newBuildPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
-        newBuildPlan.setTOSCAOperationname("initiate");
+        newBuildPlan.setTOSCAInterfaceName(OpenTOSCA_LifecycleInterface);
+        newBuildPlan.setTOSCAOperationname(OpenTOSCA_BuildPlanOperation);
 
         this.planHandler.initializeBPELSkeleton(newBuildPlan, csar);
         // newBuildPlan.setCsarName(csarName);

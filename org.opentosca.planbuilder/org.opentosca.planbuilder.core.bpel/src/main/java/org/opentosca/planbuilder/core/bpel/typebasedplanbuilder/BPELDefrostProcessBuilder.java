@@ -39,6 +39,9 @@ import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_DefrostPlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_StatefulLifecycleInterface;
+
 public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELDefrostProcessBuilder.class);
@@ -91,10 +94,10 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
             generateDOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate, csar);
 
         final BPELPlan newDefreezePlan =
-            this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractBackupPlan, "defrost");
+            this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractBackupPlan, OpenTOSCA_DefrostPlanOperation);
 
-        newDefreezePlan.setTOSCAInterfaceName("OpenTOSCA-Stateful-Lifecycle-Interface");
-        newDefreezePlan.setTOSCAOperationname("defrost");
+        newDefreezePlan.setTOSCAInterfaceName(OpenTOSCA_StatefulLifecycleInterface);
+        newDefreezePlan.setTOSCAOperationname(OpenTOSCA_DefrostPlanOperation);
         newDefreezePlan.setType(PlanType.BUILD);
 
         this.planHandler.initializeBPELSkeleton(newDefreezePlan, csar);
