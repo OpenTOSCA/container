@@ -25,6 +25,8 @@ public abstract class AbstractPlan {
     private final String id;
     private PlanType type;
     private int internalCounterId = 0;
+    private String toscaInterfaceName = null;
+    private String toscaOperationName = null;
 
     public AbstractPlan(final String id, final PlanType type, final TDefinitions definitions,
                         final TServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
@@ -196,6 +198,22 @@ public abstract class AbstractPlan {
         }
 
         return toString;
+    }
+
+    public void setTOSCAOperationname(final String name) {
+        this.toscaOperationName = name;
+    }
+
+    public String getTOSCAInterfaceName() {
+        return this.toscaInterfaceName;
+    }
+
+    public void setTOSCAInterfaceName(final String name) {
+        this.toscaInterfaceName = name;
+    }
+
+    public String getTOSCAOperationName() {
+        return this.toscaOperationName;
     }
 
     public static class Link {
