@@ -3,25 +3,25 @@ package org.opentosca.container.api.planbuilder;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TExportedInterface;
+import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TPlan;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import org.apache.commons.io.FileUtils;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -31,9 +31,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicHeader;
-import org.opentosca.container.api.planbuilder.Util.SelfServiceOptionWrapper;
 import org.opentosca.container.api.planbuilder.model.PlanGenerationState;
 import org.opentosca.container.api.planbuilder.model.PlanGenerationState.PlanGenerationStates;
 import org.opentosca.container.core.common.SystemException;
@@ -152,14 +150,6 @@ public class PlanbuilderWorker {
             return;
         }
 
-        if (csarId == null) {
-            state.currentState = PlanGenerationStates.CSARDOWNLOADFAILED;
-            state.currentMessage = "Couldn't store CSAR";
-            LOG.error("Couldn't store CSAR");
-            forceDelete(csarId);
-            return;
-        }
-
         state.currentState = PlanGenerationStates.PLANGENERATING;
         state.currentMessage = "Generating Plan";
         LOG.debug("Starting to generate Plan");
@@ -178,17 +168,19 @@ public class PlanbuilderWorker {
         state.currentMessage = "Stored and generated Plans";
         LOG.debug("Stored and generated Plans");
 
-        final Map<BPELPlan, File> plansToUpload = new HashMap<>();
+        final Map<AbstractPlan, File> plansToUpload = new HashMap<>();
 
         for (final AbstractPlan buildPlan : buildPlans) {
             final File planTmpFile = Util.writePlan2TmpFolder((BPELPlan) buildPlan);
-            plansToUpload.put((BPELPlan) buildPlan, planTmpFile);
+            plansToUpload.put(buildPlan, planTmpFile);
         }
 
         LOG.debug("Plans to upload: " + buildPlans.size());
 
-        for (final AbstractPlan plan : plansToUpload.keySet()) {
+        ArrayList<TExportedInterface> serviceTemplateInterfaces = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
 
+        for (final AbstractPlan plan : plansToUpload.keySet()) {
             // write to tmp dir, only generating one plan
             final File planTmpFile = plansToUpload.get(plan);
 
@@ -208,7 +200,6 @@ public class PlanbuilderWorker {
                         .collect(Collectors.toList())
                 )
                 .build();
-            ObjectMapper objectMapper = new ObjectMapper();
 
             final HttpEntity ent;
             try {
@@ -253,8 +244,7 @@ public class PlanbuilderWorker {
                 LOG.debug("Sending Plan");
 
                 // send file
-                final FileBody bin = new FileBody(planTmpFile);
-                final ContentBody cb = bin;
+                final ContentBody cb = new FileBody(planTmpFile);
                 final MultipartEntityBuilder mpEntity = MultipartEntityBuilder.create();
                 mpEntity.addPart("file", cb);
 
@@ -270,60 +260,27 @@ public class PlanbuilderWorker {
                     return;
                 }
 
-                LOG.debug("Starting to send Options");
-                state.currentState = PlanGenerationStates.OPTIONSENDING;
-                state.currentMessage = "Sending SelfService Option";
-
-                try {
-                    final URL optionsUrl = new URL(state.getCsarUrl(), "selfserviceportal/options/");
-                    LOG.debug("Sending options to " + optionsUrl.toString());
-
-                    final SelfServiceOptionWrapper option = Util.generateSelfServiceOption((BPELPlan) plan);
-                    LOG.debug("Sending the following option: " + option.toString());
-
-                    // send plan back
-                    final MultipartEntityBuilder multipartBuilder = MultipartEntityBuilder.create();
-                    try {
-                        multipartBuilder.addPart("name",
-                            new StringBody(option.option.getName(), ContentType.TEXT_PLAIN));
-                        multipartBuilder.addPart("description",
-                            new StringBody(option.option.getDescription(), ContentType.TEXT_PLAIN));
-                        multipartBuilder.addPart("planServiceName",
-                            new StringBody(option.option.getPlanServiceName(), ContentType.TEXT_PLAIN));
-                        multipartBuilder.addPart("planInputMessage",
-                            new StringBody(FileUtils.readFileToString(option.planInputMessageFile), ContentType.TEXT_PLAIN));
-                    } catch (final UnsupportedEncodingException e1) {
-                        state.currentState = PlanGenerationStates.OPTIONSENDINGFAILED;
-                        state.currentMessage = "Couldn't generate option to send to winery";
-                        forceDelete(csarId);
-                        LOG.error("Couldn't generate option request to " + optionsUrl.toString());
-                        return;
-                    }
-
-                    // TODO here we should send a default image, instead of the message..
-                    multipartBuilder.addPart("file", new FileBody(option.planInputMessageFile));
-
-                    final HttpResponse optionsResponse = httpService.Post(optionsUrl.toString(), multipartBuilder.build());
-
-                    if (optionsResponse.getStatusLine().getStatusCode() >= 300) {
-                        // we assume if the status code ranges from 300 to 5xx , that an error occurred
-                        state.currentState = PlanGenerationStates.OPTIONSENDINGFAILED;
-                        state.currentMessage = "Couldn't send option to winery. Response: \n  StatusCode: "
-                            + optionsResponse.getStatusLine().getStatusCode() + " \n Reason Phrase: \n"
-                            + optionsResponse.getStatusLine().getReasonPhrase();
-                        forceDelete(csarId);
-                        return;
-                    }
-                } catch (final IOException e) {
-                    state.currentState = PlanGenerationStates.OPTIONSENDINGFAILED;
-                    state.currentMessage = "Couldn't send option to winery.";
-                    forceDelete(csarId);
-                    return;
-                }
-
                 state.currentState = PlanGenerationStates.PLANSSENT;
                 state.currentMessage = "Sent plan.";
                 LOG.debug("Sent plan.");
+
+                LOG.debug("Adding interface and operation to the list of the ServiceTemplate");
+                TExportedOperation.Plan exportedPlan = new TExportedOperation.Plan();
+                exportedPlan.setPlanRef(planId);
+                TExportedOperation exportedOperation = new TExportedOperation(plan.getTOSCAOperationName());
+                exportedOperation.setPlan(exportedPlan);
+
+                Optional<TExportedInterface> exportedInterfaceOptional = serviceTemplateInterfaces.stream()
+                    .filter(iFace -> iFace.getName().equals(plan.getTOSCAInterfaceName()))
+                    .findFirst();
+                if (exportedInterfaceOptional.isPresent()) {
+                    exportedInterfaceOptional.get().getOperation().add(exportedOperation);
+                } else {
+                    serviceTemplateInterfaces.add(
+                        // DO NOT use only List.of() as it creates an unmodifiable list!
+                        new TExportedInterface(plan.getTOSCAInterfaceName(), new ArrayList<>(List.of(exportedOperation)))
+                    );
+                }
             } catch (final IOException e) {
                 state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
                 state.currentMessage = "Couldn't send plan.";
@@ -332,6 +289,26 @@ public class PlanbuilderWorker {
                 return;
             }
         }
+
+        LOG.debug("Send mapping of operations and plans to Winery...");
+        try {
+            HttpResponse createPlanResponse = httpService.Post(
+                new URL(state.getCsarUrl(), "boundarydefinitions/interfaces/").toString(),
+                EntityBuilder.create()
+                    .setText(objectMapper.writeValueAsString(serviceTemplateInterfaces))
+                    .setContentType(ContentType.APPLICATION_JSON)
+                    .build(),
+                new BasicHeader("Accept", "application/json"),
+                new BasicHeader("Content-Type", "application/json")
+            );
+
+            if (createPlanResponse.getStatusLine().getStatusCode() > 300) {
+                LOG.error("Posting interface information to Winery was not successful!\n{}", createPlanResponse);
+            }
+        } catch (IOException e) {
+            LOG.error("Could not send operations to plans mapping to Winery...");
+        }
+
         state.currentState = PlanGenerationStates.FINISHED;
         state.currentMessage = "Plans where successfully sent.";
         forceDelete(csarId);

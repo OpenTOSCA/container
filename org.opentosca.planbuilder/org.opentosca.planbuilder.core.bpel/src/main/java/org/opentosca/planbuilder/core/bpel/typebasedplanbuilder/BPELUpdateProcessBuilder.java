@@ -45,6 +45,9 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_StatefulLifecycleInterface;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_UpdatePlanOperation;
+
 public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELUpdateProcessBuilder.class);
@@ -99,12 +102,12 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
 
         newAbstractUpdatePlan.setType(PlanType.MANAGEMENT);
         final BPELPlan newUpdatePlan =
-            this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractUpdatePlan, "update");
+            this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractUpdatePlan, OpenTOSCA_UpdatePlanOperation);
 
         this.planHandler.initializeBPELSkeleton(newUpdatePlan, csar);
 
-        newUpdatePlan.setTOSCAInterfaceName("OpenTOSCA-Stateful-Lifecycle-Interface");
-        newUpdatePlan.setTOSCAOperationname("update");
+        newUpdatePlan.setTOSCAInterfaceName(OpenTOSCA_StatefulLifecycleInterface);
+        newUpdatePlan.setTOSCAOperationname(OpenTOSCA_UpdatePlanOperation);
 
         this.instanceVarsHandler.addInstanceURLVarToTemplatePlans(newUpdatePlan, serviceTemplate);
         this.instanceVarsHandler.addInstanceIDVarToTemplatePlans(newUpdatePlan, serviceTemplate);

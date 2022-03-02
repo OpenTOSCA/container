@@ -45,6 +45,9 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_FreezePlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_StatefulLifecycleInterface;
+
 /**
  * @author Jan Ruthardt - st107755@stud.uni-stuttgart.de
  */
@@ -115,12 +118,12 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
         newAbstractBackupPlan.setType(PlanType.TERMINATION);
         final BPELPlan newFreezePlan =
-            this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractBackupPlan, "freeze");
+            this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractBackupPlan, OpenTOSCA_FreezePlanOperation);
 
         this.planHandler.initializeBPELSkeleton(newFreezePlan, csar);
 
-        newFreezePlan.setTOSCAInterfaceName("OpenTOSCA-Stateful-Lifecycle-Interface");
-        newFreezePlan.setTOSCAOperationname("freeze");
+        newFreezePlan.setTOSCAInterfaceName(OpenTOSCA_StatefulLifecycleInterface);
+        newFreezePlan.setTOSCAOperationname(OpenTOSCA_FreezePlanOperation);
 
         this.instanceVarsHandler.addInstanceURLVarToTemplatePlans(newFreezePlan, serviceTemplate);
         this.instanceVarsHandler.addInstanceIDVarToTemplatePlans(newFreezePlan, serviceTemplate);
