@@ -57,6 +57,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.eclipse.winery.common.Constants.DEFAULT_LOCAL_REPO_NAME;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_DefrostPlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_FreezePlanOperation;
 
 public abstract class TestUtils {
 
@@ -568,7 +570,9 @@ public abstract class TestUtils {
 
     public static TPlan getBuildPlan(List<TPlan> plans) {
         for (TPlan plan : plans) {
-            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.BUILD) && !plan.getId().toLowerCase().contains("defrost") && plan.getId().toLowerCase().contains("buildplan")) {
+            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.BUILD)
+                && !plan.getId().toLowerCase().contains(OpenTOSCA_DefrostPlanOperation)
+                && plan.getId().toLowerCase().contains("buildplan")) {
                 return plan;
             }
         }
@@ -577,7 +581,9 @@ public abstract class TestUtils {
 
     public static TPlan getTerminationPlan(List<TPlan> plans) {
         for (TPlan plan : plans) {
-            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.TERMINATION) && !plan.getId().toLowerCase().contains("freeze") && plan.getId().toLowerCase().contains("terminationplan")) {
+            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.TERMINATION)
+                && !plan.getId().toLowerCase().contains(OpenTOSCA_FreezePlanOperation)
+                && plan.getId().toLowerCase().contains("terminationplan")) {
                 return plan;
             }
         }
