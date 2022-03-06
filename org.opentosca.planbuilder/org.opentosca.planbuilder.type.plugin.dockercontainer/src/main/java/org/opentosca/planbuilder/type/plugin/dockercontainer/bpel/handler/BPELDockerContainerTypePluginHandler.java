@@ -39,10 +39,11 @@ import static org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerC
  * <p>
  * This class contains all the logic to add BPEL Code which installs a PhpModule on an Apache HTTP Server
  * </p>
- * Copyright 2014 IAAS University of Stuttgart <br>
+ * Copyright 2014-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ * @author Miles Stoetzner
  */
 public class BPELDockerContainerTypePluginHandler implements DockerContainerTypePluginHandler<BPELPlanContext> {
     private static final Logger LOG = LoggerFactory.getLogger(BPELDockerContainerTypePluginHandler.class);
