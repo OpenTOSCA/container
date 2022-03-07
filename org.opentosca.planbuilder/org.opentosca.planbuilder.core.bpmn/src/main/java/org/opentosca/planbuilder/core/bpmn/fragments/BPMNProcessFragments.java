@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.core.bpmn.fragments;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -44,7 +45,7 @@ public class BPMNProcessFragments {
      * Creates XML node from BPMNScope object, the XML node already imported to
      * the same XML document as BPMNPlan
      * @param bpmnScope
-     * @return
+     * @return XML node in BPMN
      */
     public Node createBPMNScopeAsNode(BPMNScope bpmnScope) {
         LOG.debug("Creating BPMNScope as Node: {} with type: {}", bpmnScope.getId(), bpmnScope.getBpmnScopeType().name());
@@ -124,8 +125,10 @@ public class BPMNProcessFragments {
     }
 
     private Node createCallNodeOperationTaskAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
-        String template = createNodeOperation(bpmnScope.getId());
+        String template = createNodeOperation(bpmnScope);
         Node node = this.createImportNodeFromString(bpmnScope, template);
+        addInputParameter(bpmnScope);
+        addOutputParameter(bpmnScope);
         addIncomings(bpmnScope);
         addOutgoings(bpmnScope);
         return node;
@@ -272,9 +275,14 @@ public class BPMNProcessFragments {
         return template;
     }
 
-    public String createNodeOperation(String Id) throws IOException {
-        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateNodeOperationScriptTask.xml"));
-        template = template.replaceAll("CallNodeOperation_IdToReplace", Id);
+    public String createNodeOperation(BPMNScope bpmnScope) throws IOException {
+        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateCallNodeOperationScriptTask.xml"));
+        LOG.debug("BPMNScope {}", bpmnScope);
+        template = template.replaceAll("CallNodeOperation_IdToReplace", bpmnScope.getId());
+        template = template.replaceAll("NameToSet",
+            "Call Operation " + bpmnScope.getInputParameter("Operation")
+            + " of Interface " + bpmnScope.getInputParameter("Interface")
+            + " in NodeTemplate " + bpmnScope.getInputParameter("NodeTemplate"));
         return template;
     }
 
@@ -395,6 +403,48 @@ public class BPMNProcessFragments {
         template.replace("OutgoingFlowToReplace", id2);
         return template;
     }
+
+    private void addOutputParameter(BPMNScope bpmnScope) throws IOException, SAXException {
+        Element root = bpmnScope.getBpmnScopeElement();
+        // <camunda:inputOutput>
+        Node node = ((Element) root.getElementsByTagName("bpmn:extensionElements").item(0)).getElementsByTagName("camunda:inputOutput").item(0);
+        Document doc = bpmnScope.getBpmnDocument();
+        Map<String, String> outputMap = bpmnScope.getOutputParameterMap();
+        for (String name : outputMap.keySet()) {
+            Node output = createCamundaOutputAsNode(name);
+            node.appendChild(doc.importNode(output, true));
+        }
+    }
+
+    private Node createCamundaOutputAsNode(String name) throws IOException, SAXException {
+        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/CamundaOutputParameter.xml"));
+        template = template.replace("OutputName", name);
+        return this.transformStringToNode(template);
+    }
+
+    /**
+     * Adds all input parameter name and value to current xml element
+     * @param bpmnScope
+     */
+    private void addInputParameter(BPMNScope bpmnScope) throws IOException, SAXException {
+        Element root = bpmnScope.getBpmnScopeElement();
+        // <bpmn:extensionElements><camunda:inputOutput>
+        Node node = ((Element) root.getElementsByTagName("bpmn:extensionElements").item(0)).getElementsByTagName("camunda:inputOutput").item(0);
+        Document doc = bpmnScope.getBpmnDocument();
+        Map<String, String> inputMap = bpmnScope.getInputParameterMap();
+        for (String name : inputMap.keySet()) {
+            Node input = createCamundaInputAsNode(name, inputMap.get(name));
+            node.appendChild(doc.importNode(input, true));
+        }
+    }
+
+    private Node createCamundaInputAsNode(String name, String value) throws IOException, SAXException {
+        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/CamundaInputParameter.xml"));
+        template = template.replace("InputNameToSet", name);
+        template = template.replace("InputValueToSet", value);
+        return this.transformStringToNode(template);
+    }
+
 
     private void addIncomings(BPMNScope bpmnScope) throws IOException, SAXException {
         Node node = (Node) bpmnScope.getBpmnScopeElement();

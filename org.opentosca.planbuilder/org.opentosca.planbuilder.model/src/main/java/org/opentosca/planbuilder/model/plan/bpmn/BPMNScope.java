@@ -29,7 +29,10 @@ public class BPMNScope {
     private final Map<TOperation, TOperation> usedOperations = new HashMap<TOperation, TOperation>();
 
     // for groovy script InputName:InputValue
-    private final Map<String, String> inputParameters = new HashMap<>();
+    private final Map<String, String> inputParameterMap = new HashMap<>();
+
+    // for groovy script OutputParameterName:OutputParameterValue
+    private final Map<String, String> outputParameterMap = new HashMap<>();
 
     // from groovy script, unique for other script to identification
     private String resultVariableName;
@@ -112,7 +115,7 @@ public class BPMNScope {
         return "BPMNScope ID: " + id + " Plan: " + buildPlan.getId() + " Activity: " + this.act +
             ((this.getNodeTemplate() != null) ?
                 " Node: " + this.nodeTemplate.getId() :
-                " Relation: " + this.relationshipTemplate.getId());
+                (relationshipTemplate != null) ? this.relationshipTemplate.getId() : "is null");
     }
 
     public AbstractActivity getActivity() {
@@ -372,5 +375,33 @@ public class BPMNScope {
 
     public String getInstanceUrlVariableName() {
         return buildPlan.getNodeTemplateInstanceUrlVariableName(this.nodeTemplate);
+    }
+
+    public String getInputParameter(String paramName) {
+        return inputParameterMap.getOrDefault(paramName, "");
+    }
+
+    public Map<String, String> getInputParameterMap() {
+        return inputParameterMap;
+    }
+
+    public boolean addInputparameter(String name, String value) {
+        if (inputParameterMap.containsKey(name)) {
+            return false;
+        }
+        inputParameterMap.put(name, value);
+        return true;
+    }
+
+    public Map<String, String> getOutputParameterMap() {
+        return outputParameterMap;
+    }
+
+    public boolean addOutputParameter(String name, String value) {
+        if (outputParameterMap.containsKey(name)) {
+            return false;
+        }
+        outputParameterMap.put(name, value);
+        return false;
     }
 }

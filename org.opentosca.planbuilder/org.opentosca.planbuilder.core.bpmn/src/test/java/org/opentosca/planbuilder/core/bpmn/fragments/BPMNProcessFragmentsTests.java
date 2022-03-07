@@ -168,6 +168,29 @@ public class BPMNProcessFragmentsTests {
         assertThat(node.getOwnerDocument(), is(bpmnPlan.getBpmnDocument()));
     }
 
+    @Test
+    public void testCreateCallNodeOperationTaskAsNode() {
+        BPMNScope callNodeOperationTask = new BPMNScope(
+            BPMNScopeType.CALL_NODE_OPERATION_TASK, "Task_0"
+        );
+        callNodeOperationTask.setBuildPlan(bpmnPlan);
+        String inputParaName_0 = "InputParaName_0";
+        String inputParaValue_0 = "InputParaValue_0";
+        callNodeOperationTask.addInputparameter(inputParaName_0, inputParaValue_0);
+        String outputParaName_0 = "OutputParaName_0";
+        String outputParaValue_0 = "";
+        callNodeOperationTask.addOutputParameter(outputParaName_0, outputParaValue_0);
+        Element node = (Element) fragments.createBPMNScopeAsNode(callNodeOperationTask);
+        Element ioNode = (Element) ((Element) node.getElementsByTagName("bpmn:extensionElements").item(0)).getElementsByTagName("camunda:inputOutput").item(0);
+        Element inputNode = (Element) ioNode.getElementsByTagName("camunda:inputParameter").item(0);
+        Element outputNode = (Element) ioNode.getElementsByTagName("camunda:outputParameter").item(0);
+
+        assertThat(inputNode.getAttribute("name"), is(inputParaName_0));
+        assertThat(inputNode.getTextContent(), is(inputParaValue_0));
+        assertThat(outputNode.getAttribute("name"), is(outputParaName_0));
+        assertThat(outputNode.getTextContent(), is(outputParaValue_0));
+    }
+
     // for debugging purpose, don't remove
     public void exportDocToConsole(Document doc) {
         TransformerFactory transformerFactory = TransformerFactory.newInstance();

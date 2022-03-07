@@ -124,11 +124,15 @@ public class BPMNScopeHandler {
         } else if (type == BPMNScopeType.SET_NODE_PROPERTY_TASK) {
             parentSubrocess.setSubProSetNodePropertyTask(createdScope);
         }
+
         LOG.debug("NodeTemplate {}", createdScope.getNodeTemplate());
+
         parentSubrocess.addScopeToSubprocess(createdScope);
         createdScope.setParentProcess(parentSubrocess);
         createdScope.setBuildPlan(buildPlan);
+
         LOG.debug("Created Scope {}", createdScope);
+
         return createdScope;
     }
 

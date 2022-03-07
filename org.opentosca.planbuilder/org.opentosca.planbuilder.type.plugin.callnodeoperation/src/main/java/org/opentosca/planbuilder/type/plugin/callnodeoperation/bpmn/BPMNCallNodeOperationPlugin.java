@@ -9,19 +9,31 @@ import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypeCallNode
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScopeType;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 public class BPMNCallNodeOperationPlugin implements IPlanBuilderTypeCallNodeOperationPlugin<BPMNPlanContext> {
-    private final BPMNScopeHandler bpmnScopeHandler;
+
+    private static final Logger LOG = LoggerFactory.getLogger(BPMNCallNodeOperationPlugin.class);
+
+    private static final ContainerPatternHandler containerPatternHandler = new ContainerPatternHandler();
+
+    private static final EnginePatternHandler enginePatternHandler = new EnginePatternHandler();
+
+    private static final DockerEngineHandler dockerEngineHandler = new DockerEngineHandler();
+
+    private static final String PLUGIN_ID = "OpenTOSCA PlanBuilder Type Plugin DockerContainer";
+
+    private  final BPMNScopeHandler bpmnScopeHandler;
 
     public BPMNCallNodeOperationPlugin() throws ParserConfigurationException {
-        this.bpmnScopeHandler = new BPMNScopeHandler();
+        bpmnScopeHandler = new BPMNScopeHandler();
     }
 
     @Override
     public String getID() {
-        return null;
+        return PLUGIN_ID;
     }
 
     @Override
@@ -30,16 +42,26 @@ public class BPMNCallNodeOperationPlugin implements IPlanBuilderTypeCallNodeOper
     }
 
     @Override
-    public boolean handleCreate(BPMNPlanContext templateContext, TNodeTemplate nodeTemplate) {
-        BPMNScope subprocess = templateContext.getBpmnScope();
+    public boolean handleCreate(BPMNPlanContext context, TNodeTemplate nodeTemplate) {
+        BPMNScope subprocess = context.getBpmnScope();
         BPMNPlan buildPlan = subprocess.getBuildPlan();
-        final BPMNScope callNodeOperationTask = bpmnScopeHandler.createBPMNScopeWithinSubprocess(subprocess, BPMNScopeType.CALL_NODE_OPERATION_TASK);/*new BPMNScope(
-            BPMNScopeType.CALL_NODE_OPERATION_TASK,
-            idPrefix + "_" + buildPlan.getIdForNamesAndIncrement()
-        );*/
+        final BPMNScope callNodeOperationTask = bpmnScopeHandler.createBPMNScopeWithinSubprocess(subprocess, BPMNScopeType.CALL_NODE_OPERATION_TASK);
+        boolean check = callNodeOperationTask != null;
 
+        // Step-1: decides which pattern is applied to current NodeTemplate
+        if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate, context.getCsar())) {
+            LOG.debug("Handling by container pattern");
+
+            // TODO: consider adding compensation operation
+        } else if (enginePatternHandler.isProvisionableByEnginePattern(nodeTemplate, context.getCsar())) {
+            LOG.debug("Handling by engine pattern");
+            check &= enginePatternHandler.handleCreate(callNodeOperationTask, context);
+        } else if (dockerEngineHandler.isProvisionableByDockerEngine(nodeTemplate, context.getCsar())) {
+            LOG.debug("Handling by Docker Engine");
+
+        }
         // TODO: Handle Property2Variable Mapping
-        return callNodeOperationTask != null;
+        return check;
     }
 
     @Override

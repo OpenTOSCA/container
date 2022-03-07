@@ -1,0 +1,6 @@
+<bpmn:scriptTask id="CallNodeOperation_IdToReplace" name="NameToSet" scriptFormat="groovy" camunda:resource="deployment://CallNodeOperation.groovy"  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:camunda="http://camunda.org/schema/1.0/bpmn">
+    <bpmn:extensionElements>
+        <camunda:inputOutput>
+        </camunda:inputOutput>
+    </bpmn:extensionElements>
+</bpmn:scriptTask>
