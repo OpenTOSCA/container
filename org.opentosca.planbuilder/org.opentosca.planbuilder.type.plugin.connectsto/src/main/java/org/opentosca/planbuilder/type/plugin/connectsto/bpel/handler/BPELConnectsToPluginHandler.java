@@ -95,7 +95,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
 
         // no connectTo operation found with matching parameters
         if (connectsToOp == null) {
-            BPELConnectsToPluginHandler.LOG.debug("No executable connectTo operation found.");
+            BPELConnectsToPluginHandler.LOG.warn("No executable connectTo operation found.");
             return false;
         }
 
