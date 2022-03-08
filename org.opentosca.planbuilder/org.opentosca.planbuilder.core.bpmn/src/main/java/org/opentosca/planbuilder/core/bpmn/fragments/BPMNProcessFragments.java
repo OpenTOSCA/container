@@ -8,6 +8,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
 import org.slf4j.Logger;
@@ -110,17 +111,23 @@ public class BPMNProcessFragments {
     }
 
     private Node createSetNodePropertiesTaskAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
-        String template = createSetProperties(bpmnScope.getId());
+        String template = createSetProperties(bpmnScope);
         Node node = createImportNodeFromString(bpmnScope, template);
         addIncomings(bpmnScope);
         addOutgoings(bpmnScope);
+        addInputParameter(bpmnScope);
         return node;
     }
 
     // TODO: review other attribute to replace
-    private String createSetProperties(String id) throws IOException {
+    private String createSetProperties(BPMNScope bpmnScope) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateSetPropertiesScriptTask.xml"));
-        template = template.replace("SetProperties_IdToReplace", id);
+        TNodeTemplate nodeTemplate = bpmnScope.getNodeTemplate();
+        template = template.replace("SetProperties_IdToReplace", bpmnScope.getId());
+        template = template.replace("NameToReplace", "Set " + nodeTemplate.getName() + " Properties");
+        template = template.replace("NodeInstanceURLToSet", bpmnScope.getInstanceUrlVariableName());
+        template = template.replace("NodeTemplateToSet", nodeTemplate.getName());
+        template = template.replace("StateToSet", bpmnScope.getNodeState());
         return template;
     }
 
@@ -328,7 +335,7 @@ public class BPMNProcessFragments {
     }
 
     public Node createBPMNSubprocessAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
-        final String templateString = createBPMNSubprocess(bpmnScope.getId());
+        final String templateString = createBPMNSubprocess(bpmnScope);
         Node node = this.createImportNodeFromString(bpmnScope, templateString);
         this.addIncomings(bpmnScope);
         this.addOutgoings(bpmnScope);
@@ -341,9 +348,11 @@ public class BPMNProcessFragments {
         return node;
     }
 
-    private String createBPMNSubprocess(String id) throws IOException {
+    private String createBPMNSubprocess(BPMNScope bpmnScope) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNNodeSubprocess.xml"));
-        template = template.replace("NodeSubprocess_IdToReplace", id);
+        template = template.replace("NodeSubprocess_IdToReplace", bpmnScope.getId());
+        template = template.replace("NameToSet",
+                                    bpmnScope.getNodeTemplate().getName() + " Subprocess");
         return template;
     }
 

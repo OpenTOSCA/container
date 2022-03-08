@@ -1,13 +1,10 @@
-<bpmn:scriptTask id="SetProperties_IdToReplace" name="Set DockerEngine Properties" scriptFormat="groovy" camunda:resource="deployment://SetProperties.groovy" qa:ntype="PropertiesChanger" qa:instanceID="DockerEngineNodeInstanceURL" qa:NodeTemplate="DockerEngine" qa:prop0="DockerEngineURL#get_input: DockerEngineURL" qa:prop1="DockerEngineCertificate#" qa:propertiesList="1" qa:valueProp="${DockerEngineURL}" qa:Properties="DockerEngineURL" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:camunda="http://camunda.org/schema/1.0/bpmn">
+<bpmn:scriptTask id="SetProperties_IdToReplace" name="NameToReplace" scriptFormat="groovy" camunda:resource="deployment://SetProperties.groovy" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:camunda="http://camunda.org/schema/1.0/bpmn">
     <bpmn:extensionElements>
         <camunda:inputOutput>
             <camunda:inputParameter name="State">StateToSet</camunda:inputParameter>
             <camunda:inputParameter name="NodeInstanceURL">NodeInstanceURLToSet</camunda:inputParameter>
             <camunda:inputParameter name="NodeTemplate">NodeTemplateToSet</camunda:inputParameter>
-            <camunda:inputParameter name="Properties">PropertiesToSet</camunda:inputParameter>
             <camunda:inputParameter name="Values">ValuesToSet</camunda:inputParameter>
-            <camunda:inputParameter name="Input_DockerEngineURL">${InputURLToSet}</camunda:inputParameter>
-            <camunda:inputParameter name="Input_DockerEngineCertificate" />
         </camunda:inputOutput>
     </bpmn:extensionElements>
 </bpmn:scriptTask>

@@ -152,11 +152,18 @@ public class BPMNProcessFragmentsTests {
 
     @Test
     public void testCreateSetProperties() {
+        TNodeTemplate nodeTemplate = new TNodeTemplate();
+        nodeTemplate.setId("MyTinyTodoContainer_0");
+        nodeTemplate.setName("MyTinyTodoContainer_0");
         BPMNScope createNodeInstanceTask = new BPMNScope(
             BPMNScopeType.SET_NODE_PROPERTY_TASK, "Task_0");
+        createNodeInstanceTask.setNodeTemplate(nodeTemplate);
         createNodeInstanceTask.setBuildPlan(bpmnPlan);
+        createNodeInstanceTask.setInstanceState(InstanceState.CREATED.name());
+        bpmnPlan.addInstanceUrlVariableNameToNodeTemplate(nodeTemplate, "MyTinyTodoContainer_0_NodeInstanceUrl");
         Element sNode = (Element) fragments.createBPMNScopeAsNode(createNodeInstanceTask);
         assertThat(sNode.getAttribute("id"), is(createNodeInstanceTask.getId()));
+
     }
 
     @Test
