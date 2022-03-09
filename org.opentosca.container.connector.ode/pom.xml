@@ -49,8 +49,10 @@
                             <packageName>org.apache.ode.deploy</packageName>
                             <wsdlFile>src/main/resources/deploy.wsdl</wsdlFile>
                             <outputDirectory>target/generated-sources</outputDirectory>
+                            <targetResourcesFolderLocation>target/</targetResourcesFolderLocation>
                             <overWrite>true</overWrite>
                             <syncMode>sync</syncMode>
+                            <unpackClasses>true</unpackClasses>
                         </configuration>
                     </execution>
                     <execution>
@@ -63,8 +65,10 @@
                             <packageName>org.apache.axis.pmapi</packageName>
                             <wsdlFile>src/main/resources/pmapi.wsdl</wsdlFile>
                             <outputDirectory>target/generated-sources</outputDirectory>
+                            <targetResourcesFolderLocation>target/</targetResourcesFolderLocation>
                             <overWrite>true</overWrite>
                             <syncMode>sync</syncMode>
+                            <unpackClasses>true</unpackClasses>
                         </configuration>
                     </execution>
                     <execution>
@@ -77,8 +81,10 @@
                             <packageName>org.apache.axis.imapi</packageName>
                             <wsdlFile>src/main/resources/imapi.wsdl</wsdlFile>
                             <outputDirectory>target/generated-sources</outputDirectory>
+                            <targetResourcesFolderLocation>target/</targetResourcesFolderLocation>
                             <overWrite>true</overWrite>
                             <syncMode>sync</syncMode>
+                            <unpackClasses>true</unpackClasses>
                         </configuration>
                     </execution>
                 </executions>
@@ -87,15 +93,9 @@
     </build>
 
 	<dependencies>
-
         <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-kernel</artifactId>
-            <version>1.8.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.axis2</groupId>
-            <artifactId>axis2-adb</artifactId>
             <version>1.8.0</version>
         </dependency>
         <dependency>
@@ -124,12 +124,18 @@
             <artifactId>axis2-transport-base</artifactId>
             <version>1.8.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-codegen</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+
         <!--
 		<dependency>
 			<groupId>org.apache.axis</groupId>
 			<artifactId>axis</artifactId>
 			<version>1.4</version>
-		</dependency>-->
+		</dependency>
 		<dependency>
 			<groupId>commons-discovery</groupId>
 			<artifactId>commons-discovery</artifactId>
@@ -148,6 +154,6 @@
 		<dependency>
 			<groupId>wsdl4j</groupId>
 			<artifactId>wsdl4j</artifactId>
-		</dependency>
+		</dependency>-->
 	</dependencies>
 </project>
