@@ -1,9 +1,7 @@
 package org.opentosca.container.core.next.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,7 +38,7 @@ public class NodeTemplateInstance extends PersistenceObject {
     private NodeTemplateInstanceState state;
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "nodeTemplateInstance", cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "nodeTemplateInstance", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
     @JsonIgnore
     private Set<NodeTemplateInstanceProperty> properties = new HashSet<>();
 
@@ -48,11 +46,11 @@ public class NodeTemplateInstance extends PersistenceObject {
     @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
     private ServiceTemplateInstance serviceTemplateInstance;
 
-    @OneToMany(mappedBy = "target")
-    private Collection<RelationshipTemplateInstance> incomingRelations = new ArrayList<>();
+    @OneToMany(mappedBy = "target", fetch = FetchType.EAGER)
+    private Collection<RelationshipTemplateInstance> incomingRelations = new HashSet<>();
 
-    @OneToMany(mappedBy = "source")
-    private Collection<RelationshipTemplateInstance> outgoingRelations = new ArrayList<>();
+    @OneToMany(mappedBy = "source", fetch = FetchType.EAGER)
+    private Collection<RelationshipTemplateInstance> outgoingRelations = new HashSet<>();
 
     @Column(name = "TEMPLATE_ID", nullable = false)
     private String templateId;
@@ -64,7 +62,7 @@ public class NodeTemplateInstance extends PersistenceObject {
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "nodeTemplateInstance", fetch = FetchType.EAGER)
     @JsonIgnore
-    private List<DeploymentTestResult> deploymentTestResults = new ArrayList<>();
+    private Set<DeploymentTestResult> deploymentTestResults = new HashSet<>();
 
     @Column(name = "managingContainer")
     private String managingContainer;
@@ -176,11 +174,11 @@ public class NodeTemplateInstance extends PersistenceObject {
         this.templateType = templateType;
     }
 
-    public List<DeploymentTestResult> getDeploymentTestResults() {
+    public Set<DeploymentTestResult> getDeploymentTestResults() {
         return this.deploymentTestResults;
     }
 
-    public void setDeploymentTestResults(final List<DeploymentTestResult> deploymentTestResult) {
+    public void setDeploymentTestResults(final Set<DeploymentTestResult> deploymentTestResult) {
         this.deploymentTestResults = deploymentTestResult;
     }
 

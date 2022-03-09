@@ -1,9 +1,7 @@
 package org.opentosca.container.core.next.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -12,6 +10,7 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -52,15 +51,15 @@ public class PlanInstance extends PersistenceObject {
     private PlanLanguage language;
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
-    private List<PlanInstanceEvent> events = new ArrayList<>();
+    @OneToMany(mappedBy = "planInstance", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    private Set<PlanInstanceEvent> events = new HashSet<>();
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "planInstance", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
     private Set<PlanInstanceOutput> outputs = new HashSet<>();
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "planInstance", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
     private Set<PlanInstanceInput> inputs = new HashSet<>();
 
     @ManyToOne
@@ -108,11 +107,11 @@ public class PlanInstance extends PersistenceObject {
         this.state = state;
     }
 
-    public List<PlanInstanceEvent> getEvents() {
+    public Set<PlanInstanceEvent> getEvents() {
         return this.events;
     }
 
-    public void setEvents(final List<PlanInstanceEvent> events) {
+    public void setEvents(final Set<PlanInstanceEvent> events) {
         this.events = events;
     }
 

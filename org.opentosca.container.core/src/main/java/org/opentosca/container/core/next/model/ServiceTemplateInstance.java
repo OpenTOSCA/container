@@ -1,9 +1,7 @@
 package org.opentosca.container.core.next.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,6 +12,7 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
@@ -38,14 +37,14 @@ public class ServiceTemplateInstance extends PersistenceObject {
     @Enumerated(EnumType.STRING)
     private ServiceTemplateInstanceState state;
 
-    @OneToMany(mappedBy = "serviceTemplateInstance")
-    private Collection<PlanInstance> planInstances = new ArrayList<>();
+    @OneToMany(mappedBy = "serviceTemplateInstance", fetch = FetchType.EAGER)
+    private Collection<PlanInstance> planInstances = new HashSet<>();
 
-    @OneToMany(mappedBy = "serviceTemplateInstance")
-    private Collection<NodeTemplateInstance> nodeTemplateInstances = new ArrayList<>();
+    @OneToMany(mappedBy = "serviceTemplateInstance", fetch = FetchType.EAGER)
+    private Collection<NodeTemplateInstance> nodeTemplateInstances = new HashSet<>();
 
-    @OneToMany(mappedBy = "serviceTemplateInstance")
-    private Collection<RelationshipTemplateInstance> relationshipTemplateInstances = new ArrayList<>();
+    @OneToMany(mappedBy = "serviceTemplateInstance", fetch = FetchType.EAGER)
+    private Collection<RelationshipTemplateInstance> relationshipTemplateInstances = new HashSet<>();
 
     @Convert(converter = CsarIdConverter.class)
     @Column(name = "CSAR_ID", nullable = false)
@@ -58,14 +57,14 @@ public class ServiceTemplateInstance extends PersistenceObject {
     private String creationCorrelationId;
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "serviceTemplateInstance", cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "serviceTemplateInstance", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
     @JsonIgnore
     private Set<ServiceTemplateInstanceProperty> properties = new HashSet<>();
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "serviceTemplateInstance")
+    @OneToMany(mappedBy = "serviceTemplateInstance", fetch = FetchType.EAGER)
     @JsonIgnore
-    private List<DeploymentTest> deploymentTests = new ArrayList<>();
+    private Set<DeploymentTest> deploymentTests = new HashSet<>();
 
     // 0-args constructor for JPA
     public ServiceTemplateInstance() {
@@ -197,11 +196,11 @@ public class ServiceTemplateInstance extends PersistenceObject {
         return null;
     }
 
-    public List<DeploymentTest> getDeploymentTests() {
+    public Set<DeploymentTest> getDeploymentTests() {
         return this.deploymentTests;
     }
 
-    public void setDeploymentTests(final List<DeploymentTest> deploymentTests) {
+    public void setDeploymentTests(final Set<DeploymentTest> deploymentTests) {
         this.deploymentTests = deploymentTests;
     }
 
