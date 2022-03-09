@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
+
 @Component
 @Named("application-bus-soaphttp-route")
 public class Route extends RouteBuilder {
@@ -39,7 +40,7 @@ public class Route extends RouteBuilder {
         // CXF Endpoint
         final String SOAP_ENDPOINT = "cxf:" + ENDPOINT + "?wsdlURL=" + wsdlURL.toString()
             + "&serviceName={http://opentosca.org/appinvoker/}AppInvokerSoapWebServiceService&portName="
-            + PORT.toString() + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
+            + PORT + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 
         final ClassLoader cl = org.opentosca.bus.application.api.soaphttp.model.ObjectFactory.class.getClassLoader();
         final JAXBContext jc = JAXBContext.newInstance("org.opentosca.bus.application.api.soaphttp.model", cl);

@@ -1255,7 +1255,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 endpoint.toString().lastIndexOf(Constants.PLACEHOLDER_END)
                     + Constants.PLACEHOLDER_END.length());
 
-        LOG.debug("Placeholder: {} detected in Endpoint: {}", placeholder, endpoint.toString());
+        LOG.debug("Placeholder: {} detected in Endpoint: {}", placeholder, endpoint);
         final String[] placeholderProperties =
             placeholder.replace(Constants.PLACEHOLDER_START, "").replace(Constants.PLACEHOLDER_END, "").split("_");
 

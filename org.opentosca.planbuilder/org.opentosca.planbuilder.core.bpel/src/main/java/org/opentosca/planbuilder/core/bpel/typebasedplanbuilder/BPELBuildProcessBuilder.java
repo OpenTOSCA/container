@@ -12,6 +12,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
 import org.opentosca.planbuilder.core.ChoreographyBuilder;
@@ -33,7 +34,6 @@ import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlu
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -204,7 +204,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
         }
 
         LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
-            serviceTemplateQname.toString(), definitions.getId(), csar.id().csarName());
+            serviceTemplateQname, definitions.getId(), csar.id().csarName());
         return null;
     }
 

@@ -138,7 +138,7 @@ public class ODEEndpointUpdater {
             LOG.warn("Following files weren't changed for PortType {}", portType.toString());
             for (final File file : unchangedFiles.get(portType)) {
                 LOG.warn("WSDL file {} which contained portType {} and couldn't be updated",
-                    file.toPath().toString(), portType.toString());
+                    file.toPath(), portType);
             }
         }
 
@@ -277,7 +277,7 @@ public class ODEEndpointUpdater {
             QName portType = null;
             for (final File wsdlFile : wsdlFiles) {
                 LOG.debug("Checking if wsdl file {} contains portType {}",
-                    wsdlFile.getAbsolutePath(), port.toString());
+                    wsdlFile.getAbsolutePath(), port);
                 final Definition wsdlDef = getWsdlReader().readWSDL(wsdlFile.getAbsolutePath());
                 // check if port is in wsdl file
                 if (!checkIfPortIsInWsdlDef(port, wsdlDef)) {
@@ -389,14 +389,14 @@ public class ODEEndpointUpdater {
             // update wsdl files associated with the given porttype
             for (final File wsdlFile : map.get(portType)) {
                 if (!this.updateInvokedWSDLAddresses(portType, wsdlFile)) {
-                    LOG.error("Unable to update '{}' for porttype '{}'.", wsdlFile.toString(),
+                    LOG.error("Unable to update '{}' for porttype '{}'.", wsdlFile,
                         portType.toString());
                     notUpdatedWSDLs.add(wsdlFile);
                 }
             }
             if (!notUpdatedWSDLs.isEmpty()) {
                 // if empty, nothing was changed
-                LOG.debug("Couldn't update address for porttype: {}", portType.toString());
+                LOG.debug("Couldn't update address for porttype: {}", portType);
                 notChanged.put(portType, notUpdatedWSDLs);
             }
         }
