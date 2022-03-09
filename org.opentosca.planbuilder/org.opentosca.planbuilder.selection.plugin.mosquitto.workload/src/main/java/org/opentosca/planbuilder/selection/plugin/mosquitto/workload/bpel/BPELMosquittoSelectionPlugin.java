@@ -9,10 +9,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.selection.plugin.mosquitto.workload.core.MosquittoSelectionPlugin;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;

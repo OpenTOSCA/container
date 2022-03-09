@@ -3,8 +3,6 @@ package org.opentosca.container.core.next.repository;
 import java.util.Collection;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-
 import org.opentosca.container.core.next.jpa.AutoCloseableEntityManager;
 import org.opentosca.container.core.next.jpa.EntityManagerProvider;
 import org.slf4j.Logger;
@@ -21,13 +19,13 @@ public abstract class JpaRepository<T> implements Repository<T, Long> {
 
     @Override
     public void add(final T entity) {
-        System.out.println("Adding following entity with class " + entity.getClass().getCanonicalName() + " entity: " + entity.toString());
+        System.out.println("Adding following entity with class " + entity.getClass().getCanonicalName() + " entity: " + entity);
         try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
             em.getTransaction().begin();
             em.persist(entity);
             em.getTransaction().commit();
         } catch (final Exception e) {
-            logger.error("Failed to add instance of class {} with id {} in persistence context.", clazz.getSimpleName(), entity.toString(), e);
+            logger.error("Failed to add instance of class {} with id {} in persistence context.", clazz.getSimpleName(), entity, e);
             e.printStackTrace();
         }
     }

@@ -104,9 +104,9 @@ public class Route extends RouteBuilder {
 
         // CXF Endpoints
         final String INVOKE_ENDPOINT = "cxf:" + ENDPOINT + "?wsdlURL=" + wsdlURL.toString()
-            + "&serviceName={http://siserver.org/wsdl}InvokerService&portName=" + Route.PORT.toString()
+            + "&serviceName={http://siserver.org/wsdl}InvokerService&portName=" + Route.PORT
             + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true&loggingSizeLimit=-1";
-        final String CALLBACK_ENDPOINT = "cxf:${header[ReplyTo]}?wsdlURL=" + wsdlURL.toString()
+        final String CALLBACK_ENDPOINT = "cxf:${header[ReplyTo]}?wsdlURL=" + wsdlURL
             + "&headerFilterStrategy=#dropAllMessageHeadersStrategy"
             + "&serviceName={http://siserver.org/wsdl}CallbackService&portName={http://siserver.org/wsdl}CallbackPort"
             + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true&loggingSizeLimit=-1";

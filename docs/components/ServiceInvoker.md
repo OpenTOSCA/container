@@ -193,7 +193,7 @@ The MessageID is sent back to the plan from the service invocation interface, be
  			</Params>
  		</sch:invokeOperation>
  	</soapenv:Body>
- </soapenv:Envelope> 
+ </soapenv:Envelope>
 ```
 Listing 3: SOAP message of a plan to the service invocation interface to create a database
 
@@ -202,7 +202,7 @@ This is done using the exchange object that is provided by Camel.
 The parameters for the implementation artifact (size, host, user, password) are saved in the message body.
 The data to determine the implementation artifact and its invocation are in the message header.
 Further values like ReplyTo and MessageID are also put in the header.
-Those values however are not defined by the SI Enum, because they are not needed by the SOAP API or other SI components. 
+Those values however are not defined by the SI Enum, because they are not needed by the SOAP API or other SI components.
 
 The SI engine gets the required data from the header, uses it to determine the implementation artifact with the help of the TOSCA engine and acquires the endpoint with the endpoint service.
 This is also put into the header of the message object under the key defined by the SI Enum.
@@ -291,7 +291,7 @@ It is assumed that the names of the elements returned by the implementation arti
 Figure 9: Return of the SI plugin with the received information of the implementation artifact
 
 The service invocation SOAP API (see [SISOAP API](#service-invocation-soap-api)) takes the body of the exchange message and the MessageID from the header for the SOAP message directed at the plan (see Listing 6).
-The HashMap with the returned data of the invoked implementation artifact contained in the body is converted as follows: The key-value pairs of the HashMap are pairwise transferred as key and value elements of the SOAP message (see Listing 6). 
+The HashMap with the returned data of the invoked implementation artifact contained in the body is converted as follows: The key-value pairs of the HashMap are pairwise transferred as key and value elements of the SOAP message (see Listing 6).
 The plan receives a uniform answer which is consistent with the parameters specified in TOSCA and is independent of the technology of the invoked implementation artifact.
 Because the invocation of the service invocation interface is done through the parameters specified in TOSCA, this results in a generic and uniform interface for the invoker to invoke services.
 A plan to invoke an implementation artifact only requires the information specified in TOSCA und does not have to know anything about its implementation.
@@ -366,7 +366,7 @@ In the scope of this bachelor thesis implemented components of the service invoc
 
 ## Implementation
 
-In this chapter the implementation of the service invocation interface and its components is explained. 
+In this chapter the implementation of the service invocation interface and its components is explained.
 The Enum to specify the headers of the exchange message is presented first.
 Followed by the service invocation API for SOAP and OSGi events.
 Lastly the SI engine is explained with a closer look at the SI plugins and the interface.
@@ -527,7 +527,7 @@ Listing 10: Usage of the OSGi event service
 Equivalently the plan invocation engine is subscribes to the list org_opentosca_plans/responsnes, which is used to send the responses messages with the service invocation OSGi event API.
 The sending of an event is done with the method postEvent(Event event) offered by the EventAdmin service.
 
-### Service Invocation Engine 
+### Service Invocation Engine
 
 In this section the implementation of the SI engine is presented.
 The focus lies on the methods offered by the SI engine and the system to administrate the SI plugins.
@@ -655,11 +655,10 @@ As mentioned earlier all plugins usable by the service invocation interface have
 ```java
  public interface ISIEnginePluginService {
 
- 	public Exchange invoke(Exchange exchange);
+    Exchange invoke(Exchange exchange);
 
- 	public String getType();
-
- }
+    String getType();
+}
 ```
 Listing 15: Interface of the SI plugins
 
@@ -777,7 +776,7 @@ Listing 20 shows an example for this.
 					endpoint="yes"
 					params="queryString"
 					method="GET" >
-		</Operation> 
+		</Operation>
 	</Operations>
 </DataAssign>
 
@@ -795,7 +794,7 @@ Listing 19: Example for the parameter passing with query string
 		<Operation name="createDB"
 				params="payload"
 				contentType="xml" >
-		</Operation> 
+		</Operation>
 	</Operations>
 </DataAssign>
 

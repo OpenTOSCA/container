@@ -104,12 +104,12 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         try {
             // creating temporary dir for update
             tempDir = FileSystem.getTemporaryFolder();
-            LOG.debug("Unzipping Plan '{}' to '{}'.", planLocation.getFileName().toString(), tempDir.toAbsolutePath().toString());
+            LOG.debug("Unzipping Plan '{}' to '{}'.", planLocation.getFileName().toString(), tempDir.toAbsolutePath());
             planContents = FileSystem.unzip(planLocation, tempDir).parallelStream()
                 .map(Path::toFile)
                 .collect(Collectors.toList());
         } catch (IOException e) {
-            LOG.warn("Could not unzip plan from {} to {} due to an exception", planLocation.toString(), tempDir, e);
+            LOG.warn("Could not unzip plan from {} to {} due to an exception", planLocation, tempDir, e);
             return false;
         }
 
@@ -136,7 +136,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         try {
             Files.createFile(tempPlan);
             // package the updated files
-            LOG.debug("Packaging plan to {} ", tempPlan.toAbsolutePath().toString());
+            LOG.debug("Packaging plan to {} ", tempPlan.toAbsolutePath());
             FileSystem.zip(tempPlan, tempDir);
         } catch (final IOException e) {
             LOG.error("Can't package temporary plan for deployment", e);
@@ -190,7 +190,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
             if (Objects.nonNull(callbackEndpoint)) {
                 final QName callbackPortType = QName.valueOf("{http://schemas.xmlsoap.org/wsdl/}CallbackPortType");
-                LOG.debug("Storing callback endpoint: {}", callbackEndpoint.toString());
+                LOG.debug("Storing callback endpoint: {}", callbackEndpoint);
                 this.endpointService.storeWSDLEndpoint(new WSDLEndpoint(callbackEndpoint, callbackPortType,
                     localContainer, localContainer, csarId, null, planId, null, null, endpointMetadata));
             }

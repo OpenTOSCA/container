@@ -81,10 +81,10 @@ public class DirectoryController {
                 return new FileController(file);
             }
         }
-        logger.warn("Path '{}' does not exist in directory '{}'", path, this.dirPath.toString());
+        logger.warn("Path '{}' does not exist in directory '{}'", path, this.dirPath);
 
         throw new NotFoundException(
-            String.format("Path '%s' does not exist in directory '%s'", path, this.dirPath.toString()));
+            String.format("Path '%s' does not exist in directory '%s'", path, this.dirPath));
     }
 
     private Collection<java.nio.file.Path> getDirectories() throws IOException {

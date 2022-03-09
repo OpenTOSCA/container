@@ -116,7 +116,7 @@ public class RequestReceiver {
             properties.put(property.getKey(), property.getValue());
         }
 
-        LOG.debug("Performing matching with NodeType: {} and properties: {}", nodeType, properties.toString());
+        LOG.debug("Performing matching with NodeType: {} and properties: {}", nodeType, properties);
 
         // perform instance data matching
         final String deploymentLocation = decisionMaker.performInstanceDataMatching(nodeType, properties);
@@ -212,7 +212,7 @@ public class RequestReceiver {
                     pluginRegistry.getDeploymentPluginServices().get(artifactType);
 
                 if (deploymentPlugin != null) {
-                    LOG.debug("Deployment plug-in: {}. Deploying IA...", deploymentPlugin.toString());
+                    LOG.debug("Deployment plug-in: {}. Deploying IA...", deploymentPlugin);
 
                     // execute deployment via corresponding plug-in
                     exchange = deploymentPlugin.invokeImplementationArtifactDeployment(exchange);

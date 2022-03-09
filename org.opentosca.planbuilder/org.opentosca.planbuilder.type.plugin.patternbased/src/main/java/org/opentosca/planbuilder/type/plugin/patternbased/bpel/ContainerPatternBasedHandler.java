@@ -12,9 +12,9 @@ import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.container.core.model.ModelUtils;
 import org.w3c.dom.Element;
 
 public class ContainerPatternBasedHandler extends PatternBasedHandler {
