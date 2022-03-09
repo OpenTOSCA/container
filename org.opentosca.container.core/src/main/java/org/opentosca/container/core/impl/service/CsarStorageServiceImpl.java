@@ -127,7 +127,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         LOGGER.debug("Given file to store: {}", csarLocation);
         if (!Files.isRegularFile(csarLocation)) {
             throw new UserException(
-                "\"" + csarLocation.toString() + "\" to store is not an absolute path to an existing file.");
+                "\"" + csarLocation + "\" to store is not an absolute path to an existing file.");
         }
 
         CsarId candidateId = new CsarId(csarLocation.getFileName().toString());

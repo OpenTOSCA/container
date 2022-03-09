@@ -934,11 +934,8 @@ public abstract class ModelUtils {
             // if the ia has no operation defined but the interface names fit -> implemented
             return true;
         } else {
-            if (!ia.getOperationName().equals(operationName)) {
-                return false;
-            }
+            return ia.getOperationName().equals(operationName);
         }
-        return true;
     }
 
     private static TOperation getOperation(Csar csar, TNodeType nodeType, String interfaceName, String operationName) {

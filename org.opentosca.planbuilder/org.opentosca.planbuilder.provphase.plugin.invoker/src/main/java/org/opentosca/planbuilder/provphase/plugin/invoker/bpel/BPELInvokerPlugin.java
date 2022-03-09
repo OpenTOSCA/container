@@ -18,6 +18,7 @@ import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 
 import com.google.common.collect.Lists;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderCompensationOperationPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
@@ -26,7 +27,6 @@ import org.opentosca.planbuilder.core.plugins.choreography.IPlanBuilderChoreogra
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
-import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELInvokerPluginHandler;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELNotifyHandler;
 import org.slf4j.Logger;
