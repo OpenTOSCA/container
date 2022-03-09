@@ -24,6 +24,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
@@ -33,7 +34,6 @@ import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
-import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1387,7 +1387,7 @@ public class Handler {
             // Right now the knowledge of DEFROST and PROVISIONING activities is to hard of an assumption, if you ask me
             BPELPlanContext sourceContext = context.createContext(sourceNodeTemplate, ActivityType.PROVISIONING, ActivityType.DEFROST);
             if (sourceContext == null) {
-                LOG.error("Couldn't create context for sourceNodeTemplate {}", sourceNodeTemplate.toString());
+                LOG.error("Couldn't create context for sourceNodeTemplate {}", sourceNodeTemplate);
                 return false;
             }
             injectionPreElement = sourceContext.getPostPhaseElement();

@@ -245,7 +245,7 @@ public class RulesChecker {
         try (DirectoryStream<Path> rulesFiles = Files.newDirectoryStream(dir, "*.tosca")) {
             for (Iterator<Path> rulesFilesIt = rulesFiles.iterator(); rulesFilesIt.hasNext(); ) {
                 Path rulesFile = rulesFilesIt.next();
-                LOG.trace("Rules File: {}", rulesFile.toAbsolutePath().toString());
+                LOG.trace("Rules File: {}", rulesFile.toAbsolutePath());
                 final TDefinitions definitions = serializer.unmarshal(Files.newInputStream(rulesFile));
                 definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()
                     .stream().map(TServiceTemplate.class::cast)

@@ -39,7 +39,7 @@ public class Route extends RouteBuilder {
         final Predicate RESULT_RECEIVED = PredicateBuilder.and(OK, PredicateBuilder.not(PENDING));
 
         final ValueBuilder INVOKE_ENDPOINT = simple("${header."
-            + ApplicationBusConstants.INVOCATION_ENDPOINT_URL.toString() + "}" + APPINVOKER_ENDPOINT_SUFFIX);
+            + ApplicationBusConstants.INVOCATION_ENDPOINT_URL + "}" + APPINVOKER_ENDPOINT_SUFFIX);
         final ValueBuilder POLL_ENDPOINT = simple("${header.Location}");
 
         final RequestProcessor requestProcessor = new RequestProcessor();

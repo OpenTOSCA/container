@@ -67,14 +67,14 @@ public class WineryConnector {
         } catch (URISyntaxException e) {
             LOG.error("Winery Connector configuration is not valid", e);
         }
-        this.wineryPath = configurationValue.endsWith("/") ? configurationValue : configurationValue + "/";;
+        this.wineryPath = configurationValue.endsWith("/") ? configurationValue : configurationValue + "/";
         LOG.debug("Initialized Winery Connector for endpoint " + this.wineryPath);
     }
 
     public boolean isWineryRepositoryAvailable() {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             final URI serviceTemplatesUri = new URI(this.wineryPath + SERVICE_TEMPLATES_SUFFIX);
-            LOG.debug("Checking if winery is available at " + serviceTemplatesUri.toString());
+            LOG.debug("Checking if winery is available at " + serviceTemplatesUri);
 
             final HttpGet get = new HttpGet();
             get.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());

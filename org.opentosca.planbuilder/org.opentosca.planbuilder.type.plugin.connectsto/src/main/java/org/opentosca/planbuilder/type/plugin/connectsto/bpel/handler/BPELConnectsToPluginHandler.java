@@ -17,11 +17,11 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.handler.ConnectsToPluginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
