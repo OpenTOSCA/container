@@ -9,7 +9,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.opentosca.container.core.common.file.ResourceAccess;
+import org.opentosca.container.core.model.ModelUtils;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,7 +153,7 @@ public class BPMNProcessFragments {
     }
 
     private Node createRelationshipTemplateInstanceAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
-        String template = createRelationshipTemplateInstance(bpmnScope.getId());
+        String template = createRelationshipTemplateInstance(bpmnScope);
         Node node =  this.createImportNodeFromString(bpmnScope, template);
         addIncomings(bpmnScope);
         addOutgoings(bpmnScope);
@@ -260,9 +263,21 @@ public class BPMNProcessFragments {
         return template;
     }
 
-    public String createRelationshipTemplateInstance(String RelationshipTemplateInstanceID) throws IOException {
+    public String createRelationshipTemplateInstance(BPMNScope bpmnScope) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateRelationshipTemplateInstanceScriptTask.xml"));
-        template = template.replaceAll("RelationshipTemplate_IdToReplace", RelationshipTemplateInstanceID);
+        TRelationshipTemplate relationshipTemplate = bpmnScope.getRelationshipTemplate();
+        BPMNPlan plan = bpmnScope.getBuildPlan();
+        TNodeTemplate srcNode = ModelUtils.getSource(relationshipTemplate, plan.getCsar());
+        TNodeTemplate trgNode = ModelUtils.getTarget(relationshipTemplate, plan.getCsar());
+
+        template = template.replaceAll("RelationshipTemplate_IdToReplace", bpmnScope.getId());
+        template = template.replaceAll("StateToSet", bpmnScope.getInstanceState());
+        template = template.replaceAll("NameToSet", relationshipTemplate.getName() +
+            " Relationship Instance");
+        template = template.replaceAll("RelationshipTemplateToSet", relationshipTemplate.getId());
+        template = template.replaceAll("SourceURLToSet", plan.getNodeTemplateInstanceUrlVariableName(srcNode));
+        template = template.replaceAll("TargetURLToSet", plan.getNodeTemplateInstanceUrlVariableName(trgNode));
+        template = template.replaceAll("ResultVariableToSet", bpmnScope.getRelationshipInstanceUrlVariableName());
         return template;
     }
 

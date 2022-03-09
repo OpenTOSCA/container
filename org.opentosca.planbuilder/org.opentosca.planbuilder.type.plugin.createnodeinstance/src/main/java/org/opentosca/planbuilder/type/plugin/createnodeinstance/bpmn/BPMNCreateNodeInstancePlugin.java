@@ -54,6 +54,7 @@ public class BPMNCreateNodeInstancePlugin implements IPlanBuilderTypeCreateInsta
         } else {
             LOG.debug("NodeTemplate {} has URL {}", nodeId, buildPlan.getNodeTemplateInstanceUrlVariableName(nodeTemplate));
         }
+
         // TODO: State are depending on NodeTemplate, ex. DockerEngine
         createNodeInstanceTask.setInstanceState(InstanceState.STARTING.toString());
 

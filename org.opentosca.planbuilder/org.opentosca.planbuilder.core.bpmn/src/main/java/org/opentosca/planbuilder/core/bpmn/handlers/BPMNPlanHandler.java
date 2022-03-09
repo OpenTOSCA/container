@@ -57,13 +57,14 @@ public class BPMNPlanHandler {
     }
 
     public BPMNPlan createEmptyBPMNPlan(final String processNamespace, final String processName,
-                                        final AbstractPlan abstractPlan, final String inputOperationName) {
+                                        final AbstractPlan abstractPlan, final String inputOperationName, final Csar csar) {
         BPMNPlanHandler.LOG.debug("Creating BuildPlan for ServiceTemplate {}",
             abstractPlan.getServiceTemplate().getId());
 
         final BPMNPlan buildPlan =
             new BPMNPlan(abstractPlan.getId(), abstractPlan.getType(), abstractPlan.getDefinitions(),
                 abstractPlan.getServiceTemplate(), abstractPlan.getActivites(), abstractPlan.getLinks());
+        buildPlan.setCsar(csar);
         initializeXMLElements(buildPlan);
         initializeScriptDocuments(buildPlan);
 

@@ -13,6 +13,7 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
@@ -59,12 +60,20 @@ public class BPMNPlan extends AbstractPlan {
     private List<Element> bpmnImportElements;
 
     private String csarName = null;
+
+    public void setCsar(Csar csar) {
+        this.csar = csar;
+    }
+
+    private Csar csar = null;
+
     // TODO: rename, current name is misleading
     private List<BPMNScope> templateBuildPlans = new ArrayList<>();
     private List<BPMNDiagramElement> diagramElements = new ArrayList<>();
 
     // <id : variable name for url>, MyTinyToDoDockerContainer : MyTinyToDoDockerContainer_0NodeInstanceURL
     private Map<TNodeTemplate, String> nodeTemplate2InstanceUrlVariableName = new HashMap<>();
+    // con_HostedOn_0: con_HostedOn_0_RelationshipInstanceURL
     private Map<TRelationshipTemplate, String> relationTemplate2InstanceUrlVariableName = new HashMap<>();
 
     public boolean addInstanceUrlVariableNameToNodeTemplate(TNodeTemplate nodeTemplate, String variableName) {
@@ -75,8 +84,12 @@ public class BPMNPlan extends AbstractPlan {
         return true;
     }
 
-    public void addInstanceUrlVariableNameToRelationshipTemplateUrl(TRelationshipTemplate relationshipTemplate, String variableName) {
+    public boolean addInstanceUrlVariableNameToRelationshipTemplateUrl(TRelationshipTemplate relationshipTemplate, String variableName) {
+        if (relationTemplate2InstanceUrlVariableName.containsKey(variableName)) {
+            return false;
+        }
         relationTemplate2InstanceUrlVariableName.put(relationshipTemplate, variableName);
+        return true;
     }
 
     public String getNodeTemplateInstanceUrlVariableName(TNodeTemplate nodeTemplate) {
@@ -268,5 +281,9 @@ public class BPMNPlan extends AbstractPlan {
 
     public void setBpmnStartEventElement(BPMNScope bpmnStartEventElement) {
         this.bpmnStartEventElement = bpmnStartEventElement;
+    }
+
+    public Csar getCsar() {
+        return csar;
     }
 }

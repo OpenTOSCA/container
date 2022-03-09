@@ -124,7 +124,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             LOG.debug(buildPlan.toString());
 
             final BPMNPlan newBuildPlan =
-                this.planHandler.createEmptyBPMNPlan(processNamespace, processName, buildPlan, "initiate");
+                this.planHandler.createEmptyBPMNPlan(processNamespace, processName, buildPlan, "initiate", csar);
 
             newBuildPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
             newBuildPlan.setTOSCAOperationname("initiate");

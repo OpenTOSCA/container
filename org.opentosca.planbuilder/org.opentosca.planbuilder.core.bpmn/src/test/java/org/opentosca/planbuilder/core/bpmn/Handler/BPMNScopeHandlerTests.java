@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.core.bpmn.Handler;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.junit.Before;
 import org.junit.Test;
 import org.opentosca.container.core.next.model.PlanType;
@@ -81,7 +82,10 @@ public class BPMNScopeHandlerTests {
     @Test
     public void testCreateRelationshipTemplateIdSet() {
         int createdId = bpmnPlan.getInternalCounterId();
-        AbstractActivity activity = new RelationshipTemplateActivity("" + createdId, ActivityType.PROVISIONING, null);
+        TRelationshipTemplate relationshipTemplate = new TRelationshipTemplate();
+        relationshipTemplate.setName("HostedOn");
+        relationshipTemplate.setId("con_HostedOn_0");
+        AbstractActivity activity = new RelationshipTemplateActivity("" + createdId, ActivityType.PROVISIONING, relationshipTemplate);
         BPMNScope rt = bpmnScopeHandler.createTemplateBuildPlan(activity, bpmnPlan);
         assertThat(rt.getBpmnScopeType(), is(BPMNScopeType.CREATE_RT_INSTANCE));
         assertThat(Integer.parseInt(rt.getId().substring(rt.getId().length() - 1)), is(createdId));

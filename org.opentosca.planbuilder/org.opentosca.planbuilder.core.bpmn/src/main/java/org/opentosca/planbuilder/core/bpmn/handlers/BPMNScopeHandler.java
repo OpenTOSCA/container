@@ -5,9 +5,11 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.core.bpmn.fragments.BPMNProcessFragments;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
+import org.opentosca.planbuilder.model.plan.InstanceState;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
@@ -36,6 +38,7 @@ public class BPMNScopeHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPMNScopeHandler.class);
     private final BPMNProcessFragments fragments;
+    private final static String RELATIONSHIP_INSTANCE_URL_POSTFIX = "_RelationshipInstanceURL";
 
     public BPMNScopeHandler() throws ParserConfigurationException {
         this.fragments = new BPMNProcessFragments();
@@ -141,21 +144,43 @@ public class BPMNScopeHandler {
         LOG.debug("Create template build plan with Abstract activity: {} type: {}", activity.getId(), activity.getType());
         // reuse activity id with prefix
         String idPrefix = "";
+
         final BPMNScope templateBuildPlan;
         if (activity instanceof NodeTemplateActivity) {
+
             NodeTemplateActivity ntActivity = (NodeTemplateActivity) activity;
             idPrefix = BPMNScopeType.SUBPROCESS.toString();
+
             templateBuildPlan = new BPMNScope(ntActivity, BPMNScopeType.SUBPROCESS, idPrefix + "_" + activity.getId());
+            templateBuildPlan.setBuildPlan(buildPlan);
+
         } else if (activity instanceof RelationshipTemplateActivity) {
+
             RelationshipTemplateActivity rtActivity = (RelationshipTemplateActivity) activity;
+            TRelationshipTemplate relationshipTemplate = rtActivity.getRelationshipTemplate();
             idPrefix = BPMNScopeType.CREATE_RT_INSTANCE.toString();
+
             templateBuildPlan = new BPMNScope(rtActivity, BPMNScopeType.CREATE_RT_INSTANCE, idPrefix + "_" + activity.getId());
+            templateBuildPlan.setBuildPlan(buildPlan);
+            templateBuildPlan.setInstanceState(InstanceState.CREATED.name());
+
+            String relationshipId = relationshipTemplate.getId();
+            String relationshipInstanceUrl = relationshipId + RELATIONSHIP_INSTANCE_URL_POSTFIX;
+
+            if (buildPlan.addInstanceUrlVariableNameToRelationshipTemplateUrl(relationshipTemplate,
+                relationshipInstanceUrl)) {
+                LOG.debug("Successfully Adding Url {} to Relationship Template {}", relationshipInstanceUrl, relationshipTemplate);
+                LOG.debug("Url is {}", buildPlan.getRelationshipTemplateInstanceUrlVariableName(relationshipTemplate));
+                LOG.debug("Url is {}", templateBuildPlan.getRelationshipInstanceUrlVariableName());
+            } else {
+                LOG.debug("Relationship {} is already set with URL {}", relationshipId, buildPlan.getRelationshipTemplateInstanceUrlVariableName(relationshipTemplate));
+            }
+
         } else {
             templateBuildPlan = null;
         }
 
         // collecting BPMNScope for refinement in next stage
-        templateBuildPlan.setBuildPlan(buildPlan);
         buildPlan.addTemplateBuildPlan(templateBuildPlan);
         return templateBuildPlan;
     }

@@ -377,6 +377,10 @@ public class BPMNScope {
         return buildPlan.getNodeTemplateInstanceUrlVariableName(this.nodeTemplate);
     }
 
+    public String getRelationshipInstanceUrlVariableName() {
+        return buildPlan.getRelationshipTemplateInstanceUrlVariableName(this.relationshipTemplate);
+    }
+
     public String getInputParameter(String paramName) {
         return inputParameterMap.getOrDefault(paramName, "");
     }
