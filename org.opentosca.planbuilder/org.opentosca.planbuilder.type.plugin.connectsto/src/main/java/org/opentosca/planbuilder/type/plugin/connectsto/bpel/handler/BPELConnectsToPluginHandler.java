@@ -133,29 +133,27 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             } else {
                 // search elsewhere
                 // search for prefixed parameters
-                final String unprefixedParam = param.getName().substring(7);
+                String unprefixedParam = null;
                 boolean isPrefixed = false;
                 boolean isSource = false;
 
                 if (param.getName().startsWith("SOURCE_")) {
-                    // search in source stack
+                    unprefixedParam = param.getName().substring(7);
                     isPrefixed = true;
                     isSource = true;
-                    final Variable property =
-                        searchPropertyInStack(templateContext, sourceParameterNode, unprefixedParam);
-                    if (property != null) {
-                        param2propertyMapping.put(param, property);
-                    }
+                } else if (param.getName().startsWith("TARGET_")) {
+                    unprefixedParam = param.getName().substring(7);
+                    isPrefixed = true;
+                } else {
+                    unprefixedParam = param.getName();
                 }
 
-                if (param.getName().startsWith("TARGET_")) {
+                if (isSource && isPrefixed) {
+                    // search in source stack
+                    this.searchAndAddIfFound(templateContext, sourceParameterNode, unprefixedParam, param, param2propertyMapping);
+                } else if (!isSource && isPrefixed){
                     // search in target stack
-                    isPrefixed = true;
-                    final Variable property =
-                        searchPropertyInStack(templateContext, targetParameterNode, unprefixedParam);
-                    if (property != null) {
-                        param2propertyMapping.put(param, property);
-                    }
+                    this.searchAndAddIfFound(templateContext, targetParameterNode, unprefixedParam, param, param2propertyMapping);
                 }
 
                 if (!param2propertyMapping.containsKey(param)) {
@@ -171,17 +169,11 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                         // the params seems to be an IP property and prefixed therefore search in the stack according to the prefix
                         for (final String ipParam : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
                             if (isSource) {
-                                final Variable property =
-                                    searchPropertyInStack(templateContext, sourceParameterNode, ipParam);
-                                if (property != null) {
-                                    param2propertyMapping.put(param, property);
+                                if (this.searchAndAddIfFound(templateContext, sourceParameterNode, ipParam, param, param2propertyMapping)) {
                                     break;
                                 }
                             } else {
-                                final Variable property =
-                                    searchPropertyInStack(templateContext, targetParameterNode, ipParam);
-                                if (property != null) {
-                                    param2propertyMapping.put(param, property);
+                                if (this.searchAndAddIfFound(templateContext, targetParameterNode, ipParam, param, param2propertyMapping)) {
                                     break;
                                 }
                             }
@@ -189,19 +181,13 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                     } else if (Utils.isSupportedVirtualMachineIPProperty(paramName) && !isPrefixed) {
                         // the params seems to be an IP property and not prefixed therefore search in the stack according to the connectsTo operations stack
                         for (final String ipParam : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
-                                final Variable property =
-                                    searchPropertyInStack(templateContext, parametersRootNode, ipParam);
-                                if (property != null) {
-                                    param2propertyMapping.put(param, property);
-                                    break;
-                                }
+                            if (this.searchAndAddIfFound(templateContext, parametersRootNode, ipParam, param, param2propertyMapping)) {
+                                break;
+                            }
                         }
                     } else  {
                         // param is not an ip property search for whatever we can
-                        final Variable property =
-                            searchPropertyInStack(templateContext, parametersRootNode, paramName);
-                        if (property != null) {
-                            param2propertyMapping.put(param, property);
+                        if (this.searchAndAddIfFound(templateContext, parametersRootNode, paramName, param, param2propertyMapping)) {
                             break;
                         }
                     }
@@ -209,6 +195,21 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             }
         }
         return param2propertyMapping;
+    }
+
+    private boolean searchAndAddIfFound(final BPELPlanContext templateContext,
+                                     final TNodeTemplate parametersRootNode,
+                                     final String paramName,
+                                     final TParameter param,
+                                     final Map<TParameter, Variable> param2propertyMapping) {
+        final Variable property =
+            searchPropertyInStack(templateContext, parametersRootNode, paramName);
+        if (property != null) {
+            param2propertyMapping.put(param, property);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
