@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
+import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
-import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.support.DefaultMessage;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.impl.collaboration.model.BodyType;
@@ -65,9 +65,12 @@ public class DeploymentDistributionDecisionMaker {
 
     private final RequestSender sender;
 
-    public DeploymentDistributionDecisionMaker(NodeTemplateInstanceRepository nodeTemplateInstanceRepository, RequestSender sender) {
+    private final CamelContext camelContext;
+
+    public DeploymentDistributionDecisionMaker(CamelContext camelContext, NodeTemplateInstanceRepository nodeTemplateInstanceRepository, RequestSender sender) {
         this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
         this.sender = sender;
+        this.camelContext = camelContext;
     }
 
     /**
@@ -338,7 +341,7 @@ public class DeploymentDistributionDecisionMaker {
 
         // perform remote instance data matching and wait 10s for a response
         final Exchange response =
-            this.sender.sendRequestToRemoteContainer(new DefaultMessage(new DefaultCamelContext()),
+            this.sender.sendRequestToRemoteContainer(new DefaultMessage(camelContext),
                 RemoteOperations.INVOKE_INSTANCE_DATA_MATCHING,
                 collaborationMessage, 10000);
 

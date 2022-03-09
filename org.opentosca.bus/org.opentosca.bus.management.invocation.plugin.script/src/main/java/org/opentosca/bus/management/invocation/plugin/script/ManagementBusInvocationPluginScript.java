@@ -30,7 +30,6 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
-import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opentosca.bus.management.header.MBHeader;
@@ -85,12 +84,12 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
     private final MBUtils mbUtils;
 
     @Inject
-    public ManagementBusInvocationPluginScript(ArtifactTypesHandler typesHandler, CsarStorageService storage,
+    public ManagementBusInvocationPluginScript(CamelContext camelContext, ArtifactTypesHandler typesHandler, CsarStorageService storage,
                                                ContainerEngine containerEngine, MBUtils mbUtils) {
         this.typesHandler = typesHandler;
         this.storage = storage;
         this.containerEngine = containerEngine;
-        this.camelContext = new DefaultCamelContext();
+        this.camelContext = camelContext;
         this.mbUtils = mbUtils;
     }
 
