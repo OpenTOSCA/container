@@ -38,7 +38,7 @@ public class ServiceTemplateInstance extends PersistenceObject {
     private ServiceTemplateInstanceState state;
 
     @OneToMany(mappedBy = "serviceTemplateInstance", fetch = FetchType.EAGER)
-    private Collection<PlanInstance> planInstances = new HashSet<>();
+    private Set<PlanInstance> planInstances = new HashSet<>();
 
     @OneToMany(mappedBy = "serviceTemplateInstance", fetch = FetchType.EAGER)
     private Collection<NodeTemplateInstance> nodeTemplateInstances = new HashSet<>();
@@ -78,11 +78,11 @@ public class ServiceTemplateInstance extends PersistenceObject {
         this.state = state;
     }
 
-    public Collection<PlanInstance> getPlanInstances() {
+    public Set<PlanInstance> getPlanInstances() {
         return this.planInstances;
     }
 
-    public void setPlanInstances(final Collection<PlanInstance> planInstances) {
+    public void setPlanInstances(final Set<PlanInstance> planInstances) {
         this.planInstances = planInstances;
     }
 

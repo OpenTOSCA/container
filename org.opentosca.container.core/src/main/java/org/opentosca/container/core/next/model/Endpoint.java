@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Table;
 import javax.xml.namespace.QName;
 
@@ -73,7 +74,7 @@ public class Endpoint extends PersistenceObject {
     @Column(name = "serviceTemplateInstanceID")
     private Long serviceTemplateInstanceID;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "metadata")
     private Map<String, String> metadata;
 
