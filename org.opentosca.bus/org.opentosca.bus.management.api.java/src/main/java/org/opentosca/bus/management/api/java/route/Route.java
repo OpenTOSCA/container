@@ -1,12 +1,9 @@
 package org.opentosca.bus.management.api.java.route;
 
-import javax.inject.Named;
-
 import org.apache.camel.builder.RouteBuilder;
 import org.opentosca.bus.management.api.java.ExposedManagementBusOperations;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.IManagementBusService;
-import org.springframework.stereotype.Component;
 
 /**
  * Route of the Management Bus Java API.<br>
@@ -20,8 +17,6 @@ import org.springframework.stereotype.Component;
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
-@Component
-@Named("management-bus-java-route")
 public class Route extends RouteBuilder {
 
     private final IManagementBusService managementBusService;

@@ -21,7 +21,6 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
-import org.apache.camel.impl.DefaultCamelContext;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.invocation.plugin.rest.model.ContentType;
@@ -70,9 +69,8 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
     private final CsarStorageService storage;
 
     @Inject
-    public ManagementBusInvocationPluginRest(CsarStorageService storage) {
-
-        this.camelContext = new DefaultCamelContext();
+    public ManagementBusInvocationPluginRest(@Named("fallback") CamelContext camelContext, CsarStorageService storage) {
+        this.camelContext = camelContext;
         this.storage = storage;
     }
 

@@ -10,7 +10,6 @@ import org.opentosca.bus.application.model.exception.ApplicationBusExternalExcep
 import org.opentosca.bus.application.plugin.jsonhttp.service.impl.ApplicationBusJsonHttpPluginServiceImpl;
 import org.opentosca.bus.application.plugin.jsonhttp.service.impl.processor.RequestProcessor;
 import org.opentosca.bus.application.plugin.jsonhttp.service.impl.processor.ResponseProcessor;
-import org.springframework.stereotype.Component;
 
 /**
  * Route of the Application Bus-JSON/HTTP-Plugin.<br>
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Component;
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
-@Component
 public class Route extends RouteBuilder {
 
     private static final String APPINVOKER_ENDPOINT_SUFFIX = "/OTABProxy/v1/appInvoker";
