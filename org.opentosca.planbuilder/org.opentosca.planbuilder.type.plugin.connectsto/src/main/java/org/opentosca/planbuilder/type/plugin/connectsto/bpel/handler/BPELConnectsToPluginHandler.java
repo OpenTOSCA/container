@@ -151,7 +151,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                 if (isSource && isPrefixed) {
                     // search in source stack
                     this.searchAndAddIfFound(templateContext, sourceParameterNode, unprefixedParam, param, param2propertyMapping);
-                } else if (!isSource && isPrefixed){
+                } else if (!isSource && isPrefixed) {
                     // search in target stack
                     this.searchAndAddIfFound(templateContext, targetParameterNode, unprefixedParam, param, param2propertyMapping);
                 }
@@ -165,9 +165,9 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                         paramName = param.getName();
                     }
 
-                    if(Utils.isSupportedVirtualMachineIPProperty(paramName) && isPrefixed) {
+                    if (Utils.isSupportedVirtualMachineIPProperty(paramName) && isPrefixed) {
                         // the params seems to be an IP property and prefixed therefore search in the stack according to the prefix
-                        for (final String ipParam : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+                        for (final String ipParam : Utils.getSupportedVirtualMachineIPPropertyNames()) {
                             if (isSource) {
                                 if (this.searchAndAddIfFound(templateContext, sourceParameterNode, ipParam, param, param2propertyMapping)) {
                                     break;
@@ -180,7 +180,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                         }
                     } else if (Utils.isSupportedVirtualMachineIPProperty(paramName) && !isPrefixed) {
                         // the params seems to be an IP property and not prefixed therefore search in the stack according to the connectsTo operations stack
-                        for (final String ipParam : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+                        for (final String ipParam : Utils.getSupportedVirtualMachineIPPropertyNames()) {
                             if (this.searchAndAddIfFound(templateContext, parametersRootNode, ipParam, param, param2propertyMapping)) {
                                 break;
                             }
