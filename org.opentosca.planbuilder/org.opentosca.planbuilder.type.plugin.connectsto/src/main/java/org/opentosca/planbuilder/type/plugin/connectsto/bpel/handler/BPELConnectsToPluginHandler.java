@@ -17,6 +17,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
@@ -35,18 +36,6 @@ import org.slf4j.LoggerFactory;
 public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPELPlanContext> {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELConnectsToPluginHandler.class);
-
-    private final DocumentBuilderFactory docFactory;
-
-    /**
-     * Constructor
-     *
-     * @throws ParserConfigurationException is thrown when initializing the DOM Parsers fails
-     */
-    public BPELConnectsToPluginHandler() {
-        this.docFactory = DocumentBuilderFactory.newInstance();
-        this.docFactory.setNamespaceAware(true);
-    }
 
     /**
      * Executes the connectTo operation on the given connectToNode NodeTemplate, the parameters for the operation will
@@ -142,9 +131,16 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             if (var != null) {
                 param2propertyMapping.put(param, var);
             } else {
+                // search elsewhere
                 // search for prefixed parameters
+                final String unprefixedParam = param.getName().substring(7);
+                boolean isPrefixed = false;
+                boolean isSource = false;
+
                 if (param.getName().startsWith("SOURCE_")) {
-                    final String unprefixedParam = param.getName().substring(7);
+                    // search in source stack
+                    isPrefixed = true;
+                    isSource = true;
                     final Variable property =
                         searchPropertyInStack(templateContext, sourceParameterNode, unprefixedParam);
                     if (property != null) {
@@ -153,7 +149,8 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                 }
 
                 if (param.getName().startsWith("TARGET_")) {
-                    final String unprefixedParam = param.getName().substring(7);
+                    // search in target stack
+                    isPrefixed = true;
                     final Variable property =
                         searchPropertyInStack(templateContext, targetParameterNode, unprefixedParam);
                     if (property != null) {
@@ -161,24 +158,51 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                     }
                 }
 
-                // search for default parameters at opposite NodeTemplate
                 if (!param2propertyMapping.containsKey(param)) {
-                    if (!org.opentosca.container.core.convention.Utils.isSupportedVirtualMachineIPProperty(param.getName())) {
-                        // search for property with exact name
+                    // we didn't find anything yet, lets try the whole topology and for ambigious properties (IPs etc.)
+                    String paramName = null;
+                    if (isPrefixed) {
+                        paramName = unprefixedParam;
+                    } else {
+                        paramName = param.getName();
+                    }
+
+                    if(Utils.isSupportedVirtualMachineIPProperty(paramName) && isPrefixed) {
+                        // the params seems to be an IP property and prefixed therefore search in the stack according to the prefix
+                        for (final String ipParam : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+                            if (isSource) {
+                                final Variable property =
+                                    searchPropertyInStack(templateContext, sourceParameterNode, ipParam);
+                                if (property != null) {
+                                    param2propertyMapping.put(param, property);
+                                    break;
+                                }
+                            } else {
+                                final Variable property =
+                                    searchPropertyInStack(templateContext, targetParameterNode, ipParam);
+                                if (property != null) {
+                                    param2propertyMapping.put(param, property);
+                                    break;
+                                }
+                            }
+                        }
+                    } else if (Utils.isSupportedVirtualMachineIPProperty(paramName) && !isPrefixed) {
+                        // the params seems to be an IP property and not prefixed therefore search in the stack according to the connectsTo operations stack
+                        for (final String ipParam : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+                                final Variable property =
+                                    searchPropertyInStack(templateContext, parametersRootNode, ipParam);
+                                if (property != null) {
+                                    param2propertyMapping.put(param, property);
+                                    break;
+                                }
+                        }
+                    } else  {
+                        // param is not an ip property search for whatever we can
                         final Variable property =
-                            searchPropertyInStack(templateContext, parametersRootNode, param.getName());
+                            searchPropertyInStack(templateContext, parametersRootNode, paramName);
                         if (property != null) {
                             param2propertyMapping.put(param, property);
-                        }
-                    } else {
-                        // search for IP property with different names
-                        for (final String paramName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
-                            final Variable property =
-                                searchPropertyInStack(templateContext, parametersRootNode, paramName);
-                            if (property != null) {
-                                param2propertyMapping.put(param, property);
-                                break;
-                            }
+                            break;
                         }
                     }
                 }
