@@ -11,8 +11,9 @@
 
   <!-- processors are manually depended upon and not ready for DI configuration -->
   <camel:camelContext id="mb-application-api-jsonhttp-camel-context">
-      <camel:packageScan>
-          <camel:package>org.opentosca.bus.application.api.jsonhttp.route</camel:package>
-      </camel:packageScan>
+    <camel:packageScan>
+      <camel:package>org.opentosca.bus.application.api.jsonhttp.route</camel:package>
+    </camel:packageScan>
   </camel:camelContext>
+
 </beans>

@@ -3,7 +3,6 @@ package org.opentosca.bus.management.invocation.plugin.soaphttp.route;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.opentosca.bus.management.invocation.plugin.soaphttp.processor.HeaderProcessor;
-import org.springframework.stereotype.Component;
 
 /**
  * Request-only route of SOAP/HTTP-Invocation-Management-Bus-Plug-in.<br>
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
-@Component
 public class RequestOnlyRoute extends RouteBuilder {
 
     @Override

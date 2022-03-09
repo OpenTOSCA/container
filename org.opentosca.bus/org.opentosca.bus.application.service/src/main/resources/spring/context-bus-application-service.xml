@@ -16,6 +16,10 @@
   <context:component-scan base-package="org.opentosca.container.core.impl.service" />
   <context:component-scan base-package="org.opentosca.container.core.next.repository" />
 
+  <camel:camelContext id="mb-application-camel-context">
+      <camel:package>org.opentosca.bus.application.service.impl.route</camel:package>
+  </camel:camelContext>
+
   <import resource="classpath*:/spring/context-mb-application-plugin.xml" />
   <import resource="classpath*:/spring/context-bus-application-api.xml" />
 

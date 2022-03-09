@@ -9,5 +9,11 @@
 
   <context:annotation-config />
 
-  <context:component-scan base-package="org.opentosca.bus.application.api.soaphttp.route" />
+  <!-- processors are not ready for DI -->
+  <camel:camelContext id="mb-application-api-soaphttp-camel-context">
+    <camel:packageScan>
+      <camel:package>org.opentosca.bus.application.api.soaphttp.route</camel:package>
+    </camel:packageScan>
+  </camel:camelContext>
+
 </beans>
