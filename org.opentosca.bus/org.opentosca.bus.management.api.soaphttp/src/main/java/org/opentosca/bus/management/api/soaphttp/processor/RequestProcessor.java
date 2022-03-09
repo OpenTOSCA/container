@@ -59,6 +59,9 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_BuildPlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_LifecycleInterface;
+
 /**
  * Request-Processor of the Management Bus-SOAP/HTTP-API.<br>
  * <br>
@@ -374,7 +377,7 @@ public class RequestProcessor implements Processor {
 
             // get plan ID from the boundary definitions
 
-            final QName planID = MBUtils.findPlanByOperation(choreoCsar, "OpenTOSCA-Lifecycle-Interface", "initiate");
+            final QName planID = MBUtils.findPlanByOperation(choreoCsar, OpenTOSCA_LifecycleInterface, OpenTOSCA_BuildPlanOperation);
 
             final String planCorrelationId = planInstanceRepository
                 .findByChoreographyCorrelationIdAndTemplateId(receiveNotifyRequest.getPlanChorCorrelation(), planID)
@@ -432,7 +435,7 @@ public class RequestProcessor implements Processor {
                 choreoServiceTemplate.getId());
 
             // get plan ID from the boundary definitions
-            final QName planID = MBUtils.findPlanByOperation(choreoCsar, "OpenTOSCA-Lifecycle-Interface", "initiate");
+            final QName planID = MBUtils.findPlanByOperation(choreoCsar, OpenTOSCA_LifecycleInterface, OpenTOSCA_BuildPlanOperation);
 
             // create plan invocation request from given parameters
             exchange.getIn().setBody(createRequestBody(choreoCsar.id().csarName(), serviceTemplateID,
@@ -446,11 +449,12 @@ public class RequestProcessor implements Processor {
             exchange.getIn().setHeader(MBHeader.PLANID_QNAME.toString(), planID);
             // exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(),
             // Activator.apiID);
-            exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), "initiate");
+            exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), OpenTOSCA_BuildPlanOperation);
             exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokePlan");
 
             final String partner = receiveNotifyRequest.getParams().getParam().stream()
-                .filter(param -> param.getKey().equals("SendingPartner")).findFirst().map(param -> param.getValue())
+                .filter(param -> param.getKey().equals("SendingPartner"))
+                .findFirst().map(ParamsMapItemType::getValue)
                 .orElse(null);
             LOG.debug("Adding partner: {}", partner);
             this.managementBusService.addPartnerToReadyList(receiveNotifyRequest.getPlanChorCorrelation(), partner);
