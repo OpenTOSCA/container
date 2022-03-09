@@ -29,7 +29,6 @@ import com.google.common.collect.Lists;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
-import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.support.DefaultExchange;
 import org.glassfish.jersey.uri.UriComponent;
 import org.opentosca.bus.management.header.MBHeader;
@@ -89,10 +88,10 @@ public class MBJavaApi implements IManagementBus {
     private final SituationRepository situationRepository;
 
     @Inject
-    public MBJavaApi(Importer importer, WineryExporter exporter,
+    public MBJavaApi(CamelContext camelContext, Importer importer, WineryExporter exporter,
                      ICoreEndpointService endpointService, BpelPlanEnginePlugin bpelPlanEnginePlugin,
                      CsarStorageService storage, SituationRepository situationRepository) {
-        this.camelContext = new DefaultCamelContext();
+        this.camelContext = camelContext;
         this.importer = importer;
         this.exporter = exporter;
         this.endpointService = endpointService;
