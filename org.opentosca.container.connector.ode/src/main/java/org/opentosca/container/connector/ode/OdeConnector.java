@@ -12,23 +12,31 @@ import java.nio.file.Paths;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
-import javax.xml.rpc.ServiceException;
 
-import org.apache.axis.message.MessageElement;
+import org.apache.axis.pmapi.ManagementFault;
+import org.apache.axis.pmapi.ProcessManagementStub;
+import org.apache.axis2.AxisFault;
+import org.apache.ode.deploy.DeploymentServiceStub;
 import org.apache.www.ode.deployapi.DeployUnit;
-import org.apache.www.ode.deployapi.DeploymentPortType;
-import org.apache.www.ode.deployapi.DeploymentServiceLocator;
-import org.apache.www.ode.deployapi._package;
-import org.apache.www.ode.pmapi.ManagementFault;
-import org.apache.www.ode.pmapi.ProcessManagementPortType;
-import org.apache.www.ode.pmapi.ProcessManagementServiceLocator;
-import org.apache.www.ode.pmapi.types._2006._08._02.TEndpointReferencesEndpointRef;
+import org.apache.www.ode.deployapi.Package;
+import org.apache.www.ode.pmapi.DeployDocument;
+import org.apache.www.ode.pmapi.DeployResponseDocument;
+import org.apache.www.ode.pmapi.GetProcessInfoDocument;
+import org.apache.www.ode.pmapi.GetProcessInfoResponseDocument;
+import org.apache.www.ode.pmapi.ListAllProcessesDocument;
+import org.apache.www.ode.pmapi.ListDeployedPackagesDocument;
+import org.apache.www.ode.pmapi.ListDeployedPackagesResponseDocument;
+import org.apache.www.ode.pmapi.ListProcessesDocument;
+import org.apache.www.ode.pmapi.UndeployDocument;
+import org.apache.www.ode.pmapi.impl.GetProcessInfoDocumentImpl;
+import org.apache.www.ode.pmapi.types._2006._08._02.TEndpointReferences;
 import org.apache.www.ode.pmapi.types._2006._08._02.TProcessInfo;
 import org.apache.www.ode.pmapi.types._2006._08._02.TProcessStatus;
 import org.slf4j.Logger;
@@ -118,23 +126,28 @@ public class OdeConnector {
                 throw new Exception("Couldn't deploy plan " + fileName);
             }
 
-            final ProcessManagementPortType client = getProcessManagementServiceClient();
+            final ProcessManagementStub client = getProcessManagementServiceClient();
 
             // request process info for pid
             final QName processId = QName.valueOf(pid);
-            TProcessInfo info = client.getProcessInfo(processId);
+            GetProcessInfoDocument processInfoDocument = GetProcessInfoDocument.Factory.newInstance();
+
+
+            GetProcessInfoDocument.GetProcessInfo processInfo = GetProcessInfoDocument.GetProcessInfo.Factory.newInstance();
+            processInfo.setPid(processId);
+            processInfoDocument.setGetProcessInfo(processInfo);
+
+            GetProcessInfoResponseDocument info = client.getProcessInfo(processInfoDocument);
             OdeConnector.LOG.debug("Checking packageName for Pid: " + pid);
-            OdeConnector.LOG.debug("Package name of PID is: " + info.getDeploymentInfo().get_package());
+            OdeConnector.LOG.debug("Package name of PID is: " + info.getGetProcessInfoResponse().getProcessInfo().getDeploymentInfo().getPackage());
+
 
             // check deployment state until its active
-            while (!info.getStatus().equals(TProcessStatus.ACTIVE)) {
-                info = client.getProcessInfo(processId);
+            while (!info.getGetProcessInfoResponse().getProcessInfo().getStatus().equals(TProcessStatus.ACTIVE)) {
+                info = client.getProcessInfo(processInfoDocument);
                 Thread.sleep(500);
             }
-        } catch (final ManagementFault e) {
-            OdeConnector.LOG.error("The Process isn't valid", e);
-            return null;
-        } catch (final RemoteException e) {
+        }  catch (final RemoteException e) {
             OdeConnector.LOG.error("RemoteException: Server not available", e);
             return null;
         } catch (final UnknownHostException e) {
@@ -203,12 +216,18 @@ public class OdeConnector {
 
         OdeConnector.LOG.debug("Fetching pid for package: " + packageId);
         // Create a new deployment client
-        final DeploymentPortType client = getDeploymentServiceClient();
+        final DeploymentServiceStub client = getDeploymentServiceClient();
 
         // Retrieve the process ids contained in the given package
-        QName[] processIds;
+        Collection<QName> processIds = new ArrayList<>();
         try {
-            processIds = client.listProcesses(packageId).getId();
+            ListProcessesDocument listProcessesDocument = ListProcessesDocument.Factory.newInstance();
+            ListProcessesDocument.ListProcesses listProcesses = ListProcessesDocument.ListProcesses.Factory.newInstance();
+            listProcesses.setFilter(packageId);
+            listProcessesDocument.setListProcesses(listProcesses);
+            for (TProcessInfo processInfo : client.listProcesses(listProcessesDocument).getListProcessesResponse().getProcessInfoList().getProcessInfoArray()) {
+                processIds.add(processInfo.getDefinitionInfo().getProcessName());
+            }
 
             // this can happen if ODE has no process deployed
             if (processIds != null) {
@@ -242,9 +261,14 @@ public class OdeConnector {
         setEndpoint(uri);
 
         try {
-            final DeploymentPortType client = getDeploymentServiceClient();
+            final DeploymentServiceStub client = getDeploymentServiceClient();
+            ListDeployedPackagesDocument listDeployedPackagesDocument = ListDeployedPackagesDocument.Factory.newInstance();
+            ListDeployedPackagesDocument.ListDeployedPackages listDeployedPackages = ListDeployedPackagesDocument.ListDeployedPackages.Factory.newInstance();
 
-            final String[] deployedPackages = client.listDeployedPackages().getName();
+            listDeployedPackagesDocument.setListDeployedPackages(listDeployedPackages);
+            ListDeployedPackagesResponseDocument listDeployedPackagesResponseDocument = client.listDeployedPackages(listDeployedPackagesDocument);
+
+            final String[] deployedPackages = listDeployedPackagesResponseDocument.getListDeployedPackagesResponse().getDeployedPackages().getNameArray();
 
             final List<String> filteredPackages = new ArrayList<>();
 
@@ -261,7 +285,11 @@ public class OdeConnector {
                 return false;
             }
 
-            client.undeploy(QName.valueOf(pid));
+            UndeployDocument undeployDocument = UndeployDocument.Factory.newInstance();
+            UndeployDocument.Undeploy undeploy = UndeployDocument.Undeploy.Factory.newInstance();
+            undeploy.setPackageName(QName.valueOf(pid));
+            undeployDocument.setUndeploy(undeploy);
+            client.undeploy(undeployDocument);
         } catch (final RemoteException e) {
             OdeConnector.LOG.error("Trying to undeploy package '" + packageName + "' caused an exception.", e);
         }
@@ -315,7 +343,7 @@ public class OdeConnector {
     private String deployFile(final File file, final String fileName, final String fileType) throws IOException {
         final String fileNameshort = fileName.substring(0, fileName.indexOf("." + fileType));
 
-        final DeploymentPortType client = getDeploymentServiceClient();
+        final DeploymentServiceStub client = getDeploymentServiceClient();
 
         byte[] data = null;
         if (fileType.equals("zip")) {
@@ -324,14 +352,20 @@ public class OdeConnector {
             OdeConnector.LOG.warn("Tried to deploy an non archive file: {}", file.getAbsolutePath());
         }
 
-        final _package zipPackage = new _package();
-        final Base64Binary zip = new Base64Binary();
-        zip.set_value(data);
-        zipPackage.setZip(zip);
+        final Base64Binary zip = Base64Binary.Factory.newInstance();
+        zip.setByteArrayValue(data);
 
-        final DeployUnit dUnit = client.deploy(fileNameshort, zipPackage);
+        DeployDocument deployDocument = DeployDocument.Factory.newInstance();
+        DeployDocument.Deploy deploy = DeployDocument.Deploy.Factory.newInstance();
+        Package pckage = Package.Factory.newInstance();
+        pckage.setZip(zip);
+        deploy.setName(fileNameshort);
+        deploy.setPackage(pckage);
+        deployDocument.setDeploy(deploy);
 
-        return dUnit.getName();
+        final DeployResponseDocument dUnit = client.deploy(deployDocument);
+
+        return dUnit.getDeployResponse().getResponse().getName();
     }
 
     /**
@@ -346,11 +380,17 @@ public class OdeConnector {
         // Update the service endpoint
         setEndpoint(uri);
 
-        final DeploymentPortType client = getDeploymentServiceClient();
-
+        final DeploymentServiceStub client = getDeploymentServiceClient();
         String[] packages = null;
         try {
-            packages = client.listDeployedPackages().getName();
+        ListDeployedPackagesDocument listDeployedPackagesDocument = ListDeployedPackagesDocument.Factory.newInstance();
+        ListDeployedPackagesDocument.ListDeployedPackages listDeployedPackages = ListDeployedPackagesDocument.ListDeployedPackages.Factory.newInstance();
+
+        listDeployedPackagesDocument.setListDeployedPackages(listDeployedPackages);
+        ListDeployedPackagesResponseDocument listDeployedPackagesResponseDocument = client.listDeployedPackages(listDeployedPackagesDocument);
+
+        packages = listDeployedPackagesResponseDocument.getListDeployedPackagesResponse().getDeployedPackages().getNameArray();
+
         } catch (final RemoteException e) {
             OdeConnector.LOG.error("Trying to resolve all deployed packages caused an exception.", e);
         }
@@ -391,24 +431,33 @@ public class OdeConnector {
         // Update the service endpoint
         setEndpoint(uri);
 
-        final ProcessManagementPortType client = getProcessManagementServiceClient();
+        final ProcessManagementStub client = getProcessManagementServiceClient();
+
+        GetProcessInfoDocument getProcessInfoDocument = GetProcessInfoDocument.Factory.newInstance();
+        GetProcessInfoDocument.GetProcessInfo getProcessInfo = GetProcessInfoDocument.GetProcessInfo.Factory.newInstance();
+        getProcessInfo.setPid(QName.valueOf(pid));
+        getProcessInfoDocument.setGetProcessInfo(getProcessInfo);
+
 
         try {
-            final TProcessInfo info = client.getProcessInfo(QName.valueOf(pid));
+            final TProcessInfo info = client.getProcessInfo(getProcessInfoDocument).getGetProcessInfoResponse().getProcessInfo();
 
             OdeConnector.LOG.debug("Looking for endpoint for process " + info.getDefinitionInfo().getProcessName());
 
             if (info.getEndpoints() != null) {
                 // process response
-                for (final TEndpointReferencesEndpointRef endpointRef : info.getEndpoints().getEndpointRef()) {
+                for (final TEndpointReferences.EndpointRef endpointRef : info.getEndpoints().getEndpointRefArray()) {
 
                     OdeConnector.LOG.debug("Found partnerlink: " + endpointRef.getPartnerLink());
 
                     // @hahnml: Handle the extraction of EPR data which is provided as WS-Addressing
                     // EPR XML document embedded in the endpointRef element as XML extensibility
                     // element (xsd:any)
-                    for (final MessageElement msgElement : endpointRef.get_any()) {
-                        final String endpointString = resolveServiceAddress(msgElement);
+
+                    for (int i = 0 ; i < endpointRef.getDomNode().getChildNodes().getLength(); i++){
+
+                        Node msgElement = endpointRef.getDomNode().getChildNodes().item(i);
+                            final String endpointString = resolveServiceAddress(msgElement);
                         // Only add valid EPRs
                         if (endpointString != null) {
                             try {
@@ -447,13 +496,13 @@ public class OdeConnector {
         return partnerLinkToEndpointURIs;
     }
 
-    private String resolveServiceAddress(final MessageElement msgElement) {
+    private String resolveServiceAddress(final Node msgElement) {
         final String serviceAddress = null;
 
         if (msgElement != null) {
             // Check if the root element is a BPEL service reference
-            if (msgElement.getNamespaceURI().equals(NS_SERVICE_REF)) {
-                final NodeList nodeList = msgElement.getElementsByTagNameNS(NS_WS_ADDRESSING, "EndpointReference");
+            if (msgElement.getNamespaceURI().equals(NS_SERVICE_REF) && msgElement.getNodeType() == Node.ELEMENT_NODE) {
+                final NodeList nodeList = ((Element)msgElement).getElementsByTagNameNS(NS_WS_ADDRESSING, "EndpointReference");
 
                 if (nodeList != null && nodeList.getLength() > 0) {
                     int index = 0;
@@ -487,11 +536,14 @@ public class OdeConnector {
         // Update the service endpoint
         setEndpoint(uri);
 
-        final ProcessManagementPortType client = getProcessManagementServiceClient();
+        final ProcessManagementStub client = getProcessManagementServiceClient();
 
+        ListAllProcessesDocument listAllProcessesDocument = ListAllProcessesDocument.Factory.newInstance();
+        ListAllProcessesDocument.ListAllProcesses listAllProcesses = ListAllProcessesDocument.ListAllProcesses.Factory.newInstance();
+        listAllProcessesDocument.setListAllProcesses(listAllProcesses);
         TProcessInfo[] processList;
         try {
-            processList = client.listAllProcesses().getProcessInfo();
+            processList = client.listAllProcesses(listAllProcessesDocument).getListAllProcessesResponse().getProcessInfoList().getProcessInfoArray();
 
             // check for case when there are no process deployed anymore
             if (processList == null) {
@@ -503,7 +555,7 @@ public class OdeConnector {
             for (final TProcessInfo pinfo : processList) {
                 pidStringList.add(pinfo.getPid());
             }
-        } catch (final RemoteException e) {
+        } catch (final RemoteException | ManagementFault e) {
             OdeConnector.LOG.error("Unable to resolve a list of all processes available at ODE", e);
         }
 
@@ -523,16 +575,13 @@ public class OdeConnector {
      *
      * @return a ProcessManagementService client
      */
-    private ProcessManagementPortType getProcessManagementServiceClient() {
-        ProcessManagementPortType client = null;
+    private ProcessManagementStub getProcessManagementServiceClient() {
+        ProcessManagementStub client = null;
         final String serviceLocation = this.address + "/processes/ProcessManagement";
         try {
-            final URL url = new URL(serviceLocation);
-            client = new ProcessManagementServiceLocator().getProcessManagementPort(url);
-        } catch (final MalformedURLException e) {
+            client = new ProcessManagementStub(serviceLocation);
+        } catch (final AxisFault e) {
             OdeConnector.LOG.error("Cannot resolve a URL from the service location {0}", serviceLocation);
-        } catch (final ServiceException e) {
-            OdeConnector.LOG.error("Initialization of a process management service client caused an exception.", e);
         }
         return client;
     }
@@ -542,16 +591,13 @@ public class OdeConnector {
      *
      * @return a DeploymentService client
      */
-    private DeploymentPortType getDeploymentServiceClient() {
-        DeploymentPortType client = null;
+    private DeploymentServiceStub getDeploymentServiceClient() {
+        DeploymentServiceStub client = null;
         final String serviceLocation = this.address + "/processes/DeploymentService";
         try {
-            final URL url = new URL(serviceLocation);
-            client = new DeploymentServiceLocator().getDeploymentPort(url);
-        } catch (final MalformedURLException e) {
+            client = new DeploymentServiceStub(serviceLocation);
+        } catch (final AxisFault e) {
             OdeConnector.LOG.error("Cannot resolve a URL from the service location {0}", serviceLocation);
-        } catch (final ServiceException e) {
-            OdeConnector.LOG.error("Initialization of a deployment service client caused an exception.", e);
         }
         return client;
     }

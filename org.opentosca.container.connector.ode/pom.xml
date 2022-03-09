@@ -15,7 +15,7 @@
 
     <build>
         <plugins>
-            <plugin>
+            <!--<plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>axistools-maven-plugin</artifactId>
                 <version>1.4</version>
@@ -33,16 +33,103 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>-->
+            <plugin>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-wsdl2code-maven-plugin</artifactId>
+                <version>1.8.0</version>
+                <executions>
+                    <execution>
+                        <id>ws1</id>
+                        <goals>
+                            <goal>wsdl2code</goal>
+                        </goals>
+                        <configuration>
+                            <databindingName>xmlbeans</databindingName>
+                            <packageName>org.apache.ode.deploy</packageName>
+                            <wsdlFile>src/main/resources/deploy.wsdl</wsdlFile>
+                            <outputDirectory>target/generated-sources</outputDirectory>
+                            <overWrite>true</overWrite>
+                            <syncMode>sync</syncMode>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>ws2</id>
+                        <goals>
+                            <goal>wsdl2code</goal>
+                        </goals>
+                        <configuration>
+                            <databindingName>xmlbeans</databindingName>
+                            <packageName>org.apache.axis.pmapi</packageName>
+                            <wsdlFile>src/main/resources/pmapi.wsdl</wsdlFile>
+                            <outputDirectory>target/generated-sources</outputDirectory>
+                            <overWrite>true</overWrite>
+                            <syncMode>sync</syncMode>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>ws3</id>
+                        <goals>
+                            <goal>wsdl2code</goal>
+                        </goals>
+                        <configuration>
+                            <databindingName>xmlbeans</databindingName>
+                            <packageName>org.apache.axis.imapi</packageName>
+                            <wsdlFile>src/main/resources/imapi.wsdl</wsdlFile>
+                            <outputDirectory>target/generated-sources</outputDirectory>
+                            <overWrite>true</overWrite>
+                            <syncMode>sync</syncMode>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
 
 	<dependencies>
+
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-kernel</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-adb</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-xmlbeans</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2</artifactId>
+            <version>1.8.0</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-transport-local</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-transport-http</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-transport-base</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+        <!--
 		<dependency>
 			<groupId>org.apache.axis</groupId>
 			<artifactId>axis</artifactId>
 			<version>1.4</version>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>commons-discovery</groupId>
 			<artifactId>commons-discovery</artifactId>
