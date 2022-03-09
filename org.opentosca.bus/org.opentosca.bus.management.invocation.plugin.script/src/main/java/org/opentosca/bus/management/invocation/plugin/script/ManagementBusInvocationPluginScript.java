@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TArtifactReference;
@@ -79,18 +80,18 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
     private final CsarStorageService storage;
     private final ContainerEngine containerEngine;
 
-    private final CamelContext camelContext;
-
     private final MBUtils mbUtils;
 
+    private final CamelContext camelContext;
+
     @Inject
-    public ManagementBusInvocationPluginScript(CamelContext camelContext, ArtifactTypesHandler typesHandler, CsarStorageService storage,
-                                               ContainerEngine containerEngine, MBUtils mbUtils) {
+    public ManagementBusInvocationPluginScript(ArtifactTypesHandler typesHandler, CsarStorageService storage,
+                                               ContainerEngine containerEngine, MBUtils mbUtils, @Named("fallback") CamelContext camelContext) {
         this.typesHandler = typesHandler;
         this.storage = storage;
         this.containerEngine = containerEngine;
-        this.camelContext = camelContext;
         this.mbUtils = mbUtils;
+        this.camelContext = camelContext;
     }
 
     @Override
