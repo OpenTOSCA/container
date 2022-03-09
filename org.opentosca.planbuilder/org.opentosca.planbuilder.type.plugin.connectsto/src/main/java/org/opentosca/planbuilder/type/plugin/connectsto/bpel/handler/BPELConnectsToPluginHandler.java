@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
@@ -18,11 +15,11 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.convention.Utils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.handler.ConnectsToPluginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,6 +95,158 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
     }
 
     /**
+     * Searches for a property for the given param and adds it to the mapping. The search is based on the following convention:
+     * 1. check if there is a property with the same name as the parameter on the node having the connectTo operation
+     * 2. if not 1. then look for the property on the opposite stack of the connectTo operation first (if op on source then look on target stack and so on)
+     * 3. if not 2. then look for the property on its own stack (if op on soruce then look on source stack)
+     *
+     * @param templateContext the plan context
+     * @param connectToNode the node on which we want to call connectTo
+     * @param sourceParameterNode the source node of the connectTo relation
+     * @param targetParameterNode the target node of the connecTo relation
+     * @param param2propertyMapping a parameter to variable mapping to add the result to
+     * @param param the parameter to match
+     * @return true if adding a matching was possible
+     */
+    private boolean findInputParameter(final BPELPlanContext templateContext,
+                                       final TNodeTemplate connectToNode,
+                                       final TNodeTemplate sourceParameterNode,
+                                       final TNodeTemplate targetParameterNode,
+                                       Map<TParameter, Variable> param2propertyMapping, TParameter param) {
+        // search matching property  in the RelationshipTemplate properties
+        final Variable var =
+            templateContext.getPropertyVariable(templateContext.getRelationshipTemplate(), param.getName());
+
+        if (var != null) {
+            param2propertyMapping.put(param, var);
+            return true;
+        } else {
+            // if the connectTo operation is on the source node, we look in the target stack
+            // if on the target node, we look in the source stack
+            boolean definedOnSource = false;
+            if (sourceParameterNode.equals(connectToNode)) {
+                definedOnSource = true;
+            } else {
+            }
+            // we didn't find anything yet, lets try the whole topology and for ambigious properties (IPs etc.)
+            String paramName = param.getName();
+            if (Utils.isSupportedVirtualMachineIPProperty(paramName)) {
+                for (final String ipParam : Utils.getSupportedVirtualMachineIPPropertyNames()) {
+                    if (this.searchBasedOnDefinedOnSource(definedOnSource, templateContext, ipParam, param, param2propertyMapping, sourceParameterNode, targetParameterNode)) {
+                        return true;
+                    }
+                }
+            } else {
+                // param is not an ip property search for whatever we can
+                if (this.searchBasedOnDefinedOnSource(definedOnSource, templateContext, paramName, param, param2propertyMapping, sourceParameterNode, targetParameterNode)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean searchBasedOnDefinedOnSource(final boolean definedOnSource, final BPELPlanContext templateContext,
+                                                 final String paramName,
+                                                 final TParameter param,
+                                                 final Map<TParameter, Variable> param2propertyMapping, final TNodeTemplate sourceParameterNode, final TNodeTemplate targetParameterNode) {
+        if (definedOnSource) {
+            // if it is defined on source, search the target stack, if found return true.
+            // if not found check on source stack, if found return true
+            if (this.searchAndAddIfFound(templateContext, paramName, param, param2propertyMapping, targetParameterNode, sourceParameterNode)) {
+                return true;
+            }
+        } else {
+            // if it is not defined on source, search the source stack, if found return true.
+            // if not found check on target stack, if found return true
+            if (this.searchAndAddIfFound(templateContext, paramName, param, param2propertyMapping, sourceParameterNode, targetParameterNode)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean searchAndAddIfFound(final BPELPlanContext templateContext,
+                                     final String paramName,
+                                     final TParameter param,
+                                     final Map<TParameter, Variable> param2propertyMapping, final TNodeTemplate... parametersRootNodes) {
+        for (TNodeTemplate paramRootNode : parametersRootNodes) {
+            if (this.searchAndAddIfFound(templateContext, paramRootNode, paramName, param, param2propertyMapping)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isPrefixedParam(TParameter param) {
+        if (param.getName().startsWith("SOURCE_") || param.getName().startsWith("TARGET_")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Tries to match the given parameter to a property according to the parameter prefix. The matching is done via the following way:
+     * 1. Check the parameter for a prefix SOURCE_ or TARGET_
+     * 2. Check the source or target stack for a property matching the name after prefix
+     *
+     * @param templateContext the plan context
+     * @param sourceParameterNode the source node template of the connectTo relation
+     * @param targetParameterNode the target node tempalte of the connectTo relation
+     * @param param2propertyMapping the mapping from parameter to variable to add the matching to
+     * @param param the parameter of the connectTo operation
+     * @return true if a matching was found
+     */
+    private boolean findInputPrefixedParameter(final BPELPlanContext templateContext,
+                                               final TNodeTemplate sourceParameterNode,
+                                               final TNodeTemplate targetParameterNode,
+                                               Map<TParameter, Variable> param2propertyMapping, TParameter param) {
+        String unprefixedParam = null;
+        boolean isSource = false;
+
+        if (param.getName().startsWith("SOURCE_")) {
+            unprefixedParam = param.getName().substring(7);
+            isSource = true;
+        } else if (param.getName().startsWith("TARGET_")) {
+            unprefixedParam = param.getName().substring(7);
+        }
+
+        if (unprefixedParam == null) {
+            throw new NullPointerException("We expect a prefixed param");
+        }
+
+        if (isSource) {
+            // search in source stack
+            this.searchAndAddIfFound(templateContext, sourceParameterNode, unprefixedParam, param, param2propertyMapping);
+        } else {
+            // search in target stack
+            this.searchAndAddIfFound(templateContext, targetParameterNode, unprefixedParam, param, param2propertyMapping);
+        }
+
+        if (!param2propertyMapping.containsKey(param)) {
+            // we didn't find anything yet, lets try the whole topology and for ambigious properties (IPs etc.)
+
+            if (Utils.isSupportedVirtualMachineIPProperty(unprefixedParam)) {
+                // the params seems to be an IP property and prefixed therefore search in the stack according to the prefix
+                for (final String ipParam : Utils.getSupportedVirtualMachineIPPropertyNames()) {
+                    if (isSource) {
+                        if (this.searchAndAddIfFound(templateContext, sourceParameterNode, ipParam, param, param2propertyMapping)) {
+                            break;
+                        }
+                    } else {
+                        if (this.searchAndAddIfFound(templateContext, targetParameterNode, ipParam, param, param2propertyMapping)) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Search the input parameters for a given connectTo operation.
      *
      * @param templateContext     the context of the operation
@@ -113,95 +262,22 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                                                           final TNodeTemplate sourceParameterNode,
                                                           final TNodeTemplate targetParameterNode) {
         final Map<TParameter, Variable> param2propertyMapping = new HashMap<>();
-
-        // search on the opposite side of the connectToNode NodeTemplate for default parameters
-        TNodeTemplate parametersRootNode;
-        if (sourceParameterNode.equals(connectToNode)) {
-            parametersRootNode = targetParameterNode;
-        } else {
-            parametersRootNode = sourceParameterNode;
-        }
-
         // search the input parameters in the properties
         for (final TParameter param : connectsToOp.getInputParameters()) {
-            // search parameter in the RelationshipTemplate properties
-            final Variable var =
-                templateContext.getPropertyVariable(templateContext.getRelationshipTemplate(), param.getName());
-
-            if (var != null) {
-                param2propertyMapping.put(param, var);
+            if (this.isPrefixedParam(param)) {
+                this.findInputPrefixedParameter(templateContext, sourceParameterNode, targetParameterNode, param2propertyMapping, param);
             } else {
-                // search elsewhere
-                // search for prefixed parameters
-                String unprefixedParam = null;
-                boolean isPrefixed = false;
-                boolean isSource = false;
-
-                if (param.getName().startsWith("SOURCE_")) {
-                    unprefixedParam = param.getName().substring(7);
-                    isPrefixed = true;
-                    isSource = true;
-                } else if (param.getName().startsWith("TARGET_")) {
-                    unprefixedParam = param.getName().substring(7);
-                    isPrefixed = true;
-                } else {
-                    unprefixedParam = param.getName();
-                }
-
-                if (isSource && isPrefixed) {
-                    // search in source stack
-                    this.searchAndAddIfFound(templateContext, sourceParameterNode, unprefixedParam, param, param2propertyMapping);
-                } else if (!isSource && isPrefixed) {
-                    // search in target stack
-                    this.searchAndAddIfFound(templateContext, targetParameterNode, unprefixedParam, param, param2propertyMapping);
-                }
-
-                if (!param2propertyMapping.containsKey(param)) {
-                    // we didn't find anything yet, lets try the whole topology and for ambigious properties (IPs etc.)
-                    String paramName = null;
-                    if (isPrefixed) {
-                        paramName = unprefixedParam;
-                    } else {
-                        paramName = param.getName();
-                    }
-
-                    if (Utils.isSupportedVirtualMachineIPProperty(paramName) && isPrefixed) {
-                        // the params seems to be an IP property and prefixed therefore search in the stack according to the prefix
-                        for (final String ipParam : Utils.getSupportedVirtualMachineIPPropertyNames()) {
-                            if (isSource) {
-                                if (this.searchAndAddIfFound(templateContext, sourceParameterNode, ipParam, param, param2propertyMapping)) {
-                                    break;
-                                }
-                            } else {
-                                if (this.searchAndAddIfFound(templateContext, targetParameterNode, ipParam, param, param2propertyMapping)) {
-                                    break;
-                                }
-                            }
-                        }
-                    } else if (Utils.isSupportedVirtualMachineIPProperty(paramName) && !isPrefixed) {
-                        // the params seems to be an IP property and not prefixed therefore search in the stack according to the connectsTo operations stack
-                        for (final String ipParam : Utils.getSupportedVirtualMachineIPPropertyNames()) {
-                            if (this.searchAndAddIfFound(templateContext, parametersRootNode, ipParam, param, param2propertyMapping)) {
-                                break;
-                            }
-                        }
-                    } else  {
-                        // param is not an ip property search for whatever we can
-                        if (this.searchAndAddIfFound(templateContext, parametersRootNode, paramName, param, param2propertyMapping)) {
-                            break;
-                        }
-                    }
-                }
+                this.findInputParameter(templateContext,connectToNode,sourceParameterNode,targetParameterNode,param2propertyMapping,param);
             }
         }
         return param2propertyMapping;
     }
 
     private boolean searchAndAddIfFound(final BPELPlanContext templateContext,
-                                     final TNodeTemplate parametersRootNode,
-                                     final String paramName,
-                                     final TParameter param,
-                                     final Map<TParameter, Variable> param2propertyMapping) {
+                                        final TNodeTemplate parametersRootNode,
+                                        final String paramName,
+                                        final TParameter param,
+                                        final Map<TParameter, Variable> param2propertyMapping) {
         final Variable property =
             searchPropertyInStack(templateContext, parametersRootNode, paramName);
         if (property != null) {
