@@ -185,8 +185,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             boolean definedOnSource = false;
             if (sourceParameterNode.equals(connectToNode)) {
                 definedOnSource = true;
-            } else {
-            }
+            } 
             // we didn't find anything yet, lets try the whole topology and for ambigious properties (IPs etc.)
             String paramName = param.getName();
             if (Utils.isSupportedVirtualMachineIPProperty(paramName)) {
