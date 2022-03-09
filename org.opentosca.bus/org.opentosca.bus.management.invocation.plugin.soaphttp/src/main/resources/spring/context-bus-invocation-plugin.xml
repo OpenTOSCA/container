@@ -13,6 +13,16 @@
 
   <context:annotation-config />
 
+  <!-- processors are not ready for DI -->
+  <camel:camelContext id="mb-invoke-plugin-soaphttp-camel-context" >
+        <camel:packageScan>
+            <camel:package>org.opentosca.bus.management.invocation.plugin.soaphttp.route</camel:package>
+        </camel:packageScan>
+  </camel:camelContext>
+
+  <bean class="org.opentosca.bus.management.invocation.plugin.soaphttp.ManagementBusInvocationPluginSoapHttp">
+        <constructor-arg type="org.apache.camel.CamelContext" ref="mb-invoke-plugin-soaphttp-camel-context" />
+  </bean>
+
   <context:component-scan base-package="org.opentosca.container.core.impl.service" />
-  <context:component-scan base-package="org.opentosca.bus.management.invocation.plugin.soaphttp.route" />
 </beans>
