@@ -27,6 +27,4 @@
   <context:component-scan base-package="org.opentosca.planbuilder.export"/>
   <context:component-scan base-package="org.opentosca.container.engine.plan.plugin.bpel"/>
   <context:component-scan base-package="org.opentosca.bus.management.api.java.route"/>
-
-  <bean class="org.opentosca.bus.management.api.java.MBJavaApi" />
 </beans>
