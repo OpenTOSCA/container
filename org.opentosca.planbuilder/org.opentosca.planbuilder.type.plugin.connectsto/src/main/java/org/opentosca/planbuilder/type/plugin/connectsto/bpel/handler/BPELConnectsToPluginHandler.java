@@ -228,10 +228,6 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             unprefixedParam = param.getName().substring(7);
         }
 
-        if (unprefixedParam == null) {
-            throw new NullPointerException("We expect a prefixed param");
-        }
-
         if (isSource) {
             // search in source stack
             this.searchAndAddIfFound(templateContext, sourceParameterNode, unprefixedParam, param, param2propertyMapping);
@@ -240,10 +236,9 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             this.searchAndAddIfFound(templateContext, targetParameterNode, unprefixedParam, param, param2propertyMapping);
         }
 
-        if (!param2propertyMapping.containsKey(param)) {
+        if (!param2propertyMapping.containsKey(param) && Utils.isSupportedVirtualMachineIPProperty(unprefixedParam)) {
             // we didn't find anything yet, lets try the whole topology and for ambigious properties (IPs etc.)
 
-            if (Utils.isSupportedVirtualMachineIPProperty(unprefixedParam)) {
                 // the params seems to be an IP property and prefixed therefore search in the stack according to the prefix
                 for (final String ipParam : Utils.getSupportedVirtualMachineIPPropertyNames()) {
                     if (isSource) {
@@ -256,7 +251,6 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                         }
                     }
                 }
-            }
         }
 
         return false;
@@ -322,11 +316,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
     }
 
     private boolean isPrefixedParam(TParameter param) {
-        if (param.getName().startsWith("SOURCE_") || param.getName().startsWith("TARGET_")) {
-            return true;
-        } else {
-            return false;
-        }
+        return param.getName().startsWith("SOURCE_") || param.getName().startsWith("TARGET_");
     }
 
     private boolean searchAndAddIfFound(final BPELPlanContext templateContext,
