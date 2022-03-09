@@ -219,7 +219,7 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
 
                     final Message mes = ex.getIn();
                     LOG.debug("Got Message with ID: {}", messageID);
-                    LOG.debug("Stored MessageIDs: {}", EXCHANGE_MAP.keySet().toString());
+                    LOG.debug("Stored MessageIDs: {}", EXCHANGE_MAP.keySet());
                     if (EXCHANGE_MAP.containsKey(messageID)) {
                         LOG.debug("MessageID found");
                         exchange = EXCHANGE_MAP.get(messageID);

@@ -9,8 +9,8 @@ import org.eclipse.winery.common.version.VersionUtils;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
 
-import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.ModelUtils;
+import org.opentosca.container.core.model.csar.Csar;
 
 abstract class DockerUtils {
 

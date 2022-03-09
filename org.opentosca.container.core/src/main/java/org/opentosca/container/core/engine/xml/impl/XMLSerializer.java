@@ -88,7 +88,7 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 
             // if the Schema object is null no validation is set
             if (schemaFile != null) {
-                LOG.info("There is a given Schema at \"" + schemaFile.toString() + "\".");
+                LOG.info("There is a given Schema at \"" + schemaFile + "\".");
                 this.schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
                 this.schema = this.schemaFactory.newSchema(schemaFile);
 

@@ -20,8 +20,8 @@ import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
 import com.google.common.collect.Sets;
 import org.opentosca.container.core.convention.Types;
-import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.ModelUtils;
+import org.opentosca.container.core.model.csar.Csar;
 
 public class ScalingPlanDefinition {
 

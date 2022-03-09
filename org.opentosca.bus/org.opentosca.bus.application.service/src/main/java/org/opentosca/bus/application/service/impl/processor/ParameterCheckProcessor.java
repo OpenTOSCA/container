@@ -60,7 +60,7 @@ public class ParameterCheckProcessor implements Processor {
             error.append(" >>NodeTemplateID<<");
         }
         if (error.length() != 0) {
-            throw new ApplicationBusExternalException("Can't process request: " + error.toString() + " is missing.");
+            throw new ApplicationBusExternalException("Can't process request: " + error + " is missing.");
         }
     }
 }

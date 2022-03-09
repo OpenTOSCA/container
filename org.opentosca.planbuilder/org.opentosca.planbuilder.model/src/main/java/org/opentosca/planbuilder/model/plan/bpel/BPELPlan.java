@@ -63,7 +63,7 @@ public class BPELPlan extends AbstractPlan {
     // will work on
     private Element bpelMainFlowElement;
     private Element bpelMainFlowLinksElement;
-    private List<BPELScope> templateBuildPlans = new ArrayList<>();
+    private final List<BPELScope> templateBuildPlans = new ArrayList<>();
     // imported files of the whole buildplan, to keep track for export
     private Set<Path> importedFiles;
     // variable for TemplateBuildPlans, makes it easier or handlers and

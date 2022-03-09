@@ -114,7 +114,7 @@ public class ParameterHandler {
         Objects.requireNonNull(nodeTemplateInstance);
 
         LOG.debug("Updating input params for NodeTemplateInstance ID: {}", nodeTemplateInstance.getId());
-        LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(), neededOperation, inputParams.toString());
+        LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(), neededOperation, inputParams);
 
         // check if operation has input params at all
         final Set<String> unsetParameters = getExpectedInputParams(csar, nodeTemplateInstance.getTemplateType(), neededInterface, neededOperation);
@@ -123,7 +123,7 @@ public class ParameterHandler {
             return inputParams;
         }
 
-        LOG.debug("Operation: {} expects {} parameters: {}", neededOperation, unsetParameters.size(), unsetParameters.toString());
+        LOG.debug("Operation: {} expects {} parameters: {}", neededOperation, unsetParameters.size(), unsetParameters);
 
         // use convention names for properties
         final List<String> supportedIPPropertyNames = Utils.getSupportedVirtualMachineIPPropertyNames();
@@ -192,7 +192,7 @@ public class ParameterHandler {
             }
         }
 
-        LOG.debug("Final {} input parameters for operation {} : {}", inputParams.size(), neededOperation, inputParams.toString());
+        LOG.debug("Final {} input parameters for operation {} : {}", inputParams.size(), neededOperation, inputParams);
 
         return inputParams;
     }
@@ -225,7 +225,7 @@ public class ParameterHandler {
         Objects.requireNonNull(relationshipTemplateInstance);
 
         LOG.debug("Updating input params for RelationshipTemplate ID: {}", relationshipTemplateInstance.getId());
-        LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(), neededOperation, inputParams.toString());
+        LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(), neededOperation, inputParams);
 
         // check if operation has input params at all
         final Set<String> expectedParams = getExpectedInputParams(csar, relationshipTemplateInstance.getTemplateType(), neededInterface, neededOperation);
@@ -234,7 +234,7 @@ public class ParameterHandler {
             return inputParams;
         }
 
-        LOG.debug("Operation: {} expects {} parameters: {}", neededOperation, expectedParams.size(), expectedParams.toString());
+        LOG.debug("Operation: {} expects {} parameters: {}", neededOperation, expectedParams.size(), expectedParams);
 
         // update params with instance data
         for (final String expectedParam : expectedParams) {

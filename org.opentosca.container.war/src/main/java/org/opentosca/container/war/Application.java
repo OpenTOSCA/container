@@ -1,6 +1,5 @@
 package org.opentosca.container.war;
 
-import java.util.Collections;
 import java.util.Map;
 
 import javax.servlet.FilterRegistration;

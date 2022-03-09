@@ -18,10 +18,10 @@ import org.eclipse.winery.model.tosca.TPropertyMapping;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -162,8 +162,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
         final TBoundaryDefinitions boundaryDefinitions = buildPlanServiceTemplate.getBoundaryDefinitions();
         if (boundaryDefinitions == null) {
             ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.warn("No BoundaryDefinitions in ServiceTemplate {} found. Output of BuildPlan maybe empty.",
-                new QName(buildPlanServiceTemplate.getTargetNamespace(), buildPlanServiceTemplate.getId())
-                    .toString());
+                new QName(buildPlanServiceTemplate.getTargetNamespace(), buildPlanServiceTemplate.getId()));
             return null;
         }
 
@@ -218,8 +217,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
             if (templatePropLocalName == null) {
                 ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.warn("Referenced Template {} in ServiceTemplate {} has no Properties defined, continueing with other PropertyMapping",
                     templateId,
-                    serviceTemplateQName
-                        .toString());
+                    serviceTemplateQName);
                 continue;
             }
 

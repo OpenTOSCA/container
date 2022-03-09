@@ -28,6 +28,7 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import com.google.common.collect.Sets;
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
@@ -46,7 +47,6 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -71,9 +71,9 @@ public class BPELPlanContext extends PlanContext {
     private final BPELScopeHandler bpelTemplateHandler;
     private final WSDLFactory factory;
     private final WSDLReader reader;
-    private BPELPlanHandler buildPlanHandler;
-    private BPELPlanHandler bpelProcessHandler;
-    private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
+    private final BPELPlanHandler buildPlanHandler;
+    private final BPELPlanHandler bpelProcessHandler;
+    private final NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 
     public BPELPlanContext(BPELScopeBuilder scopeBuilder, final BPELPlan plan, final BPELScope templateBuildPlan, final Property2VariableMapping map,
                        final TServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
