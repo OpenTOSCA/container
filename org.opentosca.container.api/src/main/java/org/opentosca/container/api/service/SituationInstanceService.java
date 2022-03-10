@@ -85,14 +85,11 @@ public class SituationInstanceService {
     public SituationTrigger createNewSituationTrigger(SituationTrigger newInstance,
                                                       final ServiceTemplateInstance serviceInstance,
                                                       final NodeTemplateInstance nodeInstance,
-                                                      final String interfaceName, final String operationName,
                                                       final Set<SituationTriggerProperty> inputs,
                                                       final float eventProbability, final String eventTime) {
         if (serviceInstance != null) {
             newInstance.setServiceInstance(serviceInstance);
         }
-        newInstance.setInterfaceName(interfaceName);
-        newInstance.setOperationName(operationName);
         if (nodeInstance != null) {
             newInstance.setNodeInstance(nodeInstance);
         }
