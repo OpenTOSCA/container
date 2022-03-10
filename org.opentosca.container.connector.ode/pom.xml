@@ -48,8 +48,6 @@
                             <databindingName>xmlbeans</databindingName>
                             <packageName>org.apache.ode.deploy</packageName>
                             <wsdlFile>src/main/resources/deploy.wsdl</wsdlFile>
-                            <outputDirectory>target/generated-sources</outputDirectory>
-                            <targetResourcesFolderLocation>target/</targetResourcesFolderLocation>
                             <overWrite>true</overWrite>
                             <syncMode>sync</syncMode>
                             <unpackClasses>true</unpackClasses>
@@ -64,8 +62,6 @@
                             <databindingName>xmlbeans</databindingName>
                             <packageName>org.apache.axis.pmapi</packageName>
                             <wsdlFile>src/main/resources/pmapi.wsdl</wsdlFile>
-                            <outputDirectory>target/generated-sources</outputDirectory>
-                            <targetResourcesFolderLocation>target/</targetResourcesFolderLocation>
                             <overWrite>true</overWrite>
                             <syncMode>sync</syncMode>
                             <unpackClasses>true</unpackClasses>
@@ -80,8 +76,6 @@
                             <databindingName>xmlbeans</databindingName>
                             <packageName>org.apache.axis.imapi</packageName>
                             <wsdlFile>src/main/resources/imapi.wsdl</wsdlFile>
-                            <outputDirectory>target/generated-sources</outputDirectory>
-                            <targetResourcesFolderLocation>target/</targetResourcesFolderLocation>
                             <overWrite>true</overWrite>
                             <syncMode>sync</syncMode>
                             <unpackClasses>true</unpackClasses>
@@ -89,7 +83,49 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <descriptorRefs>
+                        <descriptorRef>src</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <!-- this is used for inheritance merges -->
+                        <phase>package</phase>
+                        <!-- bind to the packaging phase -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>target/generated-sources/axis2/wsdl2code/resources</directory>
+            </resource>
+            <resource>
+                <directory>target/generated-sources/xmlbeans/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
     </build>
 
 	<dependencies>
@@ -97,6 +133,12 @@
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-kernel</artifactId>
             <version>1.8.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.ws.rs</groupId>
+                    <artifactId>jsr311-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.axis2</groupId>
@@ -129,31 +171,5 @@
             <artifactId>axis2-codegen</artifactId>
             <version>1.8.0</version>
         </dependency>
-
-        <!--
-		<dependency>
-			<groupId>org.apache.axis</groupId>
-			<artifactId>axis</artifactId>
-			<version>1.4</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-discovery</groupId>
-			<artifactId>commons-discovery</artifactId>
-			<version>0.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.axis</groupId>
-			<artifactId>axis-saaj</artifactId>
-			<version>1.4</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.xml.rpc</groupId>
-			<artifactId>javax.xml.rpc-api</artifactId>
-			<version>1.1.2</version>
-		</dependency>
-		<dependency>
-			<groupId>wsdl4j</groupId>
-			<artifactId>wsdl4j</artifactId>
-		</dependency>-->
 	</dependencies>
 </project>

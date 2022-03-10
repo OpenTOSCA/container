@@ -2,10 +2,8 @@ package org.opentosca.container.connector.ode;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -24,7 +22,6 @@ import org.apache.axis.pmapi.ManagementFault;
 import org.apache.axis.pmapi.ProcessManagementStub;
 import org.apache.axis2.AxisFault;
 import org.apache.ode.deploy.DeploymentServiceStub;
-import org.apache.www.ode.deployapi.DeployUnit;
 import org.apache.www.ode.deployapi.Package;
 import org.apache.www.ode.pmapi.DeployDocument;
 import org.apache.www.ode.pmapi.DeployResponseDocument;
@@ -34,8 +31,8 @@ import org.apache.www.ode.pmapi.ListAllProcessesDocument;
 import org.apache.www.ode.pmapi.ListDeployedPackagesDocument;
 import org.apache.www.ode.pmapi.ListDeployedPackagesResponseDocument;
 import org.apache.www.ode.pmapi.ListProcessesDocument;
+import org.apache.www.ode.pmapi.ListProcessesResponseDocument;
 import org.apache.www.ode.pmapi.UndeployDocument;
-import org.apache.www.ode.pmapi.impl.GetProcessInfoDocumentImpl;
 import org.apache.www.ode.pmapi.types._2006._08._02.TEndpointReferences;
 import org.apache.www.ode.pmapi.types._2006._08._02.TProcessInfo;
 import org.apache.www.ode.pmapi.types._2006._08._02.TProcessStatus;
@@ -69,18 +66,6 @@ public class OdeConnector {
 
     private final static Logger LOG = LoggerFactory.getLogger(OdeConnector.class);
 
-    private String address;
-
-    /**
-     * Sets the endpoint of this connector
-     *
-     * @param uri the uri to the endpoint of Apache ODE
-     */
-    private void setEndpoint(final String uri) {
-        OdeConnector.LOG.debug("Setting address");
-        this.address = uri;
-    }
-
     /**
      * Deploys a WS-BPEL 2.0 process unto the referenced Apache ODE
      *
@@ -88,66 +73,41 @@ public class OdeConnector {
      * @param uri     the URI of the Apache ODE
      * @return a string containing the PID (ProcessId) of the deployed process if everything was successful, else null
      */
-    public String deploy(final File process, final String uri) throws Exception {
+    public QName deploy(final File process, final String uri) throws Exception {
         if (uri == null) {
             return null;
         }
-        String pid = null;
+        QName pid = null;
         try {
-            // Update the service endpoint
-            setEndpoint(uri);
 
             final String fileName = process.getName();
             final String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
             OdeConnector.LOG.debug("Trying to deploy file: {}", process.getAbsolutePath());
-            final String packageId = deployFile(process, fileName, fileType);
-            List<QName> pidsOfPackage = new ArrayList<>();
-            // this is a "brutal" hack <=> pulling from server until a pid is
-            // set
-            int pullCount = 0;
-            while (pidsOfPackage.isEmpty() & pullCount < 50) {
-                OdeConnector.LOG.debug("Polling for pid with packageId " + packageId);
-                pidsOfPackage = getPIDsForPackageId(packageId, uri);
-                if (pidsOfPackage.isEmpty()) {
-                    // as we don't want ODE to be overworked we wait here
-                    try {
-                        Thread.sleep(2000);
-                    } catch (final InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                // for safety
-                pullCount++;
-            }
+            pid = deployFile(process, fileName, fileType, uri);
 
-            pid = calcHighestPid(pidsOfPackage, packageId);
-
-            if (pid == null || pid.isEmpty()) {
+            if (pid == null) {
                 throw new Exception("Couldn't deploy plan " + fileName);
             }
 
-            final ProcessManagementStub client = getProcessManagementServiceClient();
+            final ProcessManagementStub client = getProcessManagementServiceClient(uri);
 
             // request process info for pid
-            final QName processId = QName.valueOf(pid);
             GetProcessInfoDocument processInfoDocument = GetProcessInfoDocument.Factory.newInstance();
 
-
             GetProcessInfoDocument.GetProcessInfo processInfo = GetProcessInfoDocument.GetProcessInfo.Factory.newInstance();
-            processInfo.setPid(processId);
+            processInfo.setPid(pid);
             processInfoDocument.setGetProcessInfo(processInfo);
 
             GetProcessInfoResponseDocument info = client.getProcessInfo(processInfoDocument);
             OdeConnector.LOG.debug("Checking packageName for Pid: " + pid);
             OdeConnector.LOG.debug("Package name of PID is: " + info.getGetProcessInfoResponse().getProcessInfo().getDeploymentInfo().getPackage());
 
-
             // check deployment state until its active
             while (!info.getGetProcessInfoResponse().getProcessInfo().getStatus().equals(TProcessStatus.ACTIVE)) {
                 info = client.getProcessInfo(processInfoDocument);
                 Thread.sleep(500);
             }
-        }  catch (final RemoteException e) {
+        } catch (final RemoteException e) {
             OdeConnector.LOG.error("RemoteException: Server not available", e);
             return null;
         } catch (final UnknownHostException e) {
@@ -211,12 +171,9 @@ public class OdeConnector {
     public List<QName> getPIDsForPackageId(final String packageId, final String uri) {
         final List<QName> pids = new ArrayList<>();
 
-        // Update the service endpoint
-        setEndpoint(uri);
-
         OdeConnector.LOG.debug("Fetching pid for package: " + packageId);
         // Create a new deployment client
-        final DeploymentServiceStub client = getDeploymentServiceClient();
+        final DeploymentServiceStub client = getDeploymentServiceClient(uri);
 
         // Retrieve the process ids contained in the given package
         Collection<QName> processIds = new ArrayList<>();
@@ -225,10 +182,12 @@ public class OdeConnector {
             ListProcessesDocument.ListProcesses listProcesses = ListProcessesDocument.ListProcesses.Factory.newInstance();
             listProcesses.setFilter(packageId);
             listProcessesDocument.setListProcesses(listProcesses);
-            for (TProcessInfo processInfo : client.listProcesses(listProcessesDocument).getListProcessesResponse().getProcessInfoList().getProcessInfoArray()) {
-                processIds.add(processInfo.getDefinitionInfo().getProcessName());
+            ListProcessesResponseDocument listProcessesResponseDocument = client.listProcesses(listProcessesDocument);
+            if (listProcessesResponseDocument.getListProcessesResponse() != null && listProcessesResponseDocument.getListProcessesResponse().getProcessInfoList() != null) {
+                for (TProcessInfo processInfo : listProcessesResponseDocument.getListProcessesResponse().getProcessInfoList().getProcessInfoArray()) {
+                    processIds.add(processInfo.getDefinitionInfo().getProcessName());
+                }
             }
-
             // this can happen if ODE has no process deployed
             if (processIds != null) {
                 OdeConnector.LOG.debug("Found following PIDs:");
@@ -257,11 +216,8 @@ public class OdeConnector {
             return false;
         }
 
-        // Update the service endpoint
-        setEndpoint(uri);
-
         try {
-            final DeploymentServiceStub client = getDeploymentServiceClient();
+            final DeploymentServiceStub client = getDeploymentServiceClient(uri);
             ListDeployedPackagesDocument listDeployedPackagesDocument = ListDeployedPackagesDocument.Factory.newInstance();
             ListDeployedPackagesDocument.ListDeployedPackages listDeployedPackages = ListDeployedPackagesDocument.ListDeployedPackages.Factory.newInstance();
 
@@ -340,10 +296,10 @@ public class OdeConnector {
      * @return the packageName of the uploaded package
      * @throws IOException if the given file is not accessible
      */
-    private String deployFile(final File file, final String fileName, final String fileType) throws IOException {
+    private QName deployFile(final File file, final String fileName, final String fileType, final String uri) throws IOException {
         final String fileNameshort = fileName.substring(0, fileName.indexOf("." + fileType));
 
-        final DeploymentServiceStub client = getDeploymentServiceClient();
+        final DeploymentServiceStub client = getDeploymentServiceClient(uri);
 
         byte[] data = null;
         if (fileType.equals("zip")) {
@@ -365,7 +321,7 @@ public class OdeConnector {
 
         final DeployResponseDocument dUnit = client.deploy(deployDocument);
 
-        return dUnit.getDeployResponse().getResponse().getName();
+        return dUnit.getDeployResponse().getResponse().getIdArray(0);
     }
 
     /**
@@ -377,20 +333,16 @@ public class OdeConnector {
     public List<String> getDeployedPackages(final String uri) {
         final List<String> packageIds = new ArrayList<>();
 
-        // Update the service endpoint
-        setEndpoint(uri);
-
-        final DeploymentServiceStub client = getDeploymentServiceClient();
+        final DeploymentServiceStub client = getDeploymentServiceClient(uri);
         String[] packages = null;
         try {
-        ListDeployedPackagesDocument listDeployedPackagesDocument = ListDeployedPackagesDocument.Factory.newInstance();
-        ListDeployedPackagesDocument.ListDeployedPackages listDeployedPackages = ListDeployedPackagesDocument.ListDeployedPackages.Factory.newInstance();
+            ListDeployedPackagesDocument listDeployedPackagesDocument = ListDeployedPackagesDocument.Factory.newInstance();
+            ListDeployedPackagesDocument.ListDeployedPackages listDeployedPackages = ListDeployedPackagesDocument.ListDeployedPackages.Factory.newInstance();
 
-        listDeployedPackagesDocument.setListDeployedPackages(listDeployedPackages);
-        ListDeployedPackagesResponseDocument listDeployedPackagesResponseDocument = client.listDeployedPackages(listDeployedPackagesDocument);
+            listDeployedPackagesDocument.setListDeployedPackages(listDeployedPackages);
+            ListDeployedPackagesResponseDocument listDeployedPackagesResponseDocument = client.listDeployedPackages(listDeployedPackagesDocument);
 
-        packages = listDeployedPackagesResponseDocument.getListDeployedPackagesResponse().getDeployedPackages().getNameArray();
-
+            packages = listDeployedPackagesResponseDocument.getListDeployedPackagesResponse().getDeployedPackages().getNameArray();
         } catch (final RemoteException e) {
             OdeConnector.LOG.error("Trying to resolve all deployed packages caused an exception.", e);
         }
@@ -412,7 +364,7 @@ public class OdeConnector {
      * @param uri the URI to ODE
      * @return a Map from String to URI denoting partnerLinks and their endpoints
      */
-    public Map<String, URI> getEndpointsForPID(final String pid, final String uri) {
+    public Map<String, URI> getEndpointsForPID(final QName pid, final String uri) {
         final Map<String, URI> partnerLinkToEndpointURIs = new HashMap<>();
         if (pid == null) {
             OdeConnector.LOG.warn("PID is null! Not possible to find Endpoints on ODE");
@@ -428,16 +380,12 @@ public class OdeConnector {
         OdeConnector.LOG.debug("Using PID: " + pid);
         OdeConnector.LOG.debug("Using URI: " + uri);
 
-        // Update the service endpoint
-        setEndpoint(uri);
-
-        final ProcessManagementStub client = getProcessManagementServiceClient();
+        final ProcessManagementStub client = getProcessManagementServiceClient(uri);
 
         GetProcessInfoDocument getProcessInfoDocument = GetProcessInfoDocument.Factory.newInstance();
         GetProcessInfoDocument.GetProcessInfo getProcessInfo = GetProcessInfoDocument.GetProcessInfo.Factory.newInstance();
-        getProcessInfo.setPid(QName.valueOf(pid));
+        getProcessInfo.setPid(pid);
         getProcessInfoDocument.setGetProcessInfo(getProcessInfo);
-
 
         try {
             final TProcessInfo info = client.getProcessInfo(getProcessInfoDocument).getGetProcessInfoResponse().getProcessInfo();
@@ -454,10 +402,10 @@ public class OdeConnector {
                     // EPR XML document embedded in the endpointRef element as XML extensibility
                     // element (xsd:any)
 
-                    for (int i = 0 ; i < endpointRef.getDomNode().getChildNodes().getLength(); i++){
+                    for (int i = 0; i < endpointRef.getDomNode().getChildNodes().getLength(); i++) {
 
                         Node msgElement = endpointRef.getDomNode().getChildNodes().item(i);
-                            final String endpointString = resolveServiceAddress(msgElement);
+                        final String endpointString = resolveServiceAddress(msgElement);
                         // Only add valid EPRs
                         if (endpointString != null) {
                             try {
@@ -502,7 +450,7 @@ public class OdeConnector {
         if (msgElement != null) {
             // Check if the root element is a BPEL service reference
             if (msgElement.getNamespaceURI().equals(NS_SERVICE_REF) && msgElement.getNodeType() == Node.ELEMENT_NODE) {
-                final NodeList nodeList = ((Element)msgElement).getElementsByTagNameNS(NS_WS_ADDRESSING, "EndpointReference");
+                final NodeList nodeList = ((Element) msgElement).getElementsByTagNameNS(NS_WS_ADDRESSING, "EndpointReference");
 
                 if (nodeList != null && nodeList.getLength() > 0) {
                     int index = 0;
@@ -533,10 +481,7 @@ public class OdeConnector {
     public List<String> getAllPIDs(final String uri) {
         final List<String> pidStringList = new ArrayList<>();
 
-        // Update the service endpoint
-        setEndpoint(uri);
-
-        final ProcessManagementStub client = getProcessManagementServiceClient();
+        final ProcessManagementStub client = getProcessManagementServiceClient(uri);
 
         ListAllProcessesDocument listAllProcessesDocument = ListAllProcessesDocument.Factory.newInstance();
         ListAllProcessesDocument.ListAllProcesses listAllProcesses = ListAllProcessesDocument.ListAllProcesses.Factory.newInstance();
@@ -575,9 +520,9 @@ public class OdeConnector {
      *
      * @return a ProcessManagementService client
      */
-    private ProcessManagementStub getProcessManagementServiceClient() {
+    private ProcessManagementStub getProcessManagementServiceClient(String address) {
         ProcessManagementStub client = null;
-        final String serviceLocation = this.address + "/processes/ProcessManagement";
+        final String serviceLocation = address + "/processes/ProcessManagement?wsdl";
         try {
             client = new ProcessManagementStub(serviceLocation);
         } catch (final AxisFault e) {
@@ -591,9 +536,9 @@ public class OdeConnector {
      *
      * @return a DeploymentService client
      */
-    private DeploymentServiceStub getDeploymentServiceClient() {
+    private DeploymentServiceStub getDeploymentServiceClient(String address) {
         DeploymentServiceStub client = null;
-        final String serviceLocation = this.address + "/processes/DeploymentService";
+        final String serviceLocation = address + "/processes/DeploymentService?wsdl";
         try {
             client = new DeploymentServiceStub(serviceLocation);
         } catch (final AxisFault e) {
