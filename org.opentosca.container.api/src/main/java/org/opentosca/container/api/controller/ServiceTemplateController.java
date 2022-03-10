@@ -33,6 +33,7 @@ import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.service.RelationshipTemplateService;
+import org.opentosca.container.api.service.SituationInstanceService;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.Csar;
@@ -66,6 +67,9 @@ public class ServiceTemplateController {
 
     @Inject
     private InstanceService instanceService;
+
+    @Inject
+    private SituationInstanceService situationInstanceService;
 
     @Inject
     private NodeTemplateService nodeTemplateService;
@@ -200,7 +204,7 @@ public class ServiceTemplateController {
             .findFirst().orElseThrow(NotFoundException::new);
 
         final ServiceTemplateInstanceController child = new ServiceTemplateInstanceController(csar, serviceTemplate, this.instanceService,
-            this.planService, this.deploymentTestService, serviceTemplateInstanceRepository);
+            this.planService, this.deploymentTestService, situationInstanceService, serviceTemplateInstanceRepository);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
         return child;
     }

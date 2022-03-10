@@ -44,6 +44,7 @@ import org.opentosca.container.api.dto.situations.SituationsMonitorDTO;
 import org.opentosca.container.api.dto.situations.SituationsMonitorListDTO;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.SituationInstanceService;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.DeploymentTest;
@@ -66,6 +67,7 @@ public class ServiceTemplateInstanceController {
     private final Csar csar;
     private final TServiceTemplate serviceTemplate;
     private final InstanceService instanceService;
+    private final SituationInstanceService situationInstanceService;
     private final PlanService planService;
     private final DeploymentTestService deploymentTestService;
     private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
@@ -75,12 +77,14 @@ public class ServiceTemplateInstanceController {
     public ServiceTemplateInstanceController(final Csar csar, final TServiceTemplate serviceTemplate,
                                              final InstanceService instanceService, final PlanService planService,
                                              final DeploymentTestService deploymentTestService,
+                                             final SituationInstanceService situationInstanceService,
                                              ServiceTemplateInstanceRepository serviceTemplateInstanceRepository) {
         this.csar = csar;
         this.serviceTemplate = serviceTemplate;
         this.instanceService = instanceService;
         this.planService = planService;
         this.deploymentTestService = deploymentTestService;
+        this.situationInstanceService = situationInstanceService;
         this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
     }
 
@@ -270,7 +274,7 @@ public class ServiceTemplateInstanceController {
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getSituationMonitors(@PathParam("id") final Long id) {
         logger.debug("Invoking getSituationMonitors");
-        Collection<SituationsMonitor> monitors = this.instanceService.getSituationsMonitors(id);
+        Collection<SituationsMonitor> monitors = this.situationInstanceService.getSituationsMonitors(id);
         final SituationsMonitorListDTO dto = new SituationsMonitorListDTO();
 
         monitors.forEach(x -> dto.add(SituationsMonitorDTO.Converter.convert(x)));
@@ -294,7 +298,7 @@ public class ServiceTemplateInstanceController {
             mapping.put(nodeId, monitor.getNodeId2SituationIds().get(nodeId).getSituationId());
         }
 
-        SituationsMonitor createdInstance = this.instanceService.createNewSituationsMonitor(servInstance, mapping);
+        SituationsMonitor createdInstance = this.situationInstanceService.createNewSituationsMonitor(servInstance, mapping);
         final URI uri = UriUtil.generateSubResourceURI(this.uriInfo, createdInstance.getId().toString(), false);
         return Response.ok(uri).build();
     }

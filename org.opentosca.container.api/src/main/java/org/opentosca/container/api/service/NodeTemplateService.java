@@ -78,7 +78,7 @@ public class NodeTemplateService {
         try {
             serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateNameAsString);
             nodeTemplate = ToscaEngine.resolveNodeTemplate(serviceTemplate, nodeTemplateId);
-        } catch (org.opentosca.container.core.common.NotFoundException e) {
+        } catch (NotFoundException e) {
             throw new javax.ws.rs.NotFoundException(e.getMessage(), e);
         }
         final NodeTemplateDTO dto = createNodeTemplate(nodeTemplate, csar);

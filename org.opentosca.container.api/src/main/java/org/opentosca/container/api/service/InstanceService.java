@@ -66,12 +66,6 @@ public class InstanceService {
     private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository;
     private final RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository;
 
-    // situations
-    private final SituationRepository sitRepo;
-    private final SituationTriggerRepository sitTrig;
-    private final SituationTriggerInstanceRepository sitTrigInst;
-    private final SituationsMonitorRepository situationsMonitorRepo;
-
     private final RelationshipTemplateService relationshipTemplateService;
     private final ServiceTemplateService serviceTemplateService;
     private final CsarStorageService storage;
@@ -82,19 +76,13 @@ public class InstanceService {
     @Inject
     public InstanceService(ServiceTemplateInstanceRepository serviceTemplateInstanceRepository,
                            NodeTemplateInstanceRepository nodeTemplateInstanceRepository,
-                           RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository, SituationRepository sitRepo,
-                           SituationTriggerRepository sitTrig, SituationTriggerInstanceRepository sitTrigInst,
-                           SituationsMonitorRepository situationsMonitorRepo,
+                           RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository,
                            RelationshipTemplateService relationshipTemplateService,
                            ServiceTemplateService serviceTemplateService,
                            CsarStorageService storage, PlanInstanceRepository planInstanceRepository) {
         this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
         this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
         this.relationshipTemplateInstanceRepository = relationshipTemplateInstanceRepository;
-        this.sitRepo = sitRepo;
-        this.sitTrig = sitTrig;
-        this.sitTrigInst = sitTrigInst;
-        this.situationsMonitorRepo = situationsMonitorRepo;
         this.relationshipTemplateService = relationshipTemplateService;
         this.serviceTemplateService = serviceTemplateService;
         this.storage = storage;
@@ -557,135 +545,5 @@ public class InstanceService {
         final RelationshipTemplateInstance instance =
             resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, instanceId);
         this.relationshipTemplateInstanceRepository.delete(instance);
-    }
-
-    /* Situations */
-    public Situation createNewSituation(final String thingId, final String situationTemplateId, final boolean active,
-                                        final float eventProbability, final String eventTime) {
-        final Situation newInstance = new Situation();
-
-        newInstance.setSituationTemplateId(situationTemplateId);
-        newInstance.setThingId(thingId);
-        newInstance.setActive(active);
-        newInstance.setEventProbability(eventProbability);
-        newInstance.setEventTime(eventTime);
-
-        this.sitRepo.save(newInstance);
-
-        return newInstance;
-    }
-
-    public Situation getSituation(final Long id) {
-        final Optional<Situation> instance = this.sitRepo.findById(id);
-        if (instance.isPresent()) {
-            return instance.get();
-        }
-        throw new NotFoundException("Situation <" + id + "> not found.");
-    }
-
-    public Collection<Situation> getSituations() {
-        return this.sitRepo.findAll();
-    }
-
-    public boolean removeSituation(final Long situationId) {
-        if (this.sitTrig.findSituationTriggersBySituationId(situationId).isEmpty()) {
-            this.sitRepo.findById(situationId).ifPresent(x -> this.sitRepo.delete(x));
-            return true;
-        }
-        return false;
-    }
-
-    public Collection<SituationTrigger> getSituationTriggers() {
-        return this.sitTrig.findAll();
-    }
-
-    public SituationTrigger createNewSituationTrigger(final Collection<Situation> situations, final CsarId csarId,
-                                                      final boolean triggerOnActivation, final boolean isSingleInstance,
-                                                      final ServiceTemplateInstance serviceInstance,
-                                                      final NodeTemplateInstance nodeInstance,
-                                                      final String interfaceName, final String operationName,
-                                                      final Set<SituationTriggerProperty> inputs,
-                                                      final float eventProbability, final String eventTime) {
-        SituationTrigger newInstance = new SituationTrigger();
-
-        newInstance.setSituations(situations);
-        newInstance.setCsarId(csarId);
-        newInstance.setTriggerOnActivation(triggerOnActivation);
-        newInstance.setSingleInstance(isSingleInstance);
-        if (serviceInstance != null) {
-            newInstance.setServiceInstance(serviceInstance);
-        }
-        newInstance.setInterfaceName(interfaceName);
-        newInstance.setOperationName(operationName);
-        if (nodeInstance != null) {
-            newInstance.setNodeInstance(nodeInstance);
-        }
-
-        for (SituationTriggerProperty input : inputs) {
-            input.setSituationTrigger(newInstance);
-        }
-
-        newInstance.setInputs(inputs);
-
-        if (eventProbability != -1.0f) {
-            newInstance.setEventProbability(eventProbability);
-        }
-
-        if (eventTime != null) {
-            newInstance.setEventTime(eventTime);
-        }
-
-        newInstance = this.sitTrig.save(newInstance);
-
-        return newInstance;
-    }
-
-    public SituationTrigger getSituationTrigger(final Long id) {
-        final Optional<SituationTrigger> opt = this.sitTrig.findById(id);
-
-        if (opt.isPresent()) {
-            return opt.get();
-        }
-
-        throw new NotFoundException("SituationTrigger <" + id + "> not found.");
-    }
-
-    public void removeSituationTrigger(Long situationTriggerId) {
-
-        this.sitTrigInst.deleteAll(this.sitTrigInst.findBySituationTriggerId(situationTriggerId));
-
-        this.sitTrig.findById(situationTriggerId).ifPresent(this.sitTrig::delete);
-    }
-
-    public void updateSituation(final Situation situation) {
-        this.sitRepo.save(situation);
-    }
-
-    public SituationTriggerInstance getSituationTriggerInstance(final Long id) {
-        return this.sitTrigInst.findById(id)
-            .orElseThrow(() -> new RuntimeException("SituationTriggerInstance <" + id + "> not found."));
-    }
-
-    public SituationsMonitor createNewSituationsMonitor(final ServiceTemplateInstance instance,
-                                                        final Map<String, Collection<Long>> situations) {
-        SituationsMonitor monitor = new SituationsMonitor();
-
-        monitor.setServiceInstance(instance);
-
-        monitor.setNode2Situations(situations);
-
-        monitor = this.situationsMonitorRepo.save(monitor);
-        return monitor;
-    }
-
-    public Collection<SituationsMonitor> getSituationsMonitors() {
-        return this.situationsMonitorRepo.findAll();
-    }
-
-    public Collection<SituationsMonitor> getSituationsMonitors(final Long serviceInstanceID) {
-        return this.getSituationsMonitors().stream()
-            .filter(monitor -> monitor.getServiceInstance() != null
-                && monitor.getServiceInstance().getId().equals(serviceInstanceID))
-            .collect(Collectors.toList());
     }
 }
