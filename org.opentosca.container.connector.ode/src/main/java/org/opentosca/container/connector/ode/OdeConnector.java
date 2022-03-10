@@ -447,30 +447,28 @@ public class OdeConnector {
     private String resolveServiceAddress(final Node msgElement) {
         final String serviceAddress = null;
 
-        if (msgElement != null) {
-            // Check if the root element is a BPEL service reference
-            if (msgElement.getNamespaceURI().equals(NS_SERVICE_REF) && msgElement.getNodeType() == Node.ELEMENT_NODE) {
-                final NodeList nodeList = ((Element) msgElement).getElementsByTagNameNS(NS_WS_ADDRESSING, "EndpointReference");
+        // Check if the root element is a BPEL service reference
+        if (msgElement != null && msgElement.getNamespaceURI().equals(NS_SERVICE_REF) && msgElement.getNodeType() == Node.ELEMENT_NODE) {
+            final NodeList nodeList = ((Element) msgElement).getElementsByTagNameNS(NS_WS_ADDRESSING, "EndpointReference");
 
-                if (nodeList != null && nodeList.getLength() > 0) {
-                    int index = 0;
-                    while (index < nodeList.getLength()) {
-                        final Node node = nodeList.item(index);
+            if (nodeList != null && nodeList.getLength() > 0) {
+                int index = 0;
+                while (index < nodeList.getLength()) {
+                    final Node node = nodeList.item(index);
 
-                        if (node.getNodeType() == Node.ELEMENT_NODE) {
-                            final Element epr = (Element) node;
-                            final NodeList addList = epr.getElementsByTagNameNS(NS_WS_ADDRESSING, "Address");
-                            if (addList != null && addList.getLength() > 0) {
-                                // By default there should be only one address element, therefore we take the
-                                // first node
-                                if (addList.item(0).getFirstChild() != null) {
-                                    return addList.item(0).getFirstChild().getNodeValue();
-                                }
+                    if (node.getNodeType() == Node.ELEMENT_NODE) {
+                        final Element epr = (Element) node;
+                        final NodeList addList = epr.getElementsByTagNameNS(NS_WS_ADDRESSING, "Address");
+                        if (addList != null && addList.getLength() > 0) {
+                            // By default there should be only one address element, therefore we take the
+                            // first node
+                            if (addList.item(0).getFirstChild() != null) {
+                                return addList.item(0).getFirstChild().getNodeValue();
                             }
                         }
-
-                        index++;
                     }
+
+                    index++;
                 }
             }
         }
