@@ -156,7 +156,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                 endpoints = connector.getEndpointsForPID(processId, Settings.ENGINE_PLAN_BPEL_URL);
             }
         } catch (final Exception e) {
-            e.printStackTrace();
+            LOG.error("Deployment of the plan failed", e);
             return false;
         }
 
