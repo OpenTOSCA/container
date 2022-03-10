@@ -170,9 +170,12 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
             return true;
         }
 
-        if (!org.opentosca.container.core.convention.Utils
-            .isSupportedInfrastructureNodeType(infrastructureNodeType)) {
+        if (!Utils.isSupportedInfrastructureNodeType(infrastructureNodeType)) {
             return false;
+        }
+        // else if we have a supported infrastructure node, and we are handling a DA, upload it...
+        if (isDA) {
+            return true;
         }
 
         // we can deploy on debian nodes (ubuntu, raspbian, docker containers based on
