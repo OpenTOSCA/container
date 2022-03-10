@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 
-import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.Situation;
@@ -83,19 +82,12 @@ public class SituationInstanceService {
         return this.sitTrig.findAll();
     }
 
-    public SituationTrigger createNewSituationTrigger(final Collection<Situation> situations, final CsarId csarId,
-                                                      final boolean triggerOnActivation, final boolean isSingleInstance,
+    public SituationTrigger createNewSituationTrigger(SituationTrigger newInstance,
                                                       final ServiceTemplateInstance serviceInstance,
                                                       final NodeTemplateInstance nodeInstance,
                                                       final String interfaceName, final String operationName,
                                                       final Set<SituationTriggerProperty> inputs,
                                                       final float eventProbability, final String eventTime) {
-        SituationTrigger newInstance = new SituationTrigger();
-
-        newInstance.setSituations(situations);
-        newInstance.setCsarId(csarId);
-        newInstance.setTriggerOnActivation(triggerOnActivation);
-        newInstance.setSingleInstance(isSingleInstance);
         if (serviceInstance != null) {
             newInstance.setServiceInstance(serviceInstance);
         }

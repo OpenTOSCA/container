@@ -25,6 +25,16 @@ public class SituationTrigger extends PersistenceObject {
 
     private static final long serialVersionUID = -6114808293357441034L;
 
+    public SituationTrigger() {}
+
+    public SituationTrigger(final Collection<Situation> situations, final CsarId csarId,
+                            final boolean triggerOnActivation, final boolean isSingleInstance) {
+        this.situations = situations;
+        this.csarId = csarId;
+        this.triggerOnActivation = triggerOnActivation;
+        this.isSingleInstance = isSingleInstance;
+    }
+
     @OneToMany()
     @JoinColumn(name = "SITUATION_ID")
     private Collection<Situation> situations;

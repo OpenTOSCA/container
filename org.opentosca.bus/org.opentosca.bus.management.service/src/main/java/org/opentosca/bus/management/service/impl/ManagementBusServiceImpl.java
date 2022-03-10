@@ -1040,7 +1040,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.info("Plan execution duration: {}ms", duration);
 
         final SituationTriggerInstanceListener instanceListener = new SituationTriggerInstanceListener();
-        final long calculatedWCET = instanceListener.calculateWCETForPlan(currentPlan);
+        final long calculatedWCET = instanceListener.calculateWCETForPlan(currentPlan, planInstanceRepository.findAll());
 
         // if total duration larger than calculatedWCET, use duration
         if (calculatedWCET > 0 && calculatedWCET < duration) {

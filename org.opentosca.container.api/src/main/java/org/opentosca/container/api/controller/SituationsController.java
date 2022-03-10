@@ -192,8 +192,9 @@ public class SituationsController {
         situationTrigger.getInputParams()
             .forEach(x -> inputs.add(new SituationTriggerProperty(x.getName(), x.getValue(), x.getType())));
 
-        final SituationTrigger sitTrig = this.situationInstanceService.createNewSituationTrigger(sits, csarService.findById(new CsarId(situationTrigger.getCsarId())).id(),
-            situationTrigger.isOnActivation(), situationTrigger.isSingleInstance(), serviceInstance, nodeInstance,
+        SituationTrigger sitTrig = new SituationTrigger(sits, csarService.findById(new CsarId(situationTrigger.getCsarId())).id(),
+            situationTrigger.isOnActivation(), situationTrigger.isSingleInstance());
+        sitTrig = this.situationInstanceService.createNewSituationTrigger(sitTrig, serviceInstance, nodeInstance,
             situationTrigger.getInterfaceName(), situationTrigger.getOperationName(), inputs, eventProbability, eventTime);
 
         final URI instanceURI = UriUtil.generateSubResourceURI(this.uriInfo, sitTrig.getId().toString(), false);

@@ -48,13 +48,6 @@ public class SituationTriggerInstanceListener {
 
     private static Map<String, List<String>> planToOperationMap = new HashMap<>();
 
-    private static PlanInstanceRepository planInstanceRepository;
-
-    @Autowired
-    public void init(PlanInstanceRepository planInstanceRepository) {
-        SituationTriggerInstanceListener.planInstanceRepository = planInstanceRepository;
-    }
-
     @PostPersist
     public void startSituationTriggerInstanceObserver(final SituationTriggerInstance instance) {
         final SituationTriggerInstanceObserver obs = new SituationTriggerInstanceObserver(instance);
@@ -89,7 +82,7 @@ public class SituationTriggerInstanceListener {
      * calculate the WCET for the given Plan by summing up operation times in plan. Does not regard parallel
      * executions.
      */
-    public long calculateWCETForPlan(final TPlan plan) {
+    public long calculateWCETForPlan(final TPlan plan, final Collection<PlanInstance> allOccurences) {
         long calculatedTimeFromPreviousExecutions = 0;
 
         // contains mapping of PlanName to its contained operations
@@ -98,9 +91,6 @@ public class SituationTriggerInstanceListener {
         final Map<String, Long> longestDurationMap = new HashMap<>();
         // find all operations contained in current plan
         final List<String> allOperationsInPlan = planNameToOperationsMap.get(plan.getId());
-
-        // get all previously completed PlanInstances from DB
-        final Collection<PlanInstance> allOccurences = planInstanceRepository.findAll();
 
         // iterate all instances until match is found
         if (allOperationsInPlan != null) {
