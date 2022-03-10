@@ -67,7 +67,6 @@ public class MultiMyTinyToDoIntegrationTest {
 
         assertEquals(3, TestUtils.getDeployedPlans(this.endpointService).size());
 
-
         assertNotNull(serviceTemplate);
         List<TPlan> plans = serviceTemplate.getPlans();
         assertNotNull(plans);

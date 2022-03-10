@@ -82,7 +82,6 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         TestUtils.invokePlanDeployment(this.control, multiMyTinyToDoCsar.id(), multiMyTinyToDoServiceTemplate);
         assertEquals(7, TestUtils.getDeployedPlans(this.endpointService).size());
 
-
         assertNotNull(myTinyToDoServiceTemplate);
         assertNotNull(multiMyTinyToDoServiceTemplate);
         List<TPlan> myTinyToDoPlans = myTinyToDoServiceTemplate.getPlans();
