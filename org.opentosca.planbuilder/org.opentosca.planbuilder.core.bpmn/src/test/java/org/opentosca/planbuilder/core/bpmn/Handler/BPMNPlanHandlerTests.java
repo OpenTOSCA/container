@@ -131,4 +131,14 @@ public class BPMNPlanHandlerTests {
 
     }
 
+    @Test
+    public void testBPMNPlanInterfaceOperationSet() {
+        String inter = "TOSCAInterface";
+        String ops = "TOSCAOperation";
+        bpmnPlan.setTOSCAInterfaceName(inter);
+        assertThat(bpmnPlan.getTOSCAInterfaceName(), is(inter));
+        bpmnPlan.setTOSCAOperationName(ops);
+        assertThat(bpmnPlan.getTOSCAOperationName(), is(ops));
+    }
+
 }

@@ -36,15 +36,6 @@ public class BPMNPlan extends AbstractPlan {
     private Element bpmnDefinitionElement;
     private Element bpmnProcessElement;
     private Element bpmnDiagramElement;
-
-    public Element getBpmnPlaneElement() {
-        return bpmnDiagramPlaneElement;
-    }
-
-    public void setBpmnPlaneElement(Element bpmnDiagramPlaneElement) {
-        this.bpmnDiagramPlaneElement = bpmnDiagramPlaneElement;
-    }
-
     private Element bpmnDiagramPlaneElement;
     private Element bpmnStartEvent;
     private Element bpmnEndEvent;
@@ -60,11 +51,6 @@ public class BPMNPlan extends AbstractPlan {
     private List<Element> bpmnImportElements;
 
     private String csarName = null;
-
-    public void setCsar(Csar csar) {
-        this.csar = csar;
-    }
-
     private Csar csar = null;
 
     // TODO: rename, current name is misleading
@@ -76,32 +62,10 @@ public class BPMNPlan extends AbstractPlan {
     // con_HostedOn_0: con_HostedOn_0_RelationshipInstanceURL
     private Map<TRelationshipTemplate, String> relationTemplate2InstanceUrlVariableName = new HashMap<>();
 
-    public boolean addInstanceUrlVariableNameToNodeTemplate(TNodeTemplate nodeTemplate, String variableName) {
-        if (nodeTemplate2InstanceUrlVariableName.containsKey(nodeTemplate)) {
-            return false;
-        }
-        nodeTemplate2InstanceUrlVariableName.put(nodeTemplate, variableName);
-        return true;
-    }
-
-    public boolean addInstanceUrlVariableNameToRelationshipTemplateUrl(TRelationshipTemplate relationshipTemplate, String variableName) {
-        if (relationTemplate2InstanceUrlVariableName.containsKey(variableName)) {
-            return false;
-        }
-        relationTemplate2InstanceUrlVariableName.put(relationshipTemplate, variableName);
-        return true;
-    }
-
-    public String getNodeTemplateInstanceUrlVariableName(TNodeTemplate nodeTemplate) {
-        return nodeTemplate2InstanceUrlVariableName.get(nodeTemplate);
-    }
-
-    public String getRelationshipTemplateInstanceUrlVariableName(TRelationshipTemplate relationshipTemplate) {
-        return relationTemplate2InstanceUrlVariableName.get(relationshipTemplate);
-    }
-
     // for building diagram
     private BPMNScope bpmnStartEventElement;
+
+
 
     public BPMNPlan(String id, PlanType type, TDefinitions definitions, TServiceTemplate serviceTemplate, Collection<AbstractActivity> activities, Collection<AbstractPlan.Link> links) {
         super(id, type, definitions, serviceTemplate, activities, links);
@@ -177,7 +141,7 @@ public class BPMNPlan extends AbstractPlan {
     }
 
     public void setTOSCAInterfaceName(String name) {
-        this.toscaOperationName = name;
+        this.toscaInterfaceName = name;
     }
 
     public String getTOSCAOperationName() {
@@ -188,7 +152,8 @@ public class BPMNPlan extends AbstractPlan {
         }
     }
 
-    public void setTOSCAOperationname(String initiate) {
+    public void setTOSCAOperationName(String name) {
+        this.toscaOperationName = name;
     }
 
     public void setAbstract2BPMNMapping(final Map<AbstractActivity, BPMNScope> abstract2bpmnMap) {
@@ -285,5 +250,41 @@ public class BPMNPlan extends AbstractPlan {
 
     public Csar getCsar() {
         return csar;
+    }
+
+    public boolean addInstanceUrlVariableNameToNodeTemplate(TNodeTemplate nodeTemplate, String variableName) {
+        if (nodeTemplate2InstanceUrlVariableName.containsKey(nodeTemplate)) {
+            return false;
+        }
+        nodeTemplate2InstanceUrlVariableName.put(nodeTemplate, variableName);
+        return true;
+    }
+
+    public boolean addInstanceUrlVariableNameToRelationshipTemplateUrl(TRelationshipTemplate relationshipTemplate, String variableName) {
+        if (relationTemplate2InstanceUrlVariableName.containsKey(variableName)) {
+            return false;
+        }
+        relationTemplate2InstanceUrlVariableName.put(relationshipTemplate, variableName);
+        return true;
+    }
+
+    public String getNodeTemplateInstanceUrlVariableName(TNodeTemplate nodeTemplate) {
+        return nodeTemplate2InstanceUrlVariableName.get(nodeTemplate);
+    }
+
+    public String getRelationshipTemplateInstanceUrlVariableName(TRelationshipTemplate relationshipTemplate) {
+        return relationTemplate2InstanceUrlVariableName.get(relationshipTemplate);
+    }
+
+    public Element getBpmnPlaneElement() {
+        return bpmnDiagramPlaneElement;
+    }
+
+    public void setBpmnPlaneElement(Element bpmnDiagramPlaneElement) {
+        this.bpmnDiagramPlaneElement = bpmnDiagramPlaneElement;
+    }
+
+    public void setCsar(Csar csar) {
+        this.csar = csar;
     }
 }

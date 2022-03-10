@@ -140,8 +140,7 @@ public class WineryExporter extends AbstractExporter {
                 serviceTemplate.setBoundaryDefinitions(boundary);
             }
 
-            List<TExportedInterface> ifaces =
-                boundary.getInterfaces();
+            List<TExportedInterface> ifaces = boundary.getInterfaces();
 
             if (ifaces == null) {
                 ifaces = new ArrayList<>();
@@ -448,6 +447,7 @@ public class WineryExporter extends AbstractExporter {
             plan.setId(QName.valueOf(generatedPlan.getId()).getLocalPart());
             plan.setPlanLanguage(BPELPlan.bpelNamespace);
         }
+
         if (generatedPlan instanceof BPMNPlan) {
             LOG.info(""+((BPMNPlan) generatedPlan).getBpmnDocument());
             //this.simpleExporter.exportOfBPMN(planPath.toUri(), (BPMNPlan) generatedPlan);

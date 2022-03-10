@@ -17,7 +17,6 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
-import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
@@ -28,10 +27,7 @@ import org.opentosca.planbuilder.core.bpmn.handlers.BPMNPlanHandler;
 import org.opentosca.planbuilder.core.bpmn.typebasednodehandler.BPMNPluginHandler;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
-import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
 import org.slf4j.Logger;
@@ -82,7 +78,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
         final List<AbstractPlan> plans = new ArrayList<>();
         LOG.info(""+definitions);
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
-            LOG.info("Erstellt der hier was?");
+            LOG.info("Generating build plan for service template {}", serviceTemplate);
             final BPMNPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
             plans.add(newBuildPlan);
 
@@ -127,7 +123,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 this.planHandler.createEmptyBPMNPlan(processNamespace, processName, buildPlan, "initiate", csar);
 
             newBuildPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
-            newBuildPlan.setTOSCAOperationname("initiate");
+            newBuildPlan.setTOSCAOperationName("initiate");
 
             this.planHandler.initializeBPMNSkeleton(newBuildPlan, csar);
 
