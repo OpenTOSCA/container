@@ -47,10 +47,10 @@ public class NodeTemplateInstance extends PersistenceObject {
     private ServiceTemplateInstance serviceTemplateInstance;
 
     @OneToMany(mappedBy = "target", fetch = FetchType.EAGER)
-    private Collection<RelationshipTemplateInstance> incomingRelations = new HashSet<>();
+    private Set<RelationshipTemplateInstance> incomingRelations = new HashSet<>();
 
     @OneToMany(mappedBy = "source", fetch = FetchType.EAGER)
-    private Collection<RelationshipTemplateInstance> outgoingRelations = new HashSet<>();
+    private Set<RelationshipTemplateInstance> outgoingRelations = new HashSet<>();
 
     @Column(name = "TEMPLATE_ID", nullable = false)
     private String templateId;
@@ -132,7 +132,7 @@ public class NodeTemplateInstance extends PersistenceObject {
         return this.incomingRelations;
     }
 
-    public void setIncomingRelations(final Collection<RelationshipTemplateInstance> incomingRelations) {
+    public void setIncomingRelations(final Set<RelationshipTemplateInstance> incomingRelations) {
         this.incomingRelations = incomingRelations;
     }
 
@@ -147,7 +147,7 @@ public class NodeTemplateInstance extends PersistenceObject {
         return this.outgoingRelations;
     }
 
-    public void setOutgoingRelations(final Collection<RelationshipTemplateInstance> outgoingRelations) {
+    public void setOutgoingRelations(final Set<RelationshipTemplateInstance> outgoingRelations) {
         this.outgoingRelations = outgoingRelations;
     }
 

@@ -1,6 +1,5 @@
 package org.opentosca.container.core.next.model;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -66,7 +65,7 @@ public class RelationshipTemplateInstance extends PersistenceObject {
         this.state = state;
     }
 
-    public Collection<RelationshipTemplateInstanceProperty> getProperties() {
+    public Set<RelationshipTemplateInstanceProperty> getProperties() {
         return this.properties;
     }
 

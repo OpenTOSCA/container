@@ -41,10 +41,10 @@ public class ServiceTemplateInstance extends PersistenceObject {
     private Set<PlanInstance> planInstances = new HashSet<>();
 
     @OneToMany(mappedBy = "serviceTemplateInstance", fetch = FetchType.EAGER)
-    private Collection<NodeTemplateInstance> nodeTemplateInstances = new HashSet<>();
+    private Set<NodeTemplateInstance> nodeTemplateInstances = new HashSet<>();
 
     @OneToMany(mappedBy = "serviceTemplateInstance", fetch = FetchType.EAGER)
-    private Collection<RelationshipTemplateInstance> relationshipTemplateInstances = new HashSet<>();
+    private Set<RelationshipTemplateInstance> relationshipTemplateInstances = new HashSet<>();
 
     @Convert(converter = CsarIdConverter.class)
     @Column(name = "CSAR_ID", nullable = false)
@@ -100,7 +100,7 @@ public class ServiceTemplateInstance extends PersistenceObject {
         return this.nodeTemplateInstances;
     }
 
-    public void setNodeTemplateInstances(final Collection<NodeTemplateInstance> nodeTemplateInstances) {
+    public void setNodeTemplateInstances(final Set<NodeTemplateInstance> nodeTemplateInstances) {
         this.nodeTemplateInstances = nodeTemplateInstances;
     }
 
@@ -115,7 +115,7 @@ public class ServiceTemplateInstance extends PersistenceObject {
         return this.relationshipTemplateInstances;
     }
 
-    public void setRelationshipTemplateInstances(final Collection<RelationshipTemplateInstance> relationshipTemplateInstances) {
+    public void setRelationshipTemplateInstances(final Set<RelationshipTemplateInstance> relationshipTemplateInstances) {
         this.relationshipTemplateInstances = relationshipTemplateInstances;
     }
 
