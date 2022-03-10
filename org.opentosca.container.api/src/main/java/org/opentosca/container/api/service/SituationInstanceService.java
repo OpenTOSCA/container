@@ -108,9 +108,7 @@ public class SituationInstanceService {
             newInstance.setEventTime(eventTime);
         }
 
-        newInstance = this.sitTrig.save(newInstance);
-
-        return newInstance;
+        return this.sitTrig.save(newInstance);
     }
 
     public SituationTrigger getSituationTrigger(final Long id) {
