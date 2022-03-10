@@ -28,6 +28,7 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +61,8 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
     public PlanService planService;
     @Inject
     public InstanceService instanceService;
+    @Inject
+    public ICoreEndpointService endpointService;
 
     @Test
     public void test() throws Exception {
@@ -74,7 +77,11 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         TServiceTemplate multiMyTinyToDoServiceTemplate = multiMyTinyToDoCsar.entryServiceTemplate();
 
         TestUtils.invokePlanDeployment(this.control, myTinyToDoCsar.id(), myTinyToDoServiceTemplate);
+        assertEquals(4, TestUtils.getDeployedPlans(this.endpointService).size());
+
         TestUtils.invokePlanDeployment(this.control, multiMyTinyToDoCsar.id(), multiMyTinyToDoServiceTemplate);
+        assertEquals(7, TestUtils.getDeployedPlans(this.endpointService).size());
+
 
         assertNotNull(myTinyToDoServiceTemplate);
         assertNotNull(multiMyTinyToDoServiceTemplate);
@@ -105,6 +112,11 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         this.checkStateAfterMigration(multiInstance);
 
         TestUtils.runTerminationPlanExecution(this.planService, multiMyTinyToDoCsar, multiMyTinyToDoServiceTemplate, multiInstance, multiTinyTerminationPlan);
+
+        TestUtils.invokePlanUndeployment(this.control, myTinyToDoCsar.id(), myTinyToDoServiceTemplate);
+        TestUtils.invokePlanUndeployment(this.control, multiMyTinyToDoCsar.id(), multiMyTinyToDoServiceTemplate);
+
+        assertEquals(0, TestUtils.getDeployedPlans(this.endpointService).size());
     }
 
     @After

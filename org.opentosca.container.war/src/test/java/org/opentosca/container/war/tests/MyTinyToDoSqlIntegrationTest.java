@@ -29,6 +29,7 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
@@ -56,6 +57,8 @@ public class MyTinyToDoSqlIntegrationTest {
     public PlanService planService;
     @Inject
     public InstanceService instanceService;
+    @Inject
+    public ICoreEndpointService endpointService;
 
     @Test
     public void test() throws Exception {
@@ -76,6 +79,7 @@ public class MyTinyToDoSqlIntegrationTest {
         assertNotNull(plans);
 
         TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
+        assertEquals(5, TestUtils.getDeployedPlans(this.endpointService).size());
         TestUtils.uploadCsarToWineryRepository(new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()), wineryRepositoryUrlForDockerContainer, TESTAPPLICATIONSREPOSITORY);
 
         Collection<QName> serviceTemplateIdsAtWineryRepository = TestUtils.getServiceTemplateIdsFromWineryRepository(wineryRepositoryUrl);
@@ -135,6 +139,8 @@ public class MyTinyToDoSqlIntegrationTest {
 
         TestUtils.invokePlanDeployment(this.control, statefulCsar.id(), statefulCsarServiceTemplate);
 
+        assertEquals(5, TestUtils.getDeployedPlans(this.endpointService).size());
+
         TPlan statefulCsarDefrostPlan = TestUtils.getDefrostPlan(statefulCsarServiceTemplatePlans);
         TPlan statefulCsarTerminationPlan = TestUtils.getTerminationPlan(statefulCsarServiceTemplatePlans);
 
@@ -147,6 +153,10 @@ public class MyTinyToDoSqlIntegrationTest {
 
         TestUtils.runTerminationPlanExecution(this.planService, statefulCsar, statefulCsarServiceTemplate, statefulCsarServiceTemplateInstance, statefulCsarTerminationPlan);
         //TestUtils.clearWineryRepository(wineryRepositoryUrl);
+
+        TestUtils.invokePlanUndeployment(this.control,statefulCsar.id(), statefulCsarServiceTemplate);
+
+        assertEquals(0, TestUtils.getDeployedPlans(this.endpointService).size());
     }
 
     @After

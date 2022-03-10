@@ -182,17 +182,30 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             BpelPlanEnginePlugin.LOG.debug("Endpoint for ProcessID \"" + processId + "\" is \"" + endpoints + "\".");
             BpelPlanEnginePlugin.LOG.debug("Deployment of Plan was successfull: {}", planId);
 
+
+            Map<String, String> invokeEndpointMetaData = new HashMap<>();
+            Map<String, String> callbackEndpointMetaData = new HashMap<>();
+
+            invokeEndpointMetaData.put("PlanType", "BPEL");
+            invokeEndpointMetaData.put("EndpointType", "Invoke");
+            invokeEndpointMetaData.putAll(endpointMetadata);
+
+            callbackEndpointMetaData.put("PlanType", "BPEL");
+            callbackEndpointMetaData.put("EndpointType", "Callback");
+            callbackEndpointMetaData.putAll(endpointMetadata);
+
             // save endpoint
             final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
             final WSDLEndpoint wsdlEndpoint = new WSDLEndpoint(endpoint, portType, localContainer, localContainer,
-                csarId, null, planId, null, null, endpointMetadata);
+                csarId, null, planId, null, null, invokeEndpointMetaData);
             this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
 
             if (Objects.nonNull(callbackEndpoint)) {
                 final QName callbackPortType = QName.valueOf("{http://schemas.xmlsoap.org/wsdl/}CallbackPortType");
                 LOG.debug("Storing callback endpoint: {}", callbackEndpoint);
+                endpointMetadata.put("EndpointType", "Callback");
                 this.endpointService.storeWSDLEndpoint(new WSDLEndpoint(callbackEndpoint, callbackPortType,
-                    localContainer, localContainer, csarId, null, planId, null, null, endpointMetadata));
+                    localContainer, localContainer, csarId, null, planId, null, null, callbackEndpointMetaData));
             }
         } else {
             BpelPlanEnginePlugin.LOG.error("Error while processing plan");

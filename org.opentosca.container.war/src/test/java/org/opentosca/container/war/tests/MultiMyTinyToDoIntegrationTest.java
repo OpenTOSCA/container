@@ -25,6 +25,7 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
@@ -52,6 +53,8 @@ public class MultiMyTinyToDoIntegrationTest {
     public PlanService planService;
     @Inject
     public InstanceService instanceService;
+    @Inject
+    public ICoreEndpointService endpointService;
 
     @Test
     public void test() throws Exception {
@@ -61,6 +64,9 @@ public class MultiMyTinyToDoIntegrationTest {
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
 
         TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
+
+        assertEquals(3, TestUtils.getDeployedPlans(this.endpointService).size());
+
 
         assertNotNull(serviceTemplate);
         List<TPlan> plans = serviceTemplate.getPlans();
@@ -86,6 +92,11 @@ public class MultiMyTinyToDoIntegrationTest {
         this.checkStateAfterScaleOut(serviceTemplateInstance);
 
         TestUtils.runTerminationPlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
+
+        TestUtils.invokePlanUndeployment(this.control, csar.id(), serviceTemplate);
+
+        assertEquals(0, TestUtils.getDeployedPlans(this.endpointService).size());
+
     }
 
     @After

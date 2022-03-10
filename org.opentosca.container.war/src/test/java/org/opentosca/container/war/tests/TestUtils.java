@@ -47,12 +47,14 @@ import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.container.core.service.ICoreEndpointService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -286,6 +288,19 @@ public abstract class TestUtils {
 
     public static void invokePlanDeployment(OpenToscaControlService control, CsarId csarId, TServiceTemplate serviceTemplate) {
         control.invokePlanDeployment(csarId, serviceTemplate);
+    }
+
+    public static void invokePlanUndeployment(OpenToscaControlService control, CsarId csarId, TServiceTemplate serviceTemplate) {
+        control.undeployAllPlans(csarId, serviceTemplate);
+    }
+
+    public static Collection<WSDLEndpoint> getDeployedPlans(ICoreEndpointService endpointService) {
+        Collection<WSDLEndpoint> endpoints = endpointService.getWSDLEndpoints();
+        // if it has a planId and not a portType of a callback we have a plan endpoint
+        return endpoints.stream().filter(endpoint -> endpoint.getMetadata() != null
+            && endpoint.getMetadata().containsKey("PlanType")
+            && endpoint.getMetadata().containsKey("EndpointType")
+            && endpoint.getMetadata().get("EndpointType").equals("Invoke")).collect(Collectors.toList());
     }
 
     public static void runTerminationPlanExecution(PlanService planService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan terminationPlan) {
