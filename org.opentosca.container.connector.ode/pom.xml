@@ -15,25 +15,6 @@
 
     <build>
         <plugins>
-            <!--<plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>axistools-maven-plugin</artifactId>
-                <version>1.4</version>
-                <configuration>
-                    <wsdlFiles>
-                        <wsdlFiles>deploy.wsdl</wsdlFiles>
-                        <wsdlFiles>pmapi.wsdl</wsdlFiles>
-                    </wsdlFiles>
-                    <sourceDirectory>${basedir}/src/main/resources</sourceDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>wsdl2java</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>-->
             <plugin>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-wsdl2code-maven-plugin</artifactId>
