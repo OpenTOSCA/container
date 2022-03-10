@@ -38,16 +38,22 @@ import org.opentosca.container.core.service.IPlanInvocationEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
+@Component
 public class SituationTriggerInstanceListener {
 
     private static final List<SituationTriggerInstanceObserver> obs = Lists.newArrayList();
 
     private static Map<String, List<String>> planToOperationMap = new HashMap<>();
 
+    private static PlanInstanceRepository planInstanceRepository;
+
     @Autowired
-    private PlanInstanceRepository planInstanceRepository;
+    public void init(PlanInstanceRepository planInstanceRepository) {
+        SituationTriggerInstanceListener.planInstanceRepository = planInstanceRepository;
+    }
 
     @PostPersist
     public void startSituationTriggerInstanceObserver(final SituationTriggerInstance instance) {
