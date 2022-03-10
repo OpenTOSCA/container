@@ -16,51 +16,141 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>axistools-maven-plugin</artifactId>
-                <version>1.4</version>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-wsdl2code-maven-plugin</artifactId>
+                <version>1.8.0</version>
+                <executions>
+                    <execution>
+                        <id>ws1</id>
+                        <goals>
+                            <goal>wsdl2code</goal>
+                        </goals>
+                        <configuration>
+                            <databindingName>xmlbeans</databindingName>
+                            <packageName>org.apache.ode.deploy</packageName>
+                            <wsdlFile>src/main/resources/deploy.wsdl</wsdlFile>
+                            <overWrite>true</overWrite>
+                            <syncMode>sync</syncMode>
+                            <unpackClasses>true</unpackClasses>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>ws2</id>
+                        <goals>
+                            <goal>wsdl2code</goal>
+                        </goals>
+                        <configuration>
+                            <databindingName>xmlbeans</databindingName>
+                            <packageName>org.apache.axis.pmapi</packageName>
+                            <wsdlFile>src/main/resources/pmapi.wsdl</wsdlFile>
+                            <overWrite>true</overWrite>
+                            <syncMode>sync</syncMode>
+                            <unpackClasses>true</unpackClasses>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>ws3</id>
+                        <goals>
+                            <goal>wsdl2code</goal>
+                        </goals>
+                        <configuration>
+                            <databindingName>xmlbeans</databindingName>
+                            <packageName>org.apache.axis.imapi</packageName>
+                            <wsdlFile>src/main/resources/imapi.wsdl</wsdlFile>
+                            <overWrite>true</overWrite>
+                            <syncMode>sync</syncMode>
+                            <unpackClasses>true</unpackClasses>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
-                    <wsdlFiles>
-                        <wsdlFiles>deploy.wsdl</wsdlFiles>
-                        <wsdlFiles>pmapi.wsdl</wsdlFiles>
-                    </wsdlFiles>
-                    <sourceDirectory>${basedir}/src/main/resources</sourceDirectory>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <descriptorRefs>
+                        <descriptorRef>src</descriptorRef>
+                    </descriptorRefs>
                 </configuration>
                 <executions>
                     <execution>
+                        <id>make-assembly</id>
+                        <!-- this is used for inheritance merges -->
+                        <phase>package</phase>
+                        <!-- bind to the packaging phase -->
                         <goals>
-                            <goal>wsdl2java</goal>
+                            <goal>single</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>target/generated-sources/axis2/wsdl2code/resources</directory>
+            </resource>
+            <resource>
+                <directory>target/generated-sources/xmlbeans/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
     </build>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.apache.axis</groupId>
-			<artifactId>axis</artifactId>
-			<version>1.4</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-discovery</groupId>
-			<artifactId>commons-discovery</artifactId>
-			<version>0.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.axis</groupId>
-			<artifactId>axis-saaj</artifactId>
-			<version>1.4</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.xml.rpc</groupId>
-			<artifactId>javax.xml.rpc-api</artifactId>
-			<version>1.1.2</version>
-		</dependency>
-		<dependency>
-			<groupId>wsdl4j</groupId>
-			<artifactId>wsdl4j</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-kernel</artifactId>
+            <version>1.8.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.ws.rs</groupId>
+                    <artifactId>jsr311-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-xmlbeans</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2</artifactId>
+            <version>1.8.0</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-transport-local</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-transport-http</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-transport-base</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-codegen</artifactId>
+            <version>1.8.0</version>
+        </dependency>
 	</dependencies>
 </project>

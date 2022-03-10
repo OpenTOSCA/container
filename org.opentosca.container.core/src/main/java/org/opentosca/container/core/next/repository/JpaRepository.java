@@ -19,7 +19,7 @@ public abstract class JpaRepository<T> implements Repository<T, Long> {
 
     @Override
     public void add(final T entity) {
-        System.out.println("Adding following entity with class " + entity.getClass().getCanonicalName() + " entity: " + entity);
+        logger.debug("Adding following entity with class " + entity.getClass().getCanonicalName() + " entity: " + entity);
         try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
             em.getTransaction().begin();
             em.persist(entity);
