@@ -85,7 +85,13 @@ public class PlanService {
     }
 
     public PlanInstance resolvePlanInstance(Long serviceTemplateInstanceId, String correlationId) {
-        final PlanInstance pi = planInstanceRepository.findByCorrelationId(correlationId);
+        PlanInstance pi = planInstanceRepository.findByCorrelationId(correlationId);
+        int retries = 0;
+        int maxRetries = 20;
+
+        while (pi == null || retries++ < maxRetries) {
+            pi = planInstanceRepository.findByCorrelationId(correlationId);
+        }
 
         if (pi == null) {
             final String msg = "Plan instance with correlationId '" + correlationId + "' not found";

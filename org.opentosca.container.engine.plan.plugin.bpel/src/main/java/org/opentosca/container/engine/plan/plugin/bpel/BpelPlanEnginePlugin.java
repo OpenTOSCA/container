@@ -145,7 +145,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
         // deploy process
         LOG.info("Deploying Plan: {}", tempPlan.getFileName().toString());
-        String processId = "";
+        QName processId = null;
         Map<String, URI> endpoints = Collections.emptyMap();
         try {
             if (Settings.ENGINE_PLAN_BPEL_ENGINE.equalsIgnoreCase(BPS_ENGINE)) {
@@ -156,7 +156,8 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                 endpoints = connector.getEndpointsForPID(processId, Settings.ENGINE_PLAN_BPEL_URL);
             }
         } catch (final Exception e) {
-            e.printStackTrace();
+            LOG.error("Deployment of the plan failed", e);
+            return false;
         }
 
         // this will be the endpoint the container can use to instantiate the BPEL Process
