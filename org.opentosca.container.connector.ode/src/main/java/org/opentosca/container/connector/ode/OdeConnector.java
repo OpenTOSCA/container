@@ -162,49 +162,6 @@ public class OdeConnector {
     }
 
     /**
-     * Returns pids for the given package on the referenced ODE
-     *
-     * @param packageId a String representing the packageId on a ODE
-     * @param uri       the uri to the ODE
-     * @return a possibly empty List of QName denoting PIDs
-     */
-    public List<QName> getPIDsForPackageId(final String packageId, final String uri) {
-        final List<QName> pids = new ArrayList<>();
-
-        OdeConnector.LOG.debug("Fetching pid for package: " + packageId);
-        // Create a new deployment client
-        final DeploymentServiceStub client = getDeploymentServiceClient(uri);
-
-        // Retrieve the process ids contained in the given package
-        Collection<QName> processIds = new ArrayList<>();
-        try {
-            ListProcessesDocument listProcessesDocument = ListProcessesDocument.Factory.newInstance();
-            ListProcessesDocument.ListProcesses listProcesses = ListProcessesDocument.ListProcesses.Factory.newInstance();
-            listProcesses.setFilter(packageId);
-            listProcessesDocument.setListProcesses(listProcesses);
-            ListProcessesResponseDocument listProcessesResponseDocument = client.listProcesses(listProcessesDocument);
-            if (listProcessesResponseDocument.getListProcessesResponse() != null && listProcessesResponseDocument.getListProcessesResponse().getProcessInfoList() != null) {
-                for (TProcessInfo processInfo : listProcessesResponseDocument.getListProcessesResponse().getProcessInfoList().getProcessInfoArray()) {
-                    processIds.add(processInfo.getDefinitionInfo().getProcessName());
-                }
-            }
-            // this can happen if ODE has no process deployed
-            if (processIds != null) {
-                OdeConnector.LOG.debug("Found following PIDs:");
-                for (final QName pid : processIds) {
-                    OdeConnector.LOG.debug("pid: " + pid.toString());
-
-                    pids.add(pid);
-                }
-            }
-        } catch (final RemoteException e) {
-            OdeConnector.LOG.error("Fetching process ids for package '" + packageId + "' caused an exception.", e);
-        }
-
-        return pids;
-    }
-
-    /**
      * Undeploys a package from the referenced ODE
      *
      * @param packageName The packageName (on a ODE) of the process deployment unit to undeploy
@@ -325,38 +282,6 @@ public class OdeConnector {
     }
 
     /**
-     * Returns the deployed packages on the given ODE
-     *
-     * @param uri the address to the bps
-     * @return a list of strings containing the names of the deployed packages
-     */
-    public List<String> getDeployedPackages(final String uri) {
-        final List<String> packageIds = new ArrayList<>();
-
-        final DeploymentServiceStub client = getDeploymentServiceClient(uri);
-        String[] packages = null;
-        try {
-            ListDeployedPackagesDocument listDeployedPackagesDocument = ListDeployedPackagesDocument.Factory.newInstance();
-            ListDeployedPackagesDocument.ListDeployedPackages listDeployedPackages = ListDeployedPackagesDocument.ListDeployedPackages.Factory.newInstance();
-
-            listDeployedPackagesDocument.setListDeployedPackages(listDeployedPackages);
-            ListDeployedPackagesResponseDocument listDeployedPackagesResponseDocument = client.listDeployedPackages(listDeployedPackagesDocument);
-
-            packages = listDeployedPackagesResponseDocument.getListDeployedPackagesResponse().getDeployedPackages().getNameArray();
-        } catch (final RemoteException e) {
-            OdeConnector.LOG.error("Trying to resolve all deployed packages caused an exception.", e);
-        }
-
-        if (packages != null) {
-            for (final String packageName : packages) {
-                packageIds.add(packageName);
-            }
-        }
-
-        return packageIds;
-    }
-
-    /**
      * Returns a map from partnerLink as string to endpoints as URIs, denoting the service addresses of the inbound
      * partnerLinks', i.e., partnerLinks having a 'myRole' attribute which is implemented by the process.
      *
@@ -474,35 +399,6 @@ public class OdeConnector {
         }
 
         return serviceAddress;
-    }
-
-    public List<String> getAllPIDs(final String uri) {
-        final List<String> pidStringList = new ArrayList<>();
-
-        final ProcessManagementStub client = getProcessManagementServiceClient(uri);
-
-        ListAllProcessesDocument listAllProcessesDocument = ListAllProcessesDocument.Factory.newInstance();
-        ListAllProcessesDocument.ListAllProcesses listAllProcesses = ListAllProcessesDocument.ListAllProcesses.Factory.newInstance();
-        listAllProcessesDocument.setListAllProcesses(listAllProcesses);
-        TProcessInfo[] processList;
-        try {
-            processList = client.listAllProcesses(listAllProcessesDocument).getListAllProcessesResponse().getProcessInfoList().getProcessInfoArray();
-
-            // check for case when there are no process deployed anymore
-            if (processList == null) {
-                OdeConnector.LOG.debug("Returned list of processes from ODE is null, assuming no process is deployed on ODE");
-                return new ArrayList<>();
-            }
-
-            // process response
-            for (final TProcessInfo pinfo : processList) {
-                pidStringList.add(pinfo.getPid());
-            }
-        } catch (final RemoteException | ManagementFault e) {
-            OdeConnector.LOG.error("Unable to resolve a list of all processes available at ODE", e);
-        }
-
-        return pidStringList;
     }
 
     /**

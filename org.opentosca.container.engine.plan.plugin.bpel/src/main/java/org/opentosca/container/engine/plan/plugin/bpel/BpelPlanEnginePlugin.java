@@ -160,8 +160,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             return false;
         }
 
-        // this will be the endpoint the container can use to instantiate the
-        // BPEL Process
+        // this will be the endpoint the container can use to instantiate the BPEL Process
         URI endpoint = null;
         URI callbackEndpoint = null;
         if (endpoints.keySet().size() == 1) {
