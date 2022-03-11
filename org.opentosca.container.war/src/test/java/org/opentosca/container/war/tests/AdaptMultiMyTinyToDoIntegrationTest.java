@@ -24,6 +24,7 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
@@ -51,6 +52,8 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
     public PlanService planService;
     @Inject
     public InstanceService instanceService;
+    @Inject
+    public ICoreEndpointService endpointService;
 
     @Test
     public void test() throws Exception {
@@ -78,6 +81,8 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
         serviceTemplate = this.storage.findById(csar.id()).entryServiceTemplate();
         TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
 
+        assertEquals(5, TestUtils.getDeployedPlans(this.endpointService).size());
+
         TPlan buildPlan = null;
         TPlan terminationPlan = null;
         assertNotNull(serviceTemplate);
@@ -104,6 +109,10 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
 
         serviceTemplateInstance = TestUtils.runAdaptationPlanExecution(this.planService, this.instanceService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan, TestUtils.getTerminationPlanInputParameters(TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString())));
         assertNotNull(serviceTemplateInstance);
+
+        TestUtils.invokePlanUndeployment(this.control, csar.id(), serviceTemplate);
+
+        assertEquals(0, TestUtils.getDeployedPlans(this.endpointService).size());
     }
 
     @After

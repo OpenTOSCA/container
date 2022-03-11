@@ -24,10 +24,13 @@ import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = {Application.class}, properties = "spring.main.allow-bean-definition-overriding=true")
@@ -48,6 +51,8 @@ public class MyTinyToDoBPMNIntegrationTest {
     public PlanService planService;
     @Inject
     public InstanceService instanceService;
+    @Inject
+    public ICoreEndpointService endpointService;
 
     @Test
     public void test() throws Exception {
@@ -57,6 +62,8 @@ public class MyTinyToDoBPMNIntegrationTest {
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
 
         TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
+
+        assertEquals(2, TestUtils.getDeployedPlans(this.endpointService).size());
 
         List<TPlan> plans = serviceTemplate.getPlans();
         Assert.assertNotNull(plans);
@@ -70,6 +77,10 @@ public class MyTinyToDoBPMNIntegrationTest {
         this.checkStateAfterBuild(serviceTemplateInstance);
 
         TestUtils.runTerminationPlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
+
+        TestUtils.invokePlanUndeployment(this.control, csar.id(), serviceTemplate);
+
+        assertEquals(0, TestUtils.getDeployedPlans(this.endpointService).size());
     }
 
     @After

@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
@@ -176,8 +179,14 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             final String planDefinitionID = planProcessDefinition.get("id").toString();
             final URI endpoint = new URI(Settings.ENGINE_PLAN_BPMN_URL + PROCESS_DEFINITION_SUFFIX + "/"
                 + planDefinitionID + INSTANCE_CREATION_SUFFIX);
+
+            Map<String,String> endpointMetadata = new HashMap<String, String>();
+
+            endpointMetadata.put("PlanType", "BPMN");
+            endpointMetadata.put("EndpointType", "Invoke");
+
             final WSDLEndpoint wsdlEndpoint = new WSDLEndpoint(endpoint, null, Settings.OPENTOSCA_CONTAINER_HOSTNAME,
-                Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, null, planId, null, null, Collections.emptyMap());
+                Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, null, planId, null, null, endpointMetadata);
             endpointService.storeWSDLEndpoint(wsdlEndpoint);
             return true;
         } catch (final ClientProtocolException e) {
@@ -203,6 +212,8 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
         // URI
         final List<WSDLEndpoint> endpoints = endpointService
             .getWSDLEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, planId);
+
+        final List<WSDLEndpoint> endpointsToRemove = new ArrayList<>();
 
         for (WSDLEndpoint endpoint : endpoints) {
 
@@ -249,6 +260,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
                 // check success and reutrn to caller
                 if (deletionResponse.getStatusLine().getStatusCode() == 204) {
                     LOG.debug("Deletion of plan deployment successful.");
+                    endpointsToRemove.add(endpoint);
                 } else {
                     LOG.error("Deletion response returned invalid status code {}",
                         deletionResponse.getStatusLine().getStatusCode());
@@ -265,6 +277,9 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
                 return false;
             }
         }
+
+        endpointsToRemove.forEach(endpoint -> this.endpointService.removeWSDLEndpoint(endpoint));
+
         return true;
     }
 
