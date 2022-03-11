@@ -205,6 +205,7 @@ public class OdeConnector {
             client.undeploy(undeployDocument);
         } catch (final RemoteException e) {
             OdeConnector.LOG.error("Trying to undeploy package '" + packageName + "' caused an exception.", e);
+            return false;
         }
 
         return true;
