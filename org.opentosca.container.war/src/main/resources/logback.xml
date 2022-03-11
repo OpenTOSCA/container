@@ -27,6 +27,7 @@
     <logger name="org.jclouds" level="INFO"/>
     <logger name="org.springframework" level="INFO"/>
     <logger name="org.eclipse.winery" level="ERROR"/>
+    <logger name="org.apache.axis2" level="ERROR"/>
 
     <root level="debug">
         <appender-ref ref="STDOUT"/>

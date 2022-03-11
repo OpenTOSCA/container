@@ -24,6 +24,7 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
@@ -51,6 +52,9 @@ public class QHAnaTest {
     public PlanService planService;
     @Inject
     public InstanceService instanceService;
+    @Inject
+    public ICoreEndpointService endpointService;
+
 
     @Test
     public void testDeployment() throws Exception {
@@ -69,6 +73,8 @@ public class QHAnaTest {
         assertNotNull(terminationPlan);
 
         TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
+
+        assertEquals(2, TestUtils.getDeployedPlans(this.endpointService).size());
 
         ServiceTemplateInstance serviceTemplateInstance = TestUtils.runBuildPlanExecution(
             this.planService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters()
@@ -97,6 +103,10 @@ public class QHAnaTest {
         assertEquals(200, pluginRunnerResponse.statusCode());
 
         TestUtils.runTerminationPlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
+
+        TestUtils.invokePlanUndeployment(this.control,csar.id(), serviceTemplate);
+
+        assertEquals(0, TestUtils.getDeployedPlans(this.endpointService).size());
     }
 
     @After

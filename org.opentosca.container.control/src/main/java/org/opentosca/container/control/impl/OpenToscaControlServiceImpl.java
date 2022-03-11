@@ -167,7 +167,8 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
      *
      * @return true, if undeploying all plans was successful, false otherwise
      */
-    private boolean undeployAllPlans(Csar csar) {
+    @Override
+    public boolean undeployAllPlans(Csar csar) {
         return csar.serviceTemplates().stream().allMatch(st -> undeployAllPlans(csar.id(), st));
     }
 
@@ -176,7 +177,8 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
      *
      * @return true, if undeploying all plans was successful, false otherwise
      */
-    private boolean undeployAllPlans(CsarId csarId, TServiceTemplate serviceTemplate) {
+    @Override
+    public boolean undeployAllPlans(CsarId csarId, TServiceTemplate serviceTemplate) {
         List<TPlan> plans = serviceTemplate.getPlans();
         if (plans == null) {
             LOGGER.info("No Plans to undeploy");

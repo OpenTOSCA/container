@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
@@ -172,9 +175,16 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             final String planDefinitionID = planProcessDefinition.get("id").toString();
             final URI endpointUri = new URI(Settings.ENGINE_PLAN_BPMN_URL + PROCESS_DEFINITION_SUFFIX + "/"
                 + planDefinitionID + INSTANCE_CREATION_SUFFIX);
+
+
+            Map<String,String> endpointMetadata = new HashMap<String, String>();
+            endpointMetadata.put("PlanType", "BPMN");
+            endpointMetadata.put("EndpointType", "Invoke");
+
             final Endpoint endpoint = new Endpoint(endpointUri, Settings.OPENTOSCA_CONTAINER_HOSTNAME,
-                Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, null, Collections.emptyMap(), null, null, null, planId);
+                Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, null, endpointMetadata, null, null, null, planId);
             endpointService.storeEndpoint(endpoint);
+
             return true;
         } catch (final ClientProtocolException e) {
             LOG.error("A ClientProtocolException occured while sending post to the engine: ", e);
@@ -198,6 +208,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
         // get endpoint related to the plan and extract process definition ID from the URI
         final List<Endpoint> endpoints = endpointService.getEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, planId);
 
+        final List<Endpoint> endpointsToRemove = new ArrayList<>();
         for (Endpoint endpoint : endpoints) {
 
             final String[] endpointParts = endpoint.getUri().toString().split("/");
@@ -243,6 +254,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
                 // check success and reutrn to caller
                 if (deletionResponse.getStatusLine().getStatusCode() == 204) {
                     LOG.debug("Deletion of plan deployment successful.");
+                    endpointsToRemove.add(endpoint);
                 } else {
                     LOG.error("Deletion response returned invalid status code {}",
                         deletionResponse.getStatusLine().getStatusCode());
@@ -259,6 +271,9 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
                 return false;
             }
         }
+
+        endpointsToRemove.forEach(this.endpointService::removeEndpoint);
+
         return true;
     }
 

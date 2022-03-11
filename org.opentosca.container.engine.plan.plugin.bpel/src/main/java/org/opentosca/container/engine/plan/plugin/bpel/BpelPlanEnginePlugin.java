@@ -182,6 +182,17 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             BpelPlanEnginePlugin.LOG.debug("Endpoint for ProcessID \"" + processId + "\" is \"" + endpoints + "\".");
             BpelPlanEnginePlugin.LOG.debug("Deployment of Plan was successfull: {}", planId);
 
+            Map<String, String> invokeEndpointMetaData = new HashMap<>();
+            Map<String, String> callbackEndpointMetaData = new HashMap<>();
+
+            invokeEndpointMetaData.put("PlanType", "BPEL");
+            invokeEndpointMetaData.put("EndpointType", "Invoke");
+            invokeEndpointMetaData.putAll(endpointMetadata);
+
+            callbackEndpointMetaData.put("PlanType", "BPEL");
+            callbackEndpointMetaData.put("EndpointType", "Callback");
+            callbackEndpointMetaData.putAll(endpointMetadata);
+
             // save endpoint
             final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
             final Endpoint endpoint = new Endpoint(endpointUri, localContainer, localContainer,
