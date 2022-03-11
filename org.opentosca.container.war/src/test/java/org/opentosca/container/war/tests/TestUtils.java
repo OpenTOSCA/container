@@ -47,7 +47,7 @@ import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
+import org.opentosca.container.core.next.model.Endpoint;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanType;
@@ -102,7 +102,7 @@ public abstract class TestUtils {
             remoteUrl = null;
         }
 
-        IRepository repository = fetchRepository(RepositoryConfigurationObject.RepositoryProvider.FILE,  repositoryPath, remoteUrl);
+        IRepository repository = fetchRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, repositoryPath, remoteUrl);
 
         CsarExporter exporter = new CsarExporter(repository);
         Path csarFilePath = Files.createTempDirectory(serviceTemplateId.getLocalPart() + "_Test").resolve(serviceTemplateId.getLocalPart() + ".csar");
@@ -111,7 +111,7 @@ public abstract class TestUtils {
         exporter.writeCsar(new ServiceTemplateId(serviceTemplateId), Files.newOutputStream(csarFilePath), exportConfiguration);
 
         WineryConnector connector = new WineryConnector();
-        connector.uploadCSAR(csarFilePath.toFile(),true, wineryRepositoryUrl);
+        connector.uploadCSAR(csarFilePath.toFile(), true, wineryRepositoryUrl);
     }
 
     public static Csar setupCsarTestRepository(QName csarId, CsarStorageService storage, String testRemoteRepositoryUrl) throws Exception {
@@ -294,8 +294,8 @@ public abstract class TestUtils {
         control.undeployAllPlans(csarId, serviceTemplate);
     }
 
-    public static Collection<WSDLEndpoint> getDeployedPlans(ICoreEndpointService endpointService) {
-        Collection<WSDLEndpoint> endpoints = endpointService.getWSDLEndpoints();
+    public static Collection<Endpoint> getDeployedPlans(ICoreEndpointService endpointService) {
+        Collection<Endpoint> endpoints = endpointService.getEndpoints();
         // if it has a planId and not a portType of a callback we have a plan endpoint
         return endpoints.stream().filter(endpoint -> endpoint.getMetadata() != null
             && endpoint.getMetadata().containsKey("PlanType")
@@ -444,7 +444,7 @@ public abstract class TestUtils {
     public static Path downloadServiceTemplateFromWinery(QName serviceTemplateId, String wineryRepository) throws IOException {
         WineryConnector connector = new WineryConnector();
         Path csarFilePath = Files.createTempDirectory(serviceTemplateId.getLocalPart() + "_Test").resolve(serviceTemplateId.getLocalPart() + ".csar");
-        connector.downloadServiceTemplate(csarFilePath,serviceTemplateId, wineryRepository);
+        connector.downloadServiceTemplate(csarFilePath, serviceTemplateId, wineryRepository);
         return csarFilePath;
     }
 
@@ -457,7 +457,7 @@ public abstract class TestUtils {
                 coll = instanceService.getServiceTemplateInstances(serviceTemplate.getId());
             }
 
-            for (ServiceTemplateInstance serviceTemplateInstance: coll) {
+            for (ServiceTemplateInstance serviceTemplateInstance : coll) {
                 s = serviceTemplateInstance;
             }
             ServiceTemplateInstanceState state = instanceService.getServiceTemplateInstanceState(s.getId());
@@ -491,7 +491,7 @@ public abstract class TestUtils {
                 coll = instanceService.getServiceTemplateInstances(serviceTemplate.getId());
             }
 
-            for (ServiceTemplateInstance serviceTemplateInstance: coll) {
+            for (ServiceTemplateInstance serviceTemplateInstance : coll) {
                 s = serviceTemplateInstance;
             }
             ServiceTemplateInstanceState state = instanceService.getServiceTemplateInstanceState(s.getId());
