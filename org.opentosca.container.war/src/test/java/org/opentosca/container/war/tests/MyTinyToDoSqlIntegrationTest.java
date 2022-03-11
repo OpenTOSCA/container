@@ -139,7 +139,7 @@ public class MyTinyToDoSqlIntegrationTest {
 
         TestUtils.invokePlanDeployment(this.control, statefulCsar.id(), statefulCsarServiceTemplate);
 
-        assertEquals(5, TestUtils.getDeployedPlans(this.endpointService).size());
+        assertEquals(10, TestUtils.getDeployedPlans(this.endpointService).size());
 
         TPlan statefulCsarDefrostPlan = TestUtils.getDefrostPlan(statefulCsarServiceTemplatePlans);
         TPlan statefulCsarTerminationPlan = TestUtils.getTerminationPlan(statefulCsarServiceTemplatePlans);
@@ -155,7 +155,9 @@ public class MyTinyToDoSqlIntegrationTest {
         //TestUtils.clearWineryRepository(wineryRepositoryUrl);
 
         TestUtils.invokePlanUndeployment(this.control,statefulCsar.id(), statefulCsarServiceTemplate);
+        assertEquals(5, TestUtils.getDeployedPlans(this.endpointService).size());
 
+        TestUtils.invokePlanUndeployment(this.control, csar.id(), serviceTemplate);
         assertEquals(0, TestUtils.getDeployedPlans(this.endpointService).size());
     }
 
