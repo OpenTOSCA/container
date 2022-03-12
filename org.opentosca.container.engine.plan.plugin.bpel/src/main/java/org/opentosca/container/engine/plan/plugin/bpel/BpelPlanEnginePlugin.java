@@ -196,14 +196,14 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             // save endpoint
             final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
             final Endpoint endpoint = new Endpoint(endpointUri, localContainer, localContainer,
-                csarId, null, endpointMetadata, portType, null, null, planId);
+                csarId, null, invokeEndpointMetaData, portType, null, null, planId);
             this.endpointService.storeEndpoint(endpoint);
 
             if (Objects.nonNull(callbackEndpoint)) {
                 final QName callbackPortType = QName.valueOf("{http://schemas.xmlsoap.org/wsdl/}CallbackPortType");
                 LOG.debug("Storing callback endpoint: {}", callbackEndpoint);
                 this.endpointService.storeEndpoint(new Endpoint(callbackEndpoint,
-                    localContainer, localContainer, csarId, null, endpointMetadata, callbackPortType, null, null, planId));
+                    localContainer, localContainer, csarId, null, callbackEndpointMetaData, callbackPortType, null, null, planId));
             }
         } else {
             BpelPlanEnginePlugin.LOG.error("Error while processing plan");
