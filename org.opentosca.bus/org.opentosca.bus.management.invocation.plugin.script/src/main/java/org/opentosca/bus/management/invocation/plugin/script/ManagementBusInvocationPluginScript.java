@@ -1,5 +1,8 @@
 package org.opentosca.bus.management.invocation.plugin.script;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -309,16 +312,18 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
         LOG.debug("{}: {}", ManagementBusInvocationPluginScript.RUN_SCRIPT_OUTPUT_PARAMETER_NAME, scriptResultString);
 
         // split result in line breaks as every parameter is returned in a separate "echo" command
-        final String[] resultParameters = scriptResultString.split("[\\r\\n]+");
+        final String[] resultParameters = scriptResultString.split("[\\r\\n%0D%0A]+");
 
         // add each parameter that is defined in the operation and passed back
         for (final TParameter outputParameter : operation.getOutputParameters()) {
+            // we expect the outputparameters at the end of the result in multiple lines
             for (int i = resultParameters.length - 1; i >= 0; i--) {
                 if (resultParameters[i].startsWith(outputParameter.getName())) {
                     final String value = resultParameters[i].substring(resultParameters[i].indexOf("=") + 1);
 
                     LOG.debug("Adding parameter {} with value: {}", outputParameter, value);
                     resultMap.put(outputParameter.getName(), value);
+                    break;
                 }
             }
         }
