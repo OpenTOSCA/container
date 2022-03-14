@@ -56,7 +56,6 @@ public class ApacheWebAppIntegrationTest {
     @Inject
     public ICoreEndpointService endpointService;
 
-
     @Test
     public void test() throws Exception {
 
