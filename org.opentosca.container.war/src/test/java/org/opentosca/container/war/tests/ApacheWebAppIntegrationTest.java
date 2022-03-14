@@ -85,8 +85,6 @@ public class ApacheWebAppIntegrationTest {
         assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
         this.checkStateAfterBuild(serviceTemplateInstance);
 
-        String serviceInstanceUrl = TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString());
-
         TestUtils.runTerminationPlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
 
         TestUtils.invokePlanUndeployment(this.control,csar.id(), serviceTemplate);
@@ -97,17 +95,6 @@ public class ApacheWebAppIntegrationTest {
     @After
     public void cleanUpContainer() {
         TestUtils.clearContainer(this.storage, this.control);
-    }
-
-    private void checkStateAfterScaleOut(ServiceTemplateInstance serviceTemplateInstance) throws IOException {
-        ServiceTemplateInstance serviceTemplateInstanceUpdated = this.instanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false);
-        Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstanceUpdated.getNodeTemplateInstances();
-        Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstanceUpdated.getRelationshipTemplateInstances();
-
-        assertEquals(3, nodeTemplateInstances.size());
-        assertEquals(2, relationshipTemplateInstances.size());
-
-        TestUtils.checkViaHTTPGET("http://localhost:9991", 200, "My Tiny Todolist");
     }
 
     private void checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance) throws IOException {
@@ -147,29 +134,6 @@ public class ApacheWebAppIntegrationTest {
         assertTrue(apacheApp.getPropertiesAsMap().get("URL").contains(dockerContainer.getPropertiesAsMap().get("ContainerIP") + ":" + apacheWebServer.getPropertiesAsMap().get("Port")));
 
         TestUtils.checkViaHTTPGET("http://localhost", 200, "Uwe");
-    }
-
-    private List<org.opentosca.container.core.extension.TParameter> getScaleOurPlanInputParameters(String serviceInstanceUrl) {
-        List<org.opentosca.container.core.extension.TParameter> inputParams = new ArrayList<>();
-
-        org.opentosca.container.core.extension.TParameter applicationPort = new org.opentosca.container.core.extension.TParameter();
-        applicationPort.setName("ApplicationPort");
-        applicationPort.setType("String");
-        applicationPort.setValue("9991");
-        applicationPort.setRequired(true);
-
-        org.opentosca.container.core.extension.TParameter serviceInstanceUrlParam = new org.opentosca.container.core.extension.TParameter();
-        serviceInstanceUrlParam.setName("OpenTOSCAContainerAPIServiceInstanceURL");
-        serviceInstanceUrlParam.setType("String");
-        serviceInstanceUrlParam.setValue(serviceInstanceUrl);
-        serviceInstanceUrlParam.setRequired(true);
-
-        inputParams.add(applicationPort);
-        inputParams.add(serviceInstanceUrlParam);
-
-        inputParams.addAll(TestUtils.getBaseInputParams());
-
-        return inputParams;
     }
 
     private List<org.opentosca.container.core.extension.TParameter> getBuildPlanInputParameters() {
