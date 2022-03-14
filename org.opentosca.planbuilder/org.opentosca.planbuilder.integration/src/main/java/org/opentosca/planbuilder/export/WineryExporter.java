@@ -187,64 +187,95 @@ public class WineryExporter extends AbstractExporter {
                         }
                     }
 
-                serviceTemplate.setBoundaryDefinitions(boundary);
+                    serviceTemplate.setBoundaryDefinitions(boundary);
 
-                ServiceTemplateId id = BackendUtils.getDefinitionsChildId(ServiceTemplateId.class, serviceTemplate.getTargetNamespace(), serviceTemplate.getId(), false);
-                BackendUtils.persist(repository, id, defs);
+                    ServiceTemplateId id = BackendUtils.getDefinitionsChildId(ServiceTemplateId.class, serviceTemplate.getTargetNamespace(), serviceTemplate.getId(), false);
+                    BackendUtils.persist(repository, id, defs);
 
-                // Check if selfservice is already available
-                final Path selfServiceDir = tempDir.resolve("SELFSERVICE-Metadata");
-                final Path selfServiceDataXml = selfServiceDir.resolve("data.xml");
-                final JAXBContext jaxbContextWineryApplication = JAXBContext.newInstance(Application.class);
+                    // Check if selfservice is already available
+                    final Path selfServiceDir = tempDir.resolve("SELFSERVICE-Metadata");
+                    final Path selfServiceDataXml = selfServiceDir.resolve("data.xml");
+                    final JAXBContext jaxbContextWineryApplication = JAXBContext.newInstance(Application.class);
 
-                if (Files.exists(selfServiceDir) && Files.exists(selfServiceDataXml)) {
-                    final Unmarshaller u = jaxbContextWineryApplication.createUnmarshaller();
-                    final Application appDesc = (Application) u.unmarshal(selfServiceDataXml.toFile());
+                    if (Files.exists(selfServiceDir) && Files.exists(selfServiceDataXml)) {
+                        final Unmarshaller u = jaxbContextWineryApplication.createUnmarshaller();
+                        final Application appDesc = (Application) u.unmarshal(selfServiceDataXml.toFile());
 
-                    if (appDesc.getOptions() != null) {
-                        // check if planInput etc. is set properly
-                        final List<AbstractPlan> exportedPlans = new ArrayList<>();
-                        for (final ApplicationOption option : appDesc.getOptions().getOption()) {
-                            for (final AbstractPlan planToExport : plansToExport) {
-                                if (option.getPlanServiceName()
-                                    .equals(getBuildPlanServiceName(((BPELPlan) plan).getDeploymentDeskriptor()).getLocalPart())) {
-                                    final Path planInputFile = selfServiceDir.resolve(option.getPlanInputMessageUrl());
-                                    if (!Files.exists(planInputFile)) {
-                                        // the planinput file is defined in the xml, but no file exists in the csar -> write one
-                                        writePlanInputMessageInstance((BPELPlan) plan, planInputFile.toFile());
-                                        exportedPlans.add(planToExport);
+                        if (appDesc.getOptions() != null) {
+                            // check if planInput etc. is set properly
+                            final List<AbstractPlan> exportedPlans = new ArrayList<>();
+                            for (final ApplicationOption option : appDesc.getOptions().getOption()) {
+                                for (final AbstractPlan planToExport : plansToExport) {
+                                    if (option.getPlanServiceName()
+                                        .equals(getBuildPlanServiceName(((BPELPlan) plan).getDeploymentDeskriptor()).getLocalPart())) {
+                                        final Path planInputFile = selfServiceDir.resolve(option.getPlanInputMessageUrl());
+                                        if (!Files.exists(planInputFile)) {
+                                            // the planinput file is defined in the xml, but no file exists in the csar -> write one
+                                            writePlanInputMessageInstance((BPELPlan) plan, planInputFile.toFile());
+                                            exportedPlans.add(planToExport);
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        if (exportedPlans.size() != plansToExport.size()) {
-                            int optionCounter = 1 + appDesc.getOptions().getOption().size();
-                            for (final AbstractPlan planToExport : plansToExport) {
-                                if (exportedPlans.contains(planToExport)) {
-                                    continue;
+                            if (exportedPlans.size() != plansToExport.size()) {
+                                int optionCounter = 1 + appDesc.getOptions().getOption().size();
+                                for (final AbstractPlan planToExport : plansToExport) {
+                                    if (exportedPlans.contains(planToExport)) {
+                                        continue;
+                                    }
+                                    if(planToExport instanceof BPELPlan){
+                                        final ApplicationOption option = createApplicationOption((BPELPlan) planToExport, optionCounter);
+                                        writePlanInputMessageInstance((BPELPlan) planToExport,
+                                            selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
+
+                                        appDesc.getOptions().getOption().add(option);
+                                        optionCounter++;
+                                    }
                                 }
-                                if(planToExport instanceof BPELPlan){
-                                    final ApplicationOption option = createApplicationOption((BPELPlan) planToExport, optionCounter);
-                                    writePlanInputMessageInstance((BPELPlan) planToExport,
-                                        selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
 
-                                    appDesc.getOptions().getOption().add(option);
+                                final Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
+                                wineryAppMarshaller.marshal(appDesc, selfServiceDataXml.toFile());
+                            }
+                        } else {
+                            int optionCounter = 1;
+                            final Application.Options options = new Application.Options();
+
+                            for (final AbstractPlan planToExport : plansToExport) {
+                                if(planToExport instanceof BPELPlan) {
+                                    final ApplicationOption option = createApplicationOption((BPELPlan) plan, optionCounter);
+                                    writePlanInputMessageInstance((BPELPlan) plan,
+                                        selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
                                     optionCounter++;
+                                    options.getOption().add(option);
                                 }
                             }
+                            appDesc.setOptions(options);
 
                             final Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
                             wineryAppMarshaller.marshal(appDesc, selfServiceDataXml.toFile());
                         }
                     } else {
+                        // write SELFSERVICE-Metadata folder and files
+                        Files.createDirectories(selfServiceDir);
+                        // safeguard against an exception by checking whether the thing exists before trying to create it
+                        if (!Files.exists(selfServiceDataXml)) {
+                            Files.createFile(selfServiceDataXml);
+                        }
+                        final Application appDesc = new Application();
+
+                        appDesc.setDisplayName(csarName);
+                        appDesc.setDescription("No description available. This application was partially generated");
+                        appDesc.setIconUrl("");
+                        appDesc.setImageUrl("");
+
                         int optionCounter = 1;
                         final Application.Options options = new Application.Options();
 
                         for (final AbstractPlan planToExport : plansToExport) {
                             if(planToExport instanceof BPELPlan) {
-                                final ApplicationOption option = createApplicationOption((BPELPlan) plan, optionCounter);
-                                writePlanInputMessageInstance((BPELPlan) plan,
+                                final ApplicationOption option = createApplicationOption((BPELPlan) planToExport, optionCounter);
+                                writePlanInputMessageInstance((BPELPlan) planToExport,
                                     selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
                                 optionCounter++;
                                 options.getOption().add(option);
@@ -255,40 +286,9 @@ public class WineryExporter extends AbstractExporter {
                         final Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
                         wineryAppMarshaller.marshal(appDesc, selfServiceDataXml.toFile());
                     }
-                } else {
-                    // write SELFSERVICE-Metadata folder and files
-                    Files.createDirectories(selfServiceDir);
-                    // safeguard against an exception by checking whether the thing exists before trying to create it
-                    if (!Files.exists(selfServiceDataXml)) {
-                        Files.createFile(selfServiceDataXml);
-                    }
-                    final Application appDesc = new Application();
 
-                    appDesc.setDisplayName(csarName);
-                    appDesc.setDescription("No description available. This application was partially generated");
-                    appDesc.setIconUrl("");
-                    appDesc.setImageUrl("");
-
-                    int optionCounter = 1;
-                    final Application.Options options = new Application.Options();
-
-                    for (final AbstractPlan planToExport : plansToExport) {
-                        if(planToExport instanceof BPELPlan) {
-                            final ApplicationOption option = createApplicationOption((BPELPlan) planToExport, optionCounter);
-                            writePlanInputMessageInstance((BPELPlan) planToExport,
-                                selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
-                            optionCounter++;
-                            options.getOption().add(option);
-                        }
-                    }
-                    appDesc.setOptions(options);
-
-                    final Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
-                    wineryAppMarshaller.marshal(appDesc, selfServiceDataXml.toFile());
+                    FileSystem.zip(repackagedCsar, tempDir);
                 }
-
-                FileSystem.zip(repackagedCsar, tempDir);
-            }
 
                 if (plan instanceof BPMNPlan) {
                     LOG.info("Processing BPMN a plan id {} with language {}", plan.getId(), plan.getLanguage());
@@ -496,7 +496,6 @@ public class WineryExporter extends AbstractExporter {
                 plan.setPlanType(PlanType.MANAGEMENT.toString());
                 break;
         }
-
 
         return plan;
     }
