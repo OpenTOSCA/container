@@ -30,7 +30,7 @@ import org.w3c.dom.NodeList;
  * Callback-Processor of the SOAP/HTTP-Invocation-Management-Bus-Plug-in.<br>
  * <br>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * This processor processes incoming soap messages. It checks if the messages are containing existing messageIDs.

@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * assumes that the playbook that must be called are already uploaded to the appropriate path. For example by the
  * ScriptIAOnLinux Plugin
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de

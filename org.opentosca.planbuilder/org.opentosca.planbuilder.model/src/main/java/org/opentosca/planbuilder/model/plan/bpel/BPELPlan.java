@@ -27,7 +27,7 @@ import org.w3c.dom.Element;
  * methods on this class mostly consist of setters/getters, all logic should be made through the facade under
  * org.opentosca.planbuilder.handlers
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -478,7 +478,7 @@ public class BPELPlan extends AbstractPlan {
      * <p>
      * Defines which variables the model allows to define
      * <p>
-     * Copyright 2013 IAAS University of Stuttgart <br>
+     * Copyright 2013-2022 IAAS University of Stuttgart <br>
      * <br>
      *
      * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -491,7 +491,7 @@ public class BPELPlan extends AbstractPlan {
      * <p>
      * Defines which imports the model allows to define
      * <p>
-     * Copyright 2013 IAAS University of Stuttgart <br>
+     * Copyright 2013-2022 IAAS University of Stuttgart <br>
      * <br>
      *
      * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

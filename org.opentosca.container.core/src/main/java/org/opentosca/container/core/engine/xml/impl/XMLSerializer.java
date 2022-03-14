@@ -36,7 +36,7 @@ import org.xml.sax.SAXException;
  * <p>
  * This class is represented by the interface org.opentosca.toscaengine.xmlserializer.service.IXMLSerializer.
  * <p>
- * Copyright 2012 IAAS University of Stuttgart <br>
+ * Copyright 2012-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * TODO JAXBIntrospector does not what expected ...

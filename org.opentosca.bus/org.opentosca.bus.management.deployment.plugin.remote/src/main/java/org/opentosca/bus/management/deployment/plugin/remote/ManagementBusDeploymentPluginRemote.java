@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
  * deployment/undeployment is extracted, added to the incoming exchange and passed back to the caller.<br>
  * <br>
  * <p>
- * Copyright 2018 IAAS University of Stuttgart
+ * Copyright 2018-2022 IAAS University of Stuttgart
  */
 @Component
 public class ManagementBusDeploymentPluginRemote implements IManagementBusDeploymentPluginService {

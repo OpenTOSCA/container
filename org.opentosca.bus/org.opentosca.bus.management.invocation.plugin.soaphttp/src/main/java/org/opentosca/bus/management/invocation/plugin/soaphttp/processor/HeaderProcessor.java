@@ -26,7 +26,7 @@ import org.xml.sax.SAXException;
  * Header-Processor of the Management Bus-SOAP/HTTP-Plug-in.<br>
  * <br>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * This processor copies all self defined header of the exchange object into SoapHeader of the outgoing Soap message.

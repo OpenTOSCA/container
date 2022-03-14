@@ -30,7 +30,7 @@ import org.xml.sax.SAXException;
  * sub-elements they must be filled with empty elements, otherwise the plan isn't valid to the specification and a BPEL
  * Engine won't allow the process to be deployed.
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

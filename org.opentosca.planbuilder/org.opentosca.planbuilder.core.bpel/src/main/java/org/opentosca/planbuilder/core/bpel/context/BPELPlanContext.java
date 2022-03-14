@@ -57,7 +57,7 @@ import org.w3c.dom.Node;
  * This class is used for all Plugins. All acitions on TemplateBuildPlans and BuildPlans should be done with the
  * operations of this class. It is basically a Facade to Template and its TemplateBuildPlan
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

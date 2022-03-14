@@ -39,7 +39,7 @@ import org.w3c.dom.Document;
  * Management Bus-Plug-in for invoking a service with a SOAP message over HTTP. <br>
  * <br>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * The Plug-in gets needed information (like endpoint of the service or operation to invoke) from the Management Bus and
