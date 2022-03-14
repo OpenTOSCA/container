@@ -50,7 +50,7 @@ import org.w3c.dom.Element;
  * <p>
  * This class is used to export buildPlans on filesystems
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

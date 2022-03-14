@@ -10,7 +10,7 @@ import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 
 /**
- * Copyright 2016 IAAS University of Stuttgart <br>
+ * Copyright 2016-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * This class implements a PlanBuilder Type Plugin for the RelationshipType MosquittoConnectsTo. The plugin looks for a

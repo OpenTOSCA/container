@@ -10,7 +10,7 @@ import org.opentosca.planbuilder.core.plugins.context.PlanContext;
  * This interface should be implemented by Plugins which are PostPhasePlugins. PostPhasePlugins are used to update data
  * outside of the BuildPlan, like Databases
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

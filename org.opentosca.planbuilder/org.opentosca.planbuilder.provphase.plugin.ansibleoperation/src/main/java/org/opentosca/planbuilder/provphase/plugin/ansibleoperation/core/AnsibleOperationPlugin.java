@@ -10,7 +10,7 @@ import org.opentosca.planbuilder.core.plugins.context.PlanContext;
  * <p>
  * This class implements a ProvPhase Plugin, in particular to enable provisioning with ansible
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

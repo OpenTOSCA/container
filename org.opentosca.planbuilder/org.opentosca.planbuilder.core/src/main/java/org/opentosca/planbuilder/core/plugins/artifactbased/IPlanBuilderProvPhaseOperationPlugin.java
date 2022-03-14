@@ -13,7 +13,7 @@ import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPlugin;
  * This interface should be implemented by Plugins which can generate Fragments that implement the Provisioning trough
  * TOSCA Operations on Node-/RelationshipTypes
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

@@ -13,7 +13,7 @@ import org.opentosca.planbuilder.core.plugins.context.PlanContext;
  * This interface should be implemented by Plugins which can generate and add fragments that provision a complete
  * Template
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

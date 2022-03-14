@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * This class is used to initialize Template properties as variables in BuildPlans.
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

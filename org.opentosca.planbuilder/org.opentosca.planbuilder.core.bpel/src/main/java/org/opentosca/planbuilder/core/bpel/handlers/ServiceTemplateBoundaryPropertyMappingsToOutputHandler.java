@@ -34,7 +34,7 @@ import org.w3c.dom.NodeList;
  * assigns to return property values to the BuildPlan caller
  * </p>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -436,7 +436,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
      * <p>
      * This class is a wrapper, which holds a mapping from ServiceTemplate Property, Template and Template Property
      * </p>
-     * Copyright 2013 IAAS University of Stuttgart <br>
+     * Copyright 2013-2022 IAAS University of Stuttgart <br>
      * <br>
      *
      * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

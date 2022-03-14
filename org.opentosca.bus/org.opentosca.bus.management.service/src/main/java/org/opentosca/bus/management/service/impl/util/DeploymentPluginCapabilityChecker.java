@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
  * Implementation Artifact are met by the container and/or available plug-ins (plan + deployment).<br>
  * <br>
  * <p>
- * Copyright 2018 IAAS University of Stuttgart <br>
+ * Copyright 2018-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Benjamin Weder - st100495@stud.uni-stuttgart.de

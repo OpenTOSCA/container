@@ -38,7 +38,7 @@ import org.springframework.stereotype.Service;
 /**
  * The Implementation of the Engine. Also deals with OSGI events for communication with the mock-up Servicebus.
  * <p>
- * Copyright 2013 Christian Endres
+ * Copyright 2013-2022 Christian Endres
  *
  * @author endrescn@fachschaft.informatik.uni-stuttgart.de
  */

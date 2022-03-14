@@ -9,7 +9,7 @@ import org.opentosca.bus.management.service.IManagementBusService;
  * Route of the Management Bus Java API.<br>
  * <br>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * Incoming events are given here from the EventHandler to be routed to the Management Bus for further processing. The

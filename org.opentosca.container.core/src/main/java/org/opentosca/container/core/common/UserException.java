@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 - 2017, University of Stuttgart and the OpenTOSCA contributors
+ * Copyright 2012-2022 - 2017, University of Stuttgart and the OpenTOSCA contributors
  * SPDX-License-Identifier: Apache-2.0
  *******************************************************************************/
 package org.opentosca.container.core.common;
