@@ -163,10 +163,15 @@ public abstract class PatternBasedHandler {
         if (operationToMatch.getInputParameters() != null) {
             for (final TParameter param : operationToMatch.getInputParameters()) {
                 boolean matched = false;
+                boolean isIp = false;
+                if (Utils.isSupportedVirtualMachineIPProperty(param.getName())) {
+                    isIp = true;
+                }
 
                 for (final TNodeTemplate nodeForMatching : nodesForMatching) {
                     for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
-                        if (param.getName().equals(propName)) {
+                        // in case we have an ip property to match we do it differently
+                        if (param.getName().equals(propName) || (isIp && Utils.isSupportedVirtualMachineIPProperty(propName))) {
                             matching.inputMatching.put(param, propName);
                             matched = true;
                             matchedNodes.add(nodeForMatching);
