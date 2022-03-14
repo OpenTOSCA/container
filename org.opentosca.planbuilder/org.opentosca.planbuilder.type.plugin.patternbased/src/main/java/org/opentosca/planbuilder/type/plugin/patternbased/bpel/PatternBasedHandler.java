@@ -171,13 +171,7 @@ public abstract class PatternBasedHandler {
                 for (final TNodeTemplate nodeForMatching : nodesForMatching) {
                     for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
                         // in case we have an ip property to match we do it differently
-                        if (isIp && Utils.isSupportedVirtualMachineIPProperty(propName)) {
-                            matching.inputMatching.put(param, propName);
-                            matched = true;
-                            matchedNodes.add(nodeForMatching);
-                            break;
-                        }
-                        if (param.getName().equals(propName)) {
+                        if (param.getName().equals(propName) || (isIp && Utils.isSupportedVirtualMachineIPProperty(propName))) {
                             matching.inputMatching.put(param, propName);
                             matched = true;
                             matchedNodes.add(nodeForMatching);
