@@ -49,7 +49,7 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
     protected static final Logger LOGGER = LoggerFactory.getLogger(MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest.class);
 
     public QName myTinyToDocsarId = new QName("http://opentosca.org/test/applications/servicetemplates", "MyTinyToDo-DockerEngine-Test_w1-wip1");
-    public QName multiMyTinyToDoCsarId = new QName("http://opentosca.org/test/applications/servicetemplates", "MutliMyTinyToDo-DockerEngine-Test_w1-wip1");
+    public QName multiMyTinyToDoCsarId = new QName("http://opentosca.org/test/applications/servicetemplates", "MultiMyTinyToDo-DockerEngine-Test_w1-wip1");
 
     @Inject
     public OpenToscaControlService control;
