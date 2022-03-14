@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
  * Route of the Management Bus-SOAP/HTTP-API.<br>
  * <br>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * Here the route an incoming invoke-request has to pass is defined. Also the web services to consume and produce a SOAP

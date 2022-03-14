@@ -55,7 +55,7 @@ import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_Te
  * defines the test interface.
  * </p>
  * <p>
- * Copyright 2019 IAAS University of Stuttgart <br>
+ * Copyright 2019-2022 IAAS University of Stuttgart <br>
  * <br>
  */
 public class BPELTestManagementProcessBuilder extends AbstractManagementFeaturePlanBuilder {

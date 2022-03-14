@@ -9,7 +9,7 @@ import org.opentosca.bus.management.header.MBHeader;
  * Interface of the Management Bus Deployment Plug-ins.<br>
  * <br>
  * <p>
- * Copyright 2018 IAAS University of Stuttgart <br>
+ * Copyright 2018-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * The interface specifies four methods. One for invoking the deployment of an Implementation Artifact, another for

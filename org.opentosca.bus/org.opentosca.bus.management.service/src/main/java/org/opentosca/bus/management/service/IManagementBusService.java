@@ -6,7 +6,7 @@ import org.apache.camel.Exchange;
  * Interface of the Management Bus.<br>
  * <br>
  *
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * The interface specifies two methods. One for deploying an implementation artifact and invoking an operation of it.
