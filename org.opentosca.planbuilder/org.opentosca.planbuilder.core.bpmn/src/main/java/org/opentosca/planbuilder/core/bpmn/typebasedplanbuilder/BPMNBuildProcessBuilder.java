@@ -36,16 +36,15 @@ import org.xml.sax.SAXException;
 
 /**
  * <p>
- * This Class represents the high-level algorithm of the concept in <a href= "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=BCLR-0043&mod=0&engl=1&inst=FAK"
- * >Konzept und Implementierung eine Java-Komponente zur Generierung von WS-BPEL 2.0 BuildPlans fuer OpenTOSCA</a>. It
- * is responsible for generating the Build Plan Skeleton and assign plugins to handle the different templates inside a
+ * This Class represents the high-level algorithm of the concept
+ * It is responsible for generating the Build Plan Skeleton and assign plugins to handle the different templates inside a
  * TopologyTemplate.
  * </p>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2021 IAAS University of Stuttgart <br>
  * <br>
  *
- * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ * @author Kuang-Yu Li - st169971@stud.uni-stuttgart.de
  */
 public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
@@ -135,8 +134,8 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             // instanceDataAPI handling is done solely trough this extension
 
             // initialize instanceData handling
-            this.serviceInstanceInitializer.appendCreateServiceInstanceVarsAndAnitializeWithInstanceDataAPI(newBuildPlan);
-
+            this.serviceInstanceInitializer.addInputOutputParameterCorrelationIDAndInstanceDataAPI(newBuildPlan);
+            this.serviceInstanceInitializer.addInputOutputParameterUserDefined(newBuildPlan);
             String serviceInstanceUrl =
                 this.serviceInstanceInitializer.findServiceInstanceUrlVariableName(newBuildPlan);
             String serviceInstanceID = this.serviceInstanceInitializer.findServiceInstanceIdVarName(newBuildPlan);

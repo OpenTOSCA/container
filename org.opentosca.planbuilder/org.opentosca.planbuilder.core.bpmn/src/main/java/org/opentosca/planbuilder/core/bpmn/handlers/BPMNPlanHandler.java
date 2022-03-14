@@ -306,4 +306,12 @@ public class BPMNPlanHandler {
         }
         LOG.debug("Total of {} diagrams are generated from {} BPMN elements", bpmnPlan.getDiagramElements().size(), bpmnPlan.getTemplateBuildPlans().size());
     }
+
+    public boolean addInputParameter(String inputName, final BPMNPlan plan) {
+        return plan.getInputParameters().add(inputName);
+    }
+
+    public boolean addOutputParameter(String outputName, final BPMNPlan plan) {
+        return plan.getOutputParameters().add(outputName);
+    }
 }

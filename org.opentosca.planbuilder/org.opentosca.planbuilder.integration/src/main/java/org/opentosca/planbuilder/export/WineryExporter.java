@@ -463,6 +463,17 @@ public class WineryExporter extends AbstractExporter {
 
             plan.setPlanModelReference(ref);
 
+            for (final String paramName : ((BPMNPlan) generatedPlan).getInputParameters()) {
+                // the builder supports only string types
+                final TParameter param = new TParameter.Builder(paramName, "String", true).build();
+                inputParams.add(param);
+            }
+
+            for (final String paramName : ((BPMNPlan) generatedPlan).getOutputParameters()) {
+                final TParameter param = new TParameter.Builder(paramName, "String", true).build();
+                outputParams.add(param);
+            }
+
             plan.setId(QName.valueOf(generatedPlan.getId()).getLocalPart());
             plan.setPlanLanguage(BPMNPlan.bpmnNamespace);
         }

@@ -1,12 +1,7 @@
 package org.opentosca.planbuilder.model.plan.bpmn;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -42,10 +37,9 @@ public class BPMNPlan extends AbstractPlan {
 
     private Map<AbstractActivity, BPMNScope> abstract2bpmnMap;
 
-    // the localNames inside the input and output message
-    // TODO: be reviewed
-    private final List<String> inputMessageLocalNames = new ArrayList<>();
-    private final List<String> outputMessageLocalNames = new ArrayList<>();
+    // the input and output parameters for the plan
+    private final Set<String> inputParameters = new HashSet<>();
+    private final Set<String> outputParameters = new HashSet<>();
 
     // variables associated with the bpmn xml document itself
     private List<Element> bpmnImportElements;
@@ -53,7 +47,7 @@ public class BPMNPlan extends AbstractPlan {
     private String csarName = null;
     private Csar csar = null;
 
-    // TODO: rename, current name is misleading
+    // TODO: rename, this is misleading
     private List<BPMNScope> templateBuildPlans = new ArrayList<>();
     private List<BPMNDiagramElement> diagramElements = new ArrayList<>();
 
@@ -216,14 +210,6 @@ public class BPMNPlan extends AbstractPlan {
         this.bpmnImportElements = bpmnImportElements;
     }
 
-    public List<String> getInputMessageLocalNames() {
-        return this.inputMessageLocalNames;
-    }
-
-    public List<String> getOutputMessageLocalNames() {
-        return this.outputMessageLocalNames;
-    }
-
     public List<BPMNScope> getTemplateBuildPlans() {
         return templateBuildPlans;
     }
@@ -286,5 +272,13 @@ public class BPMNPlan extends AbstractPlan {
 
     public void setCsar(Csar csar) {
         this.csar = csar;
+    }
+
+    public Set<String> getInputParameters() {
+        return inputParameters;
+    }
+
+    public Set<String> getOutputParameters() {
+        return outputParameters;
     }
 }

@@ -6,10 +6,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
@@ -204,8 +201,8 @@ public class PlanbuilderWorker {
             final List<String> outputParameters;
 
             if (buildPlan.getLanguage() != null && buildPlan.getLanguage() == PlanLanguage.BPMN) {
-                inputParameters = ((BPMNPlan) buildPlan).getInputMessageLocalNames();
-                outputParameters = ((BPMNPlan) buildPlan).getOutputMessageLocalNames();
+                inputParameters = new ArrayList(((BPMNPlan) buildPlan).getInputParameters());
+                outputParameters = new ArrayList(((BPMNPlan) buildPlan).getOutputParameters());
                 obj.addProperty("planLanguage", BPMNPlan.bpmnNamespace);
             } else {
                 inputParameters = ((BPELPlan) buildPlan).getWsdl().getInputMessageLocalNames();

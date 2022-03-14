@@ -17,6 +17,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import java.util.Set;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.*;
@@ -139,6 +141,14 @@ public class BPMNPlanHandlerTests {
         assertThat(bpmnPlan.getTOSCAInterfaceName(), is(inter));
         bpmnPlan.setTOSCAOperationName(ops);
         assertThat(bpmnPlan.getTOSCAOperationName(), is(ops));
+    }
+
+    @Test
+    public void testBPMNPlanAddInputParameter() {
+        String input = "inputName";
+        bpmnPlan.getInputParameters();
+        bpmnPlanHandler.addInputParameter(input, bpmnPlan);
+        assertThat(bpmnPlan.getInputParameters().contains(input), is(true));
     }
 
 }
