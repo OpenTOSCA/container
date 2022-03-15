@@ -12,6 +12,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import com.google.common.collect.Lists;
+import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractSimplePlanBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBackupManagementProcessBuilder;
@@ -103,7 +104,7 @@ public abstract class AbstractImporter {
         }
 
         AbstractSimplePlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder(pluginRegistry);
-        AbstractSimplePlanBuilder buildPlanBuilder2 = new BPMNBuildProcessBuilder(pluginRegistry);
+        AbstractSimplePlanBuilder bpmnBuildPlanBuilder = new BPMNBuildProcessBuilder(pluginRegistry);
         final BPELSituationAwareBuildProcessBuilder sitAwareBuilder = new BPELSituationAwareBuildProcessBuilder(pluginRegistry);
 
         if (!sitAwareBuilder.buildPlans(csar, defs).isEmpty()) {
@@ -137,15 +138,19 @@ public abstract class AbstractImporter {
         TServiceTemplate servTemplate = defs.getServiceTemplates().iterator().next();
 
         if (ModelUtils.doesNotHaveBuildPlan(servTemplate) | !ModelUtils.hasTerminationPlan(servTemplate)) {
-            plans.addAll(scalingPlanBuilder.buildPlans(csar, defs));
-            plans.addAll(buildPlanBuilder.buildPlans(csar, defs));
-            plans.addAll(buildPlanBuilder2.buildPlans(csar, defs));
-            plans.addAll(terminationPlanBuilder.buildPlans(csar, defs));
-            plans.addAll(freezePlanBuilder.buildPlans(csar, defs));
-            plans.addAll(defreezePlanBuilder.buildPlans(csar, defs));
-            plans.addAll(backupPlanBuilder.buildPlans(csar, defs));
-            plans.addAll(testPlanBuilder.buildPlans(csar, defs));
-            plans.addAll(updatePlanBuilder.buildPlans(csar, defs));
+            if (Settings.OPENTOSCA_PLANBUILDER_LANGUAGE.equals("BPEL")) {
+                plans.addAll(scalingPlanBuilder.buildPlans(csar, defs));
+                plans.addAll(buildPlanBuilder.buildPlans(csar, defs));
+                plans.addAll(terminationPlanBuilder.buildPlans(csar, defs));
+                plans.addAll(freezePlanBuilder.buildPlans(csar, defs));
+                plans.addAll(defreezePlanBuilder.buildPlans(csar, defs));
+                plans.addAll(backupPlanBuilder.buildPlans(csar, defs));
+                plans.addAll(testPlanBuilder.buildPlans(csar, defs));
+                plans.addAll(updatePlanBuilder.buildPlans(csar, defs));
+            } else if (Settings.OPENTOSCA_PLANBUILDER_LANGUAGE.equals("BPMN")) {
+                plans.addAll(bpmnBuildPlanBuilder.buildPlans(csar, defs));
+            }
+
         }
 
         return plans;

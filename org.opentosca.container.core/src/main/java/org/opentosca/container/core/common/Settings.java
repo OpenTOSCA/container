@@ -31,8 +31,8 @@ public class Settings {
 
     public final static String OPENTOSCA_CONTAINER_HOSTNAME = settings.getProperty("org.opentosca.container.hostname", "localhost");
     public final static String OPENTOSCA_CONTAINER_PORT = settings.getProperty("org.opentosca.container.port", "1337");
-    
-    public final static String CONTAINER_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT;    
+
+    public final static String CONTAINER_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT;
     public final static String CONTAINER_INSTANCEDATA_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/servicetemplates/{servicetemplateid}/instances";
     public final static String OPENTOSCA_CONTAINER_CONTENT_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/content/";
     public final static String OPENTOSCA_CONTAINER_CONTENT_API_ARTIFACTREFERENCE = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/content/{artifactreference}";
@@ -70,6 +70,8 @@ public class Settings {
     // Container Capabilities
     public final static String containerCapabilities = "http://opentosca/planportabilityapi/rest, http://opentosca/containerapi";
     public static final String TOSCA_META_FILE_REL_PATH = "TOSCA-Metadata" + File.separator + "TOSCA.meta";
+
+    public final static String OPENTOSCA_PLANBUILDER_LANGUAGE = settings.getProperty("org.opentosca.planbuilder.language", "BPEL");
 
     /**
      * @param setting - name of the setting
