@@ -66,7 +66,7 @@ import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_Li
  * Request-Processor of the Management Bus-SOAP/HTTP-API.<br>
  * <br>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * This processor processes the incoming requests of the Management Bus-SOAP/HTTP-API. It transforms the incoming

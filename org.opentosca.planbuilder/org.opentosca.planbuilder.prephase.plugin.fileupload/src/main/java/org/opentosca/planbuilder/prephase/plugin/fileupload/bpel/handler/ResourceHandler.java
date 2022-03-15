@@ -22,7 +22,7 @@ import org.xml.sax.SAXException;
  * <p>
  * This class holds all BPEL Fragments and other Artifacts for the ScriptIAOnLinux Plugin
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

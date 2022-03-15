@@ -4,7 +4,7 @@ package org.opentosca.planbuilder.core.plugins.context;
  * <p>
  * This is a Wrapper class for Template Id to Property variable name
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

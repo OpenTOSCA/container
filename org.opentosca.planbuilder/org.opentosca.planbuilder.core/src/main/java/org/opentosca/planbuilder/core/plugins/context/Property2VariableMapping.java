@@ -11,7 +11,7 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
  * <p>
  * This class represents a mapping from TemplateId to Property LocalName and VariableName
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

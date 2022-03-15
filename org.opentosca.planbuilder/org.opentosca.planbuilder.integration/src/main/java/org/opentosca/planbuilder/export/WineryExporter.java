@@ -54,7 +54,7 @@ import org.springframework.stereotype.Service;
  * <p>
  * This class is a Exporter class for local filesystem exports based on the OpenTOSCA Core
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

@@ -8,7 +8,7 @@ import org.opentosca.bus.management.invocation.plugin.soaphttp.processor.HeaderP
  * Synchronous route of SOAP/HTTP-Invocation-Management-Bus-Plug-in.<br>
  * <br>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * This class manages the synchronous communication with a service.It invokes the service and waits for the response

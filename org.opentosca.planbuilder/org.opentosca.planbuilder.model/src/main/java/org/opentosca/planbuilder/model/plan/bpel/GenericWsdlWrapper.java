@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * messages can have additional elements defined, which can be used by the plugins to fetch data outside of the
  * TopoloyTemplate scope.
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -534,7 +534,7 @@ public class GenericWsdlWrapper {
      * <p>
      * This class is used to map and store partnerLinks inside the GenericWsdlWrapper calss
      * </p>
-     * Copyright 2013 IAAS University of Stuttgart <br>
+     * Copyright 2013-2022 IAAS University of Stuttgart <br>
      * <br>
      *
      * @author nyu

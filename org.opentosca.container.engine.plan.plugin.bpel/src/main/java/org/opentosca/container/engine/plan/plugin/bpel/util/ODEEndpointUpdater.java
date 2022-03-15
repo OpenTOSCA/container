@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * <br>
- * Copyright 2012 IAAS University of Stuttgart <br>
+ * Copyright 2012-2022 IAAS University of Stuttgart <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * @see org.opentosca.container.core.service.ICoreEndpointService

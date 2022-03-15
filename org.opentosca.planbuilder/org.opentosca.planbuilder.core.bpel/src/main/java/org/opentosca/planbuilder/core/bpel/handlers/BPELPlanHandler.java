@@ -49,7 +49,7 @@ import org.xml.sax.SAXException;
  * This class is a part of the facade, which is used to work on a BuildPlan. This is class in particular is responsible
  * for the handling of various XML related actions on the whole BPEL process
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

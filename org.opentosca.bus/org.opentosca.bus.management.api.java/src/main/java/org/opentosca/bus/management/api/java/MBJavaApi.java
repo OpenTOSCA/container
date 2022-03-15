@@ -63,7 +63,7 @@ import org.springframework.stereotype.Component;
  * Exposes the ManagementBus to the container as a java bean
  * </p>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  * @author Benjamin Weder - st100495@stud.uni-stuttgart.de

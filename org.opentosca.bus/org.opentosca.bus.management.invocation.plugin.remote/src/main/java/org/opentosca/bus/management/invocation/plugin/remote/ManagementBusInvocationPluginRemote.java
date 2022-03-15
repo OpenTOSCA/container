@@ -35,7 +35,7 @@ import org.w3c.dom.Element;
  * The plug-in gets all needed information for the invocation and forwards it to the remote Container over MQTT. When it
  * gets the response, it copies the result body to the exchange and returns it to the Management Bus.
  * <p>
- * Copyright 2018 IAAS University of Stuttgart
+ * Copyright 2018-2022 IAAS University of Stuttgart
  */
 @Service
 public class ManagementBusInvocationPluginRemote extends IManagementBusInvocationPluginService {

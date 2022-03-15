@@ -8,7 +8,7 @@ import org.opentosca.bus.management.invocation.plugin.soaphttp.processor.HeaderP
  * Request-only route of SOAP/HTTP-Invocation-Management-Bus-Plug-in.<br>
  * <br>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * This class manages the request-only invocation of an service.
