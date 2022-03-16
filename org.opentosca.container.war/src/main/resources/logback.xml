@@ -7,6 +7,15 @@
         </encoder>
     </appender>
 
+    <!--<appender name="file" class="ch.qos.logback.core.FileAppender">
+        <file>/tmp/logback.log</file>
+        <append>true</append>
+        <immediateFlush>true</immediateFlush>+
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>-->
+
     <!-- code under our direct control -->
     <logger name="org.opentosca" level="INFO"/>
     <logger name="org.opentosca.bus.management" level="INFO"/>
@@ -23,7 +32,8 @@
     <logger name="org.apache.camel" level="WARN"/>
     <!-- logging in- and outbound SOAP messages -->
     <logger name="org.apache.cxf.services" level="INFO"/>
-    <logger name="org.hibernate" level="INFO"/>
+    <logger name="org.hibernate" level="ERROR"/>
+    <logger name="org.hibernate.SQL" level="ERROR"/>
     <logger name="org.jclouds" level="INFO"/>
     <logger name="org.springframework" level="INFO"/>
     <logger name="org.eclipse.winery" level="ERROR"/>
@@ -31,5 +41,6 @@
 
     <root level="debug">
         <appender-ref ref="STDOUT"/>
+        <!--<appender-ref ref="file"/>-->
     </root>
 </configuration>

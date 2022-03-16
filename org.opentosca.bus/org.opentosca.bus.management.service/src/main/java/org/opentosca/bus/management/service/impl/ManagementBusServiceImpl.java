@@ -221,22 +221,21 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.debug("Operation: {}", neededOperation);
 
         // log event to monitor the IA execution time
-        final PlanInstanceEvent event;
         // operation invocation is only possible with retrieved ServiceTemplateInstance ID
         if (!serviceTemplateInstanceID.equals(Long.MIN_VALUE)) {
 
             final IAInvocationArguments arguments =
                 new IAInvocationArguments(csarID, serviceInstanceID, serviceTemplateID, serviceTemplateInstanceID,
                     nodeTemplateID, relationship, neededInterface, neededOperation);
-            event = internalInvokeIA(arguments, exchange);
+            final PlanInstanceEvent event = internalInvokeIA(arguments, exchange);
             LOG.info("IA execution duration: {}", event.getDuration());
         } else {
             LOG.error("Unable to invoke operation without ServiceTemplateInstance ID!");
             handleResponse(exchange);
-            event = new PlanInstanceEvent("WARN", "IA_DURATION_LOG",
-                "Unable to invoke operation without ServiceTemplateInstance ID!");
         }
 
+        // this block of code is never entered
+        /*
         final String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
         LOG.debug("Correlation ID: {}", correlationID);
         if (Objects.nonNull(correlationID)) {
@@ -257,7 +256,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 plan.addEvent(event);
                 planInstanceRepository.save(plan);
             }
-        }
+        }*/
     }
 
     /**

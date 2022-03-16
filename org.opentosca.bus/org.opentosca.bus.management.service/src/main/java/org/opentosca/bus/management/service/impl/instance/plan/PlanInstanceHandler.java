@@ -59,16 +59,14 @@ public class PlanInstanceHandler {
      */
     public String createCorrelationId() {
         // generate CorrelationId for the plan execution
-        while (true) {
-            final String correlationId = String.valueOf(System.currentTimeMillis());
+        PlanInstance instance;
+        String correlationId;
+        do {
+            correlationId = String.valueOf(System.currentTimeMillis()) + Math.random();
+            instance = planRepo.findByCorrelationId(correlationId);
 
-            try {
-                planRepo.findByCorrelationId(correlationId);
-                LOG.debug("CorrelationId {} already in use.", correlationId);
-            } catch (final NoResultException e) {
-                return correlationId;
-            }
-        }
+        } while (instance != null);
+        return correlationId;
     }
 
     /**

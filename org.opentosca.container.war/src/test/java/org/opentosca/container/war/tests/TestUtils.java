@@ -309,12 +309,22 @@ public abstract class TestUtils {
         PlanInstance terminationPlanInstance = planService.getPlanInstanceByCorrelationId(terminationPlanCorrelationId);
         while (terminationPlanInstance == null) {
             terminationPlanInstance = planService.getPlanInstanceByCorrelationId(terminationPlanCorrelationId);
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         PlanInstanceState terminationPlanInstanceState = terminationPlanInstance.getState();
         while (!terminationPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
             terminationPlanInstance = planService.getPlanInstance(terminationPlanInstance.getId());
             terminationPlanInstanceState = terminationPlanInstance.getState();
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -324,12 +334,22 @@ public abstract class TestUtils {
         PlanInstance freezePlanInstance = planService.getPlanInstanceByCorrelationId(freezePlanCorrelationId);
         while (freezePlanInstance == null) {
             freezePlanInstance = planService.getPlanInstanceByCorrelationId(freezePlanCorrelationId);
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         PlanInstanceState terminationPlanInstanceState = freezePlanInstance.getState();
         while (!terminationPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
             freezePlanInstance = planService.getPlanInstance(freezePlanInstance.getId());
             terminationPlanInstanceState = freezePlanInstance.getState();
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -430,12 +450,22 @@ public abstract class TestUtils {
         PlanInstance buildPlanInstance = planService.getPlanInstanceByCorrelationId(buildPlanCorrelationId);
         while (buildPlanInstance == null) {
             buildPlanInstance = planService.getPlanInstanceByCorrelationId(buildPlanCorrelationId);
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         PlanInstanceState buildPlanInstanceState = buildPlanInstance.getState();
         while (!buildPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
             buildPlanInstance = planService.getPlanInstance(buildPlanInstance.getId());
             buildPlanInstanceState = buildPlanInstance.getState();
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         return instanceService.getServiceTemplateInstance(buildPlanInstance.getServiceTemplateInstance().getId(), false);
@@ -455,6 +485,11 @@ public abstract class TestUtils {
             ServiceTemplateInstance s = new ServiceTemplateInstance();
             while (coll.size() != 1) {
                 coll = instanceService.getServiceTemplateInstances(serviceTemplate.getId());
+                try {
+                    Thread.sleep(20000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
             for (ServiceTemplateInstance serviceTemplateInstance : coll) {
@@ -464,6 +499,11 @@ public abstract class TestUtils {
 
             while ((state != ServiceTemplateInstanceState.CREATED)) {
                 state = instanceService.getServiceTemplateInstanceState(s.getId());
+                try {
+                    Thread.sleep(20000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             return s;
         }
@@ -471,12 +511,22 @@ public abstract class TestUtils {
         PlanInstance buildPlanInstance = planService.getPlanInstanceByCorrelationId(buildPlanCorrelationId);
         while (buildPlanInstance == null) {
             buildPlanInstance = planService.getPlanInstanceByCorrelationId(buildPlanCorrelationId);
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         PlanInstanceState buildPlanInstanceState = buildPlanInstance.getState();
         while (!buildPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
             buildPlanInstance = planService.getPlanInstance(buildPlanInstance.getId());
             buildPlanInstanceState = buildPlanInstance.getState();
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         return instanceService.getServiceTemplateInstance(buildPlanInstance.getServiceTemplateInstance().getId(), false);
@@ -489,6 +539,11 @@ public abstract class TestUtils {
             ServiceTemplateInstance s = new ServiceTemplateInstance();
             while (coll.size() != 1) {
                 coll = instanceService.getServiceTemplateInstances(serviceTemplate.getId());
+                try {
+                    Thread.sleep(20000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
             for (ServiceTemplateInstance serviceTemplateInstance : coll) {
@@ -498,6 +553,11 @@ public abstract class TestUtils {
 
             while ((state != ServiceTemplateInstanceState.CREATED)) {
                 state = instanceService.getServiceTemplateInstanceState(s.getId());
+                try {
+                    Thread.sleep(20000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             return s;
         }
@@ -505,12 +565,22 @@ public abstract class TestUtils {
         PlanInstance defrostPlanInstance = planService.getPlanInstanceByCorrelationId(defrostPlanCorrelationId);
         while (defrostPlanInstance == null) {
             defrostPlanInstance = planService.getPlanInstanceByCorrelationId(defrostPlanCorrelationId);
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         PlanInstanceState buildPlanInstanceState = defrostPlanInstance.getState();
         while (!buildPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
             defrostPlanInstance = planService.getPlanInstance(defrostPlanInstance.getId());
             buildPlanInstanceState = defrostPlanInstance.getState();
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         return instanceService.getServiceTemplateInstance(defrostPlanInstance.getServiceTemplateInstance().getId(), false);
@@ -521,12 +591,22 @@ public abstract class TestUtils {
         PlanInstance scaleOutPlanInstance = planService.getPlanInstanceByCorrelationId(scaleOurPlanCorrelationId);
         while (scaleOutPlanInstance == null) {
             scaleOutPlanInstance = planService.getPlanInstanceByCorrelationId(scaleOurPlanCorrelationId);
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         PlanInstanceState scaleOutPlanInstanceState = scaleOutPlanInstance.getState();
         while (!scaleOutPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
             scaleOutPlanInstance = planService.getPlanInstance(scaleOutPlanInstance.getId());
             scaleOutPlanInstanceState = scaleOutPlanInstance.getState();
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -535,12 +615,22 @@ public abstract class TestUtils {
         PlanInstance backupPlanInstance = planService.getPlanInstanceByCorrelationId(scaleOurPlanCorrelationId);
         while (backupPlanInstance == null) {
             backupPlanInstance = planService.getPlanInstanceByCorrelationId(scaleOurPlanCorrelationId);
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         PlanInstanceState backupPlanInstanceState = backupPlanInstance.getState();
         while (!backupPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
             backupPlanInstance = planService.getPlanInstance(backupPlanInstance.getId());
             backupPlanInstanceState = backupPlanInstance.getState();
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -196,6 +196,11 @@ public class InstanceService {
         int maxRetries = 20;
 
         while (pi == null && (retries++ < maxRetries)) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             pi = planInstanceRepository.findByCorrelationId(correlationId);
         }
 
