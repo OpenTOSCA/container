@@ -23,6 +23,7 @@ import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
+import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
@@ -55,6 +56,8 @@ public class ApacheWebAppIntegrationTest {
     public InstanceService instanceService;
     @Inject
     public ICoreEndpointService endpointService;
+    @Inject
+    public PlanInstanceSubscriptionService subscriptionService;
 
     @Test
     public void test() throws Exception {
@@ -79,7 +82,7 @@ public class ApacheWebAppIntegrationTest {
         assertNotNull("BuildPlan not found", buildPlan);
         assertNotNull("TerminationPlan not found", terminationPlan);
 
-        ServiceTemplateInstance serviceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
+        ServiceTemplateInstance serviceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, this.subscriptionService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
         assertNotNull(serviceTemplateInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
         this.checkStateAfterBuild(serviceTemplateInstance);

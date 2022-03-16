@@ -27,6 +27,7 @@ import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
+import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
@@ -63,6 +64,8 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
     public InstanceService instanceService;
     @Inject
     public ICoreEndpointService endpointService;
+    @Inject
+    public PlanInstanceSubscriptionService subscriptionService;
 
     @Test
     public void test() throws Exception {
@@ -98,7 +101,7 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         assertNotNull("TransformationPlan not found", myTinyToMultiTinyTransformationPlan);
         assertNotNull("TerminationPlan not found", multiTinyTerminationPlan);
 
-        ServiceTemplateInstance myTinyToDoServiceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoBuildPlan, this.getMyTinyToDoBuildPlanInputParameters());
+        ServiceTemplateInstance myTinyToDoServiceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, this.subscriptionService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoBuildPlan, this.getMyTinyToDoBuildPlanInputParameters());
         assertNotNull(myTinyToDoServiceTemplateInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, myTinyToDoServiceTemplateInstance.getState());
         String myTinyToDoServiceInstanceUrl = TestUtils.createServiceInstanceUrl(myTinyToDoCsar.id().csarName(), myTinyToDoServiceTemplate.getId(), myTinyToDoServiceTemplateInstance.getId().toString());

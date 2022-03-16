@@ -13,6 +13,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
@@ -70,6 +71,7 @@ public class InstanceService {
     private final ServiceTemplateService serviceTemplateService;
     private final CsarStorageService storage;
     private final PlanInstanceRepository planInstanceRepository;
+    private final PlanService planService;
 
     private final DocumentConverter converter = new DocumentConverter();
 
@@ -79,7 +81,7 @@ public class InstanceService {
                            RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository,
                            RelationshipTemplateService relationshipTemplateService,
                            ServiceTemplateService serviceTemplateService,
-                           CsarStorageService storage, PlanInstanceRepository planInstanceRepository) {
+                           CsarStorageService storage, PlanInstanceRepository planInstanceRepository, PlanService planService) {
         this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
         this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
         this.relationshipTemplateInstanceRepository = relationshipTemplateInstanceRepository;
@@ -87,6 +89,7 @@ public class InstanceService {
         this.serviceTemplateService = serviceTemplateService;
         this.storage = storage;
         this.planInstanceRepository = planInstanceRepository;
+        this.planService = planService;
     }
 
     public Document convertPropertyToDocument(final Property property) {
@@ -190,19 +193,7 @@ public class InstanceService {
         IllegalArgumentException {
         final CsarId csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateName);
 
-        PlanInstance pi = planInstanceRepository.findByCorrelationId(correlationId);
-
-        int retries = 0;
-        int maxRetries = 20;
-
-        while (pi == null && (retries++ < maxRetries)) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            pi = planInstanceRepository.findByCorrelationId(correlationId);
-        }
+        PlanInstance pi = (PlanInstance) this.planService.waitForInstanceAvailable(correlationId).joinAndGet(30000);
 
         // if no instance was found it is possible that live-modeling was started, just create an empty instance
         if (pi == null) {

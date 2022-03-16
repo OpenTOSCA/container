@@ -23,6 +23,7 @@ import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
+import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
@@ -54,6 +55,8 @@ public class QHAnaTest {
     public InstanceService instanceService;
     @Inject
     public ICoreEndpointService endpointService;
+    @Inject
+    public PlanInstanceSubscriptionService subscriptionService;
 
 
     @Test
@@ -77,7 +80,7 @@ public class QHAnaTest {
         assertEquals(2, TestUtils.getDeployedPlans(this.endpointService).size());
 
         ServiceTemplateInstance serviceTemplateInstance = TestUtils.runBuildPlanExecution(
-            this.planService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters()
+            this.planService, this.instanceService, this.subscriptionService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters()
         );
 
         assertNotNull(serviceTemplateInstance);

@@ -23,6 +23,7 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
@@ -53,6 +54,8 @@ public class MyTinyToDoBPMNIntegrationTest {
     public InstanceService instanceService;
     @Inject
     public ICoreEndpointService endpointService;
+    @Inject
+    public PlanInstanceSubscriptionService subscriptionService;
 
     @Test
     public void test() throws Exception {
@@ -73,7 +76,7 @@ public class MyTinyToDoBPMNIntegrationTest {
 
         Assert.assertNotNull("BuildPlan not found", buildPlan);
         Assert.assertNotNull("TerminationPlan not found", terminationPlan);
-        ServiceTemplateInstance serviceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
+        ServiceTemplateInstance serviceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, this.subscriptionService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
         this.checkStateAfterBuild(serviceTemplateInstance);
 
         TestUtils.runTerminationPlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);

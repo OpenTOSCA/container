@@ -24,6 +24,7 @@ import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
+import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService;
 import org.opentosca.deployment.checks.DeploymentTestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,14 +38,16 @@ public class PlanService {
     private final DeploymentTestService deploymentTestService;
     private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
     private final PlanInstanceRepository planInstanceRepository;
+    private final PlanInstanceSubscriptionService subscriptionService;
 
     @Inject
     public PlanService(OpenToscaControlService controlService, DeploymentTestService deploymentTestService,
-                       ServiceTemplateInstanceRepository serviceTemplateInstanceRepository, PlanInstanceRepository planInstanceRepository) {
+                       ServiceTemplateInstanceRepository serviceTemplateInstanceRepository, PlanInstanceRepository planInstanceRepository, PlanInstanceSubscriptionService subscriptionService) {
         this.controlService = controlService;
         this.deploymentTestService = deploymentTestService;
         this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
         this.planInstanceRepository = planInstanceRepository;
+        this.subscriptionService = subscriptionService;
     }
 
     public PlanInstance getPlanInstance(Long id) {
@@ -85,18 +88,7 @@ public class PlanService {
     }
 
     public PlanInstance resolvePlanInstance(Long serviceTemplateInstanceId, String correlationId) {
-        PlanInstance pi = planInstanceRepository.findByCorrelationId(correlationId);
-        int retries = 0;
-        int maxRetries = 20;
-
-        while (pi == null || retries++ < maxRetries) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            pi = planInstanceRepository.findByCorrelationId(correlationId);
-        }
+        PlanInstance pi = (PlanInstance) this.waitForInstanceAvailable(correlationId).joinAndGet(30000);
 
         if (pi == null) {
             final String msg = "Plan instance with correlationId '" + correlationId + "' not found";
@@ -125,6 +117,14 @@ public class PlanService {
     public void addLogToPlanInstance(PlanInstance instance, PlanInstanceEvent event) {
         instance.addEvent(event);
         planInstanceRepository.save(instance);
+    }
+
+    public PlanInstanceSubscriptionService.SubscriptionRunner waitForStateChange(PlanInstance instance, PlanInstanceState expectedState) {
+        return this.subscriptionService.subscribeToStateChange(instance, expectedState);
+    }
+
+    public PlanInstanceSubscriptionService.SubscriptionRunner waitForInstanceAvailable(String correlationId) {
+        return this.subscriptionService.subscribeToInstanceAvailable(correlationId, this.planInstanceRepository);
     }
 
     public String invokePlan(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, String planId, List<TParameter> parameters, PlanType... planTypes) {

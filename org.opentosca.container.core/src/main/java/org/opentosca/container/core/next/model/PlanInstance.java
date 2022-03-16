@@ -8,6 +8,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
@@ -20,7 +21,9 @@ import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.opentosca.container.core.common.jpa.QNameConverter;
+import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService;
 
+@EntityListeners(PlanInstanceSubscriptionService.class)
 @Entity
 @Table(name = PlanInstance.TABLE_NAME)
 public class PlanInstance extends PersistenceObject {
