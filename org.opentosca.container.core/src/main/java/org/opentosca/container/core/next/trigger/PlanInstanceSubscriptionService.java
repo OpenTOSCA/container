@@ -35,7 +35,7 @@ public class PlanInstanceSubscriptionService {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            //obj.removeSubscription();
+            obj.removeSubscription();
             return obj.getInstance();
         }
 
@@ -45,7 +45,7 @@ public class PlanInstanceSubscriptionService {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            //obj.removeSubscription();
+            obj.removeSubscription();
             return obj.getInstance();
         }
     }
