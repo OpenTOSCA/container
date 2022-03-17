@@ -15,6 +15,9 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedEntityGraphs;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
@@ -27,6 +30,13 @@ import org.opentosca.container.core.next.xml.PropertyParser;
 
 @Entity
 @Table(name = NodeTemplateInstance.TABLE_NAME)
+@NamedEntityGraphs({
+    @NamedEntityGraph(name="propertiesAndOutgoing", includeAllAttributes=true, attributeNodes = {
+        @NamedAttributeNode("properties"),
+        @NamedAttributeNode("outgoingRelations"),
+        @NamedAttributeNode("incomingRelations")
+    })
+})
 public class NodeTemplateInstance extends PersistenceObject {
 
     public static final String TABLE_NAME = "NODE_TEMPLATE_INSTANCE";
@@ -38,7 +48,7 @@ public class NodeTemplateInstance extends PersistenceObject {
     private NodeTemplateInstanceState state;
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "nodeTemplateInstance", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "nodeTemplateInstance", cascade = {CascadeType.ALL})
     @JsonIgnore
     private Set<NodeTemplateInstanceProperty> properties = new HashSet<>();
 
@@ -46,10 +56,10 @@ public class NodeTemplateInstance extends PersistenceObject {
     @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
     private ServiceTemplateInstance serviceTemplateInstance;
 
-    @OneToMany(mappedBy = "target", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "target")
     private Set<RelationshipTemplateInstance> incomingRelations = new HashSet<>();
 
-    @OneToMany(mappedBy = "source", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "source")
     private Set<RelationshipTemplateInstance> outgoingRelations = new HashSet<>();
 
     @Column(name = "TEMPLATE_ID", nullable = false)
@@ -60,7 +70,7 @@ public class NodeTemplateInstance extends PersistenceObject {
     private QName templateType;
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "nodeTemplateInstance", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "nodeTemplateInstance")
     @JsonIgnore
     private Set<DeploymentTestResult> deploymentTestResults = new HashSet<>();
 

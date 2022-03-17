@@ -13,6 +13,9 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedEntityGraphs;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
@@ -27,6 +30,13 @@ import org.w3c.dom.Document;
 
 @Entity
 @Table(name = ServiceTemplateInstance.TABLE_NAME)
+@NamedEntityGraphs({
+    @NamedEntityGraph(name="nodeTemplateInstances", includeAllAttributes=true, attributeNodes = {
+        @NamedAttributeNode("nodeTemplateInstances"),
+        @NamedAttributeNode("relationshipTemplateInstances"),
+        @NamedAttributeNode("planInstances")
+    })
+})
 public class ServiceTemplateInstance extends PersistenceObject {
 
     public static final String TABLE_NAME = "SERVICE_TEMPLATE_INSTANCE";
@@ -37,13 +47,13 @@ public class ServiceTemplateInstance extends PersistenceObject {
     @Enumerated(EnumType.STRING)
     private ServiceTemplateInstanceState state;
 
-    @OneToMany(mappedBy = "serviceTemplateInstance", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "serviceTemplateInstance")
     private Set<PlanInstance> planInstances = new HashSet<>();
 
-    @OneToMany(mappedBy = "serviceTemplateInstance", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "serviceTemplateInstance")
     private Set<NodeTemplateInstance> nodeTemplateInstances = new HashSet<>();
 
-    @OneToMany(mappedBy = "serviceTemplateInstance", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "serviceTemplateInstance")
     private Set<RelationshipTemplateInstance> relationshipTemplateInstances = new HashSet<>();
 
     @Convert(converter = CsarIdConverter.class)
@@ -57,12 +67,12 @@ public class ServiceTemplateInstance extends PersistenceObject {
     private String creationCorrelationId;
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "serviceTemplateInstance", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "serviceTemplateInstance", cascade = {CascadeType.ALL})
     @JsonIgnore
     private Set<ServiceTemplateInstanceProperty> properties = new HashSet<>();
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "serviceTemplateInstance", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "serviceTemplateInstance")
     @JsonIgnore
     private Set<DeploymentTest> deploymentTests = new HashSet<>();
 

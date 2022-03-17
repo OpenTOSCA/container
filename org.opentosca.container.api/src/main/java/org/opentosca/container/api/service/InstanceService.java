@@ -104,7 +104,7 @@ public class InstanceService {
 
     public ServiceTemplateInstance getServiceTemplateInstance(final Long id, final boolean evaluatePropertyMappings) {
         logger.debug("Requesting service template instance <{}>...", id);
-        final Optional<ServiceTemplateInstance> instance = this.serviceTemplateInstanceRepository.findById(id);
+        final Optional<ServiceTemplateInstance> instance = this.serviceTemplateInstanceRepository.findWithNodeAndRelationshipTemplateInstancesById(id);
 
         if (instance.isPresent()) {
             final ServiceTemplateInstance result = instance.get();
@@ -336,7 +336,8 @@ public class InstanceService {
 
     public Document getNodeTemplateInstanceProperties(final String serviceTemplateQName, final String nodeTemplateId,
                                                       final Long id) throws NotFoundException {
-        final NodeTemplateInstance node = resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id);
+
+        final NodeTemplateInstance node = this.nodeTemplateInstanceRepository.findWithPropertiesById(id).get();
         final Optional<NodeTemplateInstanceProperty> firstProp = node.getProperties().stream().findFirst();
 
         if (firstProp.isPresent()) {
@@ -348,10 +349,23 @@ public class InstanceService {
         return null;
     }
 
+    public Map<String, String> getNodeTemplateInstanceProperties(final Long id) throws NotFoundException {
+        final NodeTemplateInstance node = this.nodeTemplateInstanceRepository.findWithPropertiesById(id).get();
+        final Optional<NodeTemplateInstanceProperty> firstProp = node.getProperties().stream().findFirst();
+
+        if (firstProp.isPresent()) {
+            return node.getPropertiesAsMap();
+        }
+
+        final String msg = String.format("No properties are found for the node template instance <%s>", id);
+        logger.debug(msg);
+        return null;
+    }
+
     public void setNodeTemplateInstanceProperties(final String serviceTemplateQName, final String nodeTemplateId,
                                                   final Long id,
                                                   final Document properties) throws ReflectiveOperationException {
-        final NodeTemplateInstance node = resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id);
+        final NodeTemplateInstance node = this.nodeTemplateInstanceRepository.findWithPropertiesById(id).get();
 
         try {
             final NodeTemplateInstanceProperty property =
@@ -446,7 +460,7 @@ public class InstanceService {
                                                               final String relationshipTemplateId,
                                                               final Long id) throws NotFoundException {
         final RelationshipTemplateInstance relationship =
-            resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, id);
+            this.relationshipTemplateInstanceRepository.findWithPropertiesById(id);
         final Optional<RelationshipTemplateInstanceProperty> firstProp =
             relationship.getProperties().stream().findFirst();
 
@@ -464,7 +478,7 @@ public class InstanceService {
                                                           final String relationshipTemplateId, final Long id,
                                                           final Document properties) throws ReflectiveOperationException {
         final RelationshipTemplateInstance relationship =
-            resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, id);
+            this.relationshipTemplateInstanceRepository.findWithPropertiesById(id);
 
         try {
             final RelationshipTemplateInstanceProperty property =
@@ -525,10 +539,11 @@ public class InstanceService {
         // Type
         newInstance.setTemplateType(QName.valueOf(dto.getRelationshipType()));
         // Source node instance
-        newInstance.setSource(getNodeTemplateInstance(request.getSourceNodeTemplateInstanceId()));
+
+        newInstance.setSource(this.nodeTemplateInstanceRepository.findWithOutgoingById(request.getSourceNodeTemplateInstanceId()).get());
         // Target node instance
-        newInstance.setTarget(getNodeTemplateInstance(request.getTargetNodeTemplateInstanceId()));
-        newInstance.setServiceTemplateInstance(serviceTemplateInstanceRepository.findById(request.getServiceInstanceId()).get());
+        newInstance.setTarget(this.nodeTemplateInstanceRepository.findWithIncomingById(request.getTargetNodeTemplateInstanceId()).get());
+        newInstance.setServiceTemplateInstance(serviceTemplateInstanceRepository.findWithRelationshipTemplateInstancesById(request.getServiceInstanceId()).get());
 
         newInstance = this.relationshipTemplateInstanceRepository.save(newInstance);
 

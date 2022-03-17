@@ -35,7 +35,7 @@ public class PlanInstanceSubscriptionService {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            obj.removeSubscription();
+            //obj.removeSubscription();
             return obj.getInstance();
         }
 
@@ -45,7 +45,7 @@ public class PlanInstanceSubscriptionService {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            obj.removeSubscription();
+            //obj.removeSubscription();
             return obj.getInstance();
         }
     }
@@ -73,6 +73,22 @@ public class PlanInstanceSubscriptionService {
         public void removeSubscription() {
             this.service.remove(this);
         }
+
+        public abstract boolean conditionIsMet();
+
+        @Override
+        public void run() {
+            System.out.println("Started subscription");
+            while (!this.conditionIsMet()) {
+                try {
+                    Thread.sleep(1000);
+                    //System.out.println("Current State: " + this.getInstance().getState() );
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("Ended subscription");
+        }
     }
 
 
@@ -86,18 +102,8 @@ public class PlanInstanceSubscriptionService {
             System.out.println("Created subscription for corrId: " + this.expectedCorrelation);
         }
 
-        @Override
-        public void run() {
-            System.out.println("Started subscription");
-            while (this.getInstance() == null || !this.getInstance().getCorrelationId().equals(this.expectedCorrelation)) {
-                try {
-                    Thread.sleep(1000);
-                    //System.out.println("Still waiting for planInstance with corr: " + this.expectedCorrelation);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            System.out.println("Ended subscription");
+        public boolean conditionIsMet() {
+            return !(this.getInstance() == null || !this.getInstance().getCorrelationId().equals(this.expectedCorrelation));
         }
     }
 
@@ -111,18 +117,8 @@ public class PlanInstanceSubscriptionService {
             this.expectedState = expectedState;
         }
 
-        @Override
-        public void run() {
-            System.out.println("Started subscription");
-            while (!this.getInstance().getState().toString().equals(this.expectedState.toString())) {
-                try {
-                    Thread.sleep(1000);
-                    //System.out.println("Current State: " + this.getInstance().getState() );
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            System.out.println("Ended subscription");
+        public boolean conditionIsMet() {
+            return this.getInstance().getState().toString().equals(this.expectedState.toString());
         }
     }
 

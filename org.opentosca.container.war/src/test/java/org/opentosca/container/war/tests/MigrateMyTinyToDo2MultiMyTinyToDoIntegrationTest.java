@@ -20,10 +20,6 @@ import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
-import org.opentosca.container.core.next.model.PlanInstance;
-import org.opentosca.container.core.next.model.PlanInstanceOutput;
-import org.opentosca.container.core.next.model.PlanInstanceState;
-import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
@@ -52,6 +48,8 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
     public QName myTinyToDocsarId = new QName("http://opentosca.org/test/applications/servicetemplates", "MyTinyToDo-DockerEngine-Test_w1-wip1");
     public QName multiMyTinyToDoCsarId = new QName("http://opentosca.org/test/applications/servicetemplates", "MultiMyTinyToDo-DockerEngine-Test_w1-wip1");
 
+    private TestUtils testUtils = new TestUtils();
+
     @Inject
     public OpenToscaControlService control;
     @Inject
@@ -69,21 +67,21 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
 
     @Test
     public void test() throws Exception {
-        Csar myTinyToDoCsar = TestUtils.setupCsarTestRepository(this.myTinyToDocsarId, this.storage, TESTAPPLICATIONSREPOSITORY);
-        Csar multiMyTinyToDoCsar = TestUtils.setupCsarTestRepository(this.multiMyTinyToDoCsarId, this.storage, TESTAPPLICATIONSREPOSITORY);
-        TestUtils.generatePlans(this.csarService, myTinyToDoCsar);
-        TestUtils.generatePlans(this.csarService, multiMyTinyToDoCsar);
+        Csar myTinyToDoCsar = testUtils.setupCsarTestRepository(this.myTinyToDocsarId, this.storage, TESTAPPLICATIONSREPOSITORY);
+        Csar multiMyTinyToDoCsar = testUtils.setupCsarTestRepository(this.multiMyTinyToDoCsarId, this.storage, TESTAPPLICATIONSREPOSITORY);
+        testUtils.generatePlans(this.csarService, myTinyToDoCsar);
+        testUtils.generatePlans(this.csarService, multiMyTinyToDoCsar);
 
         this.csarService.generateTransformationPlans(myTinyToDoCsar, multiMyTinyToDoCsar);
 
         TServiceTemplate myTinyToDoServiceTemplate = myTinyToDoCsar.entryServiceTemplate();
         TServiceTemplate multiMyTinyToDoServiceTemplate = multiMyTinyToDoCsar.entryServiceTemplate();
 
-        TestUtils.invokePlanDeployment(this.control, myTinyToDoCsar.id(), myTinyToDoServiceTemplate);
-        assertEquals(4, TestUtils.getDeployedPlans(this.endpointService).size());
+        testUtils.invokePlanDeployment(this.control, myTinyToDoCsar.id(), myTinyToDoServiceTemplate);
+        assertEquals(4, testUtils.getDeployedPlans(this.endpointService).size());
 
-        TestUtils.invokePlanDeployment(this.control, multiMyTinyToDoCsar.id(), multiMyTinyToDoServiceTemplate);
-        assertEquals(7, TestUtils.getDeployedPlans(this.endpointService).size());
+        testUtils.invokePlanDeployment(this.control, multiMyTinyToDoCsar.id(), multiMyTinyToDoServiceTemplate);
+        assertEquals(7, testUtils.getDeployedPlans(this.endpointService).size());
 
         assertNotNull(myTinyToDoServiceTemplate);
         assertNotNull(multiMyTinyToDoServiceTemplate);
@@ -91,39 +89,39 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         List<TPlan> multiMyTinyToDoPlans = multiMyTinyToDoServiceTemplate.getPlans();
 
         assertNotNull(myTinyToDoPlans);
-        TPlan myTinyToDoBuildPlan = TestUtils.getBuildPlan(myTinyToDoPlans);
-        TPlan myTinyToMultiTinyTransformationPlan = TestUtils.getTransformationPlan(myTinyToDoPlans);
+        TPlan myTinyToDoBuildPlan = testUtils.getBuildPlan(myTinyToDoPlans);
+        TPlan myTinyToMultiTinyTransformationPlan = testUtils.getTransformationPlan(myTinyToDoPlans);
 
         assertNotNull(multiMyTinyToDoPlans);
-        TPlan multiTinyTerminationPlan = TestUtils.getTerminationPlan(multiMyTinyToDoPlans);
+        TPlan multiTinyTerminationPlan = testUtils.getTerminationPlan(multiMyTinyToDoPlans);
 
         assertNotNull("BuildPlan not found", myTinyToDoBuildPlan);
         assertNotNull("TransformationPlan not found", myTinyToMultiTinyTransformationPlan);
         assertNotNull("TerminationPlan not found", multiTinyTerminationPlan);
 
-        ServiceTemplateInstance myTinyToDoServiceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, this.subscriptionService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoBuildPlan, this.getMyTinyToDoBuildPlanInputParameters());
+        ServiceTemplateInstance myTinyToDoServiceTemplateInstance = testUtils.runBuildPlanExecution(this.planService, this.instanceService, this.subscriptionService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoBuildPlan, this.getMyTinyToDoBuildPlanInputParameters());
         assertNotNull(myTinyToDoServiceTemplateInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, myTinyToDoServiceTemplateInstance.getState());
-        String myTinyToDoServiceInstanceUrl = TestUtils.createServiceInstanceUrl(myTinyToDoCsar.id().csarName(), myTinyToDoServiceTemplate.getId(), myTinyToDoServiceTemplateInstance.getId().toString());
+        String myTinyToDoServiceInstanceUrl = testUtils.createServiceInstanceUrl(myTinyToDoCsar.id().csarName(), myTinyToDoServiceTemplate.getId(), myTinyToDoServiceTemplateInstance.getId().toString());
         this.checkStateAfterBuild(myTinyToDoServiceTemplateInstance);
 
-        ServiceTemplateInstance multiInstance = this.runTransformationPlan(this.planService, this.instanceService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoServiceTemplateInstance, myTinyToMultiTinyTransformationPlan, this.getTransformationPlanInputParameters(myTinyToDoServiceInstanceUrl));
+        ServiceTemplateInstance multiInstance = testUtils.runTransformationPlan(this.planService, this.instanceService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoServiceTemplateInstance, myTinyToMultiTinyTransformationPlan, this.getTransformationPlanInputParameters(myTinyToDoServiceInstanceUrl));
         assertNotNull(multiInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, multiInstance.getState());
-        String multiMyTinyToDoServiceInstanceUrl = TestUtils.createServiceInstanceUrl(multiMyTinyToDoCsar.id().csarName(), multiMyTinyToDoServiceTemplate.getId(), multiInstance.getId().toString());
+        String multiMyTinyToDoServiceInstanceUrl = testUtils.createServiceInstanceUrl(multiMyTinyToDoCsar.id().csarName(), multiMyTinyToDoServiceTemplate.getId(), multiInstance.getId().toString());
         this.checkStateAfterMigration(multiInstance);
 
-        TestUtils.runTerminationPlanExecution(this.planService, multiMyTinyToDoCsar, multiMyTinyToDoServiceTemplate, multiInstance, multiTinyTerminationPlan);
+        testUtils.runTerminationPlanExecution(this.planService, multiMyTinyToDoCsar, multiMyTinyToDoServiceTemplate, multiInstance, multiTinyTerminationPlan);
 
-        TestUtils.invokePlanUndeployment(this.control, myTinyToDoCsar.id(), myTinyToDoServiceTemplate);
-        TestUtils.invokePlanUndeployment(this.control, multiMyTinyToDoCsar.id(), multiMyTinyToDoServiceTemplate);
+        testUtils.invokePlanUndeployment(this.control, myTinyToDoCsar.id(), myTinyToDoServiceTemplate);
+        testUtils.invokePlanUndeployment(this.control, multiMyTinyToDoCsar.id(), multiMyTinyToDoServiceTemplate);
 
-        assertEquals(0, TestUtils.getDeployedPlans(this.endpointService).size());
+        assertEquals(0, testUtils.getDeployedPlans(this.endpointService).size());
     }
 
     @After
     public void cleanUpContainer() {
-        TestUtils.clearContainer(this.storage, this.control);
+        testUtils.clearContainer(this.storage, this.control);
     }
 
     private void checkStateAfterMigration(ServiceTemplateInstance serviceInstance) throws IOException {
@@ -134,35 +132,9 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         assertEquals(1, serviceInstance.getNodeTemplateInstances().stream().filter(x -> x.getTemplateType().toString().toLowerCase().contains("dockerengine")).count());
         assertEquals(3, serviceInstance.getRelationshipTemplateInstances().stream().filter(x -> x.getTemplateType().toString().toLowerCase().contains("hostedon")).count());
 
-        TestUtils.checkViaHTTPGET("http://localhost:9991", 200, "My Tiny Todolist");
-        TestUtils.checkViaHTTPGET("http://localhost:9992", 200, "My Tiny Todolist");
-        TestUtils.checkViaHTTPGET("http://localhost:9994", 200, "My Tiny Todolist");
-    }
-
-    private ServiceTemplateInstance runTransformationPlan(PlanService planService, InstanceService instanceService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan transformationPlan, List<org.opentosca.container.core.extension.TParameter> inputParams) {
-        String tranformationPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), transformationPlan.getId(), inputParams, PlanType.TRANSFORMATION);
-        PlanInstance transformationPlanInstance = planService.getPlanInstanceByCorrelationId(tranformationPlanCorrelationId);
-        while (transformationPlanInstance == null) {
-            transformationPlanInstance = planService.getPlanInstanceByCorrelationId(tranformationPlanCorrelationId);
-        }
-
-        PlanInstanceState tranformationPlanInstanceState = transformationPlanInstance.getState();
-        while (!tranformationPlanInstanceState.equals(PlanInstanceState.FINISHED)) {
-            transformationPlanInstance = planService.getPlanInstance(transformationPlanInstance.getId());
-            tranformationPlanInstanceState = transformationPlanInstance.getState();
-        }
-
-        while (transformationPlanInstance.getOutputs().isEmpty()) {
-            transformationPlanInstance = planService.getPlanInstance(transformationPlanInstance.getId());
-        }
-
-        for (PlanInstanceOutput output : transformationPlanInstance.getOutputs()) {
-            if (output.getName().equals("instanceId")) {
-                String serviceInstanceId = output.getValue();
-                return instanceService.getServiceTemplateInstance(Long.valueOf(serviceInstanceId), false);
-            }
-        }
-        return null;
+        testUtils.checkViaHTTPGET("http://localhost:9991", 200, "My Tiny Todolist");
+        testUtils.checkViaHTTPGET("http://localhost:9992", 200, "My Tiny Todolist");
+        testUtils.checkViaHTTPGET("http://localhost:9994", 200, "My Tiny Todolist");
     }
 
     private void checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance) throws IOException {
@@ -186,7 +158,7 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         assertEquals(1, foundDockerEngine);
         assertEquals(1, foundTinyToDo);
 
-        TestUtils.checkViaHTTPGET("http://localhost:9990", 200, "My Tiny Todolist");
+        testUtils.checkViaHTTPGET("http://localhost:9990", 200, "My Tiny Todolist");
     }
 
     private List<org.opentosca.container.core.extension.TParameter> getTransformationPlanInputParameters(String serviceInstanceUrl) {
@@ -220,7 +192,7 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         dockerEngineUrl.setName("DockerEngineURL");
         dockerEngineUrl.setRequired(true);
         dockerEngineUrl.setType("String");
-        dockerEngineUrl.setValue("tcp://" + TestUtils.getDockerHost() + ":2375");
+        dockerEngineUrl.setValue("tcp://" + testUtils.getDockerHost() + ":2375");
 
         inputParams.add(dockerEngineUrl);
         inputParams.add(applicationPort);
@@ -228,7 +200,7 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         inputParams.add(applicationPort2);
         inputParams.add(applicationPort3);
 
-        inputParams.addAll(TestUtils.getBaseInputParams());
+        inputParams.addAll(testUtils.getBaseInputParams());
 
         return inputParams;
     }
@@ -240,7 +212,7 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         dockerEngineUrl.setName("DockerEngineURL");
         dockerEngineUrl.setRequired(true);
         dockerEngineUrl.setType("String");
-        dockerEngineUrl.setValue("tcp://" + TestUtils.getDockerHost() + ":2375");
+        dockerEngineUrl.setValue("tcp://" + testUtils.getDockerHost() + ":2375");
 
         org.opentosca.container.core.extension.TParameter applicationPort = new org.opentosca.container.core.extension.TParameter();
         applicationPort.setName("ApplicationPort");
@@ -251,7 +223,7 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         inputParams.add(dockerEngineUrl);
         inputParams.add(applicationPort);
 
-        inputParams.addAll(TestUtils.getBaseInputParams());
+        inputParams.addAll(testUtils.getBaseInputParams());
 
         return inputParams;
     }

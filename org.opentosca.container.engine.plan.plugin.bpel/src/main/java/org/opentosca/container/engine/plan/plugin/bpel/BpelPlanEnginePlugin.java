@@ -277,7 +277,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
                 for (Endpoint endpoint : endpoints) {
                     this.endpointService.removeEndpoint(endpoint);
-                    LOG.debug("Removed endpoint {} for plan {}", endpoint.toString(),
+                    LOG.debug("Removed endpoint {} for plan {}", endpoint.getId(),
                         planRef.getReference());
                 }
             }

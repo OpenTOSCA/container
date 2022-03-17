@@ -54,6 +54,15 @@ public class PlanService {
         return this.planInstanceRepository.findById(id).orElse(null);
     }
 
+    public List<PlanInstance> getPlanInstance(final Long serviceTemplateInstanceId, final PlanType... planTypes) {
+        return this.planInstanceRepository.findAll().stream()
+            .filter(p -> {
+                final PlanType currentType = PlanType.fromString(p.getType().toString());
+                return Arrays.stream(planTypes).anyMatch(pt -> pt.equals(currentType)) && p.getServiceTemplateInstance().getId().equals(serviceTemplateInstanceId);
+            })
+            .collect(Collectors.toList());
+    }
+
     public List<PlanInstance> getPlanInstances(final Csar csar, final PlanType... planTypes) {
         final Collection<ServiceTemplateInstance> serviceInstances = serviceTemplateInstanceRepository.findByCsarId(csar.id());
         return serviceInstances.stream()
@@ -87,6 +96,10 @@ public class PlanService {
         return planInstanceRepository.findByCorrelationId(correlationId);
     }
 
+    public PlanInstance getPlanInstanceWithLogsByCorrelationId(final String correlationId) {
+        return planInstanceRepository.findWithLogsByCorrelationId(correlationId);
+    }
+
     public PlanInstance resolvePlanInstance(Long serviceTemplateInstanceId, String correlationId) {
         PlanInstance pi = (PlanInstance) this.waitForInstanceAvailable(correlationId).joinAndGet(30000);
 
@@ -101,6 +114,14 @@ public class PlanService {
                 serviceTemplateInstanceId, correlationId));
         }
         return pi;
+    }
+
+    public PlanInstance resolvePlanInstanceWithLogs(Long serviceTemplateInstanceId, String correlationId) {
+        // FIXME this can be done better, im pretty sure about that, e.g., subscribing to a planinstance with logs?
+        // right now we will have 2 "queries" atleast
+        PlanInstance pi = this.resolvePlanInstance(serviceTemplateInstanceId, correlationId);
+
+        return this.planInstanceRepository.findWithLogsById(pi.getId());
     }
 
     public boolean updatePlanInstanceState(PlanInstance instance, PlanInstanceState newState) {
@@ -121,6 +142,10 @@ public class PlanService {
 
     public PlanInstanceSubscriptionService.SubscriptionRunner waitForStateChange(PlanInstance instance, PlanInstanceState expectedState) {
         return this.subscriptionService.subscribeToStateChange(instance, expectedState);
+    }
+
+    public PlanInstance getPlanInstanceWithOutputs(Long id) {
+        return this.planInstanceRepository.findWithOutputsById(id);
     }
 
     public PlanInstanceSubscriptionService.SubscriptionRunner waitForInstanceAvailable(String correlationId) {

@@ -14,6 +14,9 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedEntityGraphs;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
@@ -26,6 +29,12 @@ import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService
 @EntityListeners(PlanInstanceSubscriptionService.class)
 @Entity
 @Table(name = PlanInstance.TABLE_NAME)
+@NamedEntityGraphs({
+    @NamedEntityGraph(name="events", includeAllAttributes=true, attributeNodes = {
+        @NamedAttributeNode("events"),
+        @NamedAttributeNode("outputs")
+    })
+})
 public class PlanInstance extends PersistenceObject {
 
     public static final String TABLE_NAME = "PLAN_INSTANCE";
@@ -54,15 +63,15 @@ public class PlanInstance extends PersistenceObject {
     private PlanLanguage language;
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "planInstance", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
     private Set<PlanInstanceEvent> events = new HashSet<>();
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "planInstance", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
     private Set<PlanInstanceOutput> outputs = new HashSet<>();
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "planInstance", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
     private Set<PlanInstanceInput> inputs = new HashSet<>();
 
     @ManyToOne

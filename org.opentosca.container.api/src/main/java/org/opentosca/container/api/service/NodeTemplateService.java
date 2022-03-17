@@ -99,7 +99,7 @@ public class NodeTemplateService {
         // Type
         newInstance.setTemplateType(QName.valueOf(dto.getNodeType()));
         // ServiceTemplateInstance
-        final Optional<ServiceTemplateInstance> instanceOptional = this.serviceTemplateInstanceRepository.findById(serviceTemplateInstanceId);
+        final Optional<ServiceTemplateInstance> instanceOptional = this.serviceTemplateInstanceRepository.findWithNodeTemplateInstancesById(serviceTemplateInstanceId);
         if (instanceOptional.isEmpty()) {
             logger.error("Unable to retrieve ServiceTemplateInstance with ID: {}", serviceTemplateInstanceId);
             return null;

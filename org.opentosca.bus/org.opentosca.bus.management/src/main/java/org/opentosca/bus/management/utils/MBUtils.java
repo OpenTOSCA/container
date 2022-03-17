@@ -44,6 +44,7 @@ import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
+import org.opentosca.container.core.next.repository.RelationshipTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,12 +64,12 @@ public class MBUtils {
     private static final Logger LOG = LoggerFactory.getLogger(MBUtils.class);
 
     // repository to access ServiceTemplateInstance data
-    private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
     private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository;
+    private final RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository;
 
-    public MBUtils(ServiceTemplateInstanceRepository serviceTemplateInstanceRepository, NodeTemplateInstanceRepository nodeTemplateInstanceRepository) {
-        this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
+    public MBUtils(NodeTemplateInstanceRepository nodeTemplateInstanceRepository, RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository) {
         this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
+        this.relationshipTemplateInstanceRepository = relationshipTemplateInstanceRepository;
     }
 
     /**
@@ -359,19 +360,7 @@ public class MBUtils {
                                                                         final String relationshipTemplateName) {
         LOG.debug("Trying to retrieve RelationshipTemplateInstance for ServiceTemplateInstance ID {} and RelationshipTemplate ID {} ...",
             serviceTemplateInstanceID, relationshipTemplateName);
-
-        final Optional<ServiceTemplateInstance> serviceTemplateInstance =
-            serviceTemplateInstanceRepository.findById(serviceTemplateInstanceID);
-
-        if (serviceTemplateInstance.isPresent()) {
-            return serviceTemplateInstance.get().getNodeTemplateInstances().stream()
-                .flatMap(nodeInstance -> nodeInstance.getOutgoingRelations().stream())
-                .filter(relationshipInstance -> relationshipInstance.getTemplateId().equals(relationshipTemplateName))
-                .findFirst().orElse(null);
-        } else {
-            LOG.warn("Unable to find ServiceTemplateInstance!");
-            return null;
-        }
+        return this.relationshipTemplateInstanceRepository.findByTemplateId(relationshipTemplateName).stream().filter(rel -> rel.getServiceTemplateInstance().getId().equals(serviceTemplateInstanceID)).findFirst().orElse(null);
     }
 
     @Nullable // contaminated by MBUtils#getNodeTemplateInstances
@@ -421,17 +410,7 @@ public class MBUtils {
                                                         final String nodeTemplateID) {
         LOG.debug("Trying to retrieve NodeTemplateInstance for ServiceTemplateInstance ID {} and NodeTemplate ID {} ...",
             serviceTemplateInstanceID, nodeTemplateID);
-
-        final Optional<ServiceTemplateInstance> serviceTemplateInstance = serviceTemplateInstanceRepository.findById(serviceTemplateInstanceID);
-
-        if (serviceTemplateInstance.isPresent()) {
-            return nodeTemplateInstanceRepository.findByServiceTemplateInstanceAndTemplateId(serviceTemplateInstance.get(), nodeTemplateID)
-                .stream().filter(nti -> nti.getState() == NodeTemplateInstanceState.CREATED || nti.getState() == NodeTemplateInstanceState.STARTED)
-                .findFirst().orElse(null);
-        } else {
-            LOG.warn("Unable to find ServiceTemplateInstance!");
-            return null;
-        }
+        return this.nodeTemplateInstanceRepository.findWithPropertiesAndOutgoingByTemplateId(nodeTemplateID).stream().filter( node -> node.getServiceTemplateInstance().getId().equals(serviceTemplateInstanceID)).findFirst().orElse(null);
     }
 
     /**
@@ -451,7 +430,7 @@ public class MBUtils {
 
         // quick hack to ensure instantiated properties - this should be done somehow in the RelationshipTemplates
         if (nextNode.isPresent()) {
-            return nodeTemplateInstanceRepository.findById(nextNode.get().getId());
+            return nodeTemplateInstanceRepository.findWithPropertiesAndOutgoingById(nextNode.get().getId());
         }
 
         return Optional.empty();

@@ -9,6 +9,9 @@ import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedEntityGraphs;
 import javax.persistence.Table;
 import javax.xml.namespace.QName;
 
@@ -25,6 +28,11 @@ import org.opentosca.container.core.model.csar.CsarId;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = Endpoint.TABLE_NAME)
+@NamedEntityGraphs({
+    @NamedEntityGraph(name="metadata", includeAllAttributes=true, attributeNodes = {
+        @NamedAttributeNode("metadata")
+    })
+})
 public class Endpoint extends PersistenceObject {
 
     public static final String TABLE_NAME = "ENDPOINT";
@@ -74,7 +82,7 @@ public class Endpoint extends PersistenceObject {
     @Column(name = "serviceTemplateInstanceID")
     private Long serviceTemplateInstanceID;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection()
     @Column(name = "metadata")
     private Map<String, String> metadata;
 

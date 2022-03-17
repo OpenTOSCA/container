@@ -84,6 +84,11 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService {
     }
 
     @Override
+    public List<Endpoint> getEndpointsWithMetadata() {
+        return endpointRepository.findWithMetadataBy();
+    }
+
+    @Override
     public List<Endpoint> getEndpointsForSTID(String triggeringContainer, Long serviceTemplateInstanceID) {
         return endpointRepository.findByTriggeringContainerAndServiceTemplateInstanceID(triggeringContainer, serviceTemplateInstanceID);
     }

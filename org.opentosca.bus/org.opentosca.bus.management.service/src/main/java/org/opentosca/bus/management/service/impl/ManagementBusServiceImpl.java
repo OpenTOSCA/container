@@ -1057,7 +1057,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
 
         // update plan in repository with new log event
-        plan = planInstanceRepository.findByCorrelationId(arguments.correlationId);
+        plan = planInstanceRepository.findWithLogsAndOutputsByCorrelationId(arguments.correlationId);
 
         // Undeploy IAs for the related ServiceTemplateInstance if a termination plan was executed.
         if (plan.getType().equals(PlanType.TERMINATION)) {

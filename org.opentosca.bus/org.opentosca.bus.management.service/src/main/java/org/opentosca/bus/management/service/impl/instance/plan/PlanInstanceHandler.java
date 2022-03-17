@@ -242,7 +242,7 @@ public class PlanInstanceHandler {
                 param.getType()).setPlanInstance(plan);
         }
         // add connection to the service template and update the repository
-        Optional<ServiceTemplateInstance> optional = stiRepo.findById(serviceTemplateInstanceId);
+        Optional<ServiceTemplateInstance> optional = stiRepo.findWithPlanInstancesById(serviceTemplateInstanceId);
         if (optional.isPresent()) {
             plan.setServiceTemplateInstance(optional.get());
         }

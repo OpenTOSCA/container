@@ -48,6 +48,8 @@ public class MyTinyToDoSqlIntegrationTest {
 
     public QName csarId = new QName("http://opentosca.org/example/applications/servicetemplates", "MyTinyToDo-MySql_Docker-w1");
 
+    private TestUtils testUtils = new TestUtils();
+
     @Inject
     public OpenToscaControlService control;
     @Inject
@@ -65,35 +67,35 @@ public class MyTinyToDoSqlIntegrationTest {
 
     @Test
     public void test() throws Exception {
-        String wineryRepositoryUrlForDockerContainer = "http://" + TestUtils.getDockerHost() + ":8091/winery";
+        String wineryRepositoryUrlForDockerContainer = "http://" + testUtils.getDockerHost() + ":8091/winery";
         String wineryRepositoryUrl = "http://localhost:8091/winery";
 
         // download csar from winery
-        Path csarPath = TestUtils.exportCsarFromRepository(TestUtils.fetchRepository(TESTAPPLICATIONSREPOSITORY), csarId);
+        Path csarPath = testUtils.exportCsarFromRepository(testUtils.fetchRepository(TESTAPPLICATIONSREPOSITORY), csarId);
         // enrich csar
-        TestUtils.enrichCsarFile(csarPath, wineryRepositoryUrl);
+        testUtils.enrichCsarFile(csarPath, wineryRepositoryUrl);
         Csar csar = this.storage.findById(this.storage.storeCSAR(csarPath));
 
-        TestUtils.generatePlans(this.csarService, csar);
+        testUtils.generatePlans(this.csarService, csar);
 
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
         assertNotNull(serviceTemplate);
         List<TPlan> plans = serviceTemplate.getPlans();
         assertNotNull(plans);
 
-        TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
-        assertEquals(5, TestUtils.getDeployedPlans(this.endpointService).size());
-        TestUtils.uploadCsarToWineryRepository(new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()), wineryRepositoryUrlForDockerContainer, TESTAPPLICATIONSREPOSITORY);
+        testUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
+        assertEquals(5, testUtils.getDeployedPlans(this.endpointService).size());
+        testUtils.uploadCsarToWineryRepository(new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()), wineryRepositoryUrlForDockerContainer, TESTAPPLICATIONSREPOSITORY);
 
-        Collection<QName> serviceTemplateIdsAtWineryRepository = TestUtils.getServiceTemplateIdsFromWineryRepository(wineryRepositoryUrl);
+        Collection<QName> serviceTemplateIdsAtWineryRepository = testUtils.getServiceTemplateIdsFromWineryRepository(wineryRepositoryUrl);
         //assertEquals(1, serviceTemplateIdsAtWineryRepository.size());
         QName serviceTemplateId = new QName(csarId.getNamespaceURI(), csarId.getLocalPart());
 
-        TPlan buildPlan = TestUtils.getBuildPlan(plans);
-        TPlan terminationPlan = TestUtils.getTerminationPlan(plans);
-        TPlan freezePlan = TestUtils.getFreezePlan(plans);
-        TPlan defrostPlan = TestUtils.getDefrostPlan(plans);
-        TPlan backupPlan = TestUtils.getBackupPlan(plans);
+        TPlan buildPlan = testUtils.getBuildPlan(plans);
+        TPlan terminationPlan = testUtils.getTerminationPlan(plans);
+        TPlan freezePlan = testUtils.getFreezePlan(plans);
+        TPlan defrostPlan = testUtils.getDefrostPlan(plans);
+        TPlan backupPlan = testUtils.getBackupPlan(plans);
 
         assertNotNull("BuildPlan not found", buildPlan);
         assertNotNull("TerminationPlan not found", terminationPlan);
@@ -101,25 +103,25 @@ public class MyTinyToDoSqlIntegrationTest {
         assertNotNull("DefrostPlan not found", defrostPlan);
         assertNotNull("BackupPlan not found", backupPlan);
 
-        ServiceTemplateInstance serviceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, this.subscriptionService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
+        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planService, this.instanceService, this.subscriptionService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
         assertNotNull(serviceTemplateInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
         this.checkStateAfterBuild(serviceTemplateInstance);
-        String serviceInstanceUrl = TestUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString());
+        String serviceInstanceUrl = testUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString());
 
         // lets test the backup plan
 
-        TestUtils.runBackupPlanExecution(this.planService,csar,serviceTemplate,serviceTemplateInstance,backupPlan, this.getBackupPlanInputParameters(wineryRepositoryUrlForDockerContainer, serviceInstanceUrl));
+        testUtils.runBackupPlanExecution(this.planService,csar,serviceTemplate,serviceTemplateInstance,backupPlan, this.getBackupPlanInputParameters(wineryRepositoryUrlForDockerContainer, serviceInstanceUrl));
 
-        serviceTemplateIdsAtWineryRepository = TestUtils.getServiceTemplateIdsFromWineryRepository(wineryRepositoryUrl);
+        serviceTemplateIdsAtWineryRepository = testUtils.getServiceTemplateIdsFromWineryRepository(wineryRepositoryUrl);
         serviceTemplateIdsAtWineryRepository = serviceTemplateIdsAtWineryRepository.stream().filter(x -> x.getLocalPart().toLowerCase().contains("stateful")).collect(Collectors.toList());
         assertEquals(1, serviceTemplateIdsAtWineryRepository.size());
         QName backupServiceTemplateId = serviceTemplateIdsAtWineryRepository.iterator().next();
         assertNotNull(backupServiceTemplateId);
 
         // testfreeze
-        TestUtils.runFreezePlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, freezePlan, wineryRepositoryUrlForDockerContainer);
-        serviceTemplateIdsAtWineryRepository = TestUtils.getServiceTemplateIdsFromWineryRepository(wineryRepositoryUrl);
+        testUtils.runFreezePlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, freezePlan, wineryRepositoryUrlForDockerContainer);
+        serviceTemplateIdsAtWineryRepository = testUtils.getServiceTemplateIdsFromWineryRepository(wineryRepositoryUrl);
         //assertEquals(3, serviceTemplateIdsAtWineryRepository.size());
         QName freezeServiceTemplateId = serviceTemplateIdsAtWineryRepository.stream().filter(x -> !x.equals(serviceTemplateId) && !x.equals(backupServiceTemplateId)).findFirst().orElse(null);
         assertNotNull(freezeServiceTemplateId);
@@ -130,43 +132,43 @@ public class MyTinyToDoSqlIntegrationTest {
         /*
           Checking of defrosting
          */
-        Path statefulCsarPath = TestUtils.downloadServiceTemplateFromWinery(freezeServiceTemplateId, wineryRepositoryUrl + "/");
+        Path statefulCsarPath = testUtils.downloadServiceTemplateFromWinery(freezeServiceTemplateId, wineryRepositoryUrl + "/");
         Csar statefulCsar = this.storage.findById(this.storage.storeCSAR(statefulCsarPath));
 
-        TestUtils.generatePlans(this.csarService, statefulCsar);
+        testUtils.generatePlans(this.csarService, statefulCsar);
 
         TServiceTemplate statefulCsarServiceTemplate = statefulCsar.entryServiceTemplate();
         assertNotNull(statefulCsarServiceTemplate);
         List<TPlan> statefulCsarServiceTemplatePlans = statefulCsarServiceTemplate.getPlans();
         assertNotNull(statefulCsarServiceTemplatePlans);
 
-        TestUtils.invokePlanDeployment(this.control, statefulCsar.id(), statefulCsarServiceTemplate);
+        testUtils.invokePlanDeployment(this.control, statefulCsar.id(), statefulCsarServiceTemplate);
 
-        assertEquals(10, TestUtils.getDeployedPlans(this.endpointService).size());
+        assertEquals(10, testUtils.getDeployedPlans(this.endpointService).size());
 
-        TPlan statefulCsarDefrostPlan = TestUtils.getDefrostPlan(statefulCsarServiceTemplatePlans);
-        TPlan statefulCsarTerminationPlan = TestUtils.getTerminationPlan(statefulCsarServiceTemplatePlans);
+        TPlan statefulCsarDefrostPlan = testUtils.getDefrostPlan(statefulCsarServiceTemplatePlans);
+        TPlan statefulCsarTerminationPlan = testUtils.getTerminationPlan(statefulCsarServiceTemplatePlans);
 
-        ServiceTemplateInstance statefulCsarServiceTemplateInstance = TestUtils.runDefrostPlanExecution(this.planService, this.instanceService, statefulCsar, statefulCsarServiceTemplate, statefulCsarDefrostPlan, this.getBuildPlanInputParameters());
+        ServiceTemplateInstance statefulCsarServiceTemplateInstance = testUtils.runDefrostPlanExecution(this.planService, this.instanceService, statefulCsar, statefulCsarServiceTemplate, statefulCsarDefrostPlan, this.getBuildPlanInputParameters());
         assertNotNull(statefulCsarServiceTemplateInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, statefulCsarServiceTemplateInstance.getState());
 
         // TODO FIXME The freeze and defrost operations are NOT working right now as the management features are not working to add the implementations for freeze or the CSAR itself is broken
         //this.checkStateAfterBuild(statefulCsarServiceTemplateInstance);
 
-        TestUtils.runTerminationPlanExecution(this.planService, statefulCsar, statefulCsarServiceTemplate, statefulCsarServiceTemplateInstance, statefulCsarTerminationPlan);
+        testUtils.runTerminationPlanExecution(this.planService, statefulCsar, statefulCsarServiceTemplate, statefulCsarServiceTemplateInstance, statefulCsarTerminationPlan);
         //TestUtils.clearWineryRepository(wineryRepositoryUrl);
 
-        TestUtils.invokePlanUndeployment(this.control,statefulCsar.id(), statefulCsarServiceTemplate);
-        assertEquals(5, TestUtils.getDeployedPlans(this.endpointService).size());
+        testUtils.invokePlanUndeployment(this.control,statefulCsar.id(), statefulCsarServiceTemplate);
+        assertEquals(5, testUtils.getDeployedPlans(this.endpointService).size());
 
-        TestUtils.invokePlanUndeployment(this.control, csar.id(), serviceTemplate);
-        assertEquals(0, TestUtils.getDeployedPlans(this.endpointService).size());
+        testUtils.invokePlanUndeployment(this.control, csar.id(), serviceTemplate);
+        assertEquals(0, testUtils.getDeployedPlans(this.endpointService).size());
     }
 
     @After
     public void cleanUpContainer() {
-        TestUtils.clearContainer(this.storage, this.control);
+        testUtils.clearContainer(this.storage, this.control);
     }
 
     private void checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance) throws IOException, SQLException, ClassNotFoundException {
@@ -177,7 +179,7 @@ public class MyTinyToDoSqlIntegrationTest {
         assertEquals(5, relationshipTemplateInstances.size());
 
         connectToMySql("jdbc:mysql://localhost:3306/todo?useSSL=false","dbUser", "dbPassword");
-        TestUtils.checkViaHTTPGET("http://localhost:9990", 200, "mytinytodo");
+        testUtils.checkViaHTTPGET("http://localhost:9990", 200, "mytinytodo");
     }
 
     private void connectToMySql(String MySQLURL, String databseUserName, String databasePassword) throws ClassNotFoundException, SQLException {
@@ -195,7 +197,7 @@ public class MyTinyToDoSqlIntegrationTest {
         dockerEngineUrl.setName("dockerUrl");
         dockerEngineUrl.setRequired(true);
         dockerEngineUrl.setType("String");
-        dockerEngineUrl.setValue("tcp://" + TestUtils.getDockerHost() + ":2375");
+        dockerEngineUrl.setValue("tcp://" + testUtils.getDockerHost() + ":2375");
 
         org.opentosca.container.core.extension.TParameter applicationPort = new org.opentosca.container.core.extension.TParameter();
         applicationPort.setName("UI_Port");
@@ -227,7 +229,7 @@ public class MyTinyToDoSqlIntegrationTest {
         inputParams.add(dbPassword);
         inputParams.add(dbUser);
 
-        inputParams.addAll(TestUtils.getBaseInputParams());
+        inputParams.addAll(testUtils.getBaseInputParams());
 
         return inputParams;
     }
@@ -250,7 +252,7 @@ public class MyTinyToDoSqlIntegrationTest {
         inputParams.add(storeStateEndpoint);
         inputParams.add(serviceInstanceUrlParam);
 
-        inputParams.addAll(TestUtils.getBaseInputParams());
+        inputParams.addAll(testUtils.getBaseInputParams());
 
         return inputParams;
     }
