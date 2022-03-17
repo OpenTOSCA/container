@@ -27,7 +27,8 @@ public class BPMNPlan extends AbstractPlan {
     // bpmn -> process = main sequence, subprozess = process element
     // process -> 'main' sequence / flow
     private Document bpmnProcessDocument;
-    private ArrayList<String> bpmnScript;
+    private List<String> bpmnScriptStrings;
+    private List<String> bpmnScriptNames;
     private Element bpmnDefinitionElement;
     private Element bpmnProcessElement;
     private Element bpmnDiagramElement;
@@ -78,12 +79,12 @@ public class BPMNPlan extends AbstractPlan {
         return this.bpmnProcessDocument;
     }
 
-    public ArrayList<String> getBpmnScripts() {
-        return this.bpmnScript;
+    public List<String> getBpmnScripts() {
+        return this.bpmnScriptStrings;
     }
 
-    public void setBpmnScript(final ArrayList<String> bpmnScript) {
-        this.bpmnScript = bpmnScript;
+    public void setBpmnScriptStrings(final List<String> bpmnScriptStrings) {
+        this.bpmnScriptStrings = bpmnScriptStrings;
     }
 
     public void setBpmnProcessElement(final Element bpmnProcessElement) {
@@ -281,4 +282,13 @@ public class BPMNPlan extends AbstractPlan {
     public Set<String> getOutputParameters() {
         return outputParameters;
     }
+
+    public List<String> getBpmnScriptNames() {
+        return bpmnScriptNames;
+    }
+
+    public void setBpmnScriptNames(List<String> bpmnScriptNames) {
+        this.bpmnScriptNames = bpmnScriptNames;
+    }
+
 }

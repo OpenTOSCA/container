@@ -78,6 +78,8 @@ public class WineryExporter extends AbstractExporter {
         this.simpleExporter.export(destination, (BPELPlan) buildPlan);
     }
 
+
+    // TODO: refactor with single list
     public PlanExportResult exportToCSAR(final List<AbstractPlan> plans, final CsarId csarId, IRepository repository, CsarStorageService storage) {
         List<AbstractPlan> bpmnBpelPlans = new ArrayList<>();
         for (final AbstractPlan plan : plans) {
@@ -486,7 +488,7 @@ public class WineryExporter extends AbstractExporter {
 
         if (generatedPlan instanceof BPMNPlan) {
             LOG.info(""+((BPMNPlan) generatedPlan).getBpmnDocument());
-            //this.simpleExporter.exportOfBPMN(planPath.toUri(), (BPMNPlan) generatedPlan);
+
             this.simpleExporter.export(planPath.toUri(), (BPMNPlan) generatedPlan);
 
             PlansId plansId = new PlansId(servId);

@@ -46,6 +46,16 @@ public class BPMNPlanHandler {
         {"xmlns:qa", "http://some-company/schema/bpmn/qa"},
     };
 
+    // files are placed under resources/scripts
+    public static final String[] BPMN_SCRIPT_NAMES = { "CallNodeOperation",
+                                                        "CreateNodeInstance",
+                                                        "CreateRelationshipInstance",
+                                                        "CreateServiceInstance",
+                                                        "DataObject",
+                                                        "SetProperties",
+                                                        "SetState"};
+
+
     public BPMNPlanHandler() throws ParserConfigurationException {
         this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
         this.documentBuilderFactory.setNamespaceAware(true);
@@ -71,17 +81,22 @@ public class BPMNPlanHandler {
         return buildPlan;
     }
 
+    /**
+     * Add groovy script name and content as string to the BPMN plan
+     * script will be created into file when exporting the plan
+     * @param newBuildPlan
+     */
     public void initializeScriptDocuments(final BPMNPlan newBuildPlan) {
-        ArrayList<String> scripts = new ArrayList<>();
-        newBuildPlan.setBpmnScript(scripts);
-        String script = "";
+        ArrayList<String> scriptStrings = new ArrayList<>();
+        ArrayList<String> scriptNames = new ArrayList<>();
+        newBuildPlan.setBpmnScriptNames(scriptNames);
+        newBuildPlan.setBpmnScriptStrings(scriptStrings);
         try {
-            String[] scriptNames = {"CreateServiceInstance", "CreateNodeInstance", "CreateRelationshipInstance", "DataObject", "SetProperties", "SetState"};
-            for (String name : scriptNames) {
-                script = fragmentclass.createScript(name);
-                scripts.add(script);
+            for (String scriptName : BPMN_SCRIPT_NAMES) {
+                String scriptString = fragmentclass.createScript(scriptName);
+                scriptNames.add(scriptName);
+                scriptStrings.add(scriptString);
             }
-            newBuildPlan.setBpmnScript(scripts);
         } catch (Exception e) {
             e.printStackTrace();
         }

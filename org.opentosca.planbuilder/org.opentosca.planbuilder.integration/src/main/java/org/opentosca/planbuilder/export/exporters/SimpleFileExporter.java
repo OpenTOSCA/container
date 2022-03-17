@@ -242,13 +242,12 @@ public class SimpleFileExporter {
         //FileUtils.writeStringToFile(wsdlFile, wsdl.getFinalizedWsdlAsString());
 
         // write scripts
-        String[] scriptNames = {"CreateServiceInstance", "CreateNodeInstance", "CreateRelationshipInstance", "DataObject", "SetProperties", "SetState"};
-        int i = 0;
-        for(String script: buildPlan.getBpmnScripts()){
-            final File scriptFile = tempFolder.resolve(scriptNames[i]+".groovy").toFile();
+        for (int i = 0; i < buildPlan.getBpmnScripts().size(); i += 1) {
+            String scriptName = buildPlan.getBpmnScriptNames().get(i);
+            String scriptString = buildPlan.getBpmnScripts().get(i);
+            final File scriptFile = tempFolder.resolve(scriptName + ".groovy").toFile();
             scriptFile.createNewFile();
-            Files.writeString(Paths.get(scriptFile.getAbsolutePath()), script);
-            i++;
+            Files.writeString(Paths.get(scriptFile.getAbsolutePath()), scriptString);
         }
 
         // save bpmn file in tempfolder
