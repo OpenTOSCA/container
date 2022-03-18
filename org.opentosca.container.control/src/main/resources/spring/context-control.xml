@@ -17,6 +17,6 @@
   <context:component-scan base-package="org.opentosca.container.engine.plan.impl"/>
   <context:component-scan base-package="org.opentosca.planbuilder"/>
 
-  <bean class="org.opentosca.container.control.impl.OpenToscaControlServiceImpl" />
+  <bean class="org.opentosca.container.control.OpenToscaControlServiceImpl" />
   <bean class="org.opentosca.container.control.plan.PlanGenerationService" />
 </beans>

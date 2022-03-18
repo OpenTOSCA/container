@@ -30,7 +30,7 @@ import org.opentosca.container.api.dto.plan.PlanInstanceListDTO;
 import org.opentosca.container.api.dto.plan.PlanListDTO;
 import org.opentosca.container.api.dto.request.CreatePlanInstanceLogEntryRequest;
 import org.opentosca.container.api.service.PlanInvokerService;
-import org.opentosca.container.api.service.Utils;
+import org.opentosca.container.api.util.Utils;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.model.csar.Csar;
@@ -77,7 +77,7 @@ public class BuildPlanController {
                 final PlanDTO plan = new PlanDTO(p);
 
                 plan.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(plan.getId()).path("instances")
-                    .build()))
+                        .build()))
                     .rel("instances").build());
                 plan.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(plan.getId()).build()))
                     .rel("self").build());
@@ -195,7 +195,7 @@ public class BuildPlanController {
                                                  @PathParam("instance") final String instance,
                                                  @Context final UriInfo uriInfo, final String request) {
         LOGGER.debug("Invoking changeBuildPlanInstanceState");
-        PlanInstance pi = planInstanceService.resolvePlanInstance( null, instance);
+        PlanInstance pi = planInstanceService.resolvePlanInstance(null, instance);
         return planInstanceService.updatePlanInstanceState(pi, PlanInstanceState.valueOf(request))
             ? Response.ok().build()
             : Response.status(Status.BAD_REQUEST).build();
@@ -210,7 +210,7 @@ public class BuildPlanController {
                                              @ApiParam("Correlation ID") @PathParam("instance") final String instance,
                                              @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstanceLogs");
-        PlanInstance pi = planInstanceService.resolvePlanInstance( null, instance);
+        PlanInstance pi = planInstanceService.resolvePlanInstance(null, instance);
 
         final PlanInstanceDTO piDto = PlanInstanceDTO.Converter.convert(pi);
         final PlanInstanceEventListDTO dto = new PlanInstanceEventListDTO(piDto.getLogs());
@@ -233,7 +233,7 @@ public class BuildPlanController {
             LOGGER.info("Log entry is empty!");
             return Response.status(Status.BAD_REQUEST).build();
         }
-        PlanInstance pi = planInstanceService.resolvePlanInstanceWithLogs( null, instance);
+        PlanInstance pi = planInstanceService.resolvePlanInstanceWithLogs(null, instance);
         final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_LOG", entry);
         planInstanceService.addLogToPlanInstance(pi, event);
 

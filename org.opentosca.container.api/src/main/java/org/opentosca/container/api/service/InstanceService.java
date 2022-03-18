@@ -15,6 +15,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.api.dto.request.CreateRelationshipTemplateInstanceRequest;
+import org.opentosca.container.api.util.Utils;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;

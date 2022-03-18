@@ -27,7 +27,7 @@ import org.opentosca.container.api.dto.NodeTemplateInstanceDTO;
 import org.opentosca.container.api.dto.NodeTemplateInstanceListDTO;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
-import org.opentosca.container.api.util.ModelUtil;
+import org.opentosca.container.api.util.Utils;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
@@ -219,10 +219,10 @@ public class NodeTemplateInstanceController {
         logger.debug("Invoking getNodeTemplateInstanceProperty");
         final Document properties = this.instanceService.getNodeTemplateInstancePropertiesDocument(id);
 
-        if (properties == null && ModelUtil.fetchFirstChildElement(properties, propertyName) == null) {
+        if (properties == null && Utils.fetchFirstChildElement(properties, propertyName) == null) {
             return Response.noContent().build();
         } else {
-            return Response.ok(ModelUtil.createDocumentFromElement(ModelUtil.fetchFirstChildElement(properties,
+            return Response.ok(Utils.createDocumentFromElement(Utils.fetchFirstChildElement(properties,
                     propertyName)))
                 .build();
         }
@@ -258,7 +258,7 @@ public class NodeTemplateInstanceController {
         try {
             final Document properties = this.instanceService.getNodeTemplateInstancePropertiesDocument(id);
 
-            final Element propElement = ModelUtil.fetchFirstChildElement(properties, propertyName);
+            final Element propElement = Utils.fetchFirstChildElement(properties, propertyName);
 
             propElement.setTextContent(request.getDocumentElement().getTextContent());
 

@@ -31,7 +31,7 @@ import org.opentosca.container.api.dto.plan.PlanInstanceListDTO;
 import org.opentosca.container.api.dto.plan.PlanListDTO;
 import org.opentosca.container.api.dto.request.CreatePlanInstanceLogEntryRequest;
 import org.opentosca.container.api.service.PlanInvokerService;
-import org.opentosca.container.api.service.Utils;
+import org.opentosca.container.api.util.Utils;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.extension.TParameter;

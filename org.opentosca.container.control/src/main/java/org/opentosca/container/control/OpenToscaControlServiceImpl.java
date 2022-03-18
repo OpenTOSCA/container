@@ -1,4 +1,4 @@
-package org.opentosca.container.control.impl;
+package org.opentosca.container.control;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -12,7 +12,6 @@ import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.extension.TPlanDTO;
