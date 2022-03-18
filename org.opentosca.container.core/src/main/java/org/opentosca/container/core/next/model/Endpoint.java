@@ -27,22 +27,12 @@ import org.opentosca.container.core.model.csar.CsarId;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = Endpoint.TABLE_NAME)
-@NamedEntityGraphs({
+@NamedEntityGraphs( {
     @NamedEntityGraph(name = "metadata", includeAllAttributes = true, attributeNodes = {
         @NamedAttributeNode("metadata")
     })
 })
 public class Endpoint extends PersistenceObject {
-
-    public Endpoint(URI uri, String triggeringContainer, String managingContainer,
-                    CsarId csarId, Map<String, String> metadata, QName portType) {
-        this.uri = uri;
-        this.triggeringContainer = triggeringContainer;
-        this.managingContainer = managingContainer;
-        this.csarId = csarId;
-        this.metadata = metadata;
-        this.portType = portType;
-    }
 
     public static final String TABLE_NAME = "ENDPOINT";
 
@@ -109,10 +99,20 @@ public class Endpoint extends PersistenceObject {
     @Basic
     @Column(name = "iaName")
     private String iaName;
-
     // only the plan id is used for plan endpoints, cause in tosca the id for a plan must be unique in the target namespace
+
     @Basic
     @Convert(converter = QNameConverter.class)
     @Column(name = "planId")
     private QName planId;
+
+    public Endpoint(URI uri, String triggeringContainer, String managingContainer,
+                    CsarId csarId, Map<String, String> metadata, QName portType) {
+        this.uri = uri;
+        this.triggeringContainer = triggeringContainer;
+        this.managingContainer = managingContainer;
+        this.csarId = csarId;
+        this.metadata = metadata;
+        this.portType = portType;
+    }
 }
