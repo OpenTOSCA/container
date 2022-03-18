@@ -20,9 +20,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateListDTO;
+import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.next.services.instances.RelationshipTemplateInstanceService;
 import org.opentosca.container.core.next.services.templates.RelationshipTemplateService;
-import org.opentosca.container.core.common.uri.UriUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -38,9 +38,9 @@ public class RelationshipTemplateController {
     @Context
     ResourceContext resourceContext;
 
-    private RelationshipTemplateService relationshipTemplateService;
+    private final RelationshipTemplateService relationshipTemplateService;
 
-    private RelationshipTemplateInstanceService relationshipTemplateInstanceService;
+    private final RelationshipTemplateInstanceService relationshipTemplateInstanceService;
 
     public RelationshipTemplateController(final RelationshipTemplateService relationshipTemplateService,
                                           final RelationshipTemplateInstanceService relationshipTemplateInstanceService) {
@@ -107,13 +107,5 @@ public class RelationshipTemplateController {
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
 
         return child;
-    }
-
-    public void setRelationshipTemplateService(final RelationshipTemplateService relationshipTemplateService) {
-        this.relationshipTemplateService = relationshipTemplateService;
-    }
-
-    public void setInstanceService(final RelationshipTemplateInstanceService relationshipTemplateInstanceService) {
-        this.relationshipTemplateInstanceService = relationshipTemplateInstanceService;
     }
 }
