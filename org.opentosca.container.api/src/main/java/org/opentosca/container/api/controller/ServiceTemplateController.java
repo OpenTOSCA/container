@@ -33,7 +33,7 @@ import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.core.next.services.RelationshipTemplateService;
-import org.opentosca.container.api.service.SituationInstanceService;
+import org.opentosca.container.core.next.services.SituationInstanceService;
 import org.opentosca.container.api.service.Utils;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.common.uri.UriUtil;

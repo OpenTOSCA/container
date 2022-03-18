@@ -44,7 +44,7 @@ import org.opentosca.container.api.dto.situations.SituationsMonitorDTO;
 import org.opentosca.container.api.dto.situations.SituationsMonitorListDTO;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanInvokerService;
-import org.opentosca.container.api.service.SituationInstanceService;
+import org.opentosca.container.core.next.services.SituationInstanceService;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.DeploymentTest;

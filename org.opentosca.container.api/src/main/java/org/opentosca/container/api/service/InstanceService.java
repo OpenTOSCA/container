@@ -37,6 +37,7 @@ import org.opentosca.container.core.next.repository.RelationshipTemplateInstance
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.next.services.PlanInstanceService;
 import org.opentosca.container.core.next.services.RelationshipTemplateService;
+import org.opentosca.container.core.next.services.ServiceTemplateService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

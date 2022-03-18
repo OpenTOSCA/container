@@ -27,7 +27,7 @@ import org.opentosca.container.api.dto.situations.SituationTriggerDTO;
 import org.opentosca.container.api.dto.situations.SituationTriggerInstanceDTO;
 import org.opentosca.container.api.dto.situations.SituationTriggerListDTO;
 import org.opentosca.container.api.service.InstanceService;
-import org.opentosca.container.api.service.SituationInstanceService;
+import org.opentosca.container.core.next.services.SituationInstanceService;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
