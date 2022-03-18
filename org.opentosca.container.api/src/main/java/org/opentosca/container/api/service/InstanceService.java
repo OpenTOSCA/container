@@ -14,7 +14,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
-import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.request.CreateRelationshipTemplateInstanceRequest;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
 import org.opentosca.container.core.engine.ToscaEngine;
@@ -37,6 +36,7 @@ import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.RelationshipTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.next.services.PlanInstanceService;
+import org.opentosca.container.core.next.services.RelationshipTemplateService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -497,9 +497,8 @@ public class InstanceService {
         }
 
         RelationshipTemplateInstance newInstance = new RelationshipTemplateInstance();
-        final RelationshipTemplateDTO dto =
-            this.relationshipTemplateService.getRelationshipTemplateById(csarId, serviceTemplateName,
-                relationshipTemplateId);
+        final QName relationshipTypeQName = this.relationshipTemplateService.getRelationshipTemplateById(csarId, serviceTemplateName,
+            relationshipTemplateId).getType();
 
         // Properties
         // We set the properties of the template as initial properties
@@ -516,7 +515,7 @@ public class InstanceService {
         // Template
         newInstance.setTemplateId(relationshipTemplateId);
         // Type
-        newInstance.setTemplateType(QName.valueOf(dto.getRelationshipType()));
+        newInstance.setTemplateType(relationshipTypeQName);
         // Source node instance
 
         newInstance.setSource(this.nodeTemplateInstanceRepository.findWithOutgoingById(request.getSourceNodeTemplateInstanceId()).get());
