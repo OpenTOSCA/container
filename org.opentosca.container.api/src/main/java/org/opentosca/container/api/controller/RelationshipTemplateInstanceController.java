@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiParam;
 import org.opentosca.container.api.dto.RelationshipTemplateInstanceDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateInstanceListDTO;
 import org.opentosca.container.api.dto.request.CreateRelationshipTemplateInstanceRequest;
-import org.opentosca.container.api.service.InstanceService;
+import org.opentosca.container.core.next.services.instances.RelationshipTemplateInstanceService;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstanceState;
@@ -40,7 +40,7 @@ import org.w3c.dom.Document;
 public class RelationshipTemplateInstanceController {
 
     private static final Logger logger = LoggerFactory.getLogger(RelationshipTemplateInstanceController.class);
-    private final InstanceService instanceService;
+    private final RelationshipTemplateInstanceService relationshipTemplateInstanceService;
     @ApiParam("ID of CSAR")
     @PathParam("csar")
     String csar;
@@ -53,8 +53,8 @@ public class RelationshipTemplateInstanceController {
     @Context
     UriInfo uriInfo;
 
-    public RelationshipTemplateInstanceController(final InstanceService instanceService) {
-        this.instanceService = instanceService;
+    public RelationshipTemplateInstanceController(final RelationshipTemplateInstanceService relationshipTemplateInstanceService) {
+        this.relationshipTemplateInstanceService = relationshipTemplateInstanceService;
     }
 
     @GET
@@ -65,7 +65,7 @@ public class RelationshipTemplateInstanceController {
                                                      @QueryParam(value = "target") final Long targetNodeInstanceId,
                                                      @QueryParam(value = "serviceInstanceId") final Long serviceInstanceId) {
         final Collection<RelationshipTemplateInstance> relationshipInstances =
-            this.instanceService.getRelationshipTemplateInstances(relationshiptemplate);
+            this.relationshipTemplateInstanceService.getRelationshipTemplateInstances(relationshiptemplate);
         logger.debug("Found <{}> instances of RelationshipTemplate \"{}\" ", relationshipInstances.size(),
             this.relationshiptemplate);
 
@@ -108,8 +108,8 @@ public class RelationshipTemplateInstanceController {
         try {
 
             final RelationshipTemplateInstance createdInstance =
-                this.instanceService.createNewRelationshipTemplateInstance(this.csar, this.servicetemplate,
-                    this.relationshiptemplate, request);
+                this.relationshipTemplateInstanceService.createNewRelationshipTemplateInstance(this.csar, this.servicetemplate,
+                    this.relationshiptemplate, request.getServiceInstanceId(), request.getSourceNodeTemplateInstanceId(), request.getTargetNodeTemplateInstanceId());
             final URI instanceURI = UriUtil.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
             return Response.ok(instanceURI).build();
         } catch (final IllegalArgumentException e) {
@@ -128,7 +128,7 @@ public class RelationshipTemplateInstanceController {
     public Response getRelationshipTemplateInstance(@ApiParam("ID of relationship template instance") @PathParam("id") final Long id) {
 
         final RelationshipTemplateInstance instance =
-            this.instanceService.resolveRelationshipTemplateInstance(this.servicetemplate, this.relationshiptemplate,
+            this.relationshipTemplateInstanceService.resolveRelationshipTemplateInstance(this.servicetemplate, this.relationshiptemplate,
                 id);
         final RelationshipTemplateInstanceDTO dto = RelationshipTemplateInstanceDTO.Converter.convert(instance);
 
@@ -158,7 +158,7 @@ public class RelationshipTemplateInstanceController {
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response deleteRelationshipTemplateInstance(@PathParam("id") final Long id) {
-        this.instanceService.deleteRelationshipTemplateInstance(this.servicetemplate, this.relationshiptemplate, id);
+        this.relationshipTemplateInstanceService.deleteRelationshipTemplateInstance(this.servicetemplate, this.relationshiptemplate, id);
         return Response.noContent().build();
     }
 
@@ -168,7 +168,7 @@ public class RelationshipTemplateInstanceController {
     @ApiOperation(value = "Get state of a relationship template instance", response = String.class)
     public Response getRelationshipTemplateInstanceState(@ApiParam("ID of relationship template instance") @PathParam("id") final Long id) {
         final RelationshipTemplateInstanceState state =
-            this.instanceService.getRelationshipTemplateInstanceState(this.servicetemplate, this.relationshiptemplate,
+            this.relationshipTemplateInstanceService.getRelationshipTemplateInstanceState(this.servicetemplate, this.relationshiptemplate,
                 id);
         return Response.ok(state.toString()).build();
     }
@@ -179,7 +179,7 @@ public class RelationshipTemplateInstanceController {
     @ApiOperation(hidden = true, value = "")
     public Response updateRelationshipTemplateInstanceState(@PathParam("id") final Long id, final String request) {
         try {
-            this.instanceService.setRelationshipTemplateInstanceState(this.servicetemplate, this.relationshiptemplate,
+            this.relationshipTemplateInstanceService.setRelationshipTemplateInstanceState(this.servicetemplate, this.relationshiptemplate,
                 id, request);
         } catch (final IllegalArgumentException e) { // this handles a null request too
             return Response.status(Status.BAD_REQUEST).build();
@@ -192,7 +192,7 @@ public class RelationshipTemplateInstanceController {
     @Produces( {MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response getRelationshipTemplateInstanceProperties(@PathParam("id") final Long id) {
-        final Document properties = this.instanceService.getRelationshipTemplateInstanceProperties(id);
+        final Document properties = this.relationshipTemplateInstanceService.getRelationshipTemplateInstanceProperties(id);
         if (properties == null) {
             return Response.noContent().build();
         } else {
@@ -209,7 +209,7 @@ public class RelationshipTemplateInstanceController {
                                                                  final Document request) {
 
         try {
-            this.instanceService.setRelationshipTemplateInstanceProperties(id, request);
+            this.relationshipTemplateInstanceService.setRelationshipTemplateInstanceProperties(id, request);
         } catch (final IllegalArgumentException e) { // this handles a null request too
             return Response.status(Status.BAD_REQUEST).build();
         } catch (final ReflectiveOperationException e) {

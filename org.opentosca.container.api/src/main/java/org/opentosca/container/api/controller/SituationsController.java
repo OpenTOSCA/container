@@ -26,7 +26,6 @@ import org.opentosca.container.api.dto.situations.SituationListDTO;
 import org.opentosca.container.api.dto.situations.SituationTriggerDTO;
 import org.opentosca.container.api.dto.situations.SituationTriggerInstanceDTO;
 import org.opentosca.container.api.dto.situations.SituationTriggerListDTO;
-import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
@@ -34,6 +33,7 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.Situation;
 import org.opentosca.container.core.next.model.SituationTrigger;
 import org.opentosca.container.core.next.model.SituationTriggerProperty;
+import org.opentosca.container.core.next.services.instances.NodeTemplateInstanceService;
 import org.opentosca.container.core.next.services.instances.ServiceTemplateInstanceService;
 import org.opentosca.container.core.next.services.instances.SituationInstanceService;
 import org.opentosca.container.core.service.CsarStorageService;
@@ -47,7 +47,7 @@ public class SituationsController {
     UriInfo uriInfo;
 
     @Inject
-    private InstanceService instanceService;
+    private NodeTemplateInstanceService nodeTemplateInstanceService;
     @Inject
     private ServiceTemplateInstanceService serviceTemplateInstanceService;
     @Inject
@@ -176,7 +176,7 @@ public class SituationsController {
 
         NodeTemplateInstance nodeInstance = null;
         if (situationTrigger.getNodeInstanceId() != null) {
-            nodeInstance = this.instanceService.getNodeTemplateInstance(situationTrigger.getNodeInstanceId());
+            nodeInstance = this.nodeTemplateInstanceService.getNodeTemplateInstance(situationTrigger.getNodeInstanceId());
         }
 
         final Set<SituationTriggerProperty> inputs = Sets.newHashSet();

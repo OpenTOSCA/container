@@ -14,7 +14,6 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.control.plan.PlanGenerationService;
@@ -23,6 +22,7 @@ import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
+import org.opentosca.container.core.next.services.instances.NodeTemplateInstanceService;
 import org.opentosca.container.core.next.services.instances.PlanInstanceService;
 import org.opentosca.container.core.next.services.instances.ServiceTemplateInstanceService;
 import org.opentosca.container.core.service.CsarStorageService;
@@ -55,7 +55,7 @@ public class ApacheWebAppIntegrationTest {
     @Inject
     public PlanInvokerService planInvokerService;
     @Inject
-    public InstanceService instanceService;
+    public NodeTemplateInstanceService nodeTemplateInstanceService;
     @Inject
     public ServiceTemplateInstanceService serviceTemplateInstanceService;
     @Inject
@@ -133,10 +133,10 @@ public class ApacheWebAppIntegrationTest {
         assertNotNull(apacheApp);
         assertNotNull(apacheWebServer);
 
-        assertTrue(instanceService.getNodeTemplateInstanceProperties(apacheWebServer.getId()).containsKey("Port"));
-        assertTrue(instanceService.getNodeTemplateInstanceProperties(dockerContainer.getId()).containsKey("ContainerIP"));
-        assertTrue(instanceService.getNodeTemplateInstanceProperties(apacheApp.getId()).containsKey("URL"));
-        assertTrue(instanceService.getNodeTemplateInstanceProperties(apacheApp.getId()).get("URL").contains(instanceService.getNodeTemplateInstanceProperties(dockerContainer.getId()).get("ContainerIP") + ":" + instanceService.getNodeTemplateInstanceProperties(apacheWebServer.getId()).get("Port")));
+        assertTrue(nodeTemplateInstanceService.getNodeTemplateInstanceProperties(apacheWebServer.getId()).containsKey("Port"));
+        assertTrue(nodeTemplateInstanceService.getNodeTemplateInstanceProperties(dockerContainer.getId()).containsKey("ContainerIP"));
+        assertTrue(nodeTemplateInstanceService.getNodeTemplateInstanceProperties(apacheApp.getId()).containsKey("URL"));
+        assertTrue(nodeTemplateInstanceService.getNodeTemplateInstanceProperties(apacheApp.getId()).get("URL").contains(nodeTemplateInstanceService.getNodeTemplateInstanceProperties(dockerContainer.getId()).get("ContainerIP") + ":" + nodeTemplateInstanceService.getNodeTemplateInstanceProperties(apacheWebServer.getId()).get("Port")));
 
         testUtils.checkViaHTTPGET("http://localhost", 200, "Uwe");
     }

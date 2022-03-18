@@ -20,7 +20,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateListDTO;
-import org.opentosca.container.api.service.InstanceService;
+import org.opentosca.container.core.next.services.instances.RelationshipTemplateInstanceService;
 import org.opentosca.container.core.next.services.templates.RelationshipTemplateService;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.slf4j.Logger;
@@ -40,12 +40,12 @@ public class RelationshipTemplateController {
 
     private RelationshipTemplateService relationshipTemplateService;
 
-    private InstanceService instanceService;
+    private RelationshipTemplateInstanceService relationshipTemplateInstanceService;
 
     public RelationshipTemplateController(final RelationshipTemplateService relationshipTemplateService,
-                                          final InstanceService instanceService) {
+                                          final RelationshipTemplateInstanceService relationshipTemplateInstanceService) {
         this.relationshipTemplateService = relationshipTemplateService;
-        this.instanceService = instanceService;
+        this.relationshipTemplateInstanceService = relationshipTemplateInstanceService;
     }
 
     @GET
@@ -103,7 +103,7 @@ public class RelationshipTemplateController {
         }
 
         final RelationshipTemplateInstanceController child =
-            new RelationshipTemplateInstanceController(this.instanceService);
+            new RelationshipTemplateInstanceController(this.relationshipTemplateInstanceService);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
 
         return child;
@@ -113,7 +113,7 @@ public class RelationshipTemplateController {
         this.relationshipTemplateService = relationshipTemplateService;
     }
 
-    public void setInstanceService(final InstanceService instanceService) {
-        this.instanceService = instanceService;
+    public void setInstanceService(final RelationshipTemplateInstanceService relationshipTemplateInstanceService) {
+        this.relationshipTemplateInstanceService = relationshipTemplateInstanceService;
     }
 }

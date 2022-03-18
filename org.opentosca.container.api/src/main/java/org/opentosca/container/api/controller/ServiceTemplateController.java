@@ -27,7 +27,7 @@ import io.swagger.annotations.ApiParam;
 import org.opentosca.container.api.dto.ServiceTemplateDTO;
 import org.opentosca.container.api.dto.ServiceTemplateListDTO;
 import org.opentosca.container.api.dto.request.ServiceTransformRequest;
-import org.opentosca.container.api.service.InstanceService;
+import org.opentosca.container.core.next.services.instances.RelationshipTemplateInstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.api.util.Utils;
@@ -39,6 +39,7 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
+import org.opentosca.container.core.next.services.instances.NodeTemplateInstanceService;
 import org.opentosca.container.core.next.services.instances.PlanInstanceService;
 import org.opentosca.container.core.next.services.instances.ServiceTemplateInstanceService;
 import org.opentosca.container.core.next.services.instances.SituationInstanceService;
@@ -72,7 +73,7 @@ public class ServiceTemplateController {
     private PlanInvokerService planInvokerService;
 
     @Inject
-    private InstanceService instanceService;
+    private RelationshipTemplateInstanceService relationshipTemplateInstanceService;
 
     @Inject
     private ServiceTemplateInstanceService serviceTemplateInstanceService;
@@ -82,6 +83,9 @@ public class ServiceTemplateController {
 
     @Inject
     private NodeTemplateService nodeTemplateService;
+
+    @Inject
+    private NodeTemplateInstanceService nodeTemplateInstanceService;
 
     @Inject
     private RelationshipTemplateService relationshipTemplateService;
@@ -169,7 +173,7 @@ public class ServiceTemplateController {
             .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
             .findFirst().orElseThrow(NotFoundException::new);
 
-        final NodeTemplateController child = new NodeTemplateController(this.nodeTemplateService, this.instanceService, this.storage);
+        final NodeTemplateController child = new NodeTemplateController(this.nodeTemplateService, this.nodeTemplateInstanceService, this.storage);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
         return child;
     }
@@ -184,7 +188,7 @@ public class ServiceTemplateController {
             .findFirst().orElseThrow(NotFoundException::new);
 
         final RelationshipTemplateController child =
-            new RelationshipTemplateController(this.relationshipTemplateService, this.instanceService);
+            new RelationshipTemplateController(this.relationshipTemplateService, this.relationshipTemplateInstanceService);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
         return child;
     }
@@ -197,7 +201,7 @@ public class ServiceTemplateController {
             .findFirst().orElseThrow(NotFoundException::new);
 
         // init placement controller if placement is started
-        final PlacementController child = new PlacementController(instanceService, nodeTemplateService);
+        final PlacementController child = new PlacementController(nodeTemplateInstanceService, nodeTemplateService);
         resourceContext.initResource(child);
         return child;
     }
