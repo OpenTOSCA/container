@@ -15,7 +15,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opentosca.container.api.service.CsarService;
+import org.opentosca.container.api.service.PlanGenerationService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.control.OpenToscaControlService;
@@ -48,7 +48,7 @@ public class MultiMyTinyToDoIntegrationTest {
     @Inject
     public CsarStorageService storage;
     @Inject
-    public CsarService csarService;
+    public PlanGenerationService planGenerationService;
     @Inject
     public PlanInstanceService planInstanceService;
     @Inject
@@ -62,7 +62,7 @@ public class MultiMyTinyToDoIntegrationTest {
     @Test
     public void test() throws Exception {
         Csar csar = testUtils.setupCsarTestRepository(this.csarId, this.storage, TESTAPPLICATIONSREPOSITORY);
-        testUtils.generatePlans(this.csarService, csar);
+        testUtils.generatePlans(this.planGenerationService, csar);
 
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
 

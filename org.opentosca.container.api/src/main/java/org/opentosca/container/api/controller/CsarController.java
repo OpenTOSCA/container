@@ -47,7 +47,7 @@ import org.opentosca.container.api.dto.CsarDTO;
 import org.opentosca.container.api.dto.CsarListDTO;
 import org.opentosca.container.api.dto.request.CsarTransformRequest;
 import org.opentosca.container.api.dto.request.CsarUploadRequest;
-import org.opentosca.container.api.service.CsarService;
+import org.opentosca.container.api.service.PlanGenerationService;
 import org.opentosca.container.api.service.Utils;
 import org.opentosca.container.api.util.ModelUtil;
 import org.opentosca.container.connector.winery.WineryConnector;
@@ -75,7 +75,7 @@ public class CsarController {
     private UriInfo uriInfo;
 
     @Inject
-    private CsarService csarService;
+    private PlanGenerationService planGenerationService;
 
     @Inject
     private CsarStorageService storage;
@@ -298,7 +298,7 @@ public class CsarController {
         }
 
         try {
-            if (!this.csarService.generatePlans(storedCsar)) {
+            if (!this.planGenerationService.generatePlans(storedCsar)) {
                 logger.info("Planning the CSAR failed. Deleting the failed import");
                 this.storage.deleteCSAR(csarId);
                 return Response.serverError().build();
@@ -382,7 +382,7 @@ public class CsarController {
         final CsarId targetCsarId = new CsarId(request.getTargetCsarName());
         Csar targetCsar = this.storage.findById(targetCsarId);
 
-        Collection<AbstractPlan> plansGenerated = this.csarService.generateTransformationPlans(sourceCsar, targetCsar);
+        Collection<AbstractPlan> plansGenerated = this.planGenerationService.generateTransformationPlans(sourceCsar, targetCsar);
         AbstractPlan planGenerated;
         if (plansGenerated.isEmpty()) {
             return Response.serverError().entity("Couldn't generate transformation plan").build();

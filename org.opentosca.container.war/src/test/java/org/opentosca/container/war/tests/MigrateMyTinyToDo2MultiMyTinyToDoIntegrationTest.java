@@ -14,7 +14,7 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opentosca.container.api.service.CsarService;
+import org.opentosca.container.api.service.PlanGenerationService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.control.OpenToscaControlService;
@@ -52,7 +52,7 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
     @Inject
     public CsarStorageService storage;
     @Inject
-    public CsarService csarService;
+    public PlanGenerationService planGenerationService;
     @Inject
     public PlanInstanceService planInstanceService;
     @Inject
@@ -67,10 +67,10 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
     public void test() throws Exception {
         Csar myTinyToDoCsar = testUtils.setupCsarTestRepository(this.myTinyToDocsarId, this.storage, TESTAPPLICATIONSREPOSITORY);
         Csar multiMyTinyToDoCsar = testUtils.setupCsarTestRepository(this.multiMyTinyToDoCsarId, this.storage, TESTAPPLICATIONSREPOSITORY);
-        testUtils.generatePlans(this.csarService, myTinyToDoCsar);
-        testUtils.generatePlans(this.csarService, multiMyTinyToDoCsar);
+        testUtils.generatePlans(this.planGenerationService, myTinyToDoCsar);
+        testUtils.generatePlans(this.planGenerationService, multiMyTinyToDoCsar);
 
-        this.csarService.generateTransformationPlans(myTinyToDoCsar, multiMyTinyToDoCsar);
+        this.planGenerationService.generateTransformationPlans(myTinyToDoCsar, multiMyTinyToDoCsar);
 
         TServiceTemplate myTinyToDoServiceTemplate = myTinyToDoCsar.entryServiceTemplate();
         TServiceTemplate multiMyTinyToDoServiceTemplate = multiMyTinyToDoCsar.entryServiceTemplate();

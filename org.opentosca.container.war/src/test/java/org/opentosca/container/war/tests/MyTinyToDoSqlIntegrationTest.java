@@ -19,7 +19,7 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opentosca.container.api.service.CsarService;
+import org.opentosca.container.api.service.PlanGenerationService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.control.OpenToscaControlService;
@@ -52,7 +52,7 @@ public class MyTinyToDoSqlIntegrationTest {
     @Inject
     public CsarStorageService storage;
     @Inject
-    public CsarService csarService;
+    public PlanGenerationService planGenerationService;
     @Inject
     public PlanInstanceService planInstanceService;
     @Inject
@@ -74,7 +74,7 @@ public class MyTinyToDoSqlIntegrationTest {
         testUtils.enrichCsarFile(csarPath, wineryRepositoryUrl);
         Csar csar = this.storage.findById(this.storage.storeCSAR(csarPath));
 
-        testUtils.generatePlans(this.csarService, csar);
+        testUtils.generatePlans(this.planGenerationService, csar);
 
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
         assertNotNull(serviceTemplate);
@@ -133,7 +133,7 @@ public class MyTinyToDoSqlIntegrationTest {
         Path statefulCsarPath = testUtils.downloadServiceTemplateFromWinery(freezeServiceTemplateId, wineryRepositoryUrl + "/");
         Csar statefulCsar = this.storage.findById(this.storage.storeCSAR(statefulCsarPath));
 
-        testUtils.generatePlans(this.csarService, statefulCsar);
+        testUtils.generatePlans(this.planGenerationService, statefulCsar);
 
         TServiceTemplate statefulCsarServiceTemplate = statefulCsar.entryServiceTemplate();
         assertNotNull(statefulCsarServiceTemplate);

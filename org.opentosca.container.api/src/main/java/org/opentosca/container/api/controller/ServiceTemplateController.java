@@ -27,8 +27,8 @@ import io.swagger.annotations.ApiParam;
 import org.opentosca.container.api.dto.ServiceTemplateDTO;
 import org.opentosca.container.api.dto.ServiceTemplateListDTO;
 import org.opentosca.container.api.dto.request.ServiceTransformRequest;
-import org.opentosca.container.api.service.CsarService;
-import org.opentosca.container.api.service.CsarService.AdaptationPlanGenerationResult;
+import org.opentosca.container.api.service.PlanGenerationService;
+import org.opentosca.container.api.service.PlanGenerationService.AdaptationPlanGenerationResult;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.service.PlanInvokerService;
@@ -92,7 +92,7 @@ public class ServiceTemplateController {
     private OpenToscaControlService controlService;
 
     @Inject
-    private CsarService csarService;
+    private PlanGenerationService planGenerationService;
 
     @Inject
     private ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
@@ -224,7 +224,7 @@ public class ServiceTemplateController {
         CsarId csarId = new CsarId(csar);
         Csar csarToTransform = this.storage.findById(csarId);
 
-        final AdaptationPlanGenerationResult result = this.csarService.generateAdaptationPlan(csarToTransform, QName.valueOf(serviceTemplateId), request.getSourceNodeTemplates(), request.getSourceRelationshipTemplates(), request.getTargetNodeTemplates(), request.getTargetRelationshipTemplates());
+        final AdaptationPlanGenerationResult result = this.planGenerationService.generateAdaptationPlan(csarToTransform, QName.valueOf(serviceTemplateId), request.getSourceNodeTemplates(), request.getSourceRelationshipTemplates(), request.getTargetNodeTemplates(), request.getTargetRelationshipTemplates());
 
         if (result == null) {
             return Response.serverError().build();

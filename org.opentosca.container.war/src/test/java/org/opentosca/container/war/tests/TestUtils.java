@@ -37,7 +37,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
-import org.opentosca.container.api.service.CsarService;
+import org.opentosca.container.api.service.PlanGenerationService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.connector.winery.WineryConnector;
@@ -275,9 +275,9 @@ public class TestUtils {
             .call();
     }
 
-    public void generatePlans(CsarService csarService, Csar csar) {
+    public void generatePlans(PlanGenerationService planGenerationService, Csar csar) {
         try {
-            Assert.assertTrue(csarService.generatePlans(csar));
+            Assert.assertTrue(planGenerationService.generatePlans(csar));
         } catch (SystemException | UserException e) {
             e.printStackTrace();
             Assert.fail(e.getMessage());

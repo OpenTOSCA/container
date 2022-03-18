@@ -14,7 +14,7 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opentosca.container.api.service.CsarService;
+import org.opentosca.container.api.service.PlanGenerationService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.control.OpenToscaControlService;
@@ -47,7 +47,7 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
     @Inject
     public CsarStorageService storage;
     @Inject
-    public CsarService csarService;
+    public PlanGenerationService planGenerationService;
     @Inject
     public PlanInstanceService planInstanceService;
     @Inject
@@ -61,7 +61,7 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
     @Test
     public void test() throws Exception {
         Csar csar = testUtils.setupCsarTestRepository(this.csarId, this.storage, TESTAPPLICATIONSREPOSITORY);
-        testUtils.generatePlans(this.csarService, csar);
+        testUtils.generatePlans(this.planGenerationService, csar);
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
         assertNotNull(serviceTemplate);
 
@@ -74,10 +74,10 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
         targetRelationshipTemplateIds.add("con_HostedOn_0");
         targetRelationshipTemplateIds.add("con_HostedOn_1");
         targetRelationshipTemplateIds.add("con_HostedOn_2");
-        String buildPlanId = this.csarService.generateAdaptationPlan(csar,
+        String buildPlanId = this.planGenerationService.generateAdaptationPlan(csar,
             new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()),
             new ArrayList<>(), new ArrayList<>(), targetNodeTemplateIds, targetRelationshipTemplateIds).planId;
-        String terminationPlanId = this.csarService.generateAdaptationPlan(csar,
+        String terminationPlanId = this.planGenerationService.generateAdaptationPlan(csar,
             new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId()), targetNodeTemplateIds,
             targetRelationshipTemplateIds, new ArrayList<>(), new ArrayList<>()).planId;
 
