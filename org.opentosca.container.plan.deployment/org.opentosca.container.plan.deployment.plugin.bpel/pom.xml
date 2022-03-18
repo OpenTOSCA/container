@@ -4,23 +4,19 @@
 	xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>org.opentosca</groupId>
-		<artifactId>org.opentosca.bus</artifactId>
+		<artifactId>org.opentosca.container.plan.deployment</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>org.opentosca.bus.management.api.java</artifactId>
+	<artifactId>org.opentosca.container.plan.deployment.plugin.bpel</artifactId>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.opentosca</groupId>
-			<artifactId>org.opentosca.bus.management</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.opentosca</groupId>
-			<artifactId>org.opentosca.bus.management.service</artifactId>
+			<artifactId>org.opentosca.container.plan.deployment.core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -28,23 +24,16 @@
 			<artifactId>org.opentosca.container.core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+
 		<dependency>
-			<groupId>org.opentosca</groupId>
-			<artifactId>org.opentosca.planbuilder.model</artifactId>
-			<version>3.0.0-SNAPSHOT</version>
-			<scope>compile</scope>
+			<groupId>wsdl4j</groupId>
+			<artifactId>wsdl4j</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>org.opentosca</groupId>
-			<artifactId>org.opentosca.planbuilder.integration</artifactId>
-			<version>3.0.0-SNAPSHOT</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.opentosca</groupId>
-			<artifactId>org.opentosca.container.plan.deployment.plugin.bpel</artifactId>
-			<version>3.0.0-SNAPSHOT</version>
-			<scope>compile</scope>
+			<artifactId>org.opentosca.container.connector.ode</artifactId>
+			<version>${project.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.axis</groupId>
@@ -52,5 +41,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+
 	</dependencies>
 </project>

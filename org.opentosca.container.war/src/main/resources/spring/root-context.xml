@@ -18,9 +18,9 @@
     <!-- configuration for external modules -->
     <context:component-scan base-package="org.opentosca.deployment.checks"/>
 
-    <context:component-scan base-package="org.opentosca.container.engine.plan.impl"/>
-    <bean class="org.opentosca.container.engine.plan.plugin.bpel.BpelPlanEnginePlugin"/>
-    <bean class="org.opentosca.container.engine.plan.plugin.camunda.CamundaPlanEnginePlugin"/>
+    <context:component-scan base-package="org.opentosca.container.plan.deployment.core.impl"/>
+    <bean class="org.opentosca.container.plan.deployment.plugin.bpel.BpelPlanEnginePlugin"/>
+    <bean class="org.opentosca.container.plan.deployment.plugin.camunda.CamundaPlanEnginePlugin"/>
 
     <!-- fallback camel context for all camel-context dependents with no route configuration -->
     <camel:camelContext id="fallback"/>

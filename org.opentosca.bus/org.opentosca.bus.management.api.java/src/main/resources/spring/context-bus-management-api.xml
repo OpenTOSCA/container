@@ -25,6 +25,6 @@
   <context:component-scan base-package="org.opentosca.container.core.next.repository"/>
   <context:component-scan base-package="org.opentosca.planbuilder.importer"/>
   <context:component-scan base-package="org.opentosca.planbuilder.export"/>
-  <context:component-scan base-package="org.opentosca.container.engine.plan.plugin.bpel"/>
+  <context:component-scan base-package="org.opentosca.container.plan.deployment.plugin.bpel"/>
   <context:component-scan base-package="org.opentosca.bus.management.api.java.route"/>
 </beans>
