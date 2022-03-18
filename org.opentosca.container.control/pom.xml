@@ -28,5 +28,11 @@
       <artifactId>org.eclipse.winery.model.tosca.canonical</artifactId>
       <version>ustutt-SNAPSHOT</version>
     </dependency>
+      <dependency>
+          <groupId>org.opentosca</groupId>
+          <artifactId>org.opentosca.planbuilder.integration</artifactId>
+          <version>3.0.0-SNAPSHOT</version>
+          <scope>compile</scope>
+      </dependency>
   </dependencies>
 </project>

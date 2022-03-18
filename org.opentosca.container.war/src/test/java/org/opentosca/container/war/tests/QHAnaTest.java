@@ -15,7 +15,7 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opentosca.container.api.service.PlanGenerationService;
+import org.opentosca.container.control.plan.PlanGenerationService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.control.OpenToscaControlService;

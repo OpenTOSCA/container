@@ -37,7 +37,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
-import org.opentosca.container.api.service.PlanGenerationService;
+import org.opentosca.container.control.plan.PlanGenerationService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.connector.winery.WineryConnector;
