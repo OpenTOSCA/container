@@ -18,7 +18,7 @@ import org.eclipse.winery.model.tosca.TPlan;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opentosca.container.core.model.capability.provider.ProviderType;
+import org.opentosca.container.core.next.model.ProviderType;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.ICoreCapabilityService;
 import org.opentosca.container.engine.plan.IPlanEngineService;
@@ -62,7 +62,11 @@ public class PlanEngineImpl implements IPlanEngineService {
         }
         if (referencePlugins != null) {
             referencePlugins.forEach(rp -> capabilityService.storeCapabilities(rp.getCapabilties(), rp.toString(), ProviderType.PLAN_PLUGIN));
-            this.planReferencePlugins.putAll(referencePlugins.stream().collect(Collectors.toMap(IPlanEnginePlanRefPluginService::getLanguageUsed, Function.identity())));
+            referencePlugins.forEach(plugin -> {
+                if (!this.planReferencePlugins.containsKey(plugin.getLanguageUsed())) {
+                    this.planReferencePlugins.put(plugin.getLanguageUsed(), plugin);
+                }
+            });
         }
     }
 

@@ -1,5 +1,7 @@
 package org.opentosca.bus.management.api.resthttp.route;
 
+import javax.inject.Named;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.opentosca.bus.management.api.resthttp.processor.ExceptionProcessor;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
  */
 @Component
+@Named("management-bus-resthttp-isfinished-route")
 public class IsFinishedRoute extends RouteBuilder {
 
     @Override

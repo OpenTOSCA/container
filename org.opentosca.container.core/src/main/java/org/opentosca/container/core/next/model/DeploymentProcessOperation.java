@@ -1,4 +1,4 @@
-package org.opentosca.container.core.model.deployment.process;
+package org.opentosca.container.core.next.model;
 
 /**
  * All methods that can be performed in the Container.

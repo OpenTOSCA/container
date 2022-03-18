@@ -24,6 +24,7 @@ import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
+import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService;
 import org.opentosca.deployment.checks.DeploymentTestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,25 +33,38 @@ import org.springframework.stereotype.Service;
 @Service
 public class PlanService {
 
-    private static final PlanType[] ALL_PLAN_TYPES = PlanType.values();
     private static final Logger logger = LoggerFactory.getLogger(PlanService.class);
     private final OpenToscaControlService controlService;
     private final DeploymentTestService deploymentTestService;
-    private final PlanInstanceRepository planInstanceRepository = new PlanInstanceRepository();
+    private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
+    private final PlanInstanceRepository planInstanceRepository;
+    private final PlanInstanceSubscriptionService subscriptionService;
 
     @Inject
-    public PlanService(OpenToscaControlService controlService, DeploymentTestService deploymentTestService) {
+    public PlanService(OpenToscaControlService controlService, DeploymentTestService deploymentTestService,
+                       ServiceTemplateInstanceRepository serviceTemplateInstanceRepository, PlanInstanceRepository planInstanceRepository, PlanInstanceSubscriptionService subscriptionService) {
         this.controlService = controlService;
         this.deploymentTestService = deploymentTestService;
+        this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
+        this.planInstanceRepository = planInstanceRepository;
+        this.subscriptionService = subscriptionService;
     }
 
     public PlanInstance getPlanInstance(Long id) {
-        return this.planInstanceRepository.find(id).orElse(null);
+        return this.planInstanceRepository.findById(id).orElse(null);
+    }
+
+    public List<PlanInstance> getPlanInstance(final Long serviceTemplateInstanceId, final PlanType... planTypes) {
+        return this.planInstanceRepository.findAll().stream()
+            .filter(p -> {
+                final PlanType currentType = PlanType.fromString(p.getType().toString());
+                return Arrays.stream(planTypes).anyMatch(pt -> pt.equals(currentType)) && p.getServiceTemplateInstance().getId().equals(serviceTemplateInstanceId);
+            })
+            .collect(Collectors.toList());
     }
 
     public List<PlanInstance> getPlanInstances(final Csar csar, final PlanType... planTypes) {
-        final ServiceTemplateInstanceRepository repo = new ServiceTemplateInstanceRepository();
-        final Collection<ServiceTemplateInstance> serviceInstances = repo.findByCsarId(csar.id());
+        final Collection<ServiceTemplateInstance> serviceInstances = serviceTemplateInstanceRepository.findByCsarId(csar.id());
         return serviceInstances.stream()
             .flatMap(sti -> sti.getPlanInstances().stream())
             .filter(p -> {
@@ -82,15 +96,12 @@ public class PlanService {
         return planInstanceRepository.findByCorrelationId(correlationId);
     }
 
-    public PlanInstance resolvePlanInstance(Long serviceTemplateInstanceId, String correlationId) {
-        final PlanInstanceRepository repository = new PlanInstanceRepository();
-        PlanInstance pi = repository.findByCorrelationId(correlationId);
-        int retries = 0;
-        int maxRetries = 20;
+    public PlanInstance getPlanInstanceWithLogsByCorrelationId(final String correlationId) {
+        return planInstanceRepository.findWithLogsByCorrelationId(correlationId);
+    }
 
-        while (pi == null || retries++ < maxRetries) {
-            pi = repository.findByCorrelationId(correlationId);
-        }
+    public PlanInstance resolvePlanInstance(Long serviceTemplateInstanceId, String correlationId) {
+        PlanInstance pi = (PlanInstance) this.waitForInstanceAvailable(correlationId).joinAndGet(30000);
 
         if (pi == null) {
             final String msg = "Plan instance with correlationId '" + correlationId + "' not found";
@@ -105,10 +116,18 @@ public class PlanService {
         return pi;
     }
 
+    public PlanInstance resolvePlanInstanceWithLogs(Long serviceTemplateInstanceId, String correlationId) {
+        // FIXME this can be done better, im pretty sure about that, e.g., subscribing to a planinstance with logs?
+        // right now we will have 2 "queries" atleast
+        PlanInstance pi = this.resolvePlanInstance(serviceTemplateInstanceId, correlationId);
+
+        return this.planInstanceRepository.findWithLogsById(pi.getId());
+    }
+
     public boolean updatePlanInstanceState(PlanInstance instance, PlanInstanceState newState) {
         try {
             instance.setState(newState);
-            this.planInstanceRepository.update(instance);
+            this.planInstanceRepository.save(instance);
             return true;
         } catch (final IllegalArgumentException e) {
             logger.info("The given state {} is an illegal plan instance state.", newState);
@@ -118,7 +137,19 @@ public class PlanService {
 
     public void addLogToPlanInstance(PlanInstance instance, PlanInstanceEvent event) {
         instance.addEvent(event);
-        planInstanceRepository.update(instance);
+        planInstanceRepository.save(instance);
+    }
+
+    public PlanInstanceSubscriptionService.SubscriptionRunner waitForStateChange(PlanInstance instance, PlanInstanceState expectedState) {
+        return this.subscriptionService.subscribeToStateChange(instance, expectedState);
+    }
+
+    public PlanInstance getPlanInstanceWithOutputs(Long id) {
+        return this.planInstanceRepository.findWithOutputsById(id);
+    }
+
+    public PlanInstanceSubscriptionService.SubscriptionRunner waitForInstanceAvailable(String correlationId) {
+        return this.subscriptionService.subscribeToInstanceAvailable(correlationId, this.planInstanceRepository);
     }
 
     public String invokePlan(Csar csar, TServiceTemplate serviceTemplate, Long serviceTemplateInstanceId, String planId, List<TParameter> parameters, PlanType... planTypes) {

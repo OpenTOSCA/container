@@ -44,6 +44,7 @@ import org.opentosca.container.api.dto.situations.SituationsMonitorDTO;
 import org.opentosca.container.api.dto.situations.SituationsMonitorListDTO;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.SituationInstanceService;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.DeploymentTest;
@@ -52,7 +53,6 @@ import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.next.model.SituationsMonitor;
-import org.opentosca.container.core.next.repository.DeploymentTestRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.deployment.checks.DeploymentTestService;
 import org.slf4j.Logger;
@@ -67,19 +67,25 @@ public class ServiceTemplateInstanceController {
     private final Csar csar;
     private final TServiceTemplate serviceTemplate;
     private final InstanceService instanceService;
+    private final SituationInstanceService situationInstanceService;
     private final PlanService planService;
     private final DeploymentTestService deploymentTestService;
+    private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
     @Context
     private UriInfo uriInfo;
 
     public ServiceTemplateInstanceController(final Csar csar, final TServiceTemplate serviceTemplate,
                                              final InstanceService instanceService, final PlanService planService,
-                                             final DeploymentTestService deploymentTestService) {
+                                             final DeploymentTestService deploymentTestService,
+                                             final SituationInstanceService situationInstanceService,
+                                             ServiceTemplateInstanceRepository serviceTemplateInstanceRepository) {
         this.csar = csar;
         this.serviceTemplate = serviceTemplate;
         this.instanceService = instanceService;
         this.planService = planService;
         this.deploymentTestService = deploymentTestService;
+        this.situationInstanceService = situationInstanceService;
+        this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
     }
 
     @GET
@@ -268,7 +274,7 @@ public class ServiceTemplateInstanceController {
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getSituationMonitors(@PathParam("id") final Long id) {
         logger.debug("Invoking getSituationMonitors");
-        Collection<SituationsMonitor> monitors = this.instanceService.getSituationsMonitors(id);
+        Collection<SituationsMonitor> monitors = this.situationInstanceService.getSituationsMonitors(id);
         final SituationsMonitorListDTO dto = new SituationsMonitorListDTO();
 
         monitors.forEach(x -> dto.add(SituationsMonitorDTO.Converter.convert(x)));
@@ -292,7 +298,7 @@ public class ServiceTemplateInstanceController {
             mapping.put(nodeId, monitor.getNodeId2SituationIds().get(nodeId).getSituationId());
         }
 
-        SituationsMonitor createdInstance = this.instanceService.createNewSituationsMonitor(servInstance, mapping);
+        SituationsMonitor createdInstance = this.situationInstanceService.createNewSituationsMonitor(servInstance, mapping);
         final URI uri = UriUtil.generateSubResourceURI(this.uriInfo, createdInstance.getId().toString(), false);
         return Response.ok(uri).build();
     }
@@ -390,7 +396,7 @@ public class ServiceTemplateInstanceController {
     public Response getDeploymentTests(@PathParam("id") final Integer id) {
         logger.debug("Invoking getDeploymentTests");
         // TODO: Check if instance belongs to CSAR and Service Template
-        final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
+        final ServiceTemplateInstance sti = serviceTemplateInstanceRepository.findById(Long.valueOf(id)).orElse(null);
         if (sti == null) {
             logger.info("Service template instance \"" + id + "\" of template \"" + serviceTemplate.getId()
                 + "\" could not be found");
@@ -402,7 +408,7 @@ public class ServiceTemplateInstanceController {
             final ResourceDecorator decorator = new ResourceDecorator();
             decorator.setObject(v);
             decorator.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePathBuilder()
-                .path(String.valueOf(v.getId())).build()))
+                    .path(String.valueOf(v.getId())).build()))
                 .rel("self").build());
             return decorator;
         }).collect(Collectors.toList());
@@ -422,7 +428,7 @@ public class ServiceTemplateInstanceController {
                                       @PathParam("deploymenttest") final Integer deploymenttest) {
         logger.debug("Invoking getDeploymentTest");
         // TODO: Check if instance belongs to CSAR and Service Template
-        final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
+        final ServiceTemplateInstance sti = serviceTemplateInstanceRepository.findById(Long.valueOf(id)).orElse(null);
         if (sti == null) {
             logger.info("Service template instance \"" + id + "\" of template \"" + serviceTemplate.getId()
                 + "\" could not be found");
@@ -431,7 +437,7 @@ public class ServiceTemplateInstanceController {
         }
 
         // TODO: Check if deployment test belongs the current instance
-        final DeploymentTest object = new DeploymentTestRepository().find(Long.valueOf(deploymenttest)).orElse(null);
+        final DeploymentTest object = deploymentTestService.find(Long.valueOf(deploymenttest)).orElse(null);
         if (object == null) {
             throw new NotFoundException();
         }
@@ -450,7 +456,7 @@ public class ServiceTemplateInstanceController {
     public Response createDeploymentTest(@PathParam("id") final Integer id) {
         logger.debug("Invoking createDeploymentTest");
         // TODO: Check if instance belongs to CSAR and Service Template
-        final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
+        final ServiceTemplateInstance sti = serviceTemplateInstanceRepository.findById(Long.valueOf(id)).orElse(null);
         if (sti == null) {
             logger.info("Service template instance \"" + id + "\" of template \"" + serviceTemplate.getId()
                 + "\" could not be found");

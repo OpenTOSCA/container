@@ -84,15 +84,17 @@ public class RequestProcessor implements Processor {
     private final ContainerEngine containerEngine;
     private final IManagementBusService managementBusService;
     private final ChoreographyHandler choreoHandler;
+    private final PlanInstanceRepository planInstanceRepository;
 
-    // manually instantiated from within the Route definition. Therefore no @Inject
-    // annotation
+    // manually instantiated from within the Route definition. Therefore no @Inject annotation
     public RequestProcessor(CsarStorageService csarStorage, ContainerEngine containerEngine,
-                            IManagementBusService managementBusService, ChoreographyHandler choreoHandler) {
+                            IManagementBusService managementBusService, ChoreographyHandler choreoHandler,
+                            PlanInstanceRepository planInstanceRepository) {
         this.csarStorage = csarStorage;
         this.containerEngine = containerEngine;
         this.managementBusService = managementBusService;
         this.choreoHandler = choreoHandler;
+        this.planInstanceRepository = planInstanceRepository;
     }
 
     @Override
@@ -336,7 +338,7 @@ public class RequestProcessor implements Processor {
             final NotifyPartner notifyPartnerRequest = (NotifyPartner) exchange.getIn().getBody();
 
             // set choreography headers
-            final PlanInstance planInstance = new PlanInstanceRepository()
+            final PlanInstance planInstance = planInstanceRepository
                 .findByCorrelationId(notifyPartnerRequest.getPlanCorrelationID());
             exchange.getIn().setHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString(),
                 planInstance.getChoreographyPartners());
@@ -377,8 +379,8 @@ public class RequestProcessor implements Processor {
 
             final QName planID = MBUtils.findPlanByOperation(choreoCsar, OpenTOSCA_LifecycleInterface, OpenTOSCA_BuildPlanOperation);
 
-            final String planCorrelationId = new PlanInstanceRepository()
-                .findByChoreographyCorrelationId(receiveNotifyRequest.getPlanChorCorrelation(), planID)
+            final String planCorrelationId = planInstanceRepository
+                .findByChoreographyCorrelationIdAndTemplateId(receiveNotifyRequest.getPlanChorCorrelation(), planID)
                 .getCorrelationId();
             receiveNotifyRequest.setPlanCorrelationID(planCorrelationId);
             // create the body for the receiveNotify request that must be send to the plan

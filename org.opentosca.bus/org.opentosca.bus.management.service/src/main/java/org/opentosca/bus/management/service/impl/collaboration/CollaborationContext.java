@@ -14,7 +14,7 @@ import org.opentosca.bus.management.service.impl.collaboration.route.SendRequest
 import org.opentosca.container.core.common.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 /**
  * CollaborationContext of the Management Bus.<br>
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
  * instances. Additionally, a producer template is created which can be used by all classes of this bundle to send camel
  * messages.
  */
-@Service
+@Component
 public class CollaborationContext {
 
     final private static Logger LOG = LoggerFactory.getLogger(CollaborationContext.class);
