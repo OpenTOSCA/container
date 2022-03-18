@@ -21,7 +21,7 @@ import io.swagger.annotations.ApiParam;
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateListDTO;
 import org.opentosca.container.api.service.InstanceService;
-import org.opentosca.container.core.next.services.RelationshipTemplateService;
+import org.opentosca.container.core.next.services.templates.RelationshipTemplateService;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

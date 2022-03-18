@@ -1,4 +1,4 @@
-package org.opentosca.container.core.next.services;
+package org.opentosca.container.core.next.services.templates;
 
 import java.util.List;
 import java.util.stream.Collectors;

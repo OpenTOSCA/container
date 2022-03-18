@@ -40,7 +40,7 @@ import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanType;
-import org.opentosca.container.core.next.services.PlanInstanceService;
+import org.opentosca.container.core.next.services.instances.PlanInstanceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
