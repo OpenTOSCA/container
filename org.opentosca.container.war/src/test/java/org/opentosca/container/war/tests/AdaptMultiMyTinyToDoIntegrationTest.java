@@ -14,16 +14,16 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opentosca.container.control.plan.PlanGenerationService;
-import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.control.OpenToscaControlService;
+import org.opentosca.container.control.plan.PlanGenerationService;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.next.services.instances.PlanInstanceService;
+import org.opentosca.container.core.next.services.instances.ServiceTemplateInstanceService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
@@ -53,7 +53,7 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
     @Inject
     public PlanInvokerService planInvokerService;
     @Inject
-    public InstanceService instanceService;
+    public ServiceTemplateInstanceService serviceTemplateInstanceService;
     @Inject
     public ICoreEndpointService endpointService;
     private TestUtils testUtils = new TestUtils();
@@ -103,14 +103,14 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
         assertNotNull("BuildPlan not found", buildPlan);
         assertNotNull("TerminationPlan not found", terminationPlan);
 
-        ServiceTemplateInstance serviceTemplateInstance = this.instanceService.createServiceTemplateInstance(csar.id().csarName(), serviceTemplate.getId());
+        ServiceTemplateInstance serviceTemplateInstance = this.serviceTemplateInstanceService.createServiceTemplateInstance(csar.id().csarName(), serviceTemplate.getId());
         assertNotNull(serviceTemplateInstance);
 
-        serviceTemplateInstance = testUtils.runAdaptationPlanExecution(this.planInstanceService, this.planInvokerService, this.instanceService, csar, serviceTemplate, serviceTemplateInstance, buildPlan, this.getBuildPlanInputParameters(testUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString())));
+        serviceTemplateInstance = testUtils.runAdaptationPlanExecution(this.planInstanceService, this.planInvokerService, this.serviceTemplateInstanceService, csar, serviceTemplate, serviceTemplateInstance, buildPlan, this.getBuildPlanInputParameters(testUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString())));
         assertNotNull(serviceTemplateInstance);
         this.checkStateAfterBuild(serviceTemplateInstance);
 
-        serviceTemplateInstance = testUtils.runAdaptationPlanExecution(this.planInstanceService, this.planInvokerService, this.instanceService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan, testUtils.getTerminationPlanInputParameters(testUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString())));
+        serviceTemplateInstance = testUtils.runAdaptationPlanExecution(this.planInstanceService, this.planInvokerService, this.serviceTemplateInstanceService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan, testUtils.getTerminationPlanInputParameters(testUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString())));
         assertNotNull(serviceTemplateInstance);
 
         testUtils.invokePlanUndeployment(this.control, csar.id(), serviceTemplate);

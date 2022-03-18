@@ -15,15 +15,15 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opentosca.container.control.plan.PlanGenerationService;
-import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.control.OpenToscaControlService;
+import org.opentosca.container.control.plan.PlanGenerationService;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.services.instances.PlanInstanceService;
+import org.opentosca.container.core.next.services.instances.ServiceTemplateInstanceService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
@@ -41,9 +41,6 @@ public class MyTinyToDoBPMNIntegrationTest {
     public static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
 
     public QName csarId = new QName("http://opentosca.org/test/applications/servicetemplates", "MyTinyToDo-DockerEngine-BPMN-Test_w1-wip1");
-
-    private TestUtils testUtils = new TestUtils();
-
     @Inject
     public OpenToscaControlService control;
     @Inject
@@ -55,9 +52,10 @@ public class MyTinyToDoBPMNIntegrationTest {
     @Inject
     public PlanInvokerService planInvokerService;
     @Inject
-    public InstanceService instanceService;
+    public ServiceTemplateInstanceService serviceTemplateInstanceService;
     @Inject
     public ICoreEndpointService endpointService;
+    private TestUtils testUtils = new TestUtils();
 
     @Test
     public void test() throws Exception {
@@ -78,7 +76,7 @@ public class MyTinyToDoBPMNIntegrationTest {
 
         Assert.assertNotNull("BuildPlan not found", buildPlan);
         Assert.assertNotNull("TerminationPlan not found", terminationPlan);
-        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planInstanceService, this.planInvokerService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
+        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planInstanceService, this.planInvokerService, this.serviceTemplateInstanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
         this.checkStateAfterBuild(serviceTemplateInstance);
 
         testUtils.runTerminationPlanExecution(this.planInstanceService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
@@ -94,11 +92,10 @@ public class MyTinyToDoBPMNIntegrationTest {
     }
 
     private void checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance) throws IOException {
-        Collection<NodeTemplateInstance> nodeTemplateInstances = this.instanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false).getNodeTemplateInstances();
-        Collection<RelationshipTemplateInstance> relationshipTemplateInstances = this.instanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false).getRelationshipTemplateInstances();
+        Collection<NodeTemplateInstance> nodeTemplateInstances = this.serviceTemplateInstanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false).getNodeTemplateInstances();
+        Collection<RelationshipTemplateInstance> relationshipTemplateInstances = this.serviceTemplateInstanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false).getRelationshipTemplateInstances();
         Assert.assertTrue(nodeTemplateInstances.size() == 2);
         Assert.assertTrue(relationshipTemplateInstances.size() == 1);
-
 
         boolean foundDockerEngine = false;
         boolean foundTinyToDo = false;

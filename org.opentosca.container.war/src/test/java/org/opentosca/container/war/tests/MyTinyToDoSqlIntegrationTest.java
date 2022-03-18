@@ -19,16 +19,16 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opentosca.container.control.plan.PlanGenerationService;
-import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.control.OpenToscaControlService;
+import org.opentosca.container.control.plan.PlanGenerationService;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.next.services.instances.PlanInstanceService;
+import org.opentosca.container.core.next.services.instances.ServiceTemplateInstanceService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
@@ -58,7 +58,7 @@ public class MyTinyToDoSqlIntegrationTest {
     @Inject
     public PlanInvokerService planInvokerService;
     @Inject
-    public InstanceService instanceService;
+    public ServiceTemplateInstanceService serviceTemplateInstanceService;
     @Inject
     public ICoreEndpointService endpointService;
     private TestUtils testUtils = new TestUtils();
@@ -101,7 +101,7 @@ public class MyTinyToDoSqlIntegrationTest {
         assertNotNull("DefrostPlan not found", defrostPlan);
         assertNotNull("BackupPlan not found", backupPlan);
 
-        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planInstanceService, this.planInvokerService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
+        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planInstanceService, this.planInvokerService, this.serviceTemplateInstanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
         assertNotNull(serviceTemplateInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
         this.checkStateAfterBuild(serviceTemplateInstance);
@@ -124,7 +124,7 @@ public class MyTinyToDoSqlIntegrationTest {
         QName freezeServiceTemplateId = serviceTemplateIdsAtWineryRepository.stream().filter(x -> !x.equals(serviceTemplateId) && !x.equals(backupServiceTemplateId)).findFirst().orElse(null);
         assertNotNull(freezeServiceTemplateId);
 
-        serviceTemplateInstance = this.instanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false);
+        serviceTemplateInstance = this.serviceTemplateInstanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false);
         assertEquals(ServiceTemplateInstanceState.DELETED, serviceTemplateInstance.getState());
 
         /*
@@ -147,7 +147,7 @@ public class MyTinyToDoSqlIntegrationTest {
         TPlan statefulCsarDefrostPlan = testUtils.getDefrostPlan(statefulCsarServiceTemplatePlans);
         TPlan statefulCsarTerminationPlan = testUtils.getTerminationPlan(statefulCsarServiceTemplatePlans);
 
-        ServiceTemplateInstance statefulCsarServiceTemplateInstance = testUtils.runDefrostPlanExecution(this.planInstanceService, this.planInvokerService, this.instanceService, statefulCsar, statefulCsarServiceTemplate, statefulCsarDefrostPlan, this.getBuildPlanInputParameters());
+        ServiceTemplateInstance statefulCsarServiceTemplateInstance = testUtils.runDefrostPlanExecution(this.planInstanceService, this.planInvokerService, this.serviceTemplateInstanceService, statefulCsar, statefulCsarServiceTemplate, statefulCsarDefrostPlan, this.getBuildPlanInputParameters());
         assertNotNull(statefulCsarServiceTemplateInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, statefulCsarServiceTemplateInstance.getState());
 

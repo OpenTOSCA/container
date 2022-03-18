@@ -34,8 +34,8 @@ import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
-import org.opentosca.container.api.util.Utils;
 import org.opentosca.container.core.common.uri.UriUtil;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.CsarImpl;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
@@ -136,7 +136,7 @@ public class NodeTemplateController {
         } catch (org.opentosca.container.core.common.NotFoundException e) {
             throw new javax.ws.rs.NotFoundException(e);
         }
-        final NodeTemplateInstanceProperty property = Utils.convertDocumentToProperty(result, NodeTemplateInstanceProperty.class);
+        final NodeTemplateInstanceProperty property = ModelUtils.convertDocumentToProperty(result, NodeTemplateInstanceProperty.class);
 
         final List<NodeTemplateInstanceProperty> properties = new ArrayList<>();
         properties.add(property);

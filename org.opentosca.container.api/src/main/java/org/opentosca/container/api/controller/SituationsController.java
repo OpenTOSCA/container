@@ -27,7 +27,6 @@ import org.opentosca.container.api.dto.situations.SituationTriggerDTO;
 import org.opentosca.container.api.dto.situations.SituationTriggerInstanceDTO;
 import org.opentosca.container.api.dto.situations.SituationTriggerListDTO;
 import org.opentosca.container.api.service.InstanceService;
-import org.opentosca.container.core.next.services.instances.SituationInstanceService;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
@@ -35,6 +34,8 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.Situation;
 import org.opentosca.container.core.next.model.SituationTrigger;
 import org.opentosca.container.core.next.model.SituationTriggerProperty;
+import org.opentosca.container.core.next.services.instances.ServiceTemplateInstanceService;
+import org.opentosca.container.core.next.services.instances.SituationInstanceService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.springframework.stereotype.Component;
 
@@ -47,6 +48,8 @@ public class SituationsController {
 
     @Inject
     private InstanceService instanceService;
+    @Inject
+    private ServiceTemplateInstanceService serviceTemplateInstanceService;
     @Inject
     private SituationInstanceService situationInstanceService;
     @Inject
@@ -90,8 +93,7 @@ public class SituationsController {
     public Response updateSituationActivity(@PathParam("situation") final Long situationId, final String body) {
         final Situation sit = this.situationInstanceService.getSituation(situationId);
 
-        boolean active = false;
-
+        boolean active;
         if (body.equalsIgnoreCase("true") || body.equalsIgnoreCase("false")) {
             active = Boolean.valueOf(body);
         } else {
@@ -166,7 +168,7 @@ public class SituationsController {
         ServiceTemplateInstance serviceInstance = null;
         if (situationTrigger.getServiceInstanceId() != null) {
             try {
-                serviceInstance = this.instanceService.getServiceTemplateInstance(situationTrigger.getServiceInstanceId(), false);
+                serviceInstance = this.serviceTemplateInstanceService.getServiceTemplateInstance(situationTrigger.getServiceInstanceId(), false);
             } catch (final NotFoundException e) {
                 serviceInstance = null;
             }

@@ -21,10 +21,10 @@ import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
-import org.opentosca.container.api.util.Utils;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.extension.TParameter;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
@@ -46,6 +46,7 @@ import org.w3c.dom.Document;
  *
  * @author Ghareeb Falazi
  */
+// TODO: remove dtos and move to core
 // TODO it is assumed that the name of the node template is the same as its id.
 //  That assumption is not accurate
 @Service
@@ -90,7 +91,7 @@ public class NodeTemplateService {
         final NodeTemplateInstance newInstance = new NodeTemplateInstance();
         if (propertiesAsDocument != null) {
             final NodeTemplateInstanceProperty properties =
-                Utils.convertDocumentToProperty(propertiesAsDocument, NodeTemplateInstanceProperty.class);
+                ModelUtils.convertDocumentToProperty(propertiesAsDocument, NodeTemplateInstanceProperty.class);
             newInstance.addProperty(properties);
         }
         // State

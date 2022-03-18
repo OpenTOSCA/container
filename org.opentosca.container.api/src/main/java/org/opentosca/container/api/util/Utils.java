@@ -16,43 +16,14 @@ import org.eclipse.winery.model.tosca.TTopologyTemplate;
 import org.eclipse.winery.model.tosca.utils.ModelUtilities;
 
 import org.opentosca.container.api.dto.plan.PlanDTO;
-import org.opentosca.container.core.common.jpa.DocumentConverter;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
-import org.opentosca.container.core.next.model.Property;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public abstract class Utils {
-
-    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
-
-    /**
-     * Converts an xml document to an xml-based property sui/table for service or node template instances
-     */
-    public static <T extends Property> T convertDocumentToProperty(final Document propertyDoc,
-                                                                   final Class<T> type) throws InstantiationException,
-        IllegalAccessException,
-        IllegalArgumentException {
-
-        if (propertyDoc == null) {
-            final String msg =
-                String.format("The set of parameters of an instance of type %s cannot be null", type.getName());
-            logger.error(msg);
-            throw new IllegalArgumentException(msg);
-        }
-        final String propertyAsString = new DocumentConverter().convertToDatabaseColumn(propertyDoc);
-        final T property = type.newInstance();
-        property.setName("xml");
-        property.setType("xml");
-        property.setValue(propertyAsString);
-
-        return property;
-    }
 
     /**
      * Get DTO for the plan with the given Id in the given Csar
