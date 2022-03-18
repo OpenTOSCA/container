@@ -30,7 +30,7 @@ import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueTyp
 import org.opentosca.bus.management.service.impl.collaboration.route.ReceiveRequestRoute;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
+import org.opentosca.container.core.next.model.Endpoint;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,7 +191,7 @@ public class RequestReceiver {
 
             LOG.debug("Got lock for operations on the given IA. Checking if IA is already deployed...");
 
-            final List<WSDLEndpoint> endpoints = endpointService.getWSDLEndpointsForNTImplAndIAName(triggeringContainer,
+            final List<Endpoint> endpoints = endpointService.getEndpointsForNTImplAndIAName(triggeringContainer,
                 deploymentLocation,
                 typeImplementationID,
                 implementationArtifactName);
@@ -201,7 +201,7 @@ public class RequestReceiver {
                 // This case should not happen, as the 'master' Container sends only one deployment
                 // request per IA and intercepts all other deployment actions if there is already an
                 // endpoint.
-                endpointURI = endpoints.get(0).getURI();
+                endpointURI = endpoints.get(0).getUri();
 
                 LOG.warn("IA is already deployed. Storing only one endpoint at the remote side. Endpoint URI: {}",
                     endpointURI);
@@ -219,10 +219,10 @@ public class RequestReceiver {
                     endpointURI = exchange.getIn().getHeader(MBHeader.ENDPOINT_URI.toString(), URI.class);
 
                     // store new endpoint for the IA
-                    final WSDLEndpoint endpoint =
-                        new WSDLEndpoint(endpointURI, portType, triggeringContainer, deploymentLocation, csarID,
-                            serviceTemplateInstanceID, null, typeImplementationID, implementationArtifactName, new HashMap<>());
-                    endpointService.storeWSDLEndpoint(endpoint);
+                    final Endpoint endpoint =
+                        new Endpoint(endpointURI, triggeringContainer, deploymentLocation, csarID,
+                            serviceTemplateInstanceID, new HashMap<>(), portType, typeImplementationID, implementationArtifactName, null);
+                    endpointService.storeEndpoint(endpoint);
                 } else {
                     LOG.error("No matching deployment plug-in found. Aborting deployment!");
                 }
@@ -288,16 +288,16 @@ public class RequestReceiver {
             LOG.debug("Got lock for operations on the given IA. Getting endpoints fot the IA...");
 
             // get all endpoints for the given parameters
-            final List<WSDLEndpoint> endpoints =
-                endpointService.getWSDLEndpointsForNTImplAndIAName(triggeringContainer,
+            final List<Endpoint> endpoints =
+                endpointService.getEndpointsForNTImplAndIAName(triggeringContainer,
                     deploymentLocation,
                     typeImplementationID,
                     implementationArtifactName);
 
             if (endpoints != null && endpoints.size() > 0) {
                 // only one endpoint is stored for remote IAs
-                final WSDLEndpoint endpoint = endpoints.get(0);
-                endpointService.removeWSDLEndpoint(endpoint);
+                final Endpoint endpoint = endpoints.get(0);
+                endpointService.removeEndpoint(endpoint);
 
                 final IManagementBusDeploymentPluginService deploymentPlugin = pluginRegistry.getDeploymentPluginServices().get(artifactType);
                 if (deploymentPlugin != null) {

@@ -3,6 +3,7 @@ package org.opentosca.broker.mqtt;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Properties;
 
 import com.google.common.hash.Hashing;
@@ -82,9 +83,13 @@ public class BrokerSupport {
 
     public synchronized void stop() {
         LOG.info("Stopping MQTT borker");
-        mqttBroker.stopServer();
-        // reset local variable to allow calling start again
-        mqttBroker = null;
-        LOG.info("MQTT broker stopped");
+        if (Objects.nonNull(mqttBroker)) {
+            mqttBroker.stopServer();
+            // reset local variable to allow calling start again
+            mqttBroker = null;
+            LOG.info("MQTT broker stopped");
+        } else {
+            LOG.info("MQTT broker not running");
+        }
     }
 }

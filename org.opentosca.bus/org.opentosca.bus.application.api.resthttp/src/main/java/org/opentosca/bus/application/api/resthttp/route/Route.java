@@ -1,5 +1,7 @@
 package org.opentosca.bus.application.api.resthttp.route;
 
+import javax.inject.Named;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.opentosca.bus.application.api.resthttp.processor.ExceptionProcessor;
@@ -10,6 +12,7 @@ import org.opentosca.bus.application.api.resthttp.processor.InvocationResponsePr
 import org.opentosca.bus.application.api.resthttp.processor.IsFinishedRequestProcessor;
 import org.opentosca.bus.application.api.resthttp.processor.IsFinishedResponseProcessor;
 import org.opentosca.bus.application.model.exception.ApplicationBusInternalException;
+import org.springframework.stereotype.Component;
 
 /**
  * Route of the Application Bus-REST/HTTP-API.<br>
@@ -20,6 +23,8 @@ import org.opentosca.bus.application.model.exception.ApplicationBusInternalExcep
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
+@Component
+@Named("application-bus-resthttp-route")
 public class Route extends RouteBuilder {
 
     public static final String SI = "ServiceInstanceID";

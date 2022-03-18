@@ -12,5 +12,9 @@
 
   <context:annotation-config />
 
+  <context:component-scan base-package="org.opentosca.container.core.impl.service"/>
+  <context:component-scan base-package="org.opentosca.container.core.plan"/>
+  <context:component-scan base-package="org.opentosca.container.engine.plan.impl"/>
+
   <bean class="org.opentosca.container.control.impl.OpenToscaControlServiceImpl" />
 </beans>

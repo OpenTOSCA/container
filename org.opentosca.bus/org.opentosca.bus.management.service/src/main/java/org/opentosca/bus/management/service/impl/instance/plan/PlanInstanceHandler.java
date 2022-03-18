@@ -27,10 +27,12 @@ import org.opentosca.container.core.next.model.PlanInstanceOutput;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.next.model.PlanType;
+import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * Utility class which handles the creation and updating of plan instance data.<br>
@@ -38,77 +40,16 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Copyright 2019 IAAS University of Stuttgart
  */
+@Service
 public class PlanInstanceHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(PlanInstanceHandler.class);
+    private final PlanInstanceRepository planRepo;
+    private final ServiceTemplateInstanceRepository stiRepo;
 
-    private final static ServiceTemplateInstanceRepository stiRepo = new ServiceTemplateInstanceRepository();
-    private final static PlanInstanceRepository planRepo = new PlanInstanceRepository();
-
-    /**
-     * Create a plan instance for the instance API and add the details about name, type, input parameters, etc.
-     *
-     * @param csar                      the CSAR the plan belongs to
-     * @param serviceTemplateId         the Id of the ServiceTemplate the plan belongs to
-     * @param serviceTemplateInstanceId the Id of the ServiceTemplate instance the plan belongs to
-     * @param planId                    the ID of the plan
-     * @param correlationId             the correlation Id that uniquely identifies the plan instance
-     * @param input                     the input parameters of the plan instance
-     * @return the created PlanInstance or <code>null</code> if the creation failed
-     */
-    public static PlanInstance createPlanInstance(final Csar csar, final QName serviceTemplateId,
-                                                  final long serviceTemplateInstanceId, final QName planId,
-                                                  final String operationName, final String correlationId, final String chorCorrelationId,
-                                                  final String choreographyPartners, final Object input) throws CorrelationIdAlreadySetException {
-
-        if (Objects.isNull(planId)) {
-            LOG.error("Plan ID is null! Unable to create PlanInstance!");
-            return null;
-        }
-
-        final TPlan storedPlan;
-        try {
-            storedPlan = ToscaEngine.resolvePlanReference(csar, planId);
-        } catch (NotFoundException e) {
-            LOG.error("Plan with ID {} does not exist in CSAR {}!", planId, csar.id().csarName());
-            return null;
-        }
-
-        // create a new plan instance
-        final PlanInstance plan = new PlanInstance();
-        plan.setCorrelationId(correlationId);
-        plan.setChoreographyCorrelationId(chorCorrelationId);
-        plan.setChoreographyPartners(choreographyPartners);
-        plan.setLanguage(PlanLanguage.fromString(storedPlan.getPlanLanguage()));
-        plan.setType(PlanType.fromString(storedPlan.getPlanType()));
-        plan.setState(PlanInstanceState.RUNNING);
-        plan.setTemplateId(planId);
-
-        // check if plan instance with that correlation ID is already present
-        final Optional<PlanInstance> planOptional =
-            planRepo.findAll().stream().filter(p -> p.getCorrelationId().equals(correlationId)).findFirst();
-        if (planOptional.isPresent()) {
-            throw new CorrelationIdAlreadySetException(
-                "Plan instance with correlation ID " + correlationId + " is already existing.");
-        }
-
-        // cast input parameters for the plan invocation
-        Map<String, String> inputMap = new HashMap<>();
-        if (input instanceof HashMap) {
-            inputMap = (HashMap<String, String>) input;
-        }
-
-        // add input parameters to the plan instance
-        for (final TParameter param : storedPlan.getInputParameters()) {
-            new PlanInstanceInput(param.getName(), inputMap.getOrDefault(param.getName(), ""),
-                param.getType()).setPlanInstance(plan);
-        }
-        // add connection to the service template and update the repository
-        stiRepo.find(serviceTemplateInstanceId)
-            .ifPresent(serviceTemplateInstance -> plan.setServiceTemplateInstance(serviceTemplateInstance));
-        planRepo.add(plan);
-
-        return plan;
+    public PlanInstanceHandler(PlanInstanceRepository planRepo, ServiceTemplateInstanceRepository stiRepo) {
+        this.planRepo = planRepo;
+        this.stiRepo = stiRepo;
     }
 
     /**
@@ -116,18 +57,16 @@ public class PlanInstanceHandler {
      *
      * @return the unique correlation ID
      */
-    public static String createCorrelationId() {
+    public String createCorrelationId() {
         // generate CorrelationId for the plan execution
-        while (true) {
-            final String correlationId = String.valueOf(System.currentTimeMillis());
+        PlanInstance instance;
+        String correlationId;
+        do {
+            correlationId = String.valueOf(System.currentTimeMillis()) + Math.random();
+            instance = planRepo.findByCorrelationId(correlationId);
 
-            try {
-                planRepo.findByCorrelationId(correlationId);
-                LOG.debug("CorrelationId {} already in use.", correlationId);
-            } catch (final NoResultException e) {
-                return correlationId;
-            }
-        }
+        } while (instance != null);
+        return correlationId;
     }
 
     /**
@@ -137,7 +76,7 @@ public class PlanInstanceHandler {
      * @param csar the Id of the CSAR the plan belongs to
      * @param body the body of the camel envelope resulting from the invocation and containing the output parameters
      */
-    public static void updatePlanInstanceOutput(final PlanInstance plan, final Csar csar, final Object body) {
+    public void updatePlanInstanceOutput(final PlanInstance plan, final Csar csar, final Object body) {
 
         final TPlan planModel;
         try {
@@ -229,7 +168,7 @@ public class PlanInstanceHandler {
         }
 
         // update the repo with the changed plan instance
-        planRepo.update(plan);
+        planRepo.save(plan);
     }
 
     /**
@@ -242,5 +181,73 @@ public class PlanInstanceHandler {
         final String resp = (String) responseBody;
         final String instanceID = resp.substring(resp.indexOf("href\":\"") + 7);
         return instanceID.substring(instanceID.lastIndexOf("/") + 1, instanceID.indexOf("\""));
+    }
+
+    /**
+     * Create a plan instance for the instance API and add the details about name, type, input parameters, etc.
+     *
+     * @param csar                      the CSAR the plan belongs to
+     * @param serviceTemplateId         the Id of the ServiceTemplate the plan belongs to
+     * @param serviceTemplateInstanceId the Id of the ServiceTemplate instance the plan belongs to
+     * @param planId                    the ID of the plan
+     * @param correlationId             the correlation Id that uniquely identifies the plan instance
+     * @param input                     the input parameters of the plan instance
+     * @return the created PlanInstance or <code>null</code> if the creation failed
+     */
+    public PlanInstance createPlanInstance(final Csar csar, final QName serviceTemplateId,
+                                           final long serviceTemplateInstanceId, final QName planId,
+                                           final String operationName, final String correlationId, final String chorCorrelationId,
+                                           final String choreographyPartners, final Object input) throws CorrelationIdAlreadySetException {
+
+        if (Objects.isNull(planId)) {
+            LOG.error("Plan ID is null! Unable to create PlanInstance!");
+            return null;
+        }
+
+        final TPlan storedPlan;
+        try {
+            storedPlan = ToscaEngine.resolvePlanReference(csar, planId);
+        } catch (NotFoundException e) {
+            LOG.error("Plan with ID {} does not exist in CSAR {}!", planId, csar.id().csarName());
+            return null;
+        }
+
+        // create a new plan instance
+        PlanInstance plan = new PlanInstance();
+        plan.setCorrelationId(correlationId);
+        plan.setChoreographyCorrelationId(chorCorrelationId);
+        plan.setChoreographyPartners(choreographyPartners);
+        plan.setLanguage(PlanLanguage.fromString(storedPlan.getPlanLanguage()));
+        plan.setType(PlanType.fromString(storedPlan.getPlanType()));
+        plan.setState(PlanInstanceState.RUNNING);
+        plan.setTemplateId(planId);
+
+        // check if plan instance with that correlation ID is already present
+        final Optional<PlanInstance> planOptional =
+            planRepo.findAll().stream().filter(p -> p.getCorrelationId().equals(correlationId)).findFirst();
+        if (planOptional.isPresent()) {
+            throw new CorrelationIdAlreadySetException(
+                "Plan instance with correlation ID " + correlationId + " is already existing.");
+        }
+
+        // cast input parameters for the plan invocation
+        Map<String, String> inputMap = new HashMap<>();
+        if (input instanceof HashMap) {
+            inputMap = (HashMap<String, String>) input;
+        }
+
+        // add input parameters to the plan instance
+        for (final TParameter param : storedPlan.getInputParameters()) {
+            new PlanInstanceInput(param.getName(), inputMap.getOrDefault(param.getName(), ""),
+                param.getType()).setPlanInstance(plan);
+        }
+        // add connection to the service template and update the repository
+        Optional<ServiceTemplateInstance> optional = stiRepo.findWithPlanInstancesById(serviceTemplateInstanceId);
+        if (optional.isPresent()) {
+            plan.setServiceTemplateInstance(optional.get());
+        }
+        plan = planRepo.save(plan);
+
+        return plan;
     }
 }

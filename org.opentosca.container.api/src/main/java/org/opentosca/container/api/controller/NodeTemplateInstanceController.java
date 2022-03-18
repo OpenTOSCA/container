@@ -26,6 +26,7 @@ import io.swagger.annotations.ApiParam;
 import org.opentosca.container.api.dto.NodeTemplateInstanceDTO;
 import org.opentosca.container.api.dto.NodeTemplateInstanceListDTO;
 import org.opentosca.container.api.service.InstanceService;
+import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.util.ModelUtil;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
@@ -43,6 +44,7 @@ public class NodeTemplateInstanceController {
 
     private static final Logger logger = LoggerFactory.getLogger(NodeTemplateInstanceController.class);
     private final InstanceService instanceService;
+    private final NodeTemplateService nodeTemplateService;
     @ApiParam("ID of node template")
     @PathParam("nodetemplate")
     String nodetemplate;
@@ -55,8 +57,10 @@ public class NodeTemplateInstanceController {
     @Context
     UriInfo uriInfo;
 
-    public NodeTemplateInstanceController(final InstanceService instanceService) {
+    public NodeTemplateInstanceController(final InstanceService instanceService,
+                                          NodeTemplateService nodeTemplateService) {
         this.instanceService = instanceService;
+        this.nodeTemplateService = nodeTemplateService;
     }
 
     @GET
@@ -113,7 +117,7 @@ public class NodeTemplateInstanceController {
         logger.debug("Invoking createNodeTemplateInstance");
         try {
             final NodeTemplateInstance createdInstance =
-                this.instanceService.createNewNodeTemplateInstance(this.csar, this.servicetemplate, this.nodetemplate,
+                this.nodeTemplateService.createNewNodeTemplateInstance(this.csar, this.servicetemplate, this.nodetemplate,
                     Long.parseLong(serviceTemplateInstanceId));
             final URI instanceURI = UriUtil.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
             return Response.ok(instanceURI).build();
@@ -221,7 +225,7 @@ public class NodeTemplateInstanceController {
             return Response.noContent().build();
         } else {
             return Response.ok(ModelUtil.createDocumentFromElement(ModelUtil.fetchFirstChildElement(properties,
-                propertyName)))
+                    propertyName)))
                 .build();
         }
     }

@@ -1,4 +1,4 @@
-package org.opentosca.container.core.model.deployment.plan;
+package org.opentosca.container.core.next.model;
 
 /**
  * Deployment and undeployment states of a Plan.

@@ -1,6 +1,7 @@
 package org.opentosca.bus.application.service.impl;
 
 import org.opentosca.bus.application.service.IApplicationBusService;
+import org.springframework.stereotype.Service;
 
 /**
  * Application Bus implementation.<br>
@@ -12,6 +13,7 @@ import org.opentosca.bus.application.service.IApplicationBusService;
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  * @see IApplicationBusService
  */
+@Service
 public class ApplicationBusServiceImpl implements IApplicationBusService {
 
     // Routing endpoint of the Application Bus bundle

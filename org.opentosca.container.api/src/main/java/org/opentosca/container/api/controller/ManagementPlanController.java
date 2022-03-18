@@ -110,7 +110,7 @@ public class ManagementPlanController {
     @ApiOperation(value = "Get instances of a management plan", response = PlanInstanceListDTO.class)
     public Response getManagementPlanInstances(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
                                                @Context final UriInfo uriInfo) {
-        List<PlanInstance> planInstances = planService.getPlanInstances(csar, planTypes);
+        List<PlanInstance> planInstances = planService.getPlanInstance(serviceTemplateInstanceId, planTypes);
 
         final PlanInstanceListDTO list = new PlanInstanceListDTO();
         planInstances.stream()
@@ -229,7 +229,7 @@ public class ManagementPlanController {
             return Response.status(Status.BAD_REQUEST).build();
         }
 
-        PlanInstance pi = planService.getPlanInstanceByCorrelationId(instance);
+        PlanInstance pi = planService.getPlanInstanceWithLogsByCorrelationId(instance);
 
         if (pi == null) {
             LOGGER.error("No plan instance found");

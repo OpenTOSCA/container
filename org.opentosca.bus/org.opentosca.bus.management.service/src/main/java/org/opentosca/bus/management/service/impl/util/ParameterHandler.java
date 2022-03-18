@@ -39,8 +39,11 @@ public class ParameterHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(ParameterHandler.class);
 
+    private final MBUtils mbUtils;
+
     @Inject
-    public ParameterHandler() {
+    public ParameterHandler(MBUtils mbUtils) {
+        this.mbUtils = mbUtils;
     }
 
     /**
@@ -108,7 +111,7 @@ public class ParameterHandler {
      */
     private Map<String, String> updateInputParamsForNodeTemplate(final Map<String, String> inputParams,
                                                                  final Csar csar,
-                                                                 NodeTemplateInstance nodeTemplateInstance,
+                                                                 final NodeTemplateInstance nodeTemplateInstance,
                                                                  final String neededInterface,
                                                                  final String neededOperation) {
         Objects.requireNonNull(nodeTemplateInstance);
@@ -135,13 +138,14 @@ public class ParameterHandler {
         unsetParameters.removeAll(inputParams.keySet());
 
         // search for parameters downwards in the topology until all are set
+        NodeTemplateInstance currentNodeTemplateInstance = nodeTemplateInstance;
         while (!unsetParameters.isEmpty()) {
-            if (nodeTemplateInstance.getTemplateType().equals(Types.abstractOperatingSystemNodeType)) {
-                nodeTemplateInstance = MBUtils.getAbstractOSReplacementInstance(nodeTemplateInstance);
+            if (currentNodeTemplateInstance.getTemplateType().equals(Types.abstractOperatingSystemNodeType)) {
+                currentNodeTemplateInstance = mbUtils.getAbstractOSReplacementInstance(currentNodeTemplateInstance);
             }
 
             // retrieve stored instance data for current node
-            final Map<String, String> propertiesMap = nodeTemplateInstance.getPropertiesAsMap();
+            final Map<String, String> propertiesMap = currentNodeTemplateInstance.getPropertiesAsMap();
             if (Objects.nonNull(propertiesMap)) {
 
                 LOG.debug("Found following properties in the instance data:");
@@ -177,14 +181,14 @@ public class ParameterHandler {
                 // remove found properties
                 unsetParameters.removeAll(inputParams.keySet());
             } else {
-                LOG.debug("No stored instance data found for current node: {}", nodeTemplateInstance.getId());
+                LOG.debug("No stored instance data found for current node: {}", currentNodeTemplateInstance.getId());
             }
 
             // get next node downwards in the topology
-            final Optional<NodeTemplateInstance> nextNode = MBUtils.getNextNodeTemplateInstance(nodeTemplateInstance);
+            final Optional<NodeTemplateInstance> nextNode = mbUtils.getNextNodeTemplateInstance(currentNodeTemplateInstance);
             if (nextNode.isPresent()) {
-                nodeTemplateInstance = nextNode.get();
-                LOG.debug("Next node for parameter search: {}", nodeTemplateInstance.getId());
+                currentNodeTemplateInstance = nextNode.get();
+                LOG.debug("Next node for parameter search: {}", currentNodeTemplateInstance.getId());
             } else {
                 LOG.warn("No next node found for parameter search. Terminating with {} unsatisfied expected parameters",
                     unsetParameters.size());
