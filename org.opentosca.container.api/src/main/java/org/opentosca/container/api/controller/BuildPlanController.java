@@ -30,6 +30,7 @@ import org.opentosca.container.api.dto.plan.PlanInstanceListDTO;
 import org.opentosca.container.api.dto.plan.PlanListDTO;
 import org.opentosca.container.api.dto.request.CreatePlanInstanceLogEntryRequest;
 import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.Utils;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.model.csar.Csar;
@@ -90,7 +91,7 @@ public class BuildPlanController {
     @ApiOperation(value = "Get a build plan", response = PlanDTO.class)
     public Response getBuildPlan(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
                                  @Context final UriInfo uriInfo) {
-        PlanDTO dto = planService.getPlanDto(csar, ALL_PLAN_TYPES, plan);
+        PlanDTO dto = Utils.getPlanDto(csar, ALL_PLAN_TYPES, plan);
 
         dto.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path("instances").build()))
             .rel("instances").build());

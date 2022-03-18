@@ -192,9 +192,7 @@ public class RelationshipTemplateInstanceController {
     @Produces( {MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response getRelationshipTemplateInstanceProperties(@PathParam("id") final Long id) {
-        final Document properties =
-            this.instanceService.getRelationshipTemplateInstanceProperties(this.servicetemplate,
-                this.relationshiptemplate, id);
+        final Document properties = this.instanceService.getRelationshipTemplateInstanceProperties(id);
         if (properties == null) {
             return Response.noContent().build();
         } else {
@@ -211,8 +209,7 @@ public class RelationshipTemplateInstanceController {
                                                                  final Document request) {
 
         try {
-            this.instanceService.setRelationshipTemplateInstanceProperties(this.servicetemplate,
-                this.relationshiptemplate, id, request);
+            this.instanceService.setRelationshipTemplateInstanceProperties(id, request);
         } catch (final IllegalArgumentException e) { // this handles a null request too
             return Response.status(Status.BAD_REQUEST).build();
         } catch (final ReflectiveOperationException e) {

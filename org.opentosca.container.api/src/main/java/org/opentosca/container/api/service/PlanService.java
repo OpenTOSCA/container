@@ -50,10 +50,6 @@ public class PlanService {
         this.subscriptionService = subscriptionService;
     }
 
-    public PlanInstance getPlanInstance(Long id) {
-        return this.planInstanceRepository.findById(id).orElse(null);
-    }
-
     public List<PlanInstance> getPlanInstance(final Long serviceTemplateInstanceId, final PlanType... planTypes) {
         return this.planInstanceRepository.findAll().stream()
             .filter(p -> {
@@ -72,24 +68,6 @@ public class PlanService {
                 return Arrays.stream(planTypes).anyMatch(pt -> pt.equals(currentType));
             })
             .collect(Collectors.toList());
-    }
-
-    /**
-     * Get DTO for the plan with the given Id in the given Csar
-     *
-     * @param csar      the Csar containing the plan
-     * @param planTypes an array with possible types of the plan
-     * @param planId    the Id of the plan
-     * @return the PlanDto if found or
-     * @throws NotFoundException is thrown if the plan can not be found
-     */
-    public PlanDTO getPlanDto(Csar csar, PlanType[] planTypes, String planId) throws NotFoundException {
-        return csar.plans().stream()
-            .filter(tplan -> Arrays.stream(planTypes).anyMatch(pt -> tplan.getPlanType().equals(pt.toString())))
-            .filter(tplan -> tplan.getId() != null && tplan.getId().equals(planId))
-            .findFirst()
-            .map(PlanDTO::new)
-            .orElseThrow(NotFoundException::new);
     }
 
     public PlanInstance getPlanInstanceByCorrelationId(final String correlationId) {
@@ -118,7 +96,7 @@ public class PlanService {
 
     public PlanInstance resolvePlanInstanceWithLogs(Long serviceTemplateInstanceId, String correlationId) {
         // FIXME this can be done better, im pretty sure about that, e.g., subscribing to a planinstance with logs?
-        // right now we will have 2 "queries" atleast
+        // right now we will have 2 "queries" at least
         PlanInstance pi = this.resolvePlanInstance(serviceTemplateInstanceId, correlationId);
 
         return this.planInstanceRepository.findWithLogsById(pi.getId());

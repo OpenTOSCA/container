@@ -34,6 +34,7 @@ import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.service.RelationshipTemplateService;
 import org.opentosca.container.api.service.SituationInstanceService;
+import org.opentosca.container.api.service.Utils;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.Csar;
@@ -247,7 +248,7 @@ public class ServiceTemplateController {
 
         if (success) {
             PlanType[] planTypes = {PlanType.TRANSFORMATION};
-            return Response.ok(this.planService.getPlanDto(storage.findById(result.csarId), planTypes, result.planId)).build();
+            return Response.ok(Utils.getPlanDto(storage.findById(result.csarId), planTypes, result.planId)).build();
         } else {
             return Response.serverError().build();
         }

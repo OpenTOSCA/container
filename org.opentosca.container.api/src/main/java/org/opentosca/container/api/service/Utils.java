@@ -1,6 +1,13 @@
 package org.opentosca.container.api.service;
 
+import java.util.Arrays;
+
+import javax.ws.rs.NotFoundException;
+
+import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
+import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,5 +40,23 @@ public abstract class Utils {
         property.setValue(propertyAsString);
 
         return property;
+    }
+
+    /**
+     * Get DTO for the plan with the given Id in the given Csar
+     *
+     * @param csar      the Csar containing the plan
+     * @param planTypes an array with possible types of the plan
+     * @param planId    the Id of the plan
+     * @return the PlanDto if found or
+     * @throws NotFoundException is thrown if the plan can not be found
+     */
+    public static PlanDTO getPlanDto(Csar csar, PlanType[] planTypes, String planId) throws NotFoundException {
+        return csar.plans().stream()
+            .filter(tplan -> Arrays.stream(planTypes).anyMatch(pt -> tplan.getPlanType().equals(pt.toString())))
+            .filter(tplan -> tplan.getId() != null && tplan.getId().equals(planId))
+            .findFirst()
+            .map(PlanDTO::new)
+            .orElseThrow(NotFoundException::new);
     }
 }

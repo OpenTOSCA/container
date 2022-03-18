@@ -188,8 +188,7 @@ public class NodeTemplateInstanceController {
     @ApiOperation(hidden = true, value = "")
     public Response getNodeTemplateInstanceProperties(@PathParam("id") final Long id) {
         logger.debug("Invoking getNodeTemplateInstanceProperties");
-        final Document properties =
-            this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
+        final Document properties = this.instanceService.getNodeTemplateInstancePropertiesDocument(id);
 
         if (properties == null) {
             return Response.noContent().build();
@@ -218,8 +217,7 @@ public class NodeTemplateInstanceController {
     public Response getNodeTemplateInstanceProperty(@PathParam("id") final Long id,
                                                     @PathParam("propname") final String propertyName) {
         logger.debug("Invoking getNodeTemplateInstanceProperty");
-        final Document properties =
-            this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
+        final Document properties = this.instanceService.getNodeTemplateInstancePropertiesDocument(id);
 
         if (properties == null && ModelUtil.fetchFirstChildElement(properties, propertyName) == null) {
             return Response.noContent().build();
@@ -238,8 +236,7 @@ public class NodeTemplateInstanceController {
     public Response updateNodeTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
         logger.debug("Invoking updateNodeTemplateInstanceProperties");
         try {
-            this.instanceService.setNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id,
-                request);
+            this.instanceService.setNodeTemplateInstanceProperties(id, request);
         } catch (final IllegalArgumentException e) { // this handles a null request too
             return Response.status(Status.BAD_REQUEST).build();
         } catch (final ReflectiveOperationException e) {
@@ -259,15 +256,13 @@ public class NodeTemplateInstanceController {
                                                        final Document request) {
         logger.debug("Invoking updateNodeTemplateInstanceProperty");
         try {
-            final Document properties =
-                this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
+            final Document properties = this.instanceService.getNodeTemplateInstancePropertiesDocument(id);
 
             final Element propElement = ModelUtil.fetchFirstChildElement(properties, propertyName);
 
             propElement.setTextContent(request.getDocumentElement().getTextContent());
 
-            this.instanceService.setNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id,
-                properties);
+            this.instanceService.setNodeTemplateInstanceProperties(id, properties);
         } catch (final IllegalArgumentException e) { // this handles a null request too
             return Response.status(Status.BAD_REQUEST).build();
         } catch (final ReflectiveOperationException e) {

@@ -3,8 +3,6 @@ package org.opentosca.container.api.service;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
@@ -34,19 +32,10 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstanceState
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
-import org.opentosca.container.core.next.model.Situation;
-import org.opentosca.container.core.next.model.SituationTrigger;
-import org.opentosca.container.core.next.model.SituationTriggerInstance;
-import org.opentosca.container.core.next.model.SituationTriggerProperty;
-import org.opentosca.container.core.next.model.SituationsMonitor;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.RelationshipTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
-import org.opentosca.container.core.next.repository.SituationRepository;
-import org.opentosca.container.core.next.repository.SituationTriggerInstanceRepository;
-import org.opentosca.container.core.next.repository.SituationTriggerRepository;
-import org.opentosca.container.core.next.repository.SituationsMonitorRepository;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -266,9 +255,8 @@ public class InstanceService {
             return doc;
         } catch (final ParserConfigurationException e) {
             logger.error("Cannot create a new DocumentBuilder: {}", e.getMessage());
+            return null;
         }
-
-        return null; // this should never happen
     }
 
     /* Node Template Instances */
@@ -310,9 +298,7 @@ public class InstanceService {
 
     public NodeTemplateInstanceState getNodeTemplateInstanceState(final String serviceTemplateQName,
                                                                   final String nodeTemplateId, final Long id) {
-        final NodeTemplateInstance node = resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id);
-
-        return node.getState();
+        return resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id).getState();
     }
 
     public void setNodeTemplateInstanceState(final String serviceTemplateName, final String nodeTemplateId,
@@ -333,8 +319,7 @@ public class InstanceService {
         this.nodeTemplateInstanceRepository.save(node);
     }
 
-    public Document getNodeTemplateInstanceProperties(final String serviceTemplateQName, final String nodeTemplateId,
-                                                      final Long id) throws NotFoundException {
+    public Document getNodeTemplateInstancePropertiesDocument(final Long id) throws NotFoundException {
 
         final NodeTemplateInstance node = this.nodeTemplateInstanceRepository.findWithPropertiesById(id).get();
         final Optional<NodeTemplateInstanceProperty> firstProp = node.getProperties().stream().findFirst();
@@ -361,9 +346,7 @@ public class InstanceService {
         return null;
     }
 
-    public void setNodeTemplateInstanceProperties(final String serviceTemplateQName, final String nodeTemplateId,
-                                                  final Long id,
-                                                  final Document properties) throws ReflectiveOperationException {
+    public void setNodeTemplateInstanceProperties(final Long id, final Document properties) throws ReflectiveOperationException {
         final NodeTemplateInstance node = this.nodeTemplateInstanceRepository.findWithPropertiesById(id).get();
 
         try {
@@ -455,9 +438,7 @@ public class InstanceService {
         this.relationshipTemplateInstanceRepository.save(relationship);
     }
 
-    public Document getRelationshipTemplateInstanceProperties(final String serviceTemplateQName,
-                                                              final String relationshipTemplateId,
-                                                              final Long id) throws NotFoundException {
+    public Document getRelationshipTemplateInstanceProperties(final Long id) throws NotFoundException {
         final RelationshipTemplateInstance relationship =
             this.relationshipTemplateInstanceRepository.findWithPropertiesById(id);
         final Optional<RelationshipTemplateInstanceProperty> firstProp =
@@ -473,9 +454,7 @@ public class InstanceService {
         return null;
     }
 
-    public void setRelationshipTemplateInstanceProperties(final String serviceTemplateQName,
-                                                          final String relationshipTemplateId, final Long id,
-                                                          final Document properties) throws ReflectiveOperationException {
+    public void setRelationshipTemplateInstanceProperties(final Long id, final Document properties) throws ReflectiveOperationException {
         final RelationshipTemplateInstance relationship =
             this.relationshipTemplateInstanceRepository.findWithPropertiesById(id);
 
@@ -555,5 +534,11 @@ public class InstanceService {
         final RelationshipTemplateInstance instance =
             resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, instanceId);
         this.relationshipTemplateInstanceRepository.delete(instance);
+    }
+
+    public void deleteInstancesForCsar(final CsarId csarId) {
+        logger.debug("Deleting all instances related to CSAR with ID: {}", csarId);
+
+        // TODO
     }
 }

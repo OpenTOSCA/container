@@ -49,6 +49,7 @@ import org.opentosca.container.api.dto.request.CsarTransformRequest;
 import org.opentosca.container.api.dto.request.CsarUploadRequest;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.Utils;
 import org.opentosca.container.api.util.ModelUtil;
 import org.opentosca.container.connector.winery.WineryConnector;
 import org.opentosca.container.control.OpenToscaControlService;
@@ -413,6 +414,6 @@ public class CsarController {
         this.controlService.invokePlanDeployment(sourceCsarId, storedCsar.entryServiceTemplate(), plans, plan);
 
         PlanType[] planTypes = {PlanType.TRANSFORMATION};
-        return Response.ok(this.planService.getPlanDto(storedCsar, planTypes, plan.getId())).build();
+        return Response.ok(Utils.getPlanDto(storedCsar, planTypes, plan.getId())).build();
     }
 }
