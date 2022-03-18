@@ -31,7 +31,7 @@ import org.opentosca.container.core.next.xml.PropertyParser;
 @Entity
 @Table(name = NodeTemplateInstance.TABLE_NAME)
 @NamedEntityGraphs({
-    @NamedEntityGraph(name="propertiesAndOutgoing", includeAllAttributes=true, attributeNodes = {
+    @NamedEntityGraph(name = "propertiesAndOutgoing", includeAllAttributes = true, attributeNodes = {
         @NamedAttributeNode("properties"),
         @NamedAttributeNode("outgoingRelations"),
         @NamedAttributeNode("incomingRelations")

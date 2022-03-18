@@ -18,12 +18,75 @@ import org.springframework.stereotype.Component;
 @Component
 public class PlanInstanceSubscriptionService {
 
-    private static Map<Long,Collection<PlanInstanceExpectedStateSubscription>> stateExpectedSubscriptions = null;
-    private static Map<String,Collection<PlanInstanceAvailableSubscription>> instanceAvailableSubscriptions = null;
+    private static Map<Long, Collection<PlanInstanceExpectedStateSubscription>> stateExpectedSubscriptions = Collections.synchronizedMap(new HashMap<>());
+    private static Map<String, Collection<PlanInstanceAvailableSubscription>> instanceAvailableSubscriptions = Collections.synchronizedMap(new HashMap<>());
+
+    private void remove(PlanInstanceSubscription planInstanceSubscription) {
+        if (planInstanceSubscription instanceof PlanInstanceAvailableSubscription) {
+            instanceAvailableSubscriptions.get(planInstanceSubscription.getInstance().getCorrelationId()).remove(planInstanceSubscription);
+        } else if (planInstanceSubscription instanceof PlanInstanceExpectedStateSubscription) {
+            stateExpectedSubscriptions.get(planInstanceSubscription.getInstance().getId()).remove(planInstanceSubscription);
+        }
+    }
+
+    public SubscriptionRunner subscribeToStateChange(PlanInstance planInstance, PlanInstanceState expectedState) {
+        PlanInstanceExpectedStateSubscription planInstanceSubscription = new PlanInstanceExpectedStateSubscription(planInstance, this, expectedState);
+
+        if (stateExpectedSubscriptions.containsKey(planInstance.getId())) {
+            stateExpectedSubscriptions.get(planInstance.getId()).add(planInstanceSubscription);
+        } else {
+            Collection<PlanInstanceExpectedStateSubscription> subs = Collections.synchronizedCollection(new HashSet<>());
+            subs.add(planInstanceSubscription);
+            stateExpectedSubscriptions.put(planInstance.getId(), subs);
+        }
+        SubscriptionRunner t = new SubscriptionRunner<>(planInstanceSubscription);
+        t.start();
+        return t;
+    }
+
+    public SubscriptionRunner subscribeToInstanceAvailable(String correlationId, PlanInstanceRepository planRepo) {
+        PlanInstanceAvailableSubscription planInstanceAvailableSubscription = new PlanInstanceAvailableSubscription(planRepo.findByCorrelationId(correlationId), this, correlationId);
+        if (instanceAvailableSubscriptions.containsKey(correlationId)) {
+            instanceAvailableSubscriptions.get(correlationId).add(planInstanceAvailableSubscription);
+        } else {
+            Collection<PlanInstanceAvailableSubscription> subs = Collections.synchronizedCollection(new HashSet<>());
+            subs.add(planInstanceAvailableSubscription);
+            instanceAvailableSubscriptions.put(correlationId, subs);
+        }
+        SubscriptionRunner t = new SubscriptionRunner<>(planInstanceAvailableSubscription);
+        t.start();
+        return t;
+    }
+
+    @PostPersist
+    void planInstanceAfterCreate(final PlanInstance planInstance) {
+        System.out.println("post create method was called");
+        Collection<PlanInstanceAvailableSubscription> subsInstanceAvailable = instanceAvailableSubscriptions.get(planInstance.getCorrelationId());
+        if (subsInstanceAvailable != null && !subsInstanceAvailable.isEmpty()) {
+            System.out.println("Notifying planinstance available subscribers");
+            subsInstanceAvailable.forEach(sub -> {
+                sub.updatePlanInstance(planInstance);
+            });
+        }
+    }
+
+    @PostUpdate
+    void planInstanceAfterUpdate(final PlanInstance planInstance) {
+        System.out.println("post update method was called");
+        Collection<PlanInstanceExpectedStateSubscription> subsStateExpected = stateExpectedSubscriptions.get(planInstance.getId());
+
+        if (subsStateExpected != null && !subsStateExpected.isEmpty()) {
+            System.out.println("Notifying planinstance state expected subscribers");
+            subsStateExpected.forEach(sub -> {
+                sub.updatePlanInstance(planInstance);
+            });
+        }
+    }
 
     public class SubscriptionRunner<T extends PlanInstanceSubscription> extends Thread {
 
         private T obj;
+
         public SubscriptionRunner(T obj) {
             super(obj);
             this.obj = obj;
@@ -91,8 +154,6 @@ public class PlanInstanceSubscriptionService {
         }
     }
 
-
-
     public class PlanInstanceAvailableSubscription extends PlanInstanceSubscription {
         private String expectedCorrelation;
 
@@ -107,7 +168,6 @@ public class PlanInstanceSubscriptionService {
         }
     }
 
-
     public class PlanInstanceExpectedStateSubscription extends PlanInstanceSubscription {
         private PlanInstanceState expectedState;
 
@@ -119,77 +179,6 @@ public class PlanInstanceSubscriptionService {
 
         public boolean conditionIsMet() {
             return this.getInstance().getState().toString().equals(this.expectedState.toString());
-        }
-    }
-
-    public PlanInstanceSubscriptionService() {
-        if (stateExpectedSubscriptions == null) {
-            stateExpectedSubscriptions = Collections.synchronizedMap(new HashMap<>());
-        }
-        if (instanceAvailableSubscriptions == null) {
-            instanceAvailableSubscriptions = Collections.synchronizedMap(new HashMap<>());
-        }
-    }
-
-    private void remove(PlanInstanceSubscription planInstanceSubscription) {
-        if (planInstanceSubscription instanceof PlanInstanceAvailableSubscription) {
-            instanceAvailableSubscriptions.get(planInstanceSubscription.getInstance().getCorrelationId()).remove(planInstanceSubscription);
-        } else if (planInstanceSubscription instanceof PlanInstanceExpectedStateSubscription) {
-            stateExpectedSubscriptions.get(planInstanceSubscription.getInstance().getId()).remove(planInstanceSubscription);
-        }
-    }
-
-    public SubscriptionRunner subscribeToStateChange(PlanInstance planInstance, PlanInstanceState expectedState) {
-        PlanInstanceExpectedStateSubscription planInstanceSubscription = new PlanInstanceExpectedStateSubscription(planInstance, this, expectedState);
-
-        if (stateExpectedSubscriptions.containsKey(planInstance.getId())) {
-            stateExpectedSubscriptions.get(planInstance.getId()).add(planInstanceSubscription);
-        } else {
-            Collection<PlanInstanceExpectedStateSubscription> subs = Collections.synchronizedCollection(new HashSet<>());
-            subs.add(planInstanceSubscription);
-            stateExpectedSubscriptions.put(planInstance.getId(), subs);
-        }
-        SubscriptionRunner t = new SubscriptionRunner<>(planInstanceSubscription);
-        t.start();
-        return t;
-    }
-
-    public SubscriptionRunner subscribeToInstanceAvailable(String correlationId, PlanInstanceRepository planRepo) {
-        PlanInstanceAvailableSubscription planInstanceAvailableSubscription = new PlanInstanceAvailableSubscription(planRepo.findByCorrelationId(correlationId), this, correlationId);
-        if (instanceAvailableSubscriptions.containsKey(correlationId)) {
-            instanceAvailableSubscriptions.get(correlationId).add(planInstanceAvailableSubscription);
-        } else {
-            Collection<PlanInstanceAvailableSubscription> subs = Collections.synchronizedCollection(new HashSet<>());
-            subs.add(planInstanceAvailableSubscription);
-            instanceAvailableSubscriptions.put(correlationId, subs);
-        }
-        SubscriptionRunner t = new SubscriptionRunner<>(planInstanceAvailableSubscription);
-        t.start();
-        return t;
-    }
-
-    @PostPersist
-    void planInstanceAfterCreate(final PlanInstance planInstance) {
-        System.out.println("post create method was called");
-        Collection<PlanInstanceAvailableSubscription> subsInstanceAvailable = instanceAvailableSubscriptions.get(planInstance.getCorrelationId());
-        if (subsInstanceAvailable != null && !subsInstanceAvailable.isEmpty()) {
-            System.out.println("Notifying planinstance available subscribers");
-            subsInstanceAvailable.forEach(sub -> {
-                sub.updatePlanInstance(planInstance);
-            });
-        }
-    }
-
-    @PostUpdate
-    void planInstanceAfterUpdate(final PlanInstance planInstance) {
-        System.out.println("post update method was called");
-        Collection<PlanInstanceExpectedStateSubscription> subsStateExpected = stateExpectedSubscriptions.get(planInstance.getId());
-
-        if (subsStateExpected != null && !subsStateExpected.isEmpty()) {
-            System.out.println("Notifying planinstance state expected subscribers");
-            subsStateExpected.forEach(sub -> {
-                sub.updatePlanInstance(planInstance);
-            });
         }
     }
 }

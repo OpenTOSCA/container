@@ -2,7 +2,6 @@ package org.opentosca.container.core.service;
 
 import java.util.List;
 
-import javax.transaction.Transactional;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.CsarId;

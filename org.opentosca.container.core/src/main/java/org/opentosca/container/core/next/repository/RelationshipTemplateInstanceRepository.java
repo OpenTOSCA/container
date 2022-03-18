@@ -1,9 +1,7 @@
 package org.opentosca.container.core.next.repository;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,5 +14,4 @@ public interface RelationshipTemplateInstanceRepository extends JpaRepository<Re
 
     @EntityGraph(attributePaths = {"properties"})
     RelationshipTemplateInstance findWithPropertiesById(Long id);
-
 }

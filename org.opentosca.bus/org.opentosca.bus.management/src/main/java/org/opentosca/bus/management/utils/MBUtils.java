@@ -40,12 +40,9 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
-import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
-import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.RelationshipTemplateInstanceRepository;
-import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -410,7 +407,7 @@ public class MBUtils {
                                                         final String nodeTemplateID) {
         LOG.debug("Trying to retrieve NodeTemplateInstance for ServiceTemplateInstance ID {} and NodeTemplate ID {} ...",
             serviceTemplateInstanceID, nodeTemplateID);
-        return this.nodeTemplateInstanceRepository.findWithPropertiesAndOutgoingByTemplateId(nodeTemplateID).stream().filter( node -> node.getServiceTemplateInstance().getId().equals(serviceTemplateInstanceID)).findFirst().orElse(null);
+        return this.nodeTemplateInstanceRepository.findWithPropertiesAndOutgoingByTemplateId(nodeTemplateID).stream().filter(node -> node.getServiceTemplateInstance().getId().equals(serviceTemplateInstanceID)).findFirst().orElse(null);
     }
 
     /**

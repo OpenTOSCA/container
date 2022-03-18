@@ -2,7 +2,6 @@ package org.opentosca.container.core.next.repository;
 
 import java.util.List;
 
-import javax.transaction.Transactional;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.CsarId;
@@ -21,7 +20,7 @@ public interface EndpointRepository extends JpaRepository<Endpoint, Long> {
     List<Endpoint> findByTriggeringContainerAndCsarIdAndPlanId(String triggeringContainer, CsarId csarId, QName planId);
 
     List<Endpoint> findByTriggeringContainerAndManagingContainerAndTypeImplementationAndIaName(String triggeringContainer, String managingContainer,
-                                                                                                  QName nodeTypeImpl, String iaName);
+                                                                                               QName nodeTypeImpl, String iaName);
 
     @EntityGraph(attributePaths = {"metadata"})
     List<Endpoint> findWithMetadataBy();

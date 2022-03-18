@@ -530,7 +530,7 @@ public class ODEEndpointUpdater {
 
         try {
             final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-            endpoints.add(new Endpoint(new URI(callbackEndpoint), localContainer, localContainer, null, null, new HashMap<>(), port.getBinding().getPortType().getQName(), null, null, null));
+            endpoints.add(new Endpoint(new URI(callbackEndpoint), localContainer, localContainer, null, new HashMap<>(), port.getBinding().getPortType().getQName()));
         } catch (final URISyntaxException e) {
             e.printStackTrace();
         }

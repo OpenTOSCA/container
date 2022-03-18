@@ -95,7 +95,7 @@ public class Route extends RouteBuilder {
             final URI uri = new URI(Route.PUBLIC_ENDPOINT);
             final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
             final Endpoint endpoint = new Endpoint(uri, localContainer, localContainer,
-                new CsarId("***"), null, new HashMap<>(), Route.PORTTYPE, null, null, null);
+                new CsarId("***"), new HashMap<>(), Route.PORTTYPE);
             this.endpointService.storeEndpoint(endpoint);
         } catch (final URISyntaxException e) {
             e.printStackTrace();

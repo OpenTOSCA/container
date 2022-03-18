@@ -12,7 +12,6 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
 import javax.persistence.NamedEntityGraphs;
@@ -30,8 +29,8 @@ import org.w3c.dom.Document;
 
 @Entity
 @Table(name = ServiceTemplateInstance.TABLE_NAME)
-@NamedEntityGraphs({
-    @NamedEntityGraph(name="nodeTemplateInstances", includeAllAttributes=true, attributeNodes = {
+@NamedEntityGraphs( {
+    @NamedEntityGraph(name = "nodeTemplateInstances", includeAllAttributes = true, attributeNodes = {
         @NamedAttributeNode("nodeTemplateInstances"),
         @NamedAttributeNode("relationshipTemplateInstances"),
         @NamedAttributeNode("planInstances")

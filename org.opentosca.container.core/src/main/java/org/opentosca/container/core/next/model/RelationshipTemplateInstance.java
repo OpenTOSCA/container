@@ -9,7 +9,6 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedAttributeNode;
@@ -24,8 +23,8 @@ import org.opentosca.container.core.common.jpa.QNameConverter;
 
 @Entity
 @Table(name = RelationshipTemplateInstance.TABLE_NAME)
-@NamedEntityGraphs({
-    @NamedEntityGraph(name="relationshipTemplateInstanceEntityGraph", includeAllAttributes=true, attributeNodes = {
+@NamedEntityGraphs( {
+    @NamedEntityGraph(name = "relationshipTemplateInstanceEntityGraph", includeAllAttributes = true, attributeNodes = {
         @NamedAttributeNode("properties")
     })
 })

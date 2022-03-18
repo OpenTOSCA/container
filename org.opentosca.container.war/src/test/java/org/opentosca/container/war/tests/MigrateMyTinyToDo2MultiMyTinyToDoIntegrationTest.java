@@ -108,7 +108,6 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         ServiceTemplateInstance multiInstance = testUtils.runTransformationPlan(this.planService, this.instanceService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoServiceTemplateInstance, myTinyToMultiTinyTransformationPlan, this.getTransformationPlanInputParameters(myTinyToDoServiceInstanceUrl));
         assertNotNull(multiInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, multiInstance.getState());
-        String multiMyTinyToDoServiceInstanceUrl = testUtils.createServiceInstanceUrl(multiMyTinyToDoCsar.id().csarName(), multiMyTinyToDoServiceTemplate.getId(), multiInstance.getId().toString());
         this.checkStateAfterMigration(multiInstance);
 
         testUtils.runTerminationPlanExecution(this.planService, multiMyTinyToDoCsar, multiMyTinyToDoServiceTemplate, multiInstance, multiTinyTerminationPlan);

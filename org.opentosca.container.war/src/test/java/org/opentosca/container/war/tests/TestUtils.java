@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import javax.transaction.Transactional;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
@@ -137,7 +136,7 @@ public class TestUtils {
         return this.loadCSARFromRepositoryIntoStorage(RepositoryConfigurationObject.RepositoryProvider.FILE, csarId, storage, repositoryPath, remoteUrl);
     }
 
-    private  Path getRepositoryPath(String testRemoteRepositoryUrl) {
+    private Path getRepositoryPath(String testRemoteRepositoryUrl) {
         Path repositoryPath;
         String repoSuffix = "";
         if (testRemoteRepositoryUrl != null) {
@@ -153,7 +152,7 @@ public class TestUtils {
     }
 
     public Csar loadCSARFromRepositoryIntoStorage(RepositoryConfigurationObject.RepositoryProvider provider, QName serviceTemplateId,
-                                                         CsarStorageService storage, Path repositoryInputPath, String remoteUrl)
+                                                  CsarStorageService storage, Path repositoryInputPath, String remoteUrl)
         throws Exception {
         IRepository repository = fetchRepository(provider, repositoryInputPath, remoteUrl);
         LOGGER.debug("Initialized test repository");
@@ -209,7 +208,7 @@ public class TestUtils {
         return fetchRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, repositoryInputPath, remoteUrl);
     }
 
-    private  IRepository fetchRepository(RepositoryConfigurationObject.RepositoryProvider provider, Path repositoryInputPath, String remoteUrl) throws GitAPIException, IOException {
+    private IRepository fetchRepository(RepositoryConfigurationObject.RepositoryProvider provider, Path repositoryInputPath, String remoteUrl) throws GitAPIException, IOException {
         Path repositoryPath = repositoryInputPath;
         LOGGER.info("Testing with repository directory '{}'", repositoryPath);
         boolean isInitializedRepo = false;
@@ -266,7 +265,7 @@ public class TestUtils {
         return RepositoryFactory.getRepository();
     }
 
-    private  void cloneRepo(Path repositoryPath, String remoteUrl) throws IOException, GitAPIException {
+    private void cloneRepo(Path repositoryPath, String remoteUrl) throws IOException, GitAPIException {
         if (!Files.exists(repositoryPath)) {
             Files.createDirectory(repositoryPath);
         }

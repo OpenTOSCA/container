@@ -8,7 +8,6 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
 import javax.persistence.NamedEntityGraphs;
@@ -29,11 +28,21 @@ import org.opentosca.container.core.model.csar.CsarId;
 @AllArgsConstructor
 @Table(name = Endpoint.TABLE_NAME)
 @NamedEntityGraphs({
-    @NamedEntityGraph(name="metadata", includeAllAttributes=true, attributeNodes = {
+    @NamedEntityGraph(name = "metadata", includeAllAttributes = true, attributeNodes = {
         @NamedAttributeNode("metadata")
     })
 })
 public class Endpoint extends PersistenceObject {
+
+    public Endpoint(URI uri, String triggeringContainer, String managingContainer,
+                    CsarId csarId, Map<String, String> metadata, QName portType) {
+        this.uri = uri;
+        this.triggeringContainer = triggeringContainer;
+        this.managingContainer = managingContainer;
+        this.csarId = csarId;
+        this.metadata = metadata;
+        this.portType = portType;
+    }
 
     public static final String TABLE_NAME = "ENDPOINT";
 
