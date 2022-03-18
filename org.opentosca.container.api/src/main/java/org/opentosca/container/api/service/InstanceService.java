@@ -36,7 +36,7 @@ import org.opentosca.container.core.next.repository.NodeTemplateInstanceReposito
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.RelationshipTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
-import org.opentosca.container.core.next.services.PlanService;
+import org.opentosca.container.core.next.services.PlanInstanceService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +60,7 @@ public class InstanceService {
     private final ServiceTemplateService serviceTemplateService;
     private final CsarStorageService storage;
     private final PlanInstanceRepository planInstanceRepository;
-    private final PlanService planService;
+    private final PlanInstanceService planInstanceService;
 
     private final DocumentConverter converter = new DocumentConverter();
 
@@ -70,7 +70,7 @@ public class InstanceService {
                            RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository,
                            RelationshipTemplateService relationshipTemplateService,
                            ServiceTemplateService serviceTemplateService,
-                           CsarStorageService storage, PlanInstanceRepository planInstanceRepository, PlanService planService) {
+                           CsarStorageService storage, PlanInstanceRepository planInstanceRepository, PlanInstanceService planInstanceService) {
         this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
         this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
         this.relationshipTemplateInstanceRepository = relationshipTemplateInstanceRepository;
@@ -78,7 +78,7 @@ public class InstanceService {
         this.serviceTemplateService = serviceTemplateService;
         this.storage = storage;
         this.planInstanceRepository = planInstanceRepository;
-        this.planService = planService;
+        this.planInstanceService = planInstanceService;
     }
 
     public Document convertPropertyToDocument(final Property property) {
@@ -182,7 +182,7 @@ public class InstanceService {
         IllegalArgumentException {
         final CsarId csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateName);
 
-        PlanInstance pi = (PlanInstance) this.planService.waitForInstanceAvailable(correlationId).joinAndGet(30000);
+        PlanInstance pi = (PlanInstance) this.planInstanceService.waitForInstanceAvailable(correlationId).joinAndGet(30000);
 
         // if no instance was found it is possible that live-modeling was started, just create an empty instance
         if (pi == null) {

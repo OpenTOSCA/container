@@ -22,17 +22,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PlanService {
+public class PlanInstanceService {
 
-    private static final Logger logger = LoggerFactory.getLogger(PlanService.class);
+    private static final Logger logger = LoggerFactory.getLogger(PlanInstanceService.class);
     private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
     private final PlanInstanceRepository planInstanceRepository;
     private final PlanInstanceSubscriptionService subscriptionService;
 
     @Inject
-    public PlanService(ServiceTemplateInstanceRepository serviceTemplateInstanceRepository,
-                       PlanInstanceRepository planInstanceRepository,
-                       PlanInstanceSubscriptionService subscriptionService) {
+    public PlanInstanceService(ServiceTemplateInstanceRepository serviceTemplateInstanceRepository,
+                               PlanInstanceRepository planInstanceRepository,
+                               PlanInstanceSubscriptionService subscriptionService) {
         this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
         this.planInstanceRepository = planInstanceRepository;
         this.subscriptionService = subscriptionService;

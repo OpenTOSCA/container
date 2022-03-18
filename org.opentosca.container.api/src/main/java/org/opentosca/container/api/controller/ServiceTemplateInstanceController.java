@@ -54,7 +54,7 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.next.model.SituationsMonitor;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
-import org.opentosca.container.core.next.services.PlanService;
+import org.opentosca.container.core.next.services.PlanInstanceService;
 import org.opentosca.deployment.checks.DeploymentTestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public class ServiceTemplateInstanceController {
     private final TServiceTemplate serviceTemplate;
     private final InstanceService instanceService;
     private final SituationInstanceService situationInstanceService;
-    private final PlanService planService;
+    private final PlanInstanceService planInstanceService;
     private final PlanInvokerService planInvokerService;
     private final DeploymentTestService deploymentTestService;
     private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
@@ -77,7 +77,7 @@ public class ServiceTemplateInstanceController {
     private UriInfo uriInfo;
 
     public ServiceTemplateInstanceController(final Csar csar, final TServiceTemplate serviceTemplate,
-                                             final InstanceService instanceService, final PlanService planService,
+                                             final InstanceService instanceService, final PlanInstanceService planInstanceService,
                                              final PlanInvokerService planInvokerService,
                                              final DeploymentTestService deploymentTestService,
                                              final SituationInstanceService situationInstanceService,
@@ -85,7 +85,7 @@ public class ServiceTemplateInstanceController {
         this.csar = csar;
         this.serviceTemplate = serviceTemplate;
         this.instanceService = instanceService;
-        this.planService = planService;
+        this.planInstanceService = planInstanceService;
         this.planInvokerService = planInvokerService;
         this.deploymentTestService = deploymentTestService;
         this.situationInstanceService = situationInstanceService;
@@ -187,7 +187,7 @@ public class ServiceTemplateInstanceController {
     }
 
     private PlanInstance findPlanInstance(ServiceTemplateInstance instance) {
-        return planService.getPlanInstanceByCorrelationId(instance.getCreationCorrelationId());
+        return planInstanceService.getPlanInstanceByCorrelationId(instance.getCreationCorrelationId());
     }
 
     @DELETE
@@ -203,7 +203,7 @@ public class ServiceTemplateInstanceController {
     @Path("/{id}/managementplans")
     public ManagementPlanController getManagementPlans(@ApiParam("ID of service template instance") @PathParam("id") final Long id) {
         logger.debug("Invoking getManagementPlans");
-        return new ManagementPlanController(csar, serviceTemplate, id, this.planService, this.planInvokerService,
+        return new ManagementPlanController(csar, serviceTemplate, id, this.planInstanceService, this.planInvokerService,
             PlanType.TERMINATION, PlanType.MANAGEMENT, PlanType.TRANSFORMATION);
     }
 

@@ -28,8 +28,7 @@ import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
-import org.opentosca.container.core.next.services.PlanService;
-import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService;
+import org.opentosca.container.core.next.services.PlanInstanceService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
@@ -55,7 +54,7 @@ public class MyTinyToDoSqlIntegrationTest {
     @Inject
     public CsarService csarService;
     @Inject
-    public PlanService planService;
+    public PlanInstanceService planInstanceService;
     @Inject
     public PlanInvokerService planInvokerService;
     @Inject
@@ -102,7 +101,7 @@ public class MyTinyToDoSqlIntegrationTest {
         assertNotNull("DefrostPlan not found", defrostPlan);
         assertNotNull("BackupPlan not found", backupPlan);
 
-        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planService, this.planInvokerService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
+        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planInstanceService, this.planInvokerService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
         assertNotNull(serviceTemplateInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
         this.checkStateAfterBuild(serviceTemplateInstance);
@@ -110,7 +109,7 @@ public class MyTinyToDoSqlIntegrationTest {
 
         // lets test the backup plan
 
-        testUtils.runBackupPlanExecution(this.planService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, backupPlan, this.getBackupPlanInputParameters(wineryRepositoryUrlForDockerContainer, serviceInstanceUrl));
+        testUtils.runBackupPlanExecution(this.planInstanceService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, backupPlan, this.getBackupPlanInputParameters(wineryRepositoryUrlForDockerContainer, serviceInstanceUrl));
 
         serviceTemplateIdsAtWineryRepository = testUtils.getServiceTemplateIdsFromWineryRepository(wineryRepositoryUrl);
         serviceTemplateIdsAtWineryRepository = serviceTemplateIdsAtWineryRepository.stream().filter(x -> x.getLocalPart().toLowerCase().contains("stateful")).collect(Collectors.toList());
@@ -119,7 +118,7 @@ public class MyTinyToDoSqlIntegrationTest {
         assertNotNull(backupServiceTemplateId);
 
         // test freeze
-        testUtils.runFreezePlanExecution(this.planService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, freezePlan, wineryRepositoryUrlForDockerContainer);
+        testUtils.runFreezePlanExecution(this.planInstanceService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, freezePlan, wineryRepositoryUrlForDockerContainer);
         serviceTemplateIdsAtWineryRepository = testUtils.getServiceTemplateIdsFromWineryRepository(wineryRepositoryUrl);
         //assertEquals(3, serviceTemplateIdsAtWineryRepository.size());
         QName freezeServiceTemplateId = serviceTemplateIdsAtWineryRepository.stream().filter(x -> !x.equals(serviceTemplateId) && !x.equals(backupServiceTemplateId)).findFirst().orElse(null);
@@ -148,14 +147,14 @@ public class MyTinyToDoSqlIntegrationTest {
         TPlan statefulCsarDefrostPlan = testUtils.getDefrostPlan(statefulCsarServiceTemplatePlans);
         TPlan statefulCsarTerminationPlan = testUtils.getTerminationPlan(statefulCsarServiceTemplatePlans);
 
-        ServiceTemplateInstance statefulCsarServiceTemplateInstance = testUtils.runDefrostPlanExecution(this.planService, this.planInvokerService, this.instanceService, statefulCsar, statefulCsarServiceTemplate, statefulCsarDefrostPlan, this.getBuildPlanInputParameters());
+        ServiceTemplateInstance statefulCsarServiceTemplateInstance = testUtils.runDefrostPlanExecution(this.planInstanceService, this.planInvokerService, this.instanceService, statefulCsar, statefulCsarServiceTemplate, statefulCsarDefrostPlan, this.getBuildPlanInputParameters());
         assertNotNull(statefulCsarServiceTemplateInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, statefulCsarServiceTemplateInstance.getState());
 
         // TODO FIXME The freeze and defrost operations are NOT working right now as the management features are not working to add the implementations for freeze or the CSAR itself is broken
         //this.checkStateAfterBuild(statefulCsarServiceTemplateInstance);
 
-        testUtils.runTerminationPlanExecution(this.planService, this.planInvokerService, statefulCsar, statefulCsarServiceTemplate, statefulCsarServiceTemplateInstance, statefulCsarTerminationPlan);
+        testUtils.runTerminationPlanExecution(this.planInstanceService, this.planInvokerService, statefulCsar, statefulCsarServiceTemplate, statefulCsarServiceTemplateInstance, statefulCsarTerminationPlan);
         //TestUtils.clearWineryRepository(wineryRepositoryUrl);
 
         testUtils.invokePlanUndeployment(this.control, statefulCsar.id(), statefulCsarServiceTemplate);

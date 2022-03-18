@@ -41,7 +41,7 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
-import org.opentosca.container.core.next.services.PlanService;
+import org.opentosca.container.core.next.services.PlanInstanceService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.deployment.checks.DeploymentTestService;
 import org.slf4j.Logger;
@@ -65,7 +65,7 @@ public class ServiceTemplateController {
     private ResourceContext resourceContext;
 
     @Inject
-    private PlanService planService;
+    private PlanInstanceService planInstanceService;
 
     @Inject
     private PlanInvokerService planInvokerService;
@@ -152,7 +152,7 @@ public class ServiceTemplateController {
             .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
             .findFirst().orElseThrow(NotFoundException::new);
 
-        return new BuildPlanController(csar, serviceTemplate, this.planService, this.planInvokerService);
+        return new BuildPlanController(csar, serviceTemplate, this.planInstanceService, this.planInvokerService);
     }
 
     @Path("/{servicetemplate}/nodetemplates")
@@ -208,7 +208,7 @@ public class ServiceTemplateController {
             .findFirst().orElseThrow(NotFoundException::new);
 
         final ServiceTemplateInstanceController child = new ServiceTemplateInstanceController(csar, serviceTemplate, this.instanceService,
-            this.planService, this.planInvokerService, this.deploymentTestService, situationInstanceService, serviceTemplateInstanceRepository);
+            this.planInstanceService, this.planInvokerService, this.deploymentTestService, situationInstanceService, serviceTemplateInstanceRepository);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
         return child;
     }
