@@ -48,7 +48,7 @@ import org.opentosca.container.api.dto.CsarListDTO;
 import org.opentosca.container.api.dto.request.CsarTransformRequest;
 import org.opentosca.container.api.dto.request.CsarUploadRequest;
 import org.opentosca.container.api.service.CsarService;
-import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.api.service.Utils;
 import org.opentosca.container.api.util.ModelUtil;
 import org.opentosca.container.connector.winery.WineryConnector;
@@ -83,9 +83,6 @@ public class CsarController {
 
     @Inject
     private OpenToscaControlService controlService;
-
-    @Inject
-    private PlanService planService;
 
     @GET
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})

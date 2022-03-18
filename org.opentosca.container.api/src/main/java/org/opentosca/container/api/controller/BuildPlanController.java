@@ -29,7 +29,7 @@ import org.opentosca.container.api.dto.plan.PlanInstanceEventListDTO;
 import org.opentosca.container.api.dto.plan.PlanInstanceListDTO;
 import org.opentosca.container.api.dto.plan.PlanListDTO;
 import org.opentosca.container.api.dto.request.CreatePlanInstanceLogEntryRequest;
-import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.api.service.Utils;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.extension.TParameter;
@@ -38,6 +38,7 @@ import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanType;
+import org.opentosca.container.core.next.services.PlanService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,11 +53,14 @@ public class BuildPlanController {
     private static final PlanType[] ALL_PLAN_TYPES = PlanType.values();
 
     private final PlanService planService;
+    private final PlanInvokerService planInvokerService;
     private final Csar csar;
     private final TServiceTemplate serviceTemplate;
 
-    public BuildPlanController(final Csar csar, final TServiceTemplate serviceTemplate, final PlanService planService) {
+    public BuildPlanController(final Csar csar, final TServiceTemplate serviceTemplate, final PlanService planService,
+                               final PlanInvokerService planInvokerService) {
         this.planService = planService;
+        this.planInvokerService = planInvokerService;
         this.csar = csar;
         this.serviceTemplate = serviceTemplate;
     }
@@ -138,7 +142,7 @@ public class BuildPlanController {
                                         value = "plan input parameters") final List<TParameter> parameters) {
         LOGGER.debug("Invoking invokeBuildPlan");
         // We pass -1L because "PlanInvocationEngine.invokePlan()" expects it for build plans
-        String correlationId = planService.invokePlan(csar, serviceTemplate, -1L, plan, parameters, PLAN_TYPE);
+        String correlationId = planInvokerService.invokePlan(csar, serviceTemplate, -1L, plan, parameters, PLAN_TYPE);
         return Response.ok(correlationId).build();
     }
 

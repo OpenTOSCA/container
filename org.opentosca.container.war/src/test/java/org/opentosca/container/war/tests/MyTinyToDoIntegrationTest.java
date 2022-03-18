@@ -16,14 +16,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
-import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
-import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService;
+import org.opentosca.container.core.next.services.PlanService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
@@ -42,11 +42,7 @@ public class MyTinyToDoIntegrationTest {
 
     public static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
 
-
     public QName csarId = new QName("http://opentosca.org/test/applications/servicetemplates", "MyTinyToDo-DockerEngine-Test_w1-wip1");
-
-    private TestUtils testUtils = new TestUtils();
-
     @Inject
     public OpenToscaControlService control;
     @Inject
@@ -56,12 +52,12 @@ public class MyTinyToDoIntegrationTest {
     @Inject
     public PlanService planService;
     @Inject
+    public PlanInvokerService planInvokerService;
+    @Inject
     public InstanceService instanceService;
     @Inject
     public ICoreEndpointService endpointService;
-    @Inject
-    public PlanInstanceSubscriptionService subscriptionService;
-
+    private TestUtils testUtils = new TestUtils();
 
     @Test
     public void test() throws Exception {
@@ -88,20 +84,20 @@ public class MyTinyToDoIntegrationTest {
         assertNotNull("ScaleOutPlan not found", scaleOutPlan);
         assertNotNull("TerminationPlan not found", terminationPlan);
 
-        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planService, this.instanceService, this.subscriptionService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
+        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planService, this.planInvokerService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
         assertNotNull(serviceTemplateInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
         this.checkStateAfterBuild(serviceTemplateInstance);
 
         String serviceInstanceUrl = testUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString());
 
-        testUtils.runManagementPlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, scaleOutPlan, this.getScaleOurPlanInputParameters(serviceInstanceUrl));
+        testUtils.runManagementPlanExecution(this.planService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, scaleOutPlan, this.getScaleOurPlanInputParameters(serviceInstanceUrl));
 
         this.checkStateAfterScaleOut(serviceTemplateInstance);
 
-        testUtils.runTerminationPlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
+        testUtils.runTerminationPlanExecution(this.planService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
 
-        testUtils.invokePlanUndeployment(this.control,csar.id(), serviceTemplate);
+        testUtils.invokePlanUndeployment(this.control, csar.id(), serviceTemplate);
 
         assertEquals(0, testUtils.getDeployedPlans(this.endpointService).size());
     }

@@ -31,7 +31,7 @@ import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.CsarService.AdaptationPlanGenerationResult;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
-import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.api.service.RelationshipTemplateService;
 import org.opentosca.container.api.service.SituationInstanceService;
 import org.opentosca.container.api.service.Utils;
@@ -41,6 +41,7 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
+import org.opentosca.container.core.next.services.PlanService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.deployment.checks.DeploymentTestService;
 import org.slf4j.Logger;
@@ -65,6 +66,9 @@ public class ServiceTemplateController {
 
     @Inject
     private PlanService planService;
+
+    @Inject
+    private PlanInvokerService planInvokerService;
 
     @Inject
     private InstanceService instanceService;
@@ -148,7 +152,7 @@ public class ServiceTemplateController {
             .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
             .findFirst().orElseThrow(NotFoundException::new);
 
-        return new BuildPlanController(csar, serviceTemplate, this.planService);
+        return new BuildPlanController(csar, serviceTemplate, this.planService, this.planInvokerService);
     }
 
     @Path("/{servicetemplate}/nodetemplates")
@@ -185,8 +189,7 @@ public class ServiceTemplateController {
     public PlacementController startPlacement(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
                                               @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
         final Csar csar = storage.findById(new CsarId(csarId));
-        final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
-            .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
+        csar.serviceTemplates().stream().filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
             .findFirst().orElseThrow(NotFoundException::new);
 
         // init placement controller if placement is started
@@ -205,7 +208,7 @@ public class ServiceTemplateController {
             .findFirst().orElseThrow(NotFoundException::new);
 
         final ServiceTemplateInstanceController child = new ServiceTemplateInstanceController(csar, serviceTemplate, this.instanceService,
-            this.planService, this.deploymentTestService, situationInstanceService, serviceTemplateInstanceRepository);
+            this.planService, this.planInvokerService, this.deploymentTestService, situationInstanceService, serviceTemplateInstanceRepository);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
         return child;
     }

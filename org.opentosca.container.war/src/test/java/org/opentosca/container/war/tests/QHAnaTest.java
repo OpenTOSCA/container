@@ -17,13 +17,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
-import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
-import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService;
+import org.opentosca.container.core.next.services.PlanService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
@@ -42,10 +42,6 @@ public class QHAnaTest {
     public static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
 
     public QName csarId = QName.valueOf("{https://ust-quantil.github.io/quantum/applications/servicetemplates}QHAna_w1");
-
-    private TestUtils testUtils = new TestUtils();
-
-
     @Inject
     public OpenToscaControlService control;
     @Inject
@@ -55,12 +51,12 @@ public class QHAnaTest {
     @Inject
     public PlanService planService;
     @Inject
+    public PlanInvokerService planInvokerService;
+    @Inject
     public InstanceService instanceService;
     @Inject
     public ICoreEndpointService endpointService;
-    @Inject
-    public PlanInstanceSubscriptionService subscriptionService;
-
+    private TestUtils testUtils = new TestUtils();
 
     @Test
     public void testDeployment() throws Exception {
@@ -82,8 +78,8 @@ public class QHAnaTest {
 
         assertEquals(2, testUtils.getDeployedPlans(this.endpointService).size());
 
-        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(
-            this.planService, this.instanceService, this.subscriptionService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters()
+        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planService,
+            this.planInvokerService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters()
         );
 
         assertNotNull(serviceTemplateInstance);
@@ -108,9 +104,9 @@ public class QHAnaTest {
             .join();
         assertEquals(200, pluginRunnerResponse.statusCode());
 
-        testUtils.runTerminationPlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
+        testUtils.runTerminationPlanExecution(this.planService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
 
-        testUtils.invokePlanUndeployment(this.control,csar.id(), serviceTemplate);
+        testUtils.invokePlanUndeployment(this.control, csar.id(), serviceTemplate);
 
         assertEquals(0, testUtils.getDeployedPlans(this.endpointService).size());
     }

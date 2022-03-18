@@ -155,6 +155,7 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
         deploymentTracker.deleteDeploymentState(csarId);
         // FIXME removeEndpoints
         try {
+            //deleteInstancesForCsar
             storage.deleteCSAR(csarId);
         } catch (UserException | SystemException e) {
             errors.add(e.getMessage());

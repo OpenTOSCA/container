@@ -16,14 +16,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
-import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
-import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService;
+import org.opentosca.container.core.next.services.PlanService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
@@ -47,9 +47,6 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
 
     public QName myTinyToDocsarId = new QName("http://opentosca.org/test/applications/servicetemplates", "MyTinyToDo-DockerEngine-Test_w1-wip1");
     public QName multiMyTinyToDoCsarId = new QName("http://opentosca.org/test/applications/servicetemplates", "MultiMyTinyToDo-DockerEngine-Test_w1-wip1");
-
-    private TestUtils testUtils = new TestUtils();
-
     @Inject
     public OpenToscaControlService control;
     @Inject
@@ -59,11 +56,12 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
     @Inject
     public PlanService planService;
     @Inject
+    public PlanInvokerService planInvokerService;
+    @Inject
     public InstanceService instanceService;
     @Inject
     public ICoreEndpointService endpointService;
-    @Inject
-    public PlanInstanceSubscriptionService subscriptionService;
+    private TestUtils testUtils = new TestUtils();
 
     @Test
     public void test() throws Exception {
@@ -99,18 +97,18 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         assertNotNull("TransformationPlan not found", myTinyToMultiTinyTransformationPlan);
         assertNotNull("TerminationPlan not found", multiTinyTerminationPlan);
 
-        ServiceTemplateInstance myTinyToDoServiceTemplateInstance = testUtils.runBuildPlanExecution(this.planService, this.instanceService, this.subscriptionService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoBuildPlan, this.getMyTinyToDoBuildPlanInputParameters());
+        ServiceTemplateInstance myTinyToDoServiceTemplateInstance = testUtils.runBuildPlanExecution(this.planService, this.planInvokerService, this.instanceService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoBuildPlan, this.getMyTinyToDoBuildPlanInputParameters());
         assertNotNull(myTinyToDoServiceTemplateInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, myTinyToDoServiceTemplateInstance.getState());
         String myTinyToDoServiceInstanceUrl = testUtils.createServiceInstanceUrl(myTinyToDoCsar.id().csarName(), myTinyToDoServiceTemplate.getId(), myTinyToDoServiceTemplateInstance.getId().toString());
         this.checkStateAfterBuild(myTinyToDoServiceTemplateInstance);
 
-        ServiceTemplateInstance multiInstance = testUtils.runTransformationPlan(this.planService, this.instanceService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoServiceTemplateInstance, myTinyToMultiTinyTransformationPlan, this.getTransformationPlanInputParameters(myTinyToDoServiceInstanceUrl));
+        ServiceTemplateInstance multiInstance = testUtils.runTransformationPlan(this.planService, this.planInvokerService, this.instanceService, myTinyToDoCsar, myTinyToDoServiceTemplate, myTinyToDoServiceTemplateInstance, myTinyToMultiTinyTransformationPlan, this.getTransformationPlanInputParameters(myTinyToDoServiceInstanceUrl));
         assertNotNull(multiInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, multiInstance.getState());
         this.checkStateAfterMigration(multiInstance);
 
-        testUtils.runTerminationPlanExecution(this.planService, multiMyTinyToDoCsar, multiMyTinyToDoServiceTemplate, multiInstance, multiTinyTerminationPlan);
+        testUtils.runTerminationPlanExecution(this.planService, this.planInvokerService, multiMyTinyToDoCsar, multiMyTinyToDoServiceTemplate, multiInstance, multiTinyTerminationPlan);
 
         testUtils.invokePlanUndeployment(this.control, myTinyToDoCsar.id(), myTinyToDoServiceTemplate);
         testUtils.invokePlanUndeployment(this.control, multiMyTinyToDoCsar.id(), multiMyTinyToDoServiceTemplate);

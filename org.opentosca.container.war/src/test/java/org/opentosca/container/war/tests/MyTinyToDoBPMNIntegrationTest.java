@@ -17,13 +17,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
-import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
-import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService;
+import org.opentosca.container.core.next.services.PlanService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
@@ -53,11 +53,11 @@ public class MyTinyToDoBPMNIntegrationTest {
     @Inject
     public PlanService planService;
     @Inject
+    public PlanInvokerService planInvokerService;
+    @Inject
     public InstanceService instanceService;
     @Inject
     public ICoreEndpointService endpointService;
-    @Inject
-    public PlanInstanceSubscriptionService subscriptionService;
 
     @Test
     public void test() throws Exception {
@@ -78,10 +78,10 @@ public class MyTinyToDoBPMNIntegrationTest {
 
         Assert.assertNotNull("BuildPlan not found", buildPlan);
         Assert.assertNotNull("TerminationPlan not found", terminationPlan);
-        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planService, this.instanceService, this.subscriptionService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
+        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planService, this.planInvokerService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
         this.checkStateAfterBuild(serviceTemplateInstance);
 
-        testUtils.runTerminationPlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
+        testUtils.runTerminationPlanExecution(this.planService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
 
         testUtils.invokePlanUndeployment(this.control, csar.id(), serviceTemplate);
 

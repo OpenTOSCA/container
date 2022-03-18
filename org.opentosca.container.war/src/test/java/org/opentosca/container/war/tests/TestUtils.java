@@ -39,7 +39,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
-import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.connector.winery.WineryConnector;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.common.Settings;
@@ -54,6 +54,7 @@ import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
+import org.opentosca.container.core.next.services.PlanService;
 import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -202,10 +203,6 @@ public class TestUtils {
             remoteUrl = null;
         }
         return fetchRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, repositoryPath, remoteUrl);
-    }
-
-    public IRepository fetchRepository(Path repositoryInputPath, String remoteUrl) throws GitAPIException, IOException {
-        return fetchRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, repositoryInputPath, remoteUrl);
     }
 
     private IRepository fetchRepository(RepositoryConfigurationObject.RepositoryProvider provider, Path repositoryInputPath, String remoteUrl) throws GitAPIException, IOException {
@@ -404,26 +401,26 @@ public class TestUtils {
         return csarFilePath;
     }
 
-    public void runTerminationPlanExecution(PlanService planService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan terminationPlan) {
+    public void runTerminationPlanExecution(PlanService planService, PlanInvokerService planInvokerService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan terminationPlan) {
         List<org.opentosca.container.core.extension.TParameter> terminationOutInputParams = this.getTerminationPlanInputParameters(this.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString()));
-        String terminationPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), terminationPlan.getId(), terminationOutInputParams, PlanType.TERMINATION);
+        String terminationPlanCorrelationId = planInvokerService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), terminationPlan.getId(), terminationOutInputParams, PlanType.TERMINATION);
 
         PlanInstance terminationPlanInstance = (PlanInstance) planService.waitForInstanceAvailable(terminationPlanCorrelationId).joinAndGet();
 
         terminationPlanInstance = (PlanInstance) planService.waitForStateChange(terminationPlanInstance, PlanInstanceState.FINISHED).joinAndGet();
     }
 
-    public void runFreezePlanExecution(PlanService planService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan terminationPlan, String wineryRepositoryUrl) {
+    public void runFreezePlanExecution(PlanService planService, PlanInvokerService planInvokerService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan terminationPlan, String wineryRepositoryUrl) {
         List<org.opentosca.container.core.extension.TParameter> terminationOutInputParams = this.getFreezePlanInputParameters(this.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString()), wineryRepositoryUrl);
-        String freezePlanCorrelationId = planService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), terminationPlan.getId(), terminationOutInputParams, PlanType.TERMINATION);
+        String freezePlanCorrelationId = planInvokerService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), terminationPlan.getId(), terminationOutInputParams, PlanType.TERMINATION);
 
         PlanInstance freezePlanInstance = (PlanInstance) planService.waitForInstanceAvailable(freezePlanCorrelationId).joinAndGet();
 
         freezePlanInstance = (PlanInstance) planService.waitForStateChange(freezePlanInstance, PlanInstanceState.FINISHED).joinAndGet();
     }
 
-    public ServiceTemplateInstance runAdaptationPlanExecution(PlanService planService, InstanceService instanceService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan adaptPlan, List<org.opentosca.container.core.extension.TParameter> adaptPlanInputParams) {
-        String buildPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), adaptPlan.getId(), adaptPlanInputParams, PlanType.TRANSFORMATION);
+    public ServiceTemplateInstance runAdaptationPlanExecution(PlanService planService, PlanInvokerService planInvokerService, InstanceService instanceService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan adaptPlan, List<org.opentosca.container.core.extension.TParameter> adaptPlanInputParams) {
+        String buildPlanCorrelationId = planInvokerService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), adaptPlan.getId(), adaptPlanInputParams, PlanType.TRANSFORMATION);
 
         PlanInstance buildPlanInstance = (PlanInstance) planService.waitForInstanceAvailable(buildPlanCorrelationId).joinAndGet();
 
@@ -432,8 +429,8 @@ public class TestUtils {
         return instanceService.getServiceTemplateInstance(buildPlanInstance.getServiceTemplateInstance().getId(), false);
     }
 
-    public ServiceTemplateInstance runBuildPlanExecution(PlanService planService, InstanceService instanceService, PlanInstanceSubscriptionService subService, Csar csar, TServiceTemplate serviceTemplate, TPlan buildPlan, List<org.opentosca.container.core.extension.TParameter> buildPlanInputParams) {
-        String buildPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, -1L, buildPlan.getId(), buildPlanInputParams, PlanType.BUILD);
+    public ServiceTemplateInstance runBuildPlanExecution(PlanService planService, PlanInvokerService planInvokerService, InstanceService instanceService, Csar csar, TServiceTemplate serviceTemplate, TPlan buildPlan, List<org.opentosca.container.core.extension.TParameter> buildPlanInputParams) {
+        String buildPlanCorrelationId = planInvokerService.invokePlan(csar, serviceTemplate, -1L, buildPlan.getId(), buildPlanInputParams, PlanType.BUILD);
         if (buildPlan.getPlanLanguage().contains("BPMN")) {
             Collection<ServiceTemplateInstance> coll = instanceService.getServiceTemplateInstances(serviceTemplate.getId());
             ServiceTemplateInstance s = new ServiceTemplateInstance();
@@ -459,8 +456,8 @@ public class TestUtils {
         return instanceService.getServiceTemplateInstance(buildPlanInstance.getServiceTemplateInstance().getId(), false);
     }
 
-    public ServiceTemplateInstance runDefrostPlanExecution(PlanService planService, InstanceService instanceService, Csar csar, TServiceTemplate serviceTemplate, TPlan defrostPlan, List<org.opentosca.container.core.extension.TParameter> buildPlanInputParams) {
-        String defrostPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, -1L, defrostPlan.getId(), buildPlanInputParams, PlanType.BUILD);
+    public ServiceTemplateInstance runDefrostPlanExecution(PlanService planService, PlanInvokerService planInvokerService, InstanceService instanceService, Csar csar, TServiceTemplate serviceTemplate, TPlan defrostPlan, List<org.opentosca.container.core.extension.TParameter> buildPlanInputParams) {
+        String defrostPlanCorrelationId = planInvokerService.invokePlan(csar, serviceTemplate, -1L, defrostPlan.getId(), buildPlanInputParams, PlanType.BUILD);
         if (defrostPlan.getPlanLanguage().contains("BPMN")) {
             Collection<ServiceTemplateInstance> coll = instanceService.getServiceTemplateInstances(serviceTemplate.getId());
             ServiceTemplateInstance s = new ServiceTemplateInstance();
@@ -485,24 +482,24 @@ public class TestUtils {
         return instanceService.getServiceTemplateInstance(defrostPlanInstance.getServiceTemplateInstance().getId(), false);
     }
 
-    public void runManagementPlanExecution(PlanService planService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan scaleOutPlan, List<org.opentosca.container.core.extension.TParameter> inputParams) {
-        String scaleOurPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), scaleOutPlan.getId(), inputParams, PlanType.MANAGEMENT);
+    public void runManagementPlanExecution(PlanService planService, PlanInvokerService planInvokerService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan scaleOutPlan, List<org.opentosca.container.core.extension.TParameter> inputParams) {
+        String scaleOurPlanCorrelationId = planInvokerService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), scaleOutPlan.getId(), inputParams, PlanType.MANAGEMENT);
 
         PlanInstance scaleOutPlanInstance = (PlanInstance) planService.waitForInstanceAvailable(scaleOurPlanCorrelationId).joinAndGet();
 
         scaleOutPlanInstance = (PlanInstance) planService.waitForStateChange(scaleOutPlanInstance, PlanInstanceState.FINISHED).joinAndGet();
     }
 
-    public void runBackupPlanExecution(PlanService planService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan backupPlan, List<org.opentosca.container.core.extension.TParameter> inputParams) {
-        String backupPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), backupPlan.getId(), inputParams, PlanType.MANAGEMENT);
+    public void runBackupPlanExecution(PlanService planService, PlanInvokerService planInvokerService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan backupPlan, List<org.opentosca.container.core.extension.TParameter> inputParams) {
+        String backupPlanCorrelationId = planInvokerService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), backupPlan.getId(), inputParams, PlanType.MANAGEMENT);
 
         PlanInstance backupPlanInstance = (PlanInstance) planService.waitForInstanceAvailable(backupPlanCorrelationId).joinAndGet();
 
         backupPlanInstance = (PlanInstance) planService.waitForStateChange(backupPlanInstance, PlanInstanceState.FINISHED).joinAndGet();
     }
 
-    public ServiceTemplateInstance runTransformationPlan(PlanService planService, InstanceService instanceService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan transformationPlan, List<org.opentosca.container.core.extension.TParameter> inputParams) {
-        String tranformationPlanCorrelationId = planService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), transformationPlan.getId(), inputParams, PlanType.TRANSFORMATION);
+    public ServiceTemplateInstance runTransformationPlan(PlanService planService, PlanInvokerService planInvokerService, InstanceService instanceService, Csar csar, TServiceTemplate serviceTemplate, ServiceTemplateInstance serviceTemplateInstance, TPlan transformationPlan, List<org.opentosca.container.core.extension.TParameter> inputParams) {
+        String tranformationPlanCorrelationId = planInvokerService.invokePlan(csar, serviceTemplate, serviceTemplateInstance.getId(), transformationPlan.getId(), inputParams, PlanType.TRANSFORMATION);
 
         PlanInstance transformationPlanInstance = (PlanInstance) planService.waitForInstanceAvailable(tranformationPlanCorrelationId).joinAndGet();
 
