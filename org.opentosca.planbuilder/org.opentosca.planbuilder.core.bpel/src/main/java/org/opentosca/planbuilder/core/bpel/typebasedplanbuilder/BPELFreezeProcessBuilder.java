@@ -45,6 +45,9 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_FreezePlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_StatefulLifecycleInterface;
+
 /**
  * @author Jan Ruthardt - st107755@stud.uni-stuttgart.de
  */
@@ -115,12 +118,12 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
         newAbstractBackupPlan.setType(PlanType.TERMINATION);
         final BPELPlan newFreezePlan =
-            this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractBackupPlan, "freeze");
+            this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractBackupPlan, OpenTOSCA_FreezePlanOperation);
 
         this.planHandler.initializeBPELSkeleton(newFreezePlan, csar);
 
-        newFreezePlan.setTOSCAInterfaceName("OpenTOSCA-Stateful-Lifecycle-Interface");
-        newFreezePlan.setTOSCAOperationname("freeze");
+        newFreezePlan.setTOSCAInterfaceName(OpenTOSCA_StatefulLifecycleInterface);
+        newFreezePlan.setTOSCAOperationname(OpenTOSCA_FreezePlanOperation);
 
         this.instanceVarsHandler.addInstanceURLVarToTemplatePlans(newFreezePlan, serviceTemplate);
         this.instanceVarsHandler.addInstanceIDVarToTemplatePlans(newFreezePlan, serviceTemplate);
@@ -362,10 +365,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                                 xpathQuery);
                         assignSaveStateURL = context.importNode(assignSaveStateURL);
                         context.getPrePhaseElement().appendChild(assignSaveStateURL);
-                    } catch (final IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (final SAXException e) {
+                    } catch (final IOException | SAXException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
@@ -380,7 +380,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE, inputs);
 
                     if (!addedOperationCall) {
-                        LOG.error("Couldn´t generate freeze operation call, maybe you miss an IA or Parameters?");
+                        LOG.error("Couldn't generate freeze operation call, maybe you miss an IA or Parameters?");
                     }
                 }
                 this.bpelPluginHandler.handleActivity(context, templatePlan, nodeTemplate);

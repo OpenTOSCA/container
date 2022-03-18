@@ -18,8 +18,8 @@ import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.extension.TPlanDTO;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.deployment.process.DeploymentProcessOperation;
-import org.opentosca.container.core.model.deployment.process.DeploymentProcessState;
+import org.opentosca.container.core.next.model.DeploymentProcessOperation;
+import org.opentosca.container.core.next.model.DeploymentProcessState;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.DeploymentTracker;
 import org.opentosca.container.core.service.IPlanInvocationEngine;
@@ -28,11 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import static org.opentosca.container.core.model.deployment.process.DeploymentProcessState.PLANS_DEPLOYED;
-import static org.opentosca.container.core.model.deployment.process.DeploymentProcessState.PLAN_DEPLOYMENT_ACTIVE;
-import static org.opentosca.container.core.model.deployment.process.DeploymentProcessState.STORED;
-import static org.opentosca.container.core.model.deployment.process.DeploymentProcessState.TOSCAPROCESSING_ACTIVE;
-import static org.opentosca.container.core.model.deployment.process.DeploymentProcessState.TOSCA_PROCESSED;
+import static org.opentosca.container.core.next.model.DeploymentProcessState.PLANS_DEPLOYED;
+import static org.opentosca.container.core.next.model.DeploymentProcessState.PLAN_DEPLOYMENT_ACTIVE;
+import static org.opentosca.container.core.next.model.DeploymentProcessState.STORED;
+import static org.opentosca.container.core.next.model.DeploymentProcessState.TOSCAPROCESSING_ACTIVE;
+import static org.opentosca.container.core.next.model.DeploymentProcessState.TOSCA_PROCESSED;
 
 @Service
 @NonNullByDefault
@@ -167,7 +167,8 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
      *
      * @return true, if undeploying all plans was successful, false otherwise
      */
-    private boolean undeployAllPlans(Csar csar) {
+    @Override
+    public boolean undeployAllPlans(Csar csar) {
         return csar.serviceTemplates().stream().allMatch(st -> undeployAllPlans(csar.id(), st));
     }
 
@@ -176,7 +177,8 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
      *
      * @return true, if undeploying all plans was successful, false otherwise
      */
-    private boolean undeployAllPlans(CsarId csarId, TServiceTemplate serviceTemplate) {
+    @Override
+    public boolean undeployAllPlans(CsarId csarId, TServiceTemplate serviceTemplate) {
         List<TPlan> plans = serviceTemplate.getPlans();
         if (plans == null) {
             LOGGER.info("No Plans to undeploy");

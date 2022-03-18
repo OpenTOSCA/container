@@ -126,7 +126,7 @@ public class PropertyMappingsHelper {
         }
 
         try {
-            serviceInstance.setProperties(Collections.singleton(this.instanceService.convertDocumentToProperty(proprtiesAsXML,
+            serviceInstance.setProperties(Collections.singleton(Utils.convertDocumentToProperty(proprtiesAsXML,
                 ServiceTemplateInstanceProperty.class)));
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {
             logger.error("Failed to store properties in service template instance object. Reason {}", e.getMessage());

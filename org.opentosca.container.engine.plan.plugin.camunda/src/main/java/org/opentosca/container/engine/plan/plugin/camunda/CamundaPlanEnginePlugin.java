@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
@@ -44,11 +47,10 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.impl.service.FileSystem;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
+import org.opentosca.container.core.next.model.Endpoint;
 import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
-import org.opentosca.container.core.service.IHTTPService;
 import org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,14 +79,11 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
     private final JSONParser jsonParser = new JSONParser();
     private final ICoreEndpointService endpointService;
     private final CsarStorageService storage;
-    private final IHTTPService httpService;
 
     @Inject
-    public CamundaPlanEnginePlugin(ICoreEndpointService endpointService, CsarStorageService storage,
-                                   IHTTPService httpService) {
+    public CamundaPlanEnginePlugin(ICoreEndpointService endpointService, CsarStorageService storage) {
         this.endpointService = endpointService;
         this.storage = storage;
-        this.httpService = httpService;
     }
 
     @Override
@@ -174,11 +173,18 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             // get the first process definition and create corresponding endpoint
             final JSONObject planProcessDefinition = (JSONObject) processDefinitions.get(0);
             final String planDefinitionID = planProcessDefinition.get("id").toString();
-            final URI endpoint = new URI(Settings.ENGINE_PLAN_BPMN_URL + PROCESS_DEFINITION_SUFFIX + "/"
+            final URI endpointUri = new URI(Settings.ENGINE_PLAN_BPMN_URL + PROCESS_DEFINITION_SUFFIX + "/"
                 + planDefinitionID + INSTANCE_CREATION_SUFFIX);
-            final WSDLEndpoint wsdlEndpoint = new WSDLEndpoint(endpoint, null, Settings.OPENTOSCA_CONTAINER_HOSTNAME,
-                Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, null, planId, null, null, Collections.emptyMap());
-            endpointService.storeWSDLEndpoint(wsdlEndpoint);
+
+
+            Map<String,String> endpointMetadata = new HashMap<String, String>();
+            endpointMetadata.put("PlanType", "BPMN");
+            endpointMetadata.put("EndpointType", "Invoke");
+
+            final Endpoint endpoint = new Endpoint(endpointUri, Settings.OPENTOSCA_CONTAINER_HOSTNAME,
+                Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, null, endpointMetadata, null, null, null, planId);
+            endpointService.storeEndpoint(endpoint);
+
             return true;
         } catch (final ClientProtocolException e) {
             LOG.error("A ClientProtocolException occured while sending post to the engine: ", e);
@@ -199,18 +205,17 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
     public boolean undeployPlanReference(final QName planId, final PlanModelReference planRef, final CsarId csarId) {
         LOG.debug("Trying to undeploy plan with ID {} from Camund BPMN engine...", planId);
 
-        // get endpoint related to the plan and extract process definition ID from the
-        // URI
-        final List<WSDLEndpoint> endpoints = endpointService
-            .getWSDLEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, planId);
+        // get endpoint related to the plan and extract process definition ID from the URI
+        final List<Endpoint> endpoints = endpointService.getEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, planId);
 
-        for (WSDLEndpoint endpoint : endpoints) {
+        final List<Endpoint> endpointsToRemove = new ArrayList<>();
+        for (Endpoint endpoint : endpoints) {
 
-            final String[] endpointParts = endpoint.getURI().toString().split("/");
+            final String[] endpointParts = endpoint.getUri().toString().split("/");
 
             if (endpointParts.length < 2) {
                 LOG.error("Unable to parse process definition ID for plan {} out of endpoint {}", planId,
-                    endpoint.getURI());
+                    endpoint.getUri());
                 return false;
             }
 
@@ -249,6 +254,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
                 // check success and reutrn to caller
                 if (deletionResponse.getStatusLine().getStatusCode() == 204) {
                     LOG.debug("Deletion of plan deployment successful.");
+                    endpointsToRemove.add(endpoint);
                 } else {
                     LOG.error("Deletion response returned invalid status code {}",
                         deletionResponse.getStatusLine().getStatusCode());
@@ -265,6 +271,9 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
                 return false;
             }
         }
+
+        endpointsToRemove.forEach(this.endpointService::removeEndpoint);
+
         return true;
     }
 

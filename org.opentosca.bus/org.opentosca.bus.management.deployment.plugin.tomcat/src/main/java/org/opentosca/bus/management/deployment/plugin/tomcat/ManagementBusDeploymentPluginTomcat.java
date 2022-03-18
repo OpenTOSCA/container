@@ -9,7 +9,6 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -63,7 +62,7 @@ import org.springframework.stereotype.Component;
  * the Tomcat.<br>
  * <br>
  * <p>
- * Copyright 2018 IAAS University of Stuttgart <br>
+ * Copyright 2018-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Benjamin Weder - st100495@stud.uni-stuttgart.de

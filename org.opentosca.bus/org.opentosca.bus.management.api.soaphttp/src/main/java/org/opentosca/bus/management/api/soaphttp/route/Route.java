@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.HashMap;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 
@@ -22,7 +23,8 @@ import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
+import org.opentosca.container.core.next.model.Endpoint;
+import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.plan.ChoreographyHandler;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -32,7 +34,7 @@ import org.springframework.stereotype.Component;
  * Route of the Management Bus-SOAP/HTTP-API.<br>
  * <br>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * Here the route an incoming invoke-request has to pass is defined. Also the web services to consume and produce a SOAP
@@ -46,7 +48,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 // named to avoid clashing with other RouteBuilders just called Route across the project
-// @Named("management-bus-soaphttp-route")
+@Named("management-bus-soaphttp-route")
 public class Route extends RouteBuilder {
 
     public final static String PUBLIC_ENDPOINT = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8081/invoker";
@@ -72,16 +74,18 @@ public class Route extends RouteBuilder {
     private final ICoreEndpointService endpointService;
     private final ContainerEngine containerEngine;
     private final ChoreographyHandler choreoHandler;
+    private final PlanInstanceRepository planInstanceRepository;
 
     @Inject
     public Route(CsarStorageService csarStorageService, IManagementBusService managementBusService,
                  ICoreEndpointService endpointService, ContainerEngine containerEngine,
-                 ChoreographyHandler choreoHandler) {
+                 ChoreographyHandler choreoHandler, PlanInstanceRepository planInstanceRepository) {
         this.csarStorageService = csarStorageService;
         this.managementBusService = managementBusService;
         this.endpointService = endpointService;
         this.containerEngine = containerEngine;
         this.choreoHandler = choreoHandler;
+        this.planInstanceRepository = planInstanceRepository;
 
         storeManagementEndpoint();
     }
@@ -90,9 +94,9 @@ public class Route extends RouteBuilder {
         try {
             final URI uri = new URI(Route.PUBLIC_ENDPOINT);
             final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-            final WSDLEndpoint endpoint = new WSDLEndpoint(uri, Route.PORTTYPE, localContainer, localContainer,
-                new CsarId("***"), null, null, null, null, new HashMap<String, String>());
-            this.endpointService.storeWSDLEndpoint(endpoint);
+            final Endpoint endpoint = new Endpoint(uri, localContainer, localContainer,
+                new CsarId("***"), new HashMap<>(), Route.PORTTYPE);
+            this.endpointService.storeEndpoint(endpoint);
         } catch (final URISyntaxException e) {
             e.printStackTrace();
         }
@@ -104,9 +108,9 @@ public class Route extends RouteBuilder {
 
         // CXF Endpoints
         final String INVOKE_ENDPOINT = "cxf:" + ENDPOINT + "?wsdlURL=" + wsdlURL.toString()
-            + "&serviceName={http://siserver.org/wsdl}InvokerService&portName=" + Route.PORT.toString()
+            + "&serviceName={http://siserver.org/wsdl}InvokerService&portName=" + Route.PORT
             + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true&loggingSizeLimit=-1";
-        final String CALLBACK_ENDPOINT = "cxf:${header[ReplyTo]}?wsdlURL=" + wsdlURL.toString()
+        final String CALLBACK_ENDPOINT = "cxf:${header[ReplyTo]}?wsdlURL=" + wsdlURL
             + "&headerFilterStrategy=#dropAllMessageHeadersStrategy"
             + "&serviceName={http://siserver.org/wsdl}CallbackService&portName={http://siserver.org/wsdl}CallbackPort"
             + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true&loggingSizeLimit=-1";
@@ -124,7 +128,7 @@ public class Route extends RouteBuilder {
         responseJaxb.setPartNamespace(new QName("http://siserver.org/schema", "invokeResponse"));
 
         final Processor requestProcessor = new RequestProcessor(this.csarStorageService, this.containerEngine,
-            this.managementBusService, this.choreoHandler);
+            this.managementBusService, this.choreoHandler, this.planInstanceRepository);
         final Processor responseProcessor = new ResponseProcessor();
 
         this.from(INVOKE_ENDPOINT).unmarshal(requestJaxb).process(requestProcessor).choice().when(this.IS_INVOKE_IA)

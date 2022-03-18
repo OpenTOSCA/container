@@ -8,6 +8,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
@@ -16,7 +17,6 @@ import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.container.core.model.ModelUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;

@@ -11,12 +11,12 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.container.core.model.ModelUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;

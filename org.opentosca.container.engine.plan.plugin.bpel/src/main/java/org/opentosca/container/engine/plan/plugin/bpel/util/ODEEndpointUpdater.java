@@ -34,7 +34,7 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
+import org.opentosca.container.core.next.model.Endpoint;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.engine.plan.plugin.bpel.BpelPlanEnginePlugin;
 import org.slf4j.Logger;
@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * <br>
- * Copyright 2012 IAAS University of Stuttgart <br>
+ * Copyright 2012-2022 IAAS University of Stuttgart <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * @see org.opentosca.container.core.service.ICoreEndpointService
@@ -138,7 +138,7 @@ public class ODEEndpointUpdater {
             LOG.warn("Following files weren't changed for PortType {}", portType.toString());
             for (final File file : unchangedFiles.get(portType)) {
                 LOG.warn("WSDL file {} which contained portType {} and couldn't be updated",
-                    file.toPath().toString(), portType.toString());
+                    file.toPath(), portType);
             }
         }
 
@@ -277,7 +277,7 @@ public class ODEEndpointUpdater {
             QName portType = null;
             for (final File wsdlFile : wsdlFiles) {
                 LOG.debug("Checking if wsdl file {} contains portType {}",
-                    wsdlFile.getAbsolutePath(), port.toString());
+                    wsdlFile.getAbsolutePath(), port);
                 final Definition wsdlDef = getWsdlReader().readWSDL(wsdlFile.getAbsolutePath());
                 // check if port is in wsdl file
                 if (!checkIfPortIsInWsdlDef(port, wsdlDef)) {
@@ -389,14 +389,14 @@ public class ODEEndpointUpdater {
             // update wsdl files associated with the given porttype
             for (final File wsdlFile : map.get(portType)) {
                 if (!this.updateInvokedWSDLAddresses(portType, wsdlFile)) {
-                    LOG.error("Unable to update '{}' for porttype '{}'.", wsdlFile.toString(),
+                    LOG.error("Unable to update '{}' for porttype '{}'.", wsdlFile,
                         portType.toString());
                     notUpdatedWSDLs.add(wsdlFile);
                 }
             }
             if (!notUpdatedWSDLs.isEmpty()) {
                 // if empty, nothing was changed
-                LOG.debug("Couldn't update address for porttype: {}", portType.toString());
+                LOG.debug("Couldn't update address for porttype: {}", portType);
                 notChanged.put(portType, notUpdatedWSDLs);
             }
         }
@@ -476,7 +476,7 @@ public class ODEEndpointUpdater {
 
         for (final Object obj : port.getExtensibilityElements()) {
             final ExtensibilityElement element = (ExtensibilityElement) obj;
-            for (final WSDLEndpoint endpoint : getWSDLEndpointForBpelEngineCallback(service, port)) {
+            for (final Endpoint endpoint : getEndpointForBpelEngineCallback(service, port)) {
                 if (changeAddress(element, endpoint)) {
                     changed = true;
                 }
@@ -500,8 +500,8 @@ public class ODEEndpointUpdater {
         for (final Object obj : port.getExtensibilityElements()) {
             // in the wsdl spec they use the extensibility mechanism
             final ExtensibilityElement element = (ExtensibilityElement) obj;
-            for (final WSDLEndpoint endpoint : getWSDLEndpointsFromEndpointDB(port)) {
-                LOG.debug("Changing address for endpoint: {}", endpoint.getURI());
+            for (final Endpoint endpoint : getEndpointsFromEndpointDB(port)) {
+                LOG.debug("Changing address for endpoint: {}", endpoint.getUri());
                 if (changeAddress(element, endpoint)) {
                     changed = true;
                 }
@@ -510,8 +510,8 @@ public class ODEEndpointUpdater {
         return changed;
     }
 
-    private List<WSDLEndpoint> getWSDLEndpointForBpelEngineCallback(final Service service, final Port port) {
-        final List<WSDLEndpoint> endpoints = new ArrayList<>();
+    private List<Endpoint> getEndpointForBpelEngineCallback(final Service service, final Port port) {
+        final List<Endpoint> endpoints = new ArrayList<>();
 
         /*
          * The WSO2 BPS and Apache ODE are creating addresses by using the Service Name
@@ -530,8 +530,7 @@ public class ODEEndpointUpdater {
 
         try {
             final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-            endpoints.add(new WSDLEndpoint(new URI(callbackEndpoint), port.getBinding().getPortType().getQName(),
-                localContainer, localContainer, null, null, null, null, null, new HashMap<>()));
+            endpoints.add(new Endpoint(new URI(callbackEndpoint), localContainer, localContainer, null, new HashMap<>(), port.getBinding().getPortType().getQName()));
         } catch (final URISyntaxException e) {
             e.printStackTrace();
         }
@@ -540,21 +539,21 @@ public class ODEEndpointUpdater {
     }
 
     /**
-     * Returns a list of WSDLEndpoints for the specific Port from the endpoint DB
+     * Returns a list of Endpoints for the specific Port from the endpoint DB
      *
      * @param port the Port to check for
-     * @return a list containing all WSDLEndpoints that matches the portTypes of the given Port
+     * @return a list containing all Endpoints that matches the portTypes of the given Port
      */
-    private List<WSDLEndpoint> getWSDLEndpointsFromEndpointDB(final Port port) {
-        final List<WSDLEndpoint> endpoints = new LinkedList<>();
+    private List<Endpoint> getEndpointsFromEndpointDB(final Port port) {
+        final List<Endpoint> endpoints = new LinkedList<>();
         if (endpointService != null) {
             LOG.debug("Fetching Endpoints for PortType {} ",
                 port.getBinding().getPortType().getQName().toString());
-            final List<WSDLEndpoint> temp = endpointService.getWSDLEndpoints();
-            for (final WSDLEndpoint endpoint : temp) {
+            final List<Endpoint> temp = endpointService.getEndpoints();
+            for (final Endpoint endpoint : temp) {
                 if (endpoint.getPortType() != null && endpoint.getPortType().equals(port.getBinding().getPortType().getQName())
                     && endpoint.getManagingContainer().equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
-                    LOG.debug("Found endpoint: {}", endpoint.getURI().toString());
+                    LOG.debug("Found endpoint: {}", endpoint.getUri().toString());
                     endpoints.add(endpoint);
                 }
             }
@@ -566,27 +565,25 @@ public class ODEEndpointUpdater {
     }
 
     /**
-     * Changes the address in the given ExtensibilityElement to address given in the given WSDLEndpoint
+     * Changes the address in the given ExtensibilityElement to address given in the given endpoint
      *
      * @param element  the ExtensibilityElement to change
-     * @param endpoint the WSDLEndpoint containing the address
-     * @return true if changing was successful, this means the ExtensibilityElement had the type {@link
-     * com.ibm.wsdl.extensions.soap.SOAPConstants.Q_ELEM_SOAP_ADDRESS} or {@link com.ibm.wsdl.extensions.http.HTTPConstants.Q_ELEM_HTTP_ADDRESS}
-     * , else false
+     * @param endpoint the endpoint containing the address
+     * @return true if changing was successful, else false
      */
-    private boolean changeAddress(final ExtensibilityElement element, final WSDLEndpoint endpoint) {
+    private boolean changeAddress(final ExtensibilityElement element, final Endpoint endpoint) {
         // TODO check if we could generalize this, we did once, but after
         //  looking at it again it seems not right enough
         if (element.getElementType().equals(SOAPConstants.Q_ELEM_SOAP_ADDRESS)) {
             LOG.debug("Changing the SOAP-Address Element inside for porttype {} ",
                 endpoint.getPortType().toString());
             final SOAPAddress address = (SOAPAddress) element;
-            address.setLocationURI(endpoint.getURI().toString());
+            address.setLocationURI(endpoint.getUri().toString());
         } else if (element.getElementType().equals(HTTPConstants.Q_ELEM_HTTP_ADDRESS)) {
             LOG.debug("Changing the HTTP-Address Element inside for porttype {} ",
                 endpoint.getPortType().toString());
             final HTTPAddress address = (HTTPAddress) element;
-            address.setLocationURI(endpoint.getURI().toString());
+            address.setLocationURI(endpoint.getUri().toString());
         } else {
             LOG.debug("Address element inside WSDL isn't supported");
             return false;

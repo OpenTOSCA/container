@@ -1,0 +1,1088 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:tns="http://www.apache.org/ode/pmapi"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                  xmlns:typ="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+                  xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+                  xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+                  xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+                  targetNamespace="http://www.apache.org/ode/pmapi">
+    <wsdl:types>
+        <xsd:schema attributeFormDefault="unqualified" elementFormDefault="unqualified">
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                        schemaLocation="pmapi.xsd"/>
+        </xsd:schema>
+        <xsd:schema xmlns:ns0="http://www.apache.org/ode/pmapi"
+                    xmlns:ns2="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns1="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns4="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns3="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns31="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns6="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns30="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns5="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns8="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns7="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns13="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns12="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns9="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns11="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns10="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns32="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns17="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns16="http://www.apache.org/ode/pmapi"
+                    xmlns:ns15="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns14="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns19="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns18="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns20="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns24="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns23="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns22="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns21="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns28="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns27="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns26="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns25="http://www.apache.org/ode/pmapi"
+                    xmlns:ns29="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    attributeFormDefault="unqualified"
+                    elementFormDefault="unqualified"
+                    targetNamespace="http://www.apache.org/ode/pmapi">
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:complexType name="aidsType">
+                <xsd:all>
+                    <xsd:element name="aid" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="listType">
+                <xsd:all>
+                    <xsd:element name="element" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:element name="ManagementFault" type="xsd:string"/>
+            <xsd:element name="listProcessesCustom">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="filter" nillable="true" type="xsd:string"/>
+                        <xsd:element form="unqualified" name="orderKeys" nillable="true" type="xsd:string"/>
+                        <xsd:element form="unqualified" name="customizer" nillable="true" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="setProcessProperty">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="pid" nillable="true" type="xsd:QName"/>
+                        <xsd:element form="unqualified" name="propertyName" nillable="true" type="xsd:QName"/>
+                        <xsd:element form="unqualified" name="propertyValue" nillable="true" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getProcessInfoCustom">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="pid" nillable="true" type="xsd:QName"/>
+                        <xsd:element form="unqualified" name="customizer" nillable="true" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="setProcessPropertyNode">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="pid" nillable="true" type="xsd:QName"/>
+                        <xsd:element form="unqualified" name="propertyName" nillable="true" type="xsd:QName"/>
+                        <xsd:element form="unqualified" name="propertyValue" nillable="true" type="xsd:anyType"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listProcesses">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="filter" nillable="true" type="xsd:string"/>
+                        <xsd:element form="unqualified" name="orderKeys" nillable="true" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listAllProcesses">
+                <xsd:complexType>
+                    <xsd:sequence/>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getProcessInfo">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="pid" nillable="true" type="xsd:QName"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="setRetired">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="pid" nillable="true" type="xsd:QName"/>
+                        <xsd:element form="unqualified" name="retired" nillable="true" type="xsd:boolean"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getExtensibilityElements">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="pid" nillable="true" type="xsd:QName"/>
+                        <xsd:element form="unqualified" name="aids" nillable="true" type="ns0:aidsType"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="activate">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="pid" nillable="true" type="xsd:QName"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listProcessesCustomResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info-list" nillable="true"
+                                     type="typ:tProcessInfoList"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="setProcessPropertyResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info" nillable="true" type="typ:tProcessInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getProcessInfoCustomResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info" nillable="true" type="typ:tProcessInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="setProcessPropertyNodeResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info" nillable="true" type="typ:tProcessInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listProcessesResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info-list" nillable="true"
+                                     type="typ:tProcessInfoList"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listAllProcessesResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info-list" nillable="true"
+                                     type="typ:tProcessInfoList"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getProcessInfoResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info" nillable="true" type="typ:tProcessInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="setRetiredResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info" nillable="true" type="typ:tProcessInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getExtensibilityElementsResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info" nillable="true" type="typ:tProcessInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="activateResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info" nillable="true" type="typ:tProcessInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getScopeInfoWithActivity">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="sid" nillable="true" type="xsd:long"/>
+                        <xsd:element form="unqualified" name="activityInfo" nillable="true" type="xsd:boolean"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="resume">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="iid" nillable="true" type="xsd:long"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="recoverActivity">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="iid" nillable="true" type="xsd:long"/>
+                        <xsd:element form="unqualified" name="aid" nillable="true" type="xsd:long"/>
+                        <xsd:element form="unqualified" name="action" nillable="true" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getEventTimeline">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="instanceFilter" nillable="true" type="xsd:string"/>
+                        <xsd:element form="unqualified" name="eventFilter" nillable="true" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="suspend">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="iid" nillable="true" type="xsd:long"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getCommunication">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="getCommunication" nillable="true"
+                                     type="typ:GetCommunication"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listAllInstances">
+                <xsd:complexType>
+                    <xsd:sequence/>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listAllInstancesWithLimit">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="payload" nillable="true" type="xsd:int"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="fault">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="iid" nillable="true" type="xsd:long"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getVariableInfo">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="sid" nillable="true" type="xsd:string"/>
+                        <xsd:element form="unqualified" name="varName" nillable="true" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="replay">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="replay" nillable="true" type="typ:Replay"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getScopeInfo">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="siid" nillable="true" type="xsd:long"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="delete">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="filter" nillable="true" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="setVariable">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="sid" nillable="true" type="xsd:string"/>
+                        <xsd:element form="unqualified" name="varName" nillable="true" type="xsd:string"/>
+                        <xsd:element form="unqualified" name="value" nillable="true" type="xsd:anyType"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listInstances">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="filter" nillable="true" type="xsd:string"/>
+                        <xsd:element form="unqualified" name="order" nillable="true" type="xsd:string"/>
+                        <xsd:element form="unqualified" name="limit" nillable="true" type="xsd:int"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listInstancesSummary">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="filter" nillable="true" type="xsd:string"/>
+                        <xsd:element form="unqualified" name="order" nillable="true" type="xsd:string"/>
+                        <xsd:element form="unqualified" name="limit" nillable="true" type="xsd:int"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getInstanceInfo">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="iid" nillable="true" type="xsd:long"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="queryInstances">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="payload" nillable="true" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listEvents">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="instanceFilter" nillable="true" type="xsd:string"/>
+                        <xsd:element form="unqualified" name="eventFilter" nillable="true" type="xsd:string"/>
+                        <xsd:element form="unqualified" name="maxCount" nillable="true" type="xsd:int"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="terminate">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="iid" nillable="true" type="xsd:long"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getScopeInfoWithActivityResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="scope-info" nillable="true" type="typ:tScopeInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="resumeResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="instance-info" nillable="true"
+                                     type="typ:tInstanceInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="recoverActivityResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="instance-info" nillable="true"
+                                     type="typ:tInstanceInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getEventTimelineResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="dates" nillable="true" type="ns0:listType"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="suspendResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="instance-info" nillable="true"
+                                     type="typ:tInstanceInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getCommunicationResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="getCommunicationResponse" nillable="true"
+                                     type="typ:GetCommunicationResponse"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listAllInstancesResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="instance-info-list" nillable="true"
+                                     type="typ:tInstanceInfoList"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listAllInstancesWithLimitResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="instance-info-list" nillable="true"
+                                     type="typ:tInstanceInfoList"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="faultResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="instance-info" nillable="true"
+                                     type="typ:tInstanceInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getVariableInfoResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="variable-info" nillable="true"
+                                     type="typ:tVariableInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="replayResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="replayResponse" nillable="true"
+                                     type="typ:ReplayResponse"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getScopeInfoResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="scope-info" nillable="true" type="typ:tScopeInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="deleteResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="list" nillable="true" type="ns0:listType"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="setVariableResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="scope-info" nillable="true" type="typ:tVariableInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listInstancesResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="instance-info-list" nillable="true"
+                                     type="typ:tInstanceInfoList"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listInstancesSummaryResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="instance-info-list" nillable="true"
+                                     type="typ:tInstanceInfoList"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getInstanceInfoResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="instance-info" nillable="true"
+                                     type="typ:tInstanceInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="queryInstancesResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="instance-info-list" nillable="true"
+                                     type="typ:tInstanceInfoList"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listEventsResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="bpel-event-list" nillable="true"
+                                     type="typ:tEventInfoList"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="terminateResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="instance-info" nillable="true"
+                                     type="typ:tInstanceInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:schema>
+    </wsdl:types>
+    <wsdl:message name="getScopeInfoWithActivityInput">
+        <wsdl:part name="parameters" element="tns:getScopeInfoWithActivity"/>
+    </wsdl:message>
+    <wsdl:message name="getScopeInfoWithActivityOutput">
+        <wsdl:part name="parameters" element="tns:getScopeInfoWithActivityResponse"/>
+    </wsdl:message>
+    <wsdl:message name="managementFault">
+        <wsdl:part name="managementFault" element="tns:ManagementFault"/>
+    </wsdl:message>
+    <wsdl:message name="listEventsInput">
+        <wsdl:part name="parameters" element="tns:listEvents"/>
+    </wsdl:message>
+    <wsdl:message name="listEventsOutput">
+        <wsdl:part name="parameters" element="tns:listEventsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="suspendInput">
+        <wsdl:part name="parameters" element="tns:suspend"/>
+    </wsdl:message>
+    <wsdl:message name="suspendOutput">
+        <wsdl:part name="parameters" element="tns:suspendResponse"/>
+    </wsdl:message>
+    <wsdl:message name="resumeInput">
+        <wsdl:part name="parameters" element="tns:resume"/>
+    </wsdl:message>
+    <wsdl:message name="resumeOutput">
+        <wsdl:part name="parameters" element="tns:resumeResponse"/>
+    </wsdl:message>
+    <wsdl:message name="queryInstancesInput">
+        <wsdl:part name="parameters" element="tns:queryInstances"/>
+    </wsdl:message>
+    <wsdl:message name="queryInstancesOutput">
+        <wsdl:part name="parameters" element="tns:queryInstancesResponse"/>
+    </wsdl:message>
+    <wsdl:message name="listAllInstancesWithLimitInput">
+        <wsdl:part name="parameters" element="tns:listAllInstancesWithLimit"/>
+    </wsdl:message>
+    <wsdl:message name="listAllInstancesWithLimitOutput">
+        <wsdl:part name="parameters" element="tns:listAllInstancesWithLimitResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getInstanceInfoInput">
+        <wsdl:part name="parameters" element="tns:getInstanceInfo"/>
+    </wsdl:message>
+    <wsdl:message name="getInstanceInfoOutput">
+        <wsdl:part name="parameters" element="tns:getInstanceInfoResponse"/>
+    </wsdl:message>
+    <wsdl:message name="listInstancesSummaryInput">
+        <wsdl:part name="parameters" element="tns:listInstancesSummary"/>
+    </wsdl:message>
+    <wsdl:message name="listInstancesSummaryOutput">
+        <wsdl:part name="parameters" element="tns:listInstancesSummaryResponse"/>
+    </wsdl:message>
+    <wsdl:message name="deleteInput">
+        <wsdl:part name="parameters" element="tns:delete"/>
+    </wsdl:message>
+    <wsdl:message name="deleteOutput">
+        <wsdl:part name="parameters" element="tns:deleteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getCommunicationInput">
+        <wsdl:part name="parameters" element="tns:getCommunication"/>
+    </wsdl:message>
+    <wsdl:message name="getCommunicationOutput">
+        <wsdl:part name="parameters" element="tns:getCommunicationResponse"/>
+    </wsdl:message>
+    <wsdl:message name="replayInput">
+        <wsdl:part name="parameters" element="tns:replay"/>
+    </wsdl:message>
+    <wsdl:message name="replayOutput">
+        <wsdl:part name="parameters" element="tns:replayResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getScopeInfoInput">
+        <wsdl:part name="parameters" element="tns:getScopeInfo"/>
+    </wsdl:message>
+    <wsdl:message name="getScopeInfoOutput">
+        <wsdl:part name="parameters" element="tns:getScopeInfoResponse"/>
+    </wsdl:message>
+    <wsdl:message name="setVariableInput">
+        <wsdl:part name="parameters" element="tns:setVariable"/>
+    </wsdl:message>
+    <wsdl:message name="setVariableOutput">
+        <wsdl:part name="parameters" element="tns:setVariableResponse"/>
+    </wsdl:message>
+    <wsdl:message name="faultInput">
+        <wsdl:part name="parameters" element="tns:fault"/>
+    </wsdl:message>
+    <wsdl:message name="faultOutput">
+        <wsdl:part name="parameters" element="tns:faultResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getEventTimelineInput">
+        <wsdl:part name="parameters" element="tns:getEventTimeline"/>
+    </wsdl:message>
+    <wsdl:message name="getEventTimelineOutput">
+        <wsdl:part name="parameters" element="tns:getEventTimelineResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getVariableInfoInput">
+        <wsdl:part name="parameters" element="tns:getVariableInfo"/>
+    </wsdl:message>
+    <wsdl:message name="getVariableInfoOutput">
+        <wsdl:part name="parameters" element="tns:getVariableInfoResponse"/>
+    </wsdl:message>
+    <wsdl:message name="listInstancesInput">
+        <wsdl:part name="parameters" element="tns:listInstances"/>
+    </wsdl:message>
+    <wsdl:message name="listInstancesOutput">
+        <wsdl:part name="parameters" element="tns:listInstancesResponse"/>
+    </wsdl:message>
+    <wsdl:message name="listAllInstancesInput">
+        <wsdl:part name="parameters" element="tns:listAllInstances"/>
+    </wsdl:message>
+    <wsdl:message name="listAllInstancesOutput">
+        <wsdl:part name="parameters" element="tns:listAllInstancesResponse"/>
+    </wsdl:message>
+    <wsdl:message name="terminateInput">
+        <wsdl:part name="parameters" element="tns:terminate"/>
+    </wsdl:message>
+    <wsdl:message name="terminateOutput">
+        <wsdl:part name="parameters" element="tns:terminateResponse"/>
+    </wsdl:message>
+    <wsdl:message name="recoverActivityInput">
+        <wsdl:part name="parameters" element="tns:recoverActivity"/>
+    </wsdl:message>
+    <wsdl:message name="recoverActivityOutput">
+        <wsdl:part name="parameters" element="tns:recoverActivityResponse"/>
+    </wsdl:message>
+    <wsdl:portType name="InstanceManagementPortType">
+        <wsdl:operation name="getScopeInfoWithActivity">
+            <wsdl:input message="tns:getScopeInfoWithActivityInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/getScopeInfoWithActivityRequest"/>
+            <wsdl:output message="tns:getScopeInfoWithActivityOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/getScopeInfoWithActivityResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:getScopeInfoWithActivitymanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="listEvents">
+            <wsdl:input message="tns:listEventsInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/listEventsRequest"/>
+            <wsdl:output message="tns:listEventsOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/listEventsResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:listEventsmanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="suspend">
+            <wsdl:input message="tns:suspendInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/suspendRequest"/>
+            <wsdl:output message="tns:suspendOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/suspendResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:suspendmanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="resume">
+            <wsdl:input message="tns:resumeInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/resumeRequest"/>
+            <wsdl:output message="tns:resumeOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/resumeResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:resumemanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="queryInstances">
+            <wsdl:input message="tns:queryInstancesInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/queryInstancesRequest"/>
+            <wsdl:output message="tns:queryInstancesOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/queryInstancesResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:queryInstancesmanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="listAllInstancesWithLimit">
+            <wsdl:input message="tns:listAllInstancesWithLimitInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/listAllInstancesWithLimitRequest"/>
+            <wsdl:output message="tns:listAllInstancesWithLimitOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/listAllInstancesWithLimitResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:listAllInstancesWithLimitmanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="getInstanceInfo">
+            <wsdl:input message="tns:getInstanceInfoInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/getInstanceInfoRequest"/>
+            <wsdl:output message="tns:getInstanceInfoOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/getInstanceInfoResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:getInstanceInfomanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="listInstancesSummary">
+            <wsdl:input message="tns:listInstancesSummaryInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/listInstancesSummaryRequest"/>
+            <wsdl:output message="tns:listInstancesSummaryOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/listInstancesSummaryResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:listInstancesSummarymanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="delete">
+            <wsdl:input message="tns:deleteInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/deleteRequest"/>
+            <wsdl:output message="tns:deleteOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/deleteResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:deletemanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="getCommunication">
+            <wsdl:input message="tns:getCommunicationInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/getCommunicationRequest"/>
+            <wsdl:output message="tns:getCommunicationOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/getCommunicationResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:getCommunicationmanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="replay">
+            <wsdl:input message="tns:replayInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/replayRequest"/>
+            <wsdl:output message="tns:replayOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/replayResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:replaymanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="getScopeInfo">
+            <wsdl:input message="tns:getScopeInfoInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/getScopeInfoRequest"/>
+            <wsdl:output message="tns:getScopeInfoOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/getScopeInfoResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:getScopeInfomanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="setVariable">
+            <wsdl:input message="tns:setVariableInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/setVariableRequest"/>
+            <wsdl:output message="tns:setVariableOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/setVariableResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:setVariablemanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="fault">
+            <wsdl:input message="tns:faultInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/faultRequest"/>
+            <wsdl:output message="tns:faultOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/faultResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:faultmanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="getEventTimeline">
+            <wsdl:input message="tns:getEventTimelineInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/getEventTimelineRequest"/>
+            <wsdl:output message="tns:getEventTimelineOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/getEventTimelineResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:getEventTimelinemanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="getVariableInfo">
+            <wsdl:input message="tns:getVariableInfoInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/getVariableInfoRequest"/>
+            <wsdl:output message="tns:getVariableInfoOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/getVariableInfoResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:getVariableInfomanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="listInstances">
+            <wsdl:input message="tns:listInstancesInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/listInstancesRequest"/>
+            <wsdl:output message="tns:listInstancesOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/listInstancesResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:listInstancesmanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="listAllInstances">
+            <wsdl:input message="tns:listAllInstancesInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/listAllInstancesRequest"/>
+            <wsdl:output message="tns:listAllInstancesOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/listAllInstancesResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:listAllInstancesmanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="terminate">
+            <wsdl:input message="tns:terminateInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/terminateRequest"/>
+            <wsdl:output message="tns:terminateOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/terminateResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:terminatemanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="recoverActivity">
+            <wsdl:input message="tns:recoverActivityInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/recoverActivityRequest"/>
+            <wsdl:output message="tns:recoverActivityOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/InstanceManagementPortType/recoverActivityResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:recoverActivitymanagementFault"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="InstanceManagementBinding" type="tns:InstanceManagementPortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="getScopeInfoWithActivity">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="listEvents">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="suspend">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="resume">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="queryInstances">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="listAllInstancesWithLimit">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getInstanceInfo">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="listInstancesSummary">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="delete">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getCommunication">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="replay">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getScopeInfo">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="setVariable">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="fault">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getEventTimeline">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getVariableInfo">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="listInstances">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="listAllInstances">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="terminate">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="recoverActivity">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="InstanceManagement">
+        <wsdl:port name="InstanceManagementPort" binding="tns:InstanceManagementBinding">
+            <soap:address location="http://localhost:9763/ode/processes/InstanceManagement.InstanceManagementPort/"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

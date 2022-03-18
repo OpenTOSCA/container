@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * /ns/2011/12/ToscaBaseTypes}ScriptArtifact,{http ://www.example.com/ToscaTypes}WAR and DAs of type
  * {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}ArchiveArtifact
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -170,9 +170,12 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
             return true;
         }
 
-        if (!org.opentosca.container.core.convention.Utils
-            .isSupportedInfrastructureNodeType(infrastructureNodeType)) {
+        if (!Utils.isSupportedInfrastructureNodeType(infrastructureNodeType)) {
             return false;
+        }
+        // else if we have a supported infrastructure node, and we are handling a DA, upload it...
+        if (isDA) {
+            return true;
         }
 
         // we can deploy on debian nodes (ubuntu, raspbian, docker containers based on

@@ -8,7 +8,7 @@ import org.apache.ode.schemas.dd._2007._03.TDeployment;
  * <p>
  * This class is used to be able to generate Apache ODE DeploymentDeskriptors
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

@@ -17,7 +17,7 @@ import org.w3c.dom.Element;
  * >Konzept und Implementierung eine Java-Komponente zur Generierung von WS-BPEL 2.0 BuildPlans für OpenTOSCA</a> and
  * enforces those concepts by defining placeholder elements
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

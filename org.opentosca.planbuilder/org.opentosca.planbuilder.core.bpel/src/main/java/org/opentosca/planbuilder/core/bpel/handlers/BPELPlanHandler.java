@@ -49,7 +49,7 @@ import org.xml.sax.SAXException;
  * This class is a part of the facade, which is used to work on a BuildPlan. This is class in particular is responsible
  * for the handling of various XML related actions on the whole BPEL process
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -252,7 +252,7 @@ public class BPELPlanHandler {
         for (final TInvoke inv : buildPlan.getDeploymentDeskriptor().getProcess().get(0).getInvoke()) {
             if (inv.getPartnerLink().equals(partnerLinkName)) {
                 BPELPlanHandler.LOG.debug("Adding invoke for partnerLink {}, serviceName {} and portName {} failed, there is already a partnerLink with the same Name",
-                    partnerLinkName, serviceName.toString(), portName);
+                    partnerLinkName, serviceName, portName);
                 return false;
             }
         }

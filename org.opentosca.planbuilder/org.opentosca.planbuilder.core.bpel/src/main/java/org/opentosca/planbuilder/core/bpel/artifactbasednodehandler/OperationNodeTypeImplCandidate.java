@@ -11,9 +11,9 @@ import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
-import org.opentosca.container.core.model.ModelUtils;
 
 /**
  * <p>
@@ -21,7 +21,7 @@ import org.opentosca.container.core.model.ModelUtils;
  * operations, IA's and ProvPhasePlugins
  * </p>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

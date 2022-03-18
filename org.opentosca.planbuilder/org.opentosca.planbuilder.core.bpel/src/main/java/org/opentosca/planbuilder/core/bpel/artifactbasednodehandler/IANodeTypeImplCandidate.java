@@ -14,7 +14,7 @@ import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhase
  * <p>
  * This Class represents mappings from IA's to InfrastructureNodes with PrePhaseIAPlugins
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

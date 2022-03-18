@@ -36,7 +36,7 @@ import org.xml.sax.SAXException;
  * <p>
  * This class is represented by the interface org.opentosca.toscaengine.xmlserializer.service.IXMLSerializer.
  * <p>
- * Copyright 2012 IAAS University of Stuttgart <br>
+ * Copyright 2012-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * TODO JAXBIntrospector does not what expected ...
@@ -88,7 +88,7 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 
             // if the Schema object is null no validation is set
             if (schemaFile != null) {
-                LOG.info("There is a given Schema at \"" + schemaFile.toString() + "\".");
+                LOG.info("There is a given Schema at \"" + schemaFile + "\".");
                 this.schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
                 this.schema = this.schemaFactory.newSchema(schemaFile);
 

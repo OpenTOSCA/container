@@ -23,7 +23,9 @@ import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
+import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService;
 import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
@@ -41,6 +43,9 @@ public class QHAnaTest {
 
     public QName csarId = QName.valueOf("{https://ust-quantil.github.io/quantum/applications/servicetemplates}QHAna_w1");
 
+    private TestUtils testUtils = new TestUtils();
+
+
     @Inject
     public OpenToscaControlService control;
     @Inject
@@ -51,11 +56,16 @@ public class QHAnaTest {
     public PlanService planService;
     @Inject
     public InstanceService instanceService;
+    @Inject
+    public ICoreEndpointService endpointService;
+    @Inject
+    public PlanInstanceSubscriptionService subscriptionService;
+
 
     @Test
     public void testDeployment() throws Exception {
-        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage, TESTAPPLICATIONSREPOSITORY);
-        TestUtils.generatePlans(this.csarService, csar);
+        Csar csar = testUtils.setupCsarTestRepository(this.csarId, this.storage, TESTAPPLICATIONSREPOSITORY);
+        testUtils.generatePlans(this.csarService, csar);
 
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
         assertNotNull(serviceTemplate);
@@ -63,15 +73,17 @@ public class QHAnaTest {
         List<TPlan> plans = serviceTemplate.getPlans();
         assertNotNull(plans);
 
-        TPlan buildPlan = TestUtils.getBuildPlan(plans);
-        TPlan terminationPlan = TestUtils.getTerminationPlan(plans);
+        TPlan buildPlan = testUtils.getBuildPlan(plans);
+        TPlan terminationPlan = testUtils.getTerminationPlan(plans);
         assertNotNull(buildPlan);
         assertNotNull(terminationPlan);
 
-        TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
+        testUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
 
-        ServiceTemplateInstance serviceTemplateInstance = TestUtils.runBuildPlanExecution(
-            this.planService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters()
+        assertEquals(2, testUtils.getDeployedPlans(this.endpointService).size());
+
+        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(
+            this.planService, this.instanceService, this.subscriptionService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters()
         );
 
         assertNotNull(serviceTemplateInstance);
@@ -96,22 +108,26 @@ public class QHAnaTest {
             .join();
         assertEquals(200, pluginRunnerResponse.statusCode());
 
-        TestUtils.runTerminationPlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
+        testUtils.runTerminationPlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
+
+        testUtils.invokePlanUndeployment(this.control,csar.id(), serviceTemplate);
+
+        assertEquals(0, testUtils.getDeployedPlans(this.endpointService).size());
     }
 
     @After
     public void cleanUpContainer() {
-        TestUtils.clearContainer(this.storage, this.control);
+        testUtils.clearContainer(this.storage, this.control);
     }
 
     private List<TParameter> getBuildPlanInputParameters() {
-        List<TParameter> baseInputParams = TestUtils.getBaseInputParams();
+        List<TParameter> baseInputParams = testUtils.getBaseInputParams();
 
         TParameter dockerInDocker = new TParameter();
         dockerInDocker.setName("DockerEngineURL");
         dockerInDocker.setRequired(true);
         dockerInDocker.setType("String");
-        dockerInDocker.setValue("tcp://" + TestUtils.getDockerHost() + ":2375");
+        dockerInDocker.setValue("tcp://" + testUtils.getDockerHost() + ":2375");
         baseInputParams.add(dockerInDocker);
 
         TParameter ibmQToken = new TParameter();

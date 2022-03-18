@@ -26,7 +26,7 @@ import org.w3c.dom.Element;
  * This Class is a wrapper class for the other wrapper classes (IACandidateWrapper,DACandidateWrapper,..). The class
  * also represents if there are complete provisioning possible with the available template implementations.
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

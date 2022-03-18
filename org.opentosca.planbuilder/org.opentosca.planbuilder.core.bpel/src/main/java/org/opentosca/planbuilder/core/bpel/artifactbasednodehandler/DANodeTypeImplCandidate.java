@@ -17,7 +17,7 @@ import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhase
  * InfrastructureNode
  * </p>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

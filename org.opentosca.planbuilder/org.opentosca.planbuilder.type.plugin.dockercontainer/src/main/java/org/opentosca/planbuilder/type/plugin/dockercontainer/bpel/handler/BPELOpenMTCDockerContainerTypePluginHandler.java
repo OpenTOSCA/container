@@ -14,13 +14,13 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.core.plugins.utils.PluginUtils;
-import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.BPELDockerContainerTypePlugin;
 import org.slf4j.Logger;
@@ -150,6 +150,9 @@ public class BPELOpenMTCDockerContainerTypePluginHandler {
         // fetch (optional) ContainerID variable
         final Variable containerIdVar = templateContext.getPropertyVariable(nodeTemplate, "ContainerID");
 
+        // fetch (optional) PrivilegedMode variable
+        final PropertyVariable privilegedModeVar = templateContext.getPropertyVariable(nodeTemplate, "PrivilegedMode");
+
         // fetch DockerEngine
         final TNodeTemplate dockerEngineNode = BPELDockerContainerTypePlugin.getDockerEngineNode(nodeTemplate, templateContext.getCsar());
 
@@ -170,7 +173,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler {
             final TDeploymentArtifact da =
                 BPELDockerContainerTypePlugin.fetchFirstDockerContainerDA(nodeTemplate, templateContext.getCsar());
             return handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar,
-                containerIpVar, containerIdVar, envMappingVar, null, null);
+                containerIpVar, containerIdVar, envMappingVar, null, null, privilegedModeVar);
         }
 
         return false;
@@ -347,6 +350,9 @@ public class BPELOpenMTCDockerContainerTypePluginHandler {
         // fetch (optional) ContainerID variable
         final Variable containerIdVar = templateContext.getPropertyVariable(nodeTemplate, "ContainerID");
 
+        // fetch (optional) PrivilegedMode variable
+        final PropertyVariable privilegedModeVar = templateContext.getPropertyVariable(nodeTemplate, "PrivilegedMode");
+
         // fetch DockerEngine
         final TNodeTemplate dockerEngineNode = BPELDockerContainerTypePlugin.getDockerEngineNode(nodeTemplate, templateContext.getCsar());
 
@@ -367,7 +373,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler {
             final TDeploymentArtifact da =
                 BPELDockerContainerTypePlugin.fetchFirstDockerContainerDA(nodeTemplate, templateContext.getCsar());
             return handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar,
-                containerIpVar, containerIdVar, envMappingVar, linksVar, deviceMappingVar);
+                containerIpVar, containerIdVar, envMappingVar, linksVar, deviceMappingVar, privilegedModeVar);
         }
 
         return false;
@@ -378,7 +384,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler {
                                    final Variable dockerEngineUrlVar, final Variable sshPortVar,
                                    final Variable containerIpVar, final Variable containerIdVar,
                                    final Variable envMappingVar, final Variable linksVar,
-                                   final Variable deviceMappingVar) {
+                                   final Variable deviceMappingVar, final Variable privilegedModeVar) {
         context.addStringValueToPlanRequest("csarEntrypoint");
 
         final String artifactPathQuery =
@@ -409,6 +415,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler {
         createDEInternalExternalPropsInput.put("ImageLocation", dockerContainerFileRefVar);
         createDEInternalExternalPropsInput.put("DockerEngineURL", dockerEngineUrlVar);
         createDEInternalExternalPropsInput.put("ContainerPorts", portMappingVar);
+        createDEInternalExternalPropsInput.put("PrivilegedMode", privilegedModeVar);
 
         BPELDockerContainerTypePluginHandler.addProperties(sshPortVar, containerIpVar, containerIdVar, envMappingVar, linksVar, deviceMappingVar, createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput);
 

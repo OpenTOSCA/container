@@ -48,14 +48,6 @@ public class PersistenceObject implements Serializable {
         this.id = id;
     }
 
-    // public Long getVersion() {
-    // return this.version;
-    // }
-
-    // public void setVersion(final Long version) {
-    // this.version = version;
-    // }
-
     public Date getCreatedAt() {
         return this.createdAt;
     }

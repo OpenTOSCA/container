@@ -6,10 +6,10 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TPolicy;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPolicyAwarePrePhasePlugin;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlugin;
-import org.opentosca.container.core.model.ModelUtils;
 import org.springframework.stereotype.Component;
 
 /**

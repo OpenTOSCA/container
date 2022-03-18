@@ -22,6 +22,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <attachClasses>true</attachClasses> <!-- see https://stackoverflow.com/a/10090564/873282 -->
@@ -475,11 +476,7 @@
         </dependency>
 
 
-        <dependency>
-            <groupId>org.logback-extensions</groupId>
-            <artifactId>logback-ext-spring</artifactId>
-            <version>0.1.5</version>
-        </dependency>
+
 
         <!-- directly bind to hibernate as persistence-provider -->
         <dependency>
@@ -547,11 +544,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
-        </dependency>
+
 
         <!-- Used to test mysql component -->
         <dependency>

@@ -7,8 +7,8 @@ import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
-import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.container.core.model.ModelUtils;
+import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 
 public abstract class AbstractPlanBuilder {
 

@@ -3,9 +3,18 @@
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p [%t] %-40.40logger{39} : %m%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p [%t] %-50.50logger{43}:%-4line{4} : %m%n</pattern>
         </encoder>
     </appender>
+
+    <!--<appender name="file" class="ch.qos.logback.core.FileAppender">
+        <file>/tmp/logback.log</file>
+        <append>true</append>
+        <immediateFlush>true</immediateFlush>+
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>-->
 
     <!-- code under our direct control -->
     <logger name="org.opentosca" level="INFO"/>
@@ -23,13 +32,15 @@
     <logger name="org.apache.camel" level="WARN"/>
     <!-- logging in- and outbound SOAP messages -->
     <logger name="org.apache.cxf.services" level="INFO"/>
-    <logger name="org.hibernate" level="INFO"/>
+    <logger name="org.hibernate" level="ERROR"/>
+    <logger name="org.hibernate.SQL" level="ERROR"/>
     <logger name="org.jclouds" level="INFO"/>
     <logger name="org.springframework" level="INFO"/>
-    <logger name="org.apache.axis.utils.JavaUtils" level="OFF"/>
     <logger name="org.eclipse.winery" level="ERROR"/>
+    <logger name="org.apache.axis2" level="ERROR"/>
 
     <root level="debug">
         <appender-ref ref="STDOUT"/>
+        <!--<appender-ref ref="file"/>-->
     </root>
 </configuration>

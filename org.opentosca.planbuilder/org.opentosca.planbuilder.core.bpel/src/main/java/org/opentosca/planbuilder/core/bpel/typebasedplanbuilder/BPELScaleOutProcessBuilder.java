@@ -22,6 +22,7 @@ import org.eclipse.winery.model.tosca.TTag;
 import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractScaleOutPlanBuilder;
 import org.opentosca.planbuilder.core.ScalingPlanDefinition;
@@ -48,7 +49,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;

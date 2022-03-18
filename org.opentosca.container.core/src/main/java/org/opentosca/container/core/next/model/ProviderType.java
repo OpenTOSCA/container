@@ -1,4 +1,4 @@
-package org.opentosca.container.core.model.capability.provider;
+package org.opentosca.container.core.next.model;
 
 /**
  * This enum defines types of provider that can have capabilities to store.

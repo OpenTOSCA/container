@@ -3,7 +3,7 @@ package org.opentosca.container.core.service;
 import java.util.List;
 import java.util.Map;
 
-import org.opentosca.container.core.model.capability.provider.ProviderType;
+import org.opentosca.container.core.next.model.ProviderType;
 
 /**
  * This interface provides methods to store, get and delete capabilities of different provider and provider types.<br>

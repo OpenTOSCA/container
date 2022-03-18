@@ -17,11 +17,11 @@ import org.eclipse.winery.model.tosca.TParameter;
 import org.apache.commons.io.FilenameUtils;
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Properties;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * assumes that the playbook that must be called are already uploaded to the appropriate path. For example by the
  * ScriptIAOnLinux Plugin
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
@@ -43,7 +43,7 @@ public class BPELAnsibleOperationPluginHandler {
 
     private final BPELInvokerPlugin invokerPlugin = new BPELInvokerPlugin();
 
-    private DocumentBuilderFactory docFactory;
+    private final DocumentBuilderFactory docFactory;
 
     public BPELAnsibleOperationPluginHandler() {
 

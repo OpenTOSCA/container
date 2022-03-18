@@ -77,7 +77,7 @@ public class Util {
     public static QName getPortTypeQName(final TArtifactTemplate artifactTemplate) {
         try {
             QName portType = QName.valueOf(getProperty(artifactTemplate, "PortType"));
-            LOG.debug("PortType property: {}", portType.toString());
+            LOG.debug("PortType property: {}", portType);
             return portType;
         } catch (final IllegalArgumentException e) {
             LOG.warn("PortType property can not be parsed to QName.");

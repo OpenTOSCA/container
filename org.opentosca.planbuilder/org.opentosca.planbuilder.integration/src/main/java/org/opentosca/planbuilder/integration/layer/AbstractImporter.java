@@ -12,6 +12,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import com.google.common.collect.Lists;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractSimplePlanBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELBackupManagementProcessBuilder;
@@ -26,13 +27,23 @@ import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTransformati
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELUpdateProcessBuilder;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.container.core.model.ModelUtils;
+
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_BackupPlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_BuildPlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_DefrostPlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_FreezePlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_LifecycleInterface;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_ManagementFeatureInterface;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_StatefulLifecycleInterface;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_TerminationPlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_TestPlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_UpdatePlanOperation;
 
 /**
  * <p>
  * This abstract class is used to define importers
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -125,41 +136,41 @@ public abstract class AbstractImporter {
         final AbstractSimplePlanBuilder scalingPlanBuilder = new BPELScaleOutProcessBuilder(pluginRegistry);
 
         final AbstractSimplePlanBuilder freezePlanBuilder = new BPELFreezeProcessBuilder(pluginRegistry);
-        final AbstractSimplePlanBuilder defreezePlanBuilder = new BPELDefrostProcessBuilder(pluginRegistry);
+        final AbstractSimplePlanBuilder defrostPlanBuilder = new BPELDefrostProcessBuilder(pluginRegistry);
 
         final AbstractSimplePlanBuilder backupPlanBuilder = new BPELBackupManagementProcessBuilder(pluginRegistry);
         final AbstractSimplePlanBuilder testPlanBuilder = new BPELTestManagementProcessBuilder(pluginRegistry);
 
         final AbstractSimplePlanBuilder updatePlanBuilder = new BPELUpdateProcessBuilder(pluginRegistry);
 
-        if (ModelUtils.findServiceTemplateOperation(defs,"OpenTOSCA-Lifecycle-Interface", "initiate") == null) {
+        if (ModelUtils.findServiceTemplateOperation(defs, OpenTOSCA_LifecycleInterface, OpenTOSCA_BuildPlanOperation) == null) {
             plans.addAll(buildPlanBuilder.buildPlans(csar, defs));
         }
 
-        if (ModelUtils.findServiceTemplateOperation(defs,"OpenTOSCA-Lifecycle-Interface", "terminate") == null) {
+        if (ModelUtils.findServiceTemplateOperation(defs, OpenTOSCA_LifecycleInterface, OpenTOSCA_TerminationPlanOperation) == null) {
             plans.addAll(terminationPlanBuilder.buildPlans(csar, defs));
         }
 
         // most of these builders have some kind of check whether they can generate a plan or not, therefore the collection they return are empty.
         // However, in this state we don't properly check whether there IS already such a plan provided, e.g., a freeze plan and so forth.
         // Therefore here is now a TODO to properly check via the service template interface operation implementing e.g. freeze and check whether there is an implementation behind that operation
-        if (ModelUtils.findServiceTemplateOperation(defs,"OpenTOSCA-Stateful-Lifecycle-Interface", "freeze") == null) {
+        if (ModelUtils.findServiceTemplateOperation(defs, OpenTOSCA_StatefulLifecycleInterface, OpenTOSCA_FreezePlanOperation) == null) {
             plans.addAll(freezePlanBuilder.buildPlans(csar, defs));
         }
 
-        if (ModelUtils.findServiceTemplateOperation(defs, "OpenTOSCA-Stateful-Lifecycle-Interface", "defrost") == null) {
-            plans.addAll(defreezePlanBuilder.buildPlans(csar, defs));
+        if (ModelUtils.findServiceTemplateOperation(defs, OpenTOSCA_StatefulLifecycleInterface, OpenTOSCA_DefrostPlanOperation) == null) {
+            plans.addAll(defrostPlanBuilder.buildPlans(csar, defs));
         }
 
-        if (ModelUtils.findServiceTemplateOperation(defs, "OpenTOSCA-Stateful-Lifecycle-Interface", "update") == null) {
+        if (ModelUtils.findServiceTemplateOperation(defs, OpenTOSCA_StatefulLifecycleInterface, OpenTOSCA_UpdatePlanOperation) == null) {
             plans.addAll(updatePlanBuilder.buildPlans(csar, defs));
         }
 
-        if (ModelUtils.findServiceTemplateOperation(defs, "OpenTOSCA-Management-Feature-Interface", "backup") == null) {
+        if (ModelUtils.findServiceTemplateOperation(defs, OpenTOSCA_ManagementFeatureInterface, OpenTOSCA_BackupPlanOperation) == null) {
             plans.addAll(backupPlanBuilder.buildPlans(csar, defs));
         }
 
-        if (ModelUtils.findServiceTemplateOperation(defs, "OpenTOSCA-Management-Feature-Interface", "test") == null) {
+        if (ModelUtils.findServiceTemplateOperation(defs, OpenTOSCA_ManagementFeatureInterface, OpenTOSCA_TestPlanOperation) == null) {
             plans.addAll(testPlanBuilder.buildPlans(csar, defs));
         }
 

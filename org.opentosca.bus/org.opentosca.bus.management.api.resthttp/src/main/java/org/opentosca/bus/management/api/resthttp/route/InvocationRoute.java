@@ -1,6 +1,7 @@
 package org.opentosca.bus.management.api.resthttp.route;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Predicate;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Component;
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
  */
 @Component
+@Named("management-bus-resthttp-invocation-route")
 public class InvocationRoute extends RouteBuilder {
 
     public static final String HOST = "http://0.0.0.0";

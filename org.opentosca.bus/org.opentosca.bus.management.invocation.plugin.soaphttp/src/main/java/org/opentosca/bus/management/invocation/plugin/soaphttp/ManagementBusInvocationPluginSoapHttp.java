@@ -39,7 +39,7 @@ import org.w3c.dom.Document;
  * Management Bus-Plug-in for invoking a service with a SOAP message over HTTP. <br>
  * <br>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * The Plug-in gets needed information (like endpoint of the service or operation to invoke) from the Management Bus and
@@ -219,7 +219,7 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
 
                     final Message mes = ex.getIn();
                     LOG.debug("Got Message with ID: {}", messageID);
-                    LOG.debug("Stored MessageIDs: {}", EXCHANGE_MAP.keySet().toString());
+                    LOG.debug("Stored MessageIDs: {}", EXCHANGE_MAP.keySet());
                     if (EXCHANGE_MAP.containsKey(messageID)) {
                         LOG.debug("MessageID found");
                         exchange = EXCHANGE_MAP.get(messageID);
@@ -258,7 +258,7 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
         try {
             wsdlFactory = WSDLFactory.newInstance();
             final WSDLReader wsdlDefinitionReader = wsdlFactory.newWSDLReader();
-            // deactives logging of 'Retrieving documant at...'
+            // deactivates logging of 'Retrieving document at...'
             wsdlDefinitionReader.setFeature("javax.wsdl.verbose", false);
             return wsdlDefinitionReader.readWSDL(endpoint);
         } catch (final WSDLException e) {

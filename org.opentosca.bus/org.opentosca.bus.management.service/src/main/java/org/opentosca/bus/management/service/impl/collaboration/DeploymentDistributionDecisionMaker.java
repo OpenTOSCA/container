@@ -61,12 +61,12 @@ public class DeploymentDistributionDecisionMaker {
     private final static Logger LOG = LoggerFactory.getLogger(DeploymentDistributionDecisionMaker.class);
 
     // repository to access instance data via NodeTemplate identifiers
-    private final static NodeTemplateInstanceRepository nodeTemplateInstanceRepository =
-        new NodeTemplateInstanceRepository();
+    private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository;
 
     private final RequestSender sender;
 
-    public DeploymentDistributionDecisionMaker(RequestSender sender) {
+    public DeploymentDistributionDecisionMaker(NodeTemplateInstanceRepository nodeTemplateInstanceRepository, RequestSender sender) {
+        this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
         this.sender = sender;
     }
 
@@ -163,7 +163,7 @@ public class DeploymentDistributionDecisionMaker {
             // current NodeTemplateInstance is managed by the same Container as the
             // infrastructure instance
             nodeTemplateInstance.setManagingContainer(managingContainer);
-            nodeTemplateInstanceRepository.update(nodeTemplateInstance);
+            nodeTemplateInstanceRepository.save(nodeTemplateInstance);
             return managingContainer;
         }
 
@@ -190,8 +190,8 @@ public class DeploymentDistributionDecisionMaker {
             nodeTemplateInstance.setManagingContainer(deploymentLocation);
 
             // update stored entities
-            nodeTemplateInstanceRepository.update(nodeTemplateInstance);
-            nodeTemplateInstanceRepository.update(infrastructureNodeTemplateInstance);
+            nodeTemplateInstanceRepository.save(nodeTemplateInstance);
+            nodeTemplateInstanceRepository.save(infrastructureNodeTemplateInstance);
 
             return deploymentLocation;
         }
@@ -208,8 +208,8 @@ public class DeploymentDistributionDecisionMaker {
             nodeTemplateInstance.setManagingContainer(deploymentLocation);
 
             // update stored entities
-            nodeTemplateInstanceRepository.update(nodeTemplateInstance);
-            nodeTemplateInstanceRepository.update(infrastructureNodeTemplateInstance);
+            nodeTemplateInstanceRepository.save(nodeTemplateInstance);
+            nodeTemplateInstanceRepository.save(infrastructureNodeTemplateInstance);
 
             return deploymentLocation;
         }
@@ -217,7 +217,7 @@ public class DeploymentDistributionDecisionMaker {
         // default (no matching): return host name of local container
         LOG.debug("Remote instance data matching had no success. Returning local host name as default deployment location.");
         nodeTemplateInstance.setManagingContainer(Settings.OPENTOSCA_CONTAINER_HOSTNAME);
-        nodeTemplateInstanceRepository.update(nodeTemplateInstance);
+        nodeTemplateInstanceRepository.save(nodeTemplateInstance);
         return Settings.OPENTOSCA_CONTAINER_HOSTNAME;
     }
 

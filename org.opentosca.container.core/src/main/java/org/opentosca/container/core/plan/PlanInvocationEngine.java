@@ -38,7 +38,7 @@ import org.springframework.stereotype.Service;
 /**
  * The Implementation of the Engine. Also deals with OSGI events for communication with the mock-up Servicebus.
  * <p>
- * Copyright 2013 Christian Endres
+ * Copyright 2013-2022 Christian Endres
  *
  * @author endrescn@fachschaft.informatik.uni-stuttgart.de
  */
@@ -47,18 +47,19 @@ import org.springframework.stereotype.Service;
 public class PlanInvocationEngine implements IPlanInvocationEngine {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlanInvocationEngine.class);
-    private static final PlanInstanceRepository planRepo = new PlanInstanceRepository();
 
+    private final PlanInstanceRepository planRepo;
     private final IManagementBus managementBus;
     private final CsarStorageService csarStorage;
     private final RulesChecker rulesChecker;
     private final ChoreographyHandler choreographyHandler;
 
     @Inject
-    public PlanInvocationEngine(IManagementBus managementBus,
+    public PlanInvocationEngine(PlanInstanceRepository planRepo, IManagementBus managementBus,
                                 CsarStorageService csarStorage,
                                 RulesChecker rulesChecker,
                                 ChoreographyHandler choreographyHandler) {
+        this.planRepo = planRepo;
         this.managementBus = managementBus;
         this.csarStorage = csarStorage;
         this.rulesChecker = rulesChecker;
@@ -67,20 +68,14 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
 
     public String createChoreographyCorrelationId() {
         // generate CorrelationId for the plan execution
-        while (true) {
-            final String correlationId = String.valueOf(System.currentTimeMillis());
+        PlanInstance instance;
+        String correlationId;
+        do {
+            correlationId = String.valueOf(System.currentTimeMillis()) + Math.random();
+            instance = planRepo.findByChoreographyCorrelationId(correlationId);
 
-            try {
-
-                PlanInstance instance = planRepo.findByChoreographyCorrelationId(correlationId);
-                if (instance == null) {
-                    return correlationId;
-                }
-                LOG.debug("CorrelationId {} already in use.", correlationId);
-            } catch (final NoResultException e) {
-                return correlationId;
-            }
-        }
+        } while (instance != null);
+        return correlationId;
     }
 
     @Override

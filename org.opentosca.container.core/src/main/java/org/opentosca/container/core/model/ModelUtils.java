@@ -24,7 +24,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.eclipse.winery.model.ids.definitions.DefinitionsChildId;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TArtifactType;
 import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
@@ -32,7 +31,6 @@ import org.eclipse.winery.model.tosca.TCapability;
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
-import org.eclipse.winery.model.tosca.TEntityType;
 import org.eclipse.winery.model.tosca.TExportedInterface;
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
@@ -46,8 +44,6 @@ import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TRequirement;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
-import org.eclipse.winery.repository.backend.IRepository;
-import org.eclipse.winery.repository.backend.RepositoryFactory;
 
 import com.google.common.collect.Sets;
 import org.opentosca.container.core.common.NotFoundException;
@@ -92,11 +88,10 @@ public abstract class ModelUtils {
     }
 
     public static TExportedOperation findServiceTemplateOperation(TDefinitions defs, String interfaceName, String operationName) {
-            for (TServiceTemplate serviceTemplate : defs.getServiceTemplates()) {
-                if (serviceTemplate.getBoundaryDefinitions() == null) {
-                    continue;
-                }
-                for (TExportedInterface anInterface : serviceTemplate.getBoundaryDefinitions().getInterfaces()) {
+        for (TServiceTemplate serviceTemplate : defs.getServiceTemplates()) {
+            TBoundaryDefinitions boundaryDefinitions = serviceTemplate.getBoundaryDefinitions();
+            if (boundaryDefinitions != null && boundaryDefinitions.getInterfaces() != null) {
+                for (TExportedInterface anInterface : boundaryDefinitions.getInterfaces()) {
                     if (anInterface.getName().equals(interfaceName)) {
                         for (TExportedOperation op : anInterface.getOperation()) {
                             if (op.getName().equals(operationName)) {
@@ -106,6 +101,7 @@ public abstract class ModelUtils {
                     }
                 }
             }
+        }
         return null;
     }
 
@@ -809,21 +805,23 @@ public abstract class ModelUtils {
 
     /**
      * Finds all NodeTypeImplementations of a nodeTemplate and its complete hierarchy
+     *
      * @param nodeTemplate the nodeTemplate
-     * @param csar the csar it belongs to
+     * @param csar         the csar it belongs to
      * @return a list of nodetype implementations usable on the hierachy of the nodetype
      */
-    public static Collection<TNodeTypeImplementation>  findAllNodeTypeImplemenations(TNodeTemplate nodeTemplate, Csar csar) {
+    public static Collection<TNodeTypeImplementation> findAllNodeTypeImplemenations(TNodeTemplate nodeTemplate, Csar csar) {
         return findAllNodeTypeImplemenations(findNodeType(nodeTemplate, csar), csar);
     }
 
     /**
      * Finds all NodeTypeImplementations of a nodetype and its complete hierarchy
+     *
      * @param nodeType the nodeType
-     * @param csar the csar it belongs to
+     * @param csar     the csar it belongs to
      * @return a list of nodetype implementations usable on the hierachy of the nodetype
      */
-    public static Collection<TNodeTypeImplementation>  findAllNodeTypeImplemenations(TNodeType nodeType, Csar csar) {
+    public static Collection<TNodeTypeImplementation> findAllNodeTypeImplemenations(TNodeType nodeType, Csar csar) {
         return getNodeTypeHierarchy(nodeType, csar).stream().map(typeId -> findNodeType(typeId, csar)).map(type -> findNodeTypeImplementation(type, csar)).flatMap(l -> l.stream()).collect(Collectors.toList());
     }
 
@@ -936,11 +934,8 @@ public abstract class ModelUtils {
             // if the ia has no operation defined but the interface names fit -> implemented
             return true;
         } else {
-            if (!ia.getOperationName().equals(operationName)) {
-                return false;
-            }
+            return ia.getOperationName().equals(operationName);
         }
-        return true;
     }
 
     private static TOperation getOperation(Csar csar, TNodeType nodeType, String interfaceName, String operationName) {

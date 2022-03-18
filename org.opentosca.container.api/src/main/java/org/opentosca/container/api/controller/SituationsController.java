@@ -27,6 +27,7 @@ import org.opentosca.container.api.dto.situations.SituationTriggerDTO;
 import org.opentosca.container.api.dto.situations.SituationTriggerInstanceDTO;
 import org.opentosca.container.api.dto.situations.SituationTriggerListDTO;
 import org.opentosca.container.api.service.InstanceService;
+import org.opentosca.container.api.service.SituationInstanceService;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
@@ -47,6 +48,8 @@ public class SituationsController {
     @Inject
     private InstanceService instanceService;
     @Inject
+    private SituationInstanceService situationInstanceService;
+    @Inject
     private CsarStorageService csarService;
 
     @GET
@@ -60,7 +63,7 @@ public class SituationsController {
     @Path("/situations")
     public Response getSituations() {
         final SituationListDTO dto = new SituationListDTO();
-        this.instanceService.getSituations().forEach(x -> dto.add(SituationDTO.Converter.convert(x)));
+        this.situationInstanceService.getSituations().forEach(x -> dto.add(SituationDTO.Converter.convert(x)));
         return Response.ok(dto).build();
     }
 
@@ -68,13 +71,13 @@ public class SituationsController {
     @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/situations/{situation}")
     public Response updateSituation(@PathParam("situation") final Long situationId, final SituationDTO situation) {
-        final Situation sit = this.instanceService.getSituation(situation.getId());
+        final Situation sit = this.situationInstanceService.getSituation(situation.getId());
 
         sit.setActive(situation.getActive());
         sit.setEventProbability(situation.getEventProbability());
         sit.setEventTime(situation.getEventTime());
 
-        this.instanceService.updateSituation(sit);
+        this.situationInstanceService.updateSituation(sit);
 
         final URI instanceURI = this.uriInfo.getAbsolutePath();
 
@@ -85,7 +88,7 @@ public class SituationsController {
     @Consumes( {MediaType.TEXT_PLAIN})
     @Path("/situations/{situation}/active")
     public Response updateSituationActivity(@PathParam("situation") final Long situationId, final String body) {
-        final Situation sit = this.instanceService.getSituation(situationId);
+        final Situation sit = this.situationInstanceService.getSituation(situationId);
 
         boolean active = false;
 
@@ -97,7 +100,7 @@ public class SituationsController {
 
         sit.setActive(active);
 
-        this.instanceService.updateSituation(sit);
+        this.situationInstanceService.updateSituation(sit);
 
         final URI instanceURI = this.uriInfo.getAbsolutePath();
 
@@ -109,7 +112,7 @@ public class SituationsController {
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/situations")
     public Response createSituation(final SituationDTO situation) {
-        final Situation sit = this.instanceService.createNewSituation(situation.getThingId(),
+        final Situation sit = this.situationInstanceService.createNewSituation(situation.getThingId(),
             situation.getSituationTemplateId(), situation.getActive(), situation.getEventProbability(),
             situation.getEventTime());
 
@@ -122,14 +125,14 @@ public class SituationsController {
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/situations/{situation}")
     public Response getSituation(@PathParam("situation") final Long situationId) {
-        return Response.ok(SituationDTO.Converter.convert(this.instanceService.getSituation(situationId))).build();
+        return Response.ok(SituationDTO.Converter.convert(this.situationInstanceService.getSituation(situationId))).build();
     }
 
     @DELETE
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/situations/{situation}")
     public Response deleteSituation(@PathParam("situation") final Long situationId) {
-        this.instanceService.removeSituation(situationId);
+        this.situationInstanceService.removeSituation(situationId);
         return Response.ok().build();
     }
 
@@ -140,7 +143,7 @@ public class SituationsController {
         final SituationTriggerListDTO dto;
         try {
             dto = new SituationTriggerListDTO();
-            this.instanceService.getSituationTriggers().forEach(x -> dto.add(SituationTriggerDTO.Converter.convert(x)));
+            this.situationInstanceService.getSituationTriggers().forEach(x -> dto.add(SituationTriggerDTO.Converter.convert(x)));
         } catch (final Exception e) {
             e.printStackTrace();
             return Response.serverError().build();
@@ -156,7 +159,7 @@ public class SituationsController {
         final Collection<Situation> sits = Lists.newArrayList();
 
         for (final Long situationId : situationTrigger.getSituationIds()) {
-            final Situation situation = this.instanceService.getSituation(situationId);
+            final Situation situation = this.situationInstanceService.getSituation(situationId);
             sits.add(situation);
         }
 
@@ -189,9 +192,9 @@ public class SituationsController {
         situationTrigger.getInputParams()
             .forEach(x -> inputs.add(new SituationTriggerProperty(x.getName(), x.getValue(), x.getType())));
 
-        final SituationTrigger sitTrig = this.instanceService.createNewSituationTrigger(sits, csarService.findById(new CsarId(situationTrigger.getCsarId())).id(),
-            situationTrigger.isOnActivation(), situationTrigger.isSingleInstance(), serviceInstance, nodeInstance,
-            situationTrigger.getInterfaceName(), situationTrigger.getOperationName(), inputs, eventProbability, eventTime);
+        SituationTrigger sitTrig = new SituationTrigger(sits, csarService.findById(new CsarId(situationTrigger.getCsarId())).id(),
+            situationTrigger.isOnActivation(), situationTrigger.isSingleInstance(), situationTrigger.getInterfaceName(), situationTrigger.getOperationName());
+        sitTrig = this.situationInstanceService.createNewSituationTrigger(sitTrig, serviceInstance, nodeInstance, inputs, eventProbability, eventTime);
 
         final URI instanceURI = UriUtil.generateSubResourceURI(this.uriInfo, sitTrig.getId().toString(), false);
         return Response.ok(instanceURI).build();
@@ -202,7 +205,7 @@ public class SituationsController {
     @Path("/triggers/{situationtrigger}")
     public Response deleteSituationTrigger(@PathParam("situationtrigger") final Long situationTriggerId) {
 
-        this.instanceService.removeSituationTrigger(situationTriggerId);
+        this.situationInstanceService.removeSituationTrigger(situationTriggerId);
         return Response
             .ok()
             .build();
@@ -213,7 +216,7 @@ public class SituationsController {
     @Path("/triggers/{situationtrigger}")
     public Response getSituationTrigger(@PathParam("situationtrigger") final Long situationTriggerId) {
         return Response
-            .ok(SituationTriggerDTO.Converter.convert(this.instanceService.getSituationTrigger(situationTriggerId)))
+            .ok(SituationTriggerDTO.Converter.convert(this.situationInstanceService.getSituationTrigger(situationTriggerId)))
             .build();
     }
 
@@ -223,7 +226,7 @@ public class SituationsController {
     public Response getSituationTriggerInstance(@PathParam("situationtrigger") final Long situationTriggerId,
                                                 @PathParam("situationtriggerinstance") final Long situationTriggerInstanceId) {
         return Response
-            .ok(SituationTriggerInstanceDTO.Converter.convert(this.instanceService.getSituationTriggerInstance(situationTriggerInstanceId)))
+            .ok(SituationTriggerInstanceDTO.Converter.convert(this.situationInstanceService.getSituationTriggerInstance(situationTriggerInstanceId)))
             .build();
     }
 }

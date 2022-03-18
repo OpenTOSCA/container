@@ -1,4 +1,4 @@
-package org.opentosca.container.core.model.deployment.ia;
+package org.opentosca.container.core.next.model;
 
 /**
  * Deployment and undeployment states of a Implementation Artifact.

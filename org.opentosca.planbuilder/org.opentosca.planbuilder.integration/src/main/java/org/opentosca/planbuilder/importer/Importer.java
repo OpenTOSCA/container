@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
  * <p>
  * This class is a PlanBuilder Importer for openTOSCA. Importing of CSARs is handled by passing a CSARID
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
