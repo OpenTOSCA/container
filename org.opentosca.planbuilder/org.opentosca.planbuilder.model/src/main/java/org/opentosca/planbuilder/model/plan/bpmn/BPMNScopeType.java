@@ -17,7 +17,9 @@ public enum BPMNScopeType {
     CREATE_RT_INSTANCE("Task"),
     CREATE_NODE_INSTANCE_TASK("Task"),
     CALL_NODE_OPERATION_TASK("Task"),
+    ACTIVATE_DATA_OBJECT_TASK("Task"),
     SET_NODE_PROPERTY_TASK("Task");
+
     String name;
     BPMNScopeType (String name) {
         this.name = name;

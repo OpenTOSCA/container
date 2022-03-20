@@ -122,7 +122,7 @@ public class BPMNScopeHandler {
             type, idPrefix + "_" + buildPlan.getIdForNamesAndIncrement());
         if (type == BPMNScopeType.CREATE_NODE_INSTANCE_TASK) {
             parentSubrocess.setSubProCreateNodeInstanceTask(createdScope);
-        } else if (type == BPMNScopeType.CALL_NODE_OPERATION_TASK){
+        } else if (type == BPMNScopeType.CALL_NODE_OPERATION_TASK || type == BPMNScopeType.ACTIVATE_DATA_OBJECT_TASK){
             parentSubrocess.setSubProCallOperationTask(createdScope);
         } else if (type == BPMNScopeType.SET_NODE_PROPERTY_TASK) {
             parentSubrocess.setSubProSetNodePropertyTask(createdScope);

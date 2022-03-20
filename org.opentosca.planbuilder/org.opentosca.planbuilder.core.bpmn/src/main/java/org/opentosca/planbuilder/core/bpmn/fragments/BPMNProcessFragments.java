@@ -86,6 +86,9 @@ public class BPMNProcessFragments {
                 case SET_NODE_PROPERTY_TASK:
                     node = this.createSetNodePropertiesTaskAsNode(bpmnScope);
                     break;
+                case ACTIVATE_DATA_OBJECT_TASK:
+                    node = this.createActivateDataObjectTaskAsNode(bpmnScope);
+                    break;
                 default:
                     LOG.debug("Doesn't find matching BPMNScope Type for {}", bpmnScope.getId());
                     break;
@@ -111,6 +114,23 @@ public class BPMNProcessFragments {
         Node importedNode = doc.importNode(transformedNode, true);
         bpmnScope.setBpmnScopeElement((Element) importedNode);
         return importedNode;
+    }
+
+    private String createActivateDataObjectString(BPMNScope bpmnScope) throws IOException {
+        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateActivateDataObjectScriptTask.xml"));
+        TNodeTemplate nodeTemplate = bpmnScope.getNodeTemplate();
+        template = template.replace("ActivateDataObject_IdToReplace", bpmnScope.getId());
+        template = template.replace("NameToSet", "Activate " + nodeTemplate.getId() + "DataObject");
+        return template;
+    }
+
+    private Node createActivateDataObjectTaskAsNode(BPMNScope bpmnScope) throws IOException, SAXException {
+        String template = createActivateDataObjectString(bpmnScope);
+        Node node = createImportNodeFromString(bpmnScope, template);
+        addIncomings(bpmnScope);
+        addOutgoings(bpmnScope);
+        addInputParameter(bpmnScope);
+        return node;
     }
 
     private Node createSetNodePropertiesTaskAsNode(BPMNScope bpmnScope) throws IOException, SAXException {

@@ -198,6 +198,29 @@ public class BPMNProcessFragmentsTests {
         assertThat(outputNode.getTextContent(), is(outputParaValue_0));
     }
 
+    @Test
+    public void testCreateActivateDataObjectTaskAsNode() {
+        BPMNScope activateDataObject = new BPMNScope(
+            BPMNScopeType.ACTIVATE_DATA_OBJECT_TASK, "Task_0"
+        );
+
+        TNodeTemplate nodeTemplate = new TNodeTemplate();
+        nodeTemplate.setId("MyTinyTodoContainer_0");
+        nodeTemplate.setName("MyTinyTodoContainer_0");
+
+        activateDataObject.setBuildPlan(bpmnPlan);
+        activateDataObject.setNodeTemplate(nodeTemplate);
+        String inputParaName_0 = "InputParaName_0";
+        String inputParaValue_0 = "InputParaValue_0";
+        activateDataObject.addInputparameter(inputParaName_0, inputParaValue_0);
+        Element node = (Element) fragments.createBPMNScopeAsNode(activateDataObject);
+        Element ioNode = (Element) ((Element) node.getElementsByTagName("bpmn:extensionElements").item(0)).getElementsByTagName("camunda:inputOutput").item(0);
+        Element inputNode = (Element) ioNode.getElementsByTagName("camunda:inputParameter").item(0);
+        assertThat(inputNode.getAttribute("name"), is(inputParaName_0));
+        assertThat(inputNode.getTextContent(), is(inputParaValue_0));
+        assertThat(node.getAttribute("id"), is(activateDataObject.getId()));
+    }
+
     // for debugging purpose, don't remove
     public void exportDocToConsole(Document doc) {
         TransformerFactory transformerFactory = TransformerFactory.newInstance();

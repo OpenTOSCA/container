@@ -30,7 +30,7 @@ public class EnginePatternHandler {
 
     // reserved json parameter for invoke management bus
     public static final String IMAGE_LOCATION = "ImageLocation";
-    public static final String SERVICETEMPLATE_GETINPUT = "get_input: ";
+    public static final String SERVICETEMPLATE_GETINPUT = "get_input:";
     public static final String OUTPUT_PARAM_NAMES = "OutputParamNames";
 
     // TODO: implement detail

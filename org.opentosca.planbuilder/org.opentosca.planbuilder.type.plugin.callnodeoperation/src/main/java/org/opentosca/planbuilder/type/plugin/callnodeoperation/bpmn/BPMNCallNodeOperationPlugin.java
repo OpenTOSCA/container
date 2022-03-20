@@ -45,8 +45,7 @@ public class BPMNCallNodeOperationPlugin implements IPlanBuilderTypeCallNodeOper
     public boolean handleCreate(BPMNPlanContext context, TNodeTemplate nodeTemplate) {
         BPMNScope subprocess = context.getBpmnScope();
         BPMNPlan buildPlan = subprocess.getBuildPlan();
-        final BPMNScope callNodeOperationTask = bpmnScopeHandler.createBPMNScopeWithinSubprocess(subprocess, BPMNScopeType.CALL_NODE_OPERATION_TASK);
-        boolean check = callNodeOperationTask != null;
+        boolean check = true;
 
         // Step-1: decides which pattern is applied to current NodeTemplate
         if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate, context.getCsar())) {
@@ -54,11 +53,19 @@ public class BPMNCallNodeOperationPlugin implements IPlanBuilderTypeCallNodeOper
 
             // TODO: consider adding compensation operation
         } else if (enginePatternHandler.isProvisionableByEnginePattern(nodeTemplate, context.getCsar())) {
-            LOG.debug("Handling by engine pattern");
-            check &= enginePatternHandler.handleCreate(callNodeOperationTask, context);
-        } else if (dockerEngineHandler.isProvisionableByDockerEngine(nodeTemplate, context.getCsar())) {
-            LOG.debug("Handling by Docker Engine");
 
+            LOG.debug("Handling by engine pattern");
+            BPMNScope callNodeOperationTask = bpmnScopeHandler.createBPMNScopeWithinSubprocess(subprocess, BPMNScopeType.CALL_NODE_OPERATION_TASK);
+            check &= enginePatternHandler.handleCreate(callNodeOperationTask, context);
+
+        } else if (dockerEngineHandler.isProvisionableByDockerEngine(nodeTemplate, context.getCsar())) {
+
+            LOG.debug("Handling Docker Engine NodeTemplate");
+            BPMNScope activateDataObjectTask = bpmnScopeHandler.createBPMNScopeWithinSubprocess(subprocess, BPMNScopeType.ACTIVATE_DATA_OBJECT_TASK);
+            check &= dockerEngineHandler.handleCreate(activateDataObjectTask, context.getCsar());
+
+        } else {
+            check &= false;
         }
         // TODO: Handle Property2Variable Mapping
         return check;
