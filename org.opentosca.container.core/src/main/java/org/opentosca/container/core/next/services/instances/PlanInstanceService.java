@@ -3,6 +3,7 @@ package org.opentosca.container.core.next.services.instances;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -47,13 +48,30 @@ public class PlanInstanceService {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Delete all plan instances related to the given CSAR
+     *
+     * @param csar the CSAR to delete the plan instances for
+     */
+    public void deletePlanInstances(final Csar csar) {
+        this.planInstanceRepository.deleteAll(getPlanInstances(csar, null));
+    }
+
+    /**
+     * Get all plan instances for a given CSAR of the given plan type. If no plan type is provided all plan instances
+     * for the CSAR are returned
+     *
+     * @param csar      the CSAR to retrieve the plan instances for
+     * @param planTypes the set of plan types to return the instances for
+     * @return the list with found plan instances
+     */
     public List<PlanInstance> getPlanInstances(final Csar csar, final PlanType... planTypes) {
-        final Collection<ServiceTemplateInstance> serviceInstances = serviceTemplateInstanceRepository.findByCsarId(csar.id());
+        final Collection<ServiceTemplateInstance> serviceInstances = serviceTemplateInstanceRepository.findWithPlanInstancesByCsarId(csar.id());
         return serviceInstances.stream()
             .flatMap(sti -> sti.getPlanInstances().stream())
             .filter(p -> {
                 final PlanType currentType = PlanType.fromString(p.getType().toString());
-                return Arrays.stream(planTypes).anyMatch(pt -> pt.equals(currentType));
+                return Objects.isNull(planTypes) || Arrays.stream(planTypes).anyMatch(pt -> pt.equals(currentType));
             })
             .collect(Collectors.toList());
     }

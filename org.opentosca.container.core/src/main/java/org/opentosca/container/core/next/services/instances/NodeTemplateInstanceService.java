@@ -1,17 +1,22 @@
 package org.opentosca.container.core.next.services.instances;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.NotFoundException;
 
 import org.opentosca.container.core.common.jpa.DocumentConverter;
 import org.opentosca.container.core.model.ModelUtils;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
+import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
+import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -23,9 +28,11 @@ public class NodeTemplateInstanceService {
     private static final Logger logger = LoggerFactory.getLogger(NodeTemplateInstanceService.class);
 
     private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository;
+    private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
 
-    public NodeTemplateInstanceService(NodeTemplateInstanceRepository nodeTemplateInstanceRepository) {
+    public NodeTemplateInstanceService(NodeTemplateInstanceRepository nodeTemplateInstanceRepository, ServiceTemplateInstanceRepository serviceTemplateInstanceRepository) {
         this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
+        this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
     }
 
     public Collection<NodeTemplateInstance> getNodeTemplateInstances(final String nodeTemplateName) {
@@ -36,6 +43,26 @@ public class NodeTemplateInstanceService {
     public Collection<NodeTemplateInstance> getAllNodeTemplateInstances() {
         logger.debug("Requesting all NodeTemplate instances");
         return this.nodeTemplateInstanceRepository.findAll();
+    }
+
+    /**
+     * Delete all node template instances for the given CSAR
+     *
+     * @param csar the CSAR to delete the node template instances for
+     */
+    public void deleteNodeTemplateInstances(final Csar csar) {
+        this.nodeTemplateInstanceRepository.deleteAll(getNodeTemplateInstances(csar));
+    }
+
+    /**
+     * Get all node template instances for the given CSAR
+     *
+     * @param csar the CSAR to retrieve the node template instances for
+     * @return the list of node template instances
+     */
+    public List<NodeTemplateInstance> getNodeTemplateInstances(final Csar csar) {
+        final Collection<ServiceTemplateInstance> serviceInstances = serviceTemplateInstanceRepository.findWithNodeTemplateInstancesByCsarId(csar.id());
+        return serviceInstances.stream().flatMap(sti -> sti.getNodeTemplateInstances().stream()).collect(Collectors.toList());
     }
 
     public NodeTemplateInstance resolveNodeTemplateInstance(final String serviceTemplateName,

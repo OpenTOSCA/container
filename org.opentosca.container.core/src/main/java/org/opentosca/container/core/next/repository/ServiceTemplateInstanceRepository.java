@@ -16,6 +16,15 @@ public interface ServiceTemplateInstanceRepository extends JpaRepository<Service
 
     List<ServiceTemplateInstance> findByCsarId(CsarId csarId);
 
+    @EntityGraph(attributePaths = {"planInstances"})
+    List<ServiceTemplateInstance> findWithPlanInstancesByCsarId(CsarId csarId);
+
+    @EntityGraph(attributePaths = {"nodeTemplateInstances"})
+    List<ServiceTemplateInstance> findWithNodeTemplateInstancesByCsarId(CsarId csarId);
+
+    @EntityGraph(attributePaths = {"relationshipTemplateInstances"})
+    List<ServiceTemplateInstance> findWithRelationshipTemplateInstancesByCsarId(CsarId csarId);
+
     @EntityGraph(attributePaths = {"nodeTemplateInstances"})
     Optional<ServiceTemplateInstance> findWithNodeTemplateInstancesById(Long id);
 

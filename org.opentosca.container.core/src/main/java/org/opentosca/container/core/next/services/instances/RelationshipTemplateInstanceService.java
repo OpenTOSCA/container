@@ -1,7 +1,9 @@
 package org.opentosca.container.core.next.services.instances;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
@@ -18,6 +20,7 @@ import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstanceState;
+import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.RelationshipTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
@@ -61,6 +64,26 @@ public class RelationshipTemplateInstanceService {
     public Collection<RelationshipTemplateInstance> getRelationshipTemplateInstances(final String relationshipTemplateQName) {
         logger.debug("Requesting instances of RelationshipTemplate \"{}\"...", relationshipTemplateQName);
         return this.relationshipTemplateInstanceRepository.findByTemplateId(relationshipTemplateQName);
+    }
+
+    /**
+     * Delete all relationship template instances for the given CSAR
+     *
+     * @param csar the CSAR to delete the relationship template instances for
+     */
+    public void deleteRelationshipTemplateInstances(final Csar csar) {
+        relationshipTemplateInstanceRepository.deleteAll(getRelationshipTemplateInstances(csar));
+    }
+
+    /**
+     * Get all relationship template instances for the given CSAR
+     *
+     * @param csar the CSAR to retrieve the relationship template instances for
+     * @return the list of relationship template instances
+     */
+    public List<RelationshipTemplateInstance> getRelationshipTemplateInstances(final Csar csar) {
+        final Collection<ServiceTemplateInstance> serviceInstances = serviceTemplateInstanceRepository.findWithRelationshipTemplateInstancesByCsarId(csar.id());
+        return serviceInstances.stream().flatMap(sti -> sti.getRelationshipTemplateInstances().stream()).collect(Collectors.toList());
     }
 
     /**

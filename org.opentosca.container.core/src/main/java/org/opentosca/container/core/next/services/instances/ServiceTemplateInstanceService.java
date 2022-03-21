@@ -1,7 +1,9 @@
 package org.opentosca.container.core.next.services.instances;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.NotFoundException;
 import javax.xml.parsers.DocumentBuilder;
@@ -9,7 +11,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.model.ModelUtils;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
@@ -53,6 +57,16 @@ public class ServiceTemplateInstanceService {
     public Collection<ServiceTemplateInstance> getServiceTemplateInstances(final String serviceTemplate) {
         logger.debug("Requesting instances of ServiceTemplate \"{}\"...", serviceTemplate);
         return this.serviceTemplateInstanceRepository.findByTemplateId(serviceTemplate);
+    }
+
+
+    /**
+     * Delete all service template instances for the given CSAR
+     *
+     * @param csar the CSAR to delete the service template instances for
+     */
+    public void deleteServiceTemplateInstances(final Csar csar) {
+        this.serviceTemplateInstanceRepository.deleteAll(serviceTemplateInstanceRepository.findByCsarId(csar.id()));
     }
 
     public ServiceTemplateInstance getServiceTemplateInstance(final Long id, final boolean evaluatePropertyMappings) {

@@ -19,6 +19,10 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.DeploymentProcessOperation;
 import org.opentosca.container.core.next.model.DeploymentProcessState;
+import org.opentosca.container.core.next.services.instances.NodeTemplateInstanceService;
+import org.opentosca.container.core.next.services.instances.PlanInstanceService;
+import org.opentosca.container.core.next.services.instances.RelationshipTemplateInstanceService;
+import org.opentosca.container.core.next.services.instances.ServiceTemplateInstanceService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.DeploymentTracker;
 import org.opentosca.container.core.service.IPlanInvocationEngine;
@@ -43,16 +47,24 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
     private final IPlanEngineService planEngine;
     private final IPlanInvocationEngine planInvocationEngine;
     private final CsarStorageService storage;
+    private final ServiceTemplateInstanceService serviceTemplateInstanceService;
+    private final NodeTemplateInstanceService nodeTemplateInstanceService;
+    private final RelationshipTemplateInstanceService relationshipTemplateInstanceService;
+    private final PlanInstanceService planInstanceService;
 
     @Inject
     public OpenToscaControlServiceImpl(DeploymentTracker deploymentTracker,
                                        IPlanEngineService planEngine,
                                        IPlanInvocationEngine planInvocationEngine,
-                                       CsarStorageService storage) {
+                                       CsarStorageService storage, ServiceTemplateInstanceService serviceTemplateInstanceService, NodeTemplateInstanceService nodeTemplateInstanceService, RelationshipTemplateInstanceService relationshipTemplateInstanceService, PlanInstanceService planInstanceService) {
         this.deploymentTracker = deploymentTracker;
         this.planEngine = planEngine;
         this.planInvocationEngine = planInvocationEngine;
         this.storage = storage;
+        this.serviceTemplateInstanceService = serviceTemplateInstanceService;
+        this.nodeTemplateInstanceService = nodeTemplateInstanceService;
+        this.relationshipTemplateInstanceService = relationshipTemplateInstanceService;
+        this.planInstanceService = planInstanceService;
     }
 
     @Override
@@ -94,7 +106,6 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
         }
         LOGGER.info("Successfully deployeed management plans of [{}] in CSAR [{}]", serviceTemplate, csarId);
         deploymentTracker.storeDeploymentState(csarId, PLANS_DEPLOYED);
-        // endpointService.printPlanEndpoints();
         return true;
     }
 
@@ -153,8 +164,12 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
         }
         deploymentTracker.deleteDeploymentState(csarId);
         // FIXME removeEndpoints
+
+        // delete all instances related to the deleted CSAR
+        deleteInstancesOfCsar(csar);
+        LOGGER.debug("Deleted instances for CSAR with ID: {}", csarId);
+
         try {
-            //deleteInstancesForCsar
             storage.deleteCSAR(csarId);
         } catch (UserException | SystemException e) {
             errors.add(e.getMessage());
@@ -248,6 +263,18 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
         LOGGER.trace("The deployment of management plans for ServiceTemplate \"{}\" inside CSAR [{}] was successful", serviceTemplate.getId(), csar.csarName());
         deploymentTracker.storeDeploymentState(csar, PLANS_DEPLOYED);
         return true;
+    }
+
+    /**
+     * Delete all instances of the given CSAR
+     *
+     * @param csar the CSAR to delete the instances for
+     */
+    private void deleteInstancesOfCsar(Csar csar) {
+        planInstanceService.deletePlanInstances(csar);
+        relationshipTemplateInstanceService.deleteRelationshipTemplateInstances(csar);
+        nodeTemplateInstanceService.deleteNodeTemplateInstances(csar);
+        serviceTemplateInstanceService.deleteServiceTemplateInstances(csar);
     }
 }
 
