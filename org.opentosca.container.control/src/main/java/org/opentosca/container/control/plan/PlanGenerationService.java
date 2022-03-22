@@ -1,4 +1,4 @@
-package org.opentosca.container.api.service;
+package org.opentosca.container.control.plan;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -26,15 +26,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CsarService {
-    private static final Logger logger = LoggerFactory.getLogger(CsarService.class);
+public class PlanGenerationService {
+    private static final Logger logger = LoggerFactory.getLogger(PlanGenerationService.class);
 
     private final CsarStorageService storage;
     private final WineryExporter planBuilderExporter;
     private final Importer planBuilderImporter;
 
     @Inject
-    public CsarService(CsarStorageService storage, WineryExporter planBuilderExporter, Importer planBuilderImporter) {
+    public PlanGenerationService(CsarStorageService storage, WineryExporter planBuilderExporter, Importer planBuilderImporter) {
         this.storage = storage;
         this.planBuilderExporter = planBuilderExporter;
         this.planBuilderImporter = planBuilderImporter;

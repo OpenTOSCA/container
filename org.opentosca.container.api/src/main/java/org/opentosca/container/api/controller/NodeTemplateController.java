@@ -32,13 +32,13 @@ import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.NodeTemplateListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
-import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
-import org.opentosca.container.api.service.Utils;
 import org.opentosca.container.core.common.uri.UriUtil;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.CsarImpl;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
+import org.opentosca.container.core.next.services.instances.NodeTemplateInstanceService;
 import org.opentosca.container.core.next.xml.PropertyParser;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
@@ -52,7 +52,7 @@ public class NodeTemplateController {
 
     private static final Logger logger = LoggerFactory.getLogger(NodeTemplateController.class);
     private final NodeTemplateService nodeTemplateService;
-    private final InstanceService instanceService;
+    private final NodeTemplateInstanceService nodeTemplateInstanceService;
     private final CsarStorageService storage;
     @Context
     UriInfo uriInfo;
@@ -61,10 +61,10 @@ public class NodeTemplateController {
 
     // can't be injected because this is instantiated by the parent resource
     public NodeTemplateController(final NodeTemplateService nodeTemplateService,
-                                  final InstanceService instanceService,
+                                  final NodeTemplateInstanceService nodeTemplateInstanceService,
                                   final CsarStorageService storage) {
         this.nodeTemplateService = nodeTemplateService;
-        this.instanceService = instanceService;
+        this.nodeTemplateInstanceService = nodeTemplateInstanceService;
         this.storage = storage;
     }
 
@@ -136,7 +136,7 @@ public class NodeTemplateController {
         } catch (org.opentosca.container.core.common.NotFoundException e) {
             throw new javax.ws.rs.NotFoundException(e);
         }
-        final NodeTemplateInstanceProperty property = Utils.convertDocumentToProperty(result, NodeTemplateInstanceProperty.class);
+        final NodeTemplateInstanceProperty property = ModelUtils.convertDocumentToProperty(result, NodeTemplateInstanceProperty.class);
 
         final List<NodeTemplateInstanceProperty> properties = new ArrayList<>();
         properties.add(property);
@@ -162,7 +162,7 @@ public class NodeTemplateController {
             throw new NotFoundException("Node template \"" + nodeTemplateId + "\" could not be found");
         }
 
-        final NodeTemplateInstanceController child = new NodeTemplateInstanceController(this.instanceService, this.nodeTemplateService);
+        final NodeTemplateInstanceController child = new NodeTemplateInstanceController(this.nodeTemplateService, this.nodeTemplateInstanceService);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
 
         return child;

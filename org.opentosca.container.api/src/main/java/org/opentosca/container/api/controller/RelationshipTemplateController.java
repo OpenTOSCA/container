@@ -1,6 +1,7 @@
 package org.opentosca.container.api.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
@@ -19,9 +20,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateListDTO;
-import org.opentosca.container.api.service.InstanceService;
-import org.opentosca.container.api.service.RelationshipTemplateService;
 import org.opentosca.container.core.common.uri.UriUtil;
+import org.opentosca.container.core.next.services.instances.RelationshipTemplateInstanceService;
+import org.opentosca.container.core.next.services.templates.RelationshipTemplateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -37,14 +38,14 @@ public class RelationshipTemplateController {
     @Context
     ResourceContext resourceContext;
 
-    private RelationshipTemplateService relationshipTemplateService;
+    private final RelationshipTemplateService relationshipTemplateService;
 
-    private InstanceService instanceService;
+    private final RelationshipTemplateInstanceService relationshipTemplateInstanceService;
 
     public RelationshipTemplateController(final RelationshipTemplateService relationshipTemplateService,
-                                          final InstanceService instanceService) {
+                                          final RelationshipTemplateInstanceService relationshipTemplateInstanceService) {
         this.relationshipTemplateService = relationshipTemplateService;
-        this.instanceService = instanceService;
+        this.relationshipTemplateInstanceService = relationshipTemplateInstanceService;
     }
 
     @GET
@@ -56,7 +57,10 @@ public class RelationshipTemplateController {
 
         // this validates that the CSAR contains the service template
         final List<RelationshipTemplateDTO> relationshipTemplateIds =
-            this.relationshipTemplateService.getRelationshipTemplatesOfServiceTemplate(csarId, serviceTemplateId);
+            this.relationshipTemplateService.getRelationshipTemplatesOfServiceTemplate(csarId, serviceTemplateId)
+                .stream()
+                .map(RelationshipTemplateDTO::fromToscaObject)
+                .collect(Collectors.toList());
         final RelationshipTemplateListDTO list = new RelationshipTemplateListDTO();
 
         for (final RelationshipTemplateDTO relationshipTemplate : relationshipTemplateIds) {
@@ -79,8 +83,7 @@ public class RelationshipTemplateController {
                                             @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateName,
                                             @ApiParam("ID of relationship template") @PathParam("relationshiptemplate") final String relationshipTemplateId) throws NotFoundException {
 
-        final RelationshipTemplateDTO result =
-            this.relationshipTemplateService.getRelationshipTemplateById(csarId, serviceTemplateName, relationshipTemplateId);
+        final RelationshipTemplateDTO result = RelationshipTemplateDTO.fromToscaObject(this.relationshipTemplateService.getRelationshipTemplateById(csarId, serviceTemplateName, relationshipTemplateId));
 
         result.add(UriUtil.generateSubResourceLink(this.uriInfo, "instances", false, "instances"));
         result.add(UriUtil.generateSelfLink(this.uriInfo));
@@ -100,17 +103,9 @@ public class RelationshipTemplateController {
         }
 
         final RelationshipTemplateInstanceController child =
-            new RelationshipTemplateInstanceController(this.instanceService);
+            new RelationshipTemplateInstanceController(this.relationshipTemplateInstanceService);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
 
         return child;
-    }
-
-    public void setRelationshipTemplateService(final RelationshipTemplateService relationshipTemplateService) {
-        this.relationshipTemplateService = relationshipTemplateService;
-    }
-
-    public void setInstanceService(final InstanceService instanceService) {
-        this.instanceService = instanceService;
     }
 }

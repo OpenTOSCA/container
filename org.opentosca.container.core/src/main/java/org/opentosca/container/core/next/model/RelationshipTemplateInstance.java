@@ -9,6 +9,7 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedAttributeNode;
@@ -43,7 +44,7 @@ public class RelationshipTemplateInstance extends PersistenceObject {
     private ServiceTemplateInstance serviceTemplateInstance;
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "relationshipTemplateInstance", cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "relationshipTemplateInstance", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<RelationshipTemplateInstanceProperty> properties = new HashSet<>();
 
     @ManyToOne

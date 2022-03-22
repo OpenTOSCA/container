@@ -1,4 +1,4 @@
-package org.opentosca.container.api.service;
+package org.opentosca.container.core.next.services.instances;
 
 import java.util.Collection;
 import java.util.Map;

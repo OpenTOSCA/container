@@ -14,16 +14,18 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opentosca.container.api.service.CsarService;
-import org.opentosca.container.api.service.InstanceService;
-import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.control.OpenToscaControlService;
+import org.opentosca.container.control.plan.PlanGenerationService;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
-import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService;
+import org.opentosca.container.core.next.services.instances.NodeTemplateInstanceService;
+import org.opentosca.container.core.next.services.instances.PlanInstanceService;
+import org.opentosca.container.core.next.services.instances.RelationshipTemplateInstanceService;
+import org.opentosca.container.core.next.services.instances.ServiceTemplateInstanceService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
@@ -43,29 +45,31 @@ public class ApacheWebAppIntegrationTest {
     public static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
 
     public QName csarId = new QName("http://opentosca.org/test/applications/servicetemplates", "ApacheWebApp-Ubuntu-Docker-Test_w1-wip1");
-
-    private TestUtils testUtils = new TestUtils();
-
     @Inject
     public OpenToscaControlService control;
     @Inject
     public CsarStorageService storage;
     @Inject
-    public CsarService csarService;
+    public PlanGenerationService planGenerationService;
     @Inject
-    public PlanService planService;
+    public PlanInstanceService planInstanceService;
     @Inject
-    public InstanceService instanceService;
+    public PlanInvokerService planInvokerService;
+    @Inject
+    public NodeTemplateInstanceService nodeTemplateInstanceService;
+    @Inject
+    public ServiceTemplateInstanceService serviceTemplateInstanceService;
+    @Inject
+    public RelationshipTemplateInstanceService relationshipTemplateInstanceService;
     @Inject
     public ICoreEndpointService endpointService;
-    @Inject
-    public PlanInstanceSubscriptionService subscriptionService;
+    private TestUtils testUtils = new TestUtils();
 
     @Test
     public void test() throws Exception {
 
         Csar csar = testUtils.setupCsarTestRepository(this.csarId, this.storage, TESTAPPLICATIONSREPOSITORY);
-        testUtils.generatePlans(this.csarService, csar);
+        testUtils.generatePlans(this.planGenerationService, csar);
 
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
 
@@ -84,21 +88,23 @@ public class ApacheWebAppIntegrationTest {
         assertNotNull("BuildPlan not found", buildPlan);
         assertNotNull("TerminationPlan not found", terminationPlan);
 
-        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planService, this.instanceService, this.subscriptionService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
+        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planInstanceService, this.planInvokerService, this.serviceTemplateInstanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
         assertNotNull(serviceTemplateInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
         this.checkStateAfterBuild(serviceTemplateInstance);
 
-        testUtils.runTerminationPlanExecution(this.planService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
+        testUtils.runTerminationPlanExecution(this.planInstanceService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
 
-        testUtils.invokePlanUndeployment(this.control,csar.id(), serviceTemplate);
+        testUtils.invokePlanUndeployment(this.control, csar.id(), serviceTemplate);
 
         assertEquals(0, testUtils.getDeployedPlans(this.endpointService).size());
     }
 
     @After
     public void cleanUpContainer() {
-        testUtils.clearContainer(this.storage, this.control);
+        testUtils.clearContainer(this.storage, this.control, this.planInstanceService,
+            this.relationshipTemplateInstanceService, this.nodeTemplateInstanceService,
+            this.serviceTemplateInstanceService);
     }
 
     private void checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance) throws IOException {
@@ -132,10 +138,10 @@ public class ApacheWebAppIntegrationTest {
         assertNotNull(apacheApp);
         assertNotNull(apacheWebServer);
 
-        assertTrue(instanceService.getNodeTemplateInstanceProperties(apacheWebServer.getId()).containsKey("Port"));
-        assertTrue(instanceService.getNodeTemplateInstanceProperties(dockerContainer.getId()).containsKey("ContainerIP"));
-        assertTrue(instanceService.getNodeTemplateInstanceProperties(apacheApp.getId()).containsKey("URL"));
-        assertTrue(instanceService.getNodeTemplateInstanceProperties(apacheApp.getId()).get("URL").contains(instanceService.getNodeTemplateInstanceProperties(dockerContainer.getId()).get("ContainerIP") + ":" + instanceService.getNodeTemplateInstanceProperties(apacheWebServer.getId()).get("Port")));
+        assertTrue(nodeTemplateInstanceService.getNodeTemplateInstanceProperties(apacheWebServer.getId()).containsKey("Port"));
+        assertTrue(nodeTemplateInstanceService.getNodeTemplateInstanceProperties(dockerContainer.getId()).containsKey("ContainerIP"));
+        assertTrue(nodeTemplateInstanceService.getNodeTemplateInstanceProperties(apacheApp.getId()).containsKey("URL"));
+        assertTrue(nodeTemplateInstanceService.getNodeTemplateInstanceProperties(apacheApp.getId()).get("URL").contains(nodeTemplateInstanceService.getNodeTemplateInstanceProperties(dockerContainer.getId()).get("ContainerIP") + ":" + nodeTemplateInstanceService.getNodeTemplateInstanceProperties(apacheWebServer.getId()).get("Port")));
 
         testUtils.checkViaHTTPGET("http://localhost", 200, "Uwe");
     }
