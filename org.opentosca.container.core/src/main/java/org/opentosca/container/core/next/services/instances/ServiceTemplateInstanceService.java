@@ -11,6 +11,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
@@ -49,6 +50,15 @@ public class ServiceTemplateInstanceService {
         this.planInstanceService = planInstanceService;
 
         helper = new PropertyMappingsHelper(storage);
+    }
+
+    /**
+     * Get all service template instances within the repository
+     *
+     * @return the collection of retrieved service template instances
+     */
+    public Collection<ServiceTemplateInstance> getServiceTemplateInstances() {
+        return this.serviceTemplateInstanceRepository.findAll();
     }
 
     public Collection<ServiceTemplateInstance> getServiceTemplateInstances(final String serviceTemplate) {

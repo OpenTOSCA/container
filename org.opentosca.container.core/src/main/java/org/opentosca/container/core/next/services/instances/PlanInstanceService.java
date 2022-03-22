@@ -58,6 +58,15 @@ public class PlanInstanceService {
     }
 
     /**
+     * Get all plan instances within the repository
+     *
+     * @return the collection of retrieved plan instances
+     */
+    public Collection<PlanInstance> getPlanInstances() {
+        return this.planInstanceRepository.findAll();
+    }
+
+    /**
      * Get all plan instances for a given CSAR of the given plan type. If no plan type is provided all plan instances
      * for the CSAR are returned
      *
@@ -65,7 +74,7 @@ public class PlanInstanceService {
      * @param planTypes the set of plan types to return the instances for
      * @return the list with found plan instances
      */
-    public List<PlanInstance> getPlanInstances(final Csar csar, final PlanType... planTypes) {
+    public Collection<PlanInstance> getPlanInstances(final Csar csar, final PlanType... planTypes) {
         final Collection<ServiceTemplateInstance> serviceInstances = serviceTemplateInstanceRepository.findWithPlanInstancesByCsarId(csar.id());
         return serviceInstances.stream()
             .flatMap(sti -> sti.getPlanInstances().stream())

@@ -12,6 +12,7 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
 import javax.persistence.NamedEntityGraphs;
@@ -66,7 +67,7 @@ public class ServiceTemplateInstance extends PersistenceObject {
     private String creationCorrelationId;
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "serviceTemplateInstance", cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "serviceTemplateInstance", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<ServiceTemplateInstanceProperty> properties = new HashSet<>();
 

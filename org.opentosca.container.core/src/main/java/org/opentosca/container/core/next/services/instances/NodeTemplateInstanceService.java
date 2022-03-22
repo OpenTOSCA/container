@@ -14,6 +14,7 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
+import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
@@ -33,6 +34,15 @@ public class NodeTemplateInstanceService {
     public NodeTemplateInstanceService(NodeTemplateInstanceRepository nodeTemplateInstanceRepository, ServiceTemplateInstanceRepository serviceTemplateInstanceRepository) {
         this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
         this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
+    }
+
+    /**
+     * Get all node template instances within the repository
+     *
+     * @return the collection of retrieved node template instances
+     */
+    public Collection<NodeTemplateInstance> getNodeTemplateInstances() {
+        return this.nodeTemplateInstanceRepository.findAll();
     }
 
     public Collection<NodeTemplateInstance> getNodeTemplateInstances(final String nodeTemplateName) {

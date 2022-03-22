@@ -23,7 +23,9 @@ import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
+import org.opentosca.container.core.next.services.instances.NodeTemplateInstanceService;
 import org.opentosca.container.core.next.services.instances.PlanInstanceService;
+import org.opentosca.container.core.next.services.instances.RelationshipTemplateInstanceService;
 import org.opentosca.container.core.next.services.instances.ServiceTemplateInstanceService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -55,6 +57,10 @@ public class MultiMyTinyToDoIntegrationTest {
     public PlanInvokerService planInvokerService;
     @Inject
     public ServiceTemplateInstanceService serviceTemplateInstanceService;
+    @Inject
+    public RelationshipTemplateInstanceService relationshipTemplateInstanceService;
+    @Inject
+    public NodeTemplateInstanceService nodeTemplateInstanceService;
     @Inject
     public ICoreEndpointService endpointService;
     private TestUtils testUtils = new TestUtils();
@@ -102,7 +108,9 @@ public class MultiMyTinyToDoIntegrationTest {
 
     @After
     public void cleanUpContainer() {
-        testUtils.clearContainer(this.storage, this.control);
+        testUtils.clearContainer(this.storage, this.control, this.planInstanceService,
+            this.relationshipTemplateInstanceService, this.nodeTemplateInstanceService,
+            this.serviceTemplateInstanceService);
     }
 
     private void checkStateAfterScaleOut(ServiceTemplateInstance serviceTemplateInstance) throws IOException {

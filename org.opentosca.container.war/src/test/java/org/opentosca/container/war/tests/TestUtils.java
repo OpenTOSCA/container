@@ -53,7 +53,9 @@ import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
+import org.opentosca.container.core.next.services.instances.NodeTemplateInstanceService;
 import org.opentosca.container.core.next.services.instances.PlanInstanceService;
+import org.opentosca.container.core.next.services.instances.RelationshipTemplateInstanceService;
 import org.opentosca.container.core.next.services.instances.ServiceTemplateInstanceService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -445,7 +447,7 @@ public class TestUtils {
 
     public ServiceTemplateInstance runDefrostPlanExecution(PlanInstanceService planInstanceService, PlanInvokerService planInvokerService, ServiceTemplateInstanceService serviceTemplateInstanceService, Csar csar, TServiceTemplate serviceTemplate, TPlan defrostPlan, List<org.opentosca.container.core.extension.TParameter> buildPlanInputParams) {
         String defrostPlanCorrelationId = planInvokerService.invokePlan(csar, serviceTemplate, -1L, defrostPlan.getId(), buildPlanInputParams, PlanType.BUILD);
-        
+
         // TODO we should remove this, it is only necessary right now because the bpmn plans don't log properly
         if (defrostPlan.getPlanLanguage().contains("BPMN")) {
             return this.waitForServiceInstanceCreation(serviceTemplateInstanceService, serviceTemplate);
@@ -513,8 +515,18 @@ public class TestUtils {
         return Settings.CONTAINER_INSTANCEDATA_API.replace("{csarid}", csarId).replace("{servicetemplateid}", serviceTemplateId) + "/" + serviceInstanceId;
     }
 
-    public void clearContainer(CsarStorageService storage, OpenToscaControlService control) {
+    public void clearContainer(CsarStorageService storage, OpenToscaControlService control,
+                               PlanInstanceService planInstanceService,
+                               RelationshipTemplateInstanceService relationshipTemplateInstanceService,
+                               NodeTemplateInstanceService nodeTemplateInstanceService,
+                               ServiceTemplateInstanceService serviceTemplateInstanceService) {
         storage.findAll().forEach(x -> control.deleteCsar(x.id()));
+
+        // after deleting all CSARs, also all related instances should be removed from the database
+        Assert.assertEquals(0, planInstanceService.getPlanInstances().size());
+        Assert.assertEquals(0, relationshipTemplateInstanceService.getRelationshipTemplateInstances().size());
+        Assert.assertEquals(0, nodeTemplateInstanceService.getNodeTemplateInstances().size());
+        Assert.assertEquals(0, serviceTemplateInstanceService.getServiceTemplateInstances().size());
     }
 
     public void checkViaHTTPGET(String url, int expectedStatus, String contains) throws IOException {

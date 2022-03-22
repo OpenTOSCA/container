@@ -17,6 +17,7 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstanceState;
@@ -59,6 +60,15 @@ public class RelationshipTemplateInstanceService {
         this.relationshipTemplateInstanceRepository = relationshipTemplateInstanceRepository;
         this.relationshipTemplateService = relationshipTemplateService;
         this.storage = storage;
+    }
+
+    /**
+     * Get all relationship template instances within the repository
+     *
+     * @return the collection of retrieved relationship template instances
+     */
+    public Collection<RelationshipTemplateInstance> getRelationshipTemplateInstances() {
+        return this.relationshipTemplateInstanceRepository.findAll();
     }
 
     public Collection<RelationshipTemplateInstance> getRelationshipTemplateInstances(final String relationshipTemplateQName) {

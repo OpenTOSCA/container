@@ -1,6 +1,7 @@
 package org.opentosca.container.api.controller;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -110,7 +111,7 @@ public class BuildPlanController {
     public Response getBuildPlanInstances(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
                                           @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstances");
-        List<PlanInstance> planInstances = planInstanceService.getPlanInstances(csar, PLAN_TYPE);
+        Collection<PlanInstance> planInstances = planInstanceService.getPlanInstances(csar, PLAN_TYPE);
 
         final PlanInstanceListDTO list = new PlanInstanceListDTO();
         planInstances.stream()
