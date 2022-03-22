@@ -430,22 +430,10 @@ public class TestUtils {
 
     public ServiceTemplateInstance runBuildPlanExecution(PlanInstanceService planInstanceService, PlanInvokerService planInvokerService, ServiceTemplateInstanceService serviceTemplateInstanceService, Csar csar, TServiceTemplate serviceTemplate, TPlan buildPlan, List<org.opentosca.container.core.extension.TParameter> buildPlanInputParams) {
         String buildPlanCorrelationId = planInvokerService.invokePlan(csar, serviceTemplate, -1L, buildPlan.getId(), buildPlanInputParams, PlanType.BUILD);
+
+        // TODO we should remove this, it is only necessary right now because the bpmn plans don't log properly
         if (buildPlan.getPlanLanguage().contains("BPMN")) {
-            Collection<ServiceTemplateInstance> coll = serviceTemplateInstanceService.getServiceTemplateInstances(serviceTemplate.getId());
-            ServiceTemplateInstance s = new ServiceTemplateInstance();
-            while (coll.size() != 1) {
-                coll = serviceTemplateInstanceService.getServiceTemplateInstances(serviceTemplate.getId());
-            }
-
-            for (ServiceTemplateInstance serviceTemplateInstance : coll) {
-                s = serviceTemplateInstance;
-            }
-            ServiceTemplateInstanceState state = serviceTemplateInstanceService.getServiceTemplateInstanceState(s.getId());
-
-            while ((state != ServiceTemplateInstanceState.CREATED)) {
-                state = serviceTemplateInstanceService.getServiceTemplateInstanceState(s.getId());
-            }
-            return s;
+            return this.waitForServiceInstanceCreation(serviceTemplateInstanceService, serviceTemplate);
         }
 
         PlanInstance buildPlanInstance = (PlanInstance) planInstanceService.waitForInstanceAvailable(buildPlanCorrelationId).joinAndGet();
@@ -457,22 +445,10 @@ public class TestUtils {
 
     public ServiceTemplateInstance runDefrostPlanExecution(PlanInstanceService planInstanceService, PlanInvokerService planInvokerService, ServiceTemplateInstanceService serviceTemplateInstanceService, Csar csar, TServiceTemplate serviceTemplate, TPlan defrostPlan, List<org.opentosca.container.core.extension.TParameter> buildPlanInputParams) {
         String defrostPlanCorrelationId = planInvokerService.invokePlan(csar, serviceTemplate, -1L, defrostPlan.getId(), buildPlanInputParams, PlanType.BUILD);
+        
+        // TODO we should remove this, it is only necessary right now because the bpmn plans don't log properly
         if (defrostPlan.getPlanLanguage().contains("BPMN")) {
-            Collection<ServiceTemplateInstance> coll = serviceTemplateInstanceService.getServiceTemplateInstances(serviceTemplate.getId());
-            ServiceTemplateInstance s = new ServiceTemplateInstance();
-            while (coll.size() != 1) {
-                coll = serviceTemplateInstanceService.getServiceTemplateInstances(serviceTemplate.getId());
-            }
-
-            for (ServiceTemplateInstance serviceTemplateInstance : coll) {
-                s = serviceTemplateInstance;
-            }
-            ServiceTemplateInstanceState state = serviceTemplateInstanceService.getServiceTemplateInstanceState(s.getId());
-
-            while ((state != ServiceTemplateInstanceState.CREATED)) {
-                state = serviceTemplateInstanceService.getServiceTemplateInstanceState(s.getId());
-            }
-            return s;
+            return this.waitForServiceInstanceCreation(serviceTemplateInstanceService, serviceTemplate);
         }
 
         PlanInstance defrostPlanInstance = (PlanInstance) planInstanceService.waitForInstanceAvailable(defrostPlanCorrelationId).joinAndGet();
@@ -513,6 +489,24 @@ public class TestUtils {
             }
         }
         return null;
+    }
+
+    public ServiceTemplateInstance waitForServiceInstanceCreation(ServiceTemplateInstanceService serviceTemplateInstanceService, TServiceTemplate serviceTemplate) {
+        Collection<ServiceTemplateInstance> coll = serviceTemplateInstanceService.getServiceTemplateInstances(serviceTemplate.getId());
+        ServiceTemplateInstance s = new ServiceTemplateInstance();
+        while (coll.size() != 1) {
+            coll = serviceTemplateInstanceService.getServiceTemplateInstances(serviceTemplate.getId());
+        }
+
+        for (ServiceTemplateInstance serviceTemplateInstance : coll) {
+            s = serviceTemplateInstance;
+        }
+        ServiceTemplateInstanceState state = serviceTemplateInstanceService.getServiceTemplateInstanceState(s.getId());
+
+        while ((state != ServiceTemplateInstanceState.CREATED)) {
+            state = serviceTemplateInstanceService.getServiceTemplateInstanceState(s.getId());
+        }
+        return s;
     }
 
     public String createServiceInstanceUrl(String csarId, String serviceTemplateId, String serviceInstanceId) {

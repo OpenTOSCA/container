@@ -178,7 +178,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
             "RUNNING", planInstanceUrlVarName);
 
         this.serviceInstanceVarsHandler.appendSetServiceInstanceState(newBackupPlan,
-            newBackupPlan.getBpelMainSequenceOutputAssignElement(),
+            newBackupPlan.getBpelMainSequenceCallbackInvokeElement(),
             "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(newBackupPlan);

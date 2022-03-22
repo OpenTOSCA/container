@@ -173,7 +173,7 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
             "RUNNING", planInstanceUrlVarName);
 
         this.serviceInstanceVarsHandler.appendSetServiceInstanceState(newUpdatePlan,
-            newUpdatePlan.getBpelMainSequenceOutputAssignElement(),
+            newUpdatePlan.getBpelMainSequenceCallbackInvokeElement(),
             "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(newUpdatePlan);

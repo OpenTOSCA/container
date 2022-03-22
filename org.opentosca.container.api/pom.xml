@@ -45,7 +45,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.opentosca</groupId>
-			<artifactId>org.opentosca.container.engine.plan</artifactId>
+			<artifactId>org.opentosca.container.plan.deployment.core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

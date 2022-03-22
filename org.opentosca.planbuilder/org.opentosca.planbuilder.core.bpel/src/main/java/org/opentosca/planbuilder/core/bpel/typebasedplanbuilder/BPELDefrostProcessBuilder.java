@@ -150,7 +150,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
             "RUNNING", planInstanceUrlVarName);
 
         this.serviceInstanceInitializer.appendSetServiceInstanceState(newDefreezePlan,
-            newDefreezePlan.getBpelMainSequenceOutputAssignElement(),
+            newDefreezePlan.getBpelMainSequenceCallbackInvokeElement(),
             "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(newDefreezePlan);

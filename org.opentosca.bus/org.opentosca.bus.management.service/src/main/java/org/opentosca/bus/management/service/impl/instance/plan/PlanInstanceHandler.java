@@ -77,7 +77,7 @@ public class PlanInstanceHandler {
      * @param body the body of the camel envelope resulting from the invocation and containing the output parameters
      */
     public void updatePlanInstanceOutput(final PlanInstance plan, final Csar csar, final Object body) {
-
+        // if you look closely you see some kind of dark magic going on here...
         final TPlan planModel;
         try {
             planModel = ToscaEngine.resolvePlanReference(csar, plan.getTemplateId());

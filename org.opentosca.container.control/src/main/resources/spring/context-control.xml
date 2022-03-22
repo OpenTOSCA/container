@@ -14,7 +14,8 @@
 
   <context:component-scan base-package="org.opentosca.container.core.impl.service"/>
   <context:component-scan base-package="org.opentosca.container.core.plan"/>
-  <context:component-scan base-package="org.opentosca.container.engine.plan.impl"/>
+  <context:component-scan base-package="org.opentosca.container.core.next.services.instances"/>
+  <context:component-scan base-package="org.opentosca.container.plan.deployment.core"/>
   <context:component-scan base-package="org.opentosca.planbuilder.export"/>
   <context:component-scan base-package="org.opentosca.planbuilder.importer"/>
 

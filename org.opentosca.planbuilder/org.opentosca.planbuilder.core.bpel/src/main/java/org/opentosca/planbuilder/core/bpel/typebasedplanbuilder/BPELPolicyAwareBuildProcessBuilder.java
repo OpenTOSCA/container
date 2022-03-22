@@ -203,7 +203,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
             "RUNNING", planInstanceUrlVarName);
 
         this.serviceInstanceHandler.appendSetServiceInstanceState(newBuildPlan,
-            newBuildPlan.getBpelMainSequenceOutputAssignElement(),
+            newBuildPlan.getBpelMainSequenceCallbackInvokeElement(),
             "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(newBuildPlan);

@@ -42,7 +42,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.opentosca</groupId>
-			<artifactId>org.opentosca.container.engine.plan.plugin.bpel</artifactId>
+			<artifactId>org.opentosca.container.plan.deployment.plugin.bpel</artifactId>
 			<version>3.0.0-SNAPSHOT</version>
 			<scope>compile</scope>
 			<exclusions>

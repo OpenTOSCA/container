@@ -255,7 +255,7 @@
 
         <dependency>
             <groupId>org.opentosca</groupId>
-            <artifactId>org.opentosca.container.engine.plan.plugin.camunda</artifactId>
+            <artifactId>org.opentosca.container.plan.deployment.plugin.camunda</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
@@ -266,7 +266,7 @@
         </dependency>
         <dependency>
             <groupId>org.opentosca</groupId>
-            <artifactId>org.opentosca.container.engine.plan.plugin.bpel</artifactId>
+            <artifactId>org.opentosca.container.plan.deployment.plugin.bpel</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>

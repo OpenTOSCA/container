@@ -178,7 +178,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
             "RUNNING", planInstanceUrlVarName);
 
         this.serviceInstanceInitializer.appendSetServiceInstanceState(newTestPlan,
-            newTestPlan.getBpelMainSequenceOutputAssignElement(),
+            newTestPlan.getBpelMainSequenceCallbackInvokeElement(),
             "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(newTestPlan);
