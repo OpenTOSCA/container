@@ -51,9 +51,7 @@
         <module>org.opentosca.container.connector.winery</module>
         <module>org.opentosca.container.control</module>
         <module>org.opentosca.container.core</module>
-        <module>org.opentosca.container.engine.plan</module>
-        <module>org.opentosca.container.engine.plan.plugin.bpel</module>
-        <module>org.opentosca.container.engine.plan.plugin.camunda</module>
+        <module>org.opentosca.container.plan.deployment</module>
         <module>org.opentosca.container.integration.tests</module>
         <module>org.opentosca.container.reporting</module>
         <module>org.opentosca.container.war</module>

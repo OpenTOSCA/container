@@ -182,7 +182,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
             "RUNNING", planInstanceUrlVarName);
 
         this.serviceInstanceVarsHandler.appendSetServiceInstanceState(newFreezePlan,
-            newFreezePlan.getBpelMainSequenceOutputAssignElement(),
+            newFreezePlan.getBpelMainSequenceCallbackInvokeElement(),
             "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(newFreezePlan);

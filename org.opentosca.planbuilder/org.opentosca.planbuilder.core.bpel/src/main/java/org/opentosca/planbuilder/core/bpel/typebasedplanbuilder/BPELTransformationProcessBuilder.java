@@ -234,7 +234,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
             "RUNNING", planInstanceUrlVarName);
 
         this.serviceInstanceHandler.appendSetServiceInstanceState(transformationBPELPlan,
-            transformationBPELPlan.getBpelMainSequenceOutputAssignElement(),
+            transformationBPELPlan.getBpelMainSequenceCallbackInvokeElement(),
             "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(transformationBPELPlan);
@@ -432,7 +432,7 @@ public class BPELTransformationProcessBuilder extends AbstractTransformingPlanbu
             "RUNNING", planInstanceUrlVarName);
 
         this.serviceInstanceHandler.appendSetServiceInstanceState(transformationBPELPlan,
-            transformationBPELPlan.getBpelMainSequenceOutputAssignElement(),
+            transformationBPELPlan.getBpelMainSequenceCallbackInvokeElement(),
             "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(transformationBPELPlan);

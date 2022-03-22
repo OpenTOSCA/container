@@ -155,7 +155,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
             "RUNNING", planInstanceUrlVarName);
 
         this.serviceInstanceHandler.appendSetServiceInstanceState(newTerminationPlan,
-            newTerminationPlan.getBpelMainSequenceOutputAssignElement(),
+            newTerminationPlan.getBpelMainSequenceCallbackInvokeElement(),
             "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(newTerminationPlan);

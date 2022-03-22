@@ -50,7 +50,7 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.SituationRepository;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
-import org.opentosca.container.engine.plan.plugin.bpel.BpelPlanEnginePlugin;
+import org.opentosca.container.plan.deployment.plugin.bpel.BpelPlanEnginePlugin;
 import org.opentosca.planbuilder.export.WineryExporter;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;

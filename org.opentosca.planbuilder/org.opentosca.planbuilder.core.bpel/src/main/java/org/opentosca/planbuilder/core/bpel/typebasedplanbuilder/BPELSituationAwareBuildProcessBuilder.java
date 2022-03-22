@@ -187,7 +187,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
                 "RUNNING", planInstanceUrlVarName);
 
             this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
-                newBuildPlan.getBpelMainSequenceOutputAssignElement(),
+                newBuildPlan.getBpelMainSequenceCallbackInvokeElement(),
                 "FINISHED", planInstanceUrlVarName);
 
             this.finalizer.finalize(newBuildPlan);
