@@ -382,7 +382,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             "RUNNING", planInstanceUrlVarName);
 
         this.serviceInstanceHandler.appendSetServiceInstanceState(bpelScaleOutProcess,
-            bpelScaleOutProcess.getBpelMainSequenceOutputAssignElement(),
+            bpelScaleOutProcess.getBpelMainSequenceCallbackInvokeElement(),
             "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(bpelScaleOutProcess);
