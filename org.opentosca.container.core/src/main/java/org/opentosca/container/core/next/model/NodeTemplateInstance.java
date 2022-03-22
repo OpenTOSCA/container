@@ -30,7 +30,7 @@ import org.opentosca.container.core.next.xml.PropertyParser;
 
 @Entity
 @Table(name = NodeTemplateInstance.TABLE_NAME)
-@NamedEntityGraphs({
+@NamedEntityGraphs( {
     @NamedEntityGraph(name = "propertiesAndOutgoing", includeAllAttributes = true, attributeNodes = {
         @NamedAttributeNode("properties"),
         @NamedAttributeNode("outgoingRelations"),
@@ -48,7 +48,7 @@ public class NodeTemplateInstance extends PersistenceObject {
     private NodeTemplateInstanceState state;
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "nodeTemplateInstance", cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "nodeTemplateInstance", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<NodeTemplateInstanceProperty> properties = new HashSet<>();
 
