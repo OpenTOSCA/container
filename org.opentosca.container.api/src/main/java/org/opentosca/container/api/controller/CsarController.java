@@ -48,7 +48,7 @@ import org.opentosca.container.api.dto.CsarListDTO;
 import org.opentosca.container.api.dto.request.CsarTransformRequest;
 import org.opentosca.container.api.dto.request.CsarUploadRequest;
 import org.opentosca.container.api.util.Utils;
-import org.opentosca.container.connector.winery.WineryConnector;
+import org.opentosca.container.control.winery.WineryConnector;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.control.plan.PlanGenerationService;
 import org.opentosca.container.core.common.SystemException;
