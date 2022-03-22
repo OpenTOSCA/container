@@ -29,7 +29,6 @@ import org.eclipse.winery.repository.common.RepositoryFileReference;
 import com.google.common.collect.Lists;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opentosca.container.connector.ode.OdeConnector;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.impl.service.FileSystem;
 import org.opentosca.container.core.model.csar.Csar;
