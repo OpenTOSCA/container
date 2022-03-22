@@ -81,7 +81,7 @@ public class TestUtils {
 
     public void enrichCsarFile(Path file, String wineryLocation) {
         WineryConnector connector = new WineryConnector();
-        connector.performManagementFeatureEnrichment(file.toFile(), wineryLocation);
+        connector.performManagementFeatureEnrichment(file.toFile(), true, wineryLocation);
     }
 
     public void clearWineryRepository(String wineryRepositoryUrl) {
