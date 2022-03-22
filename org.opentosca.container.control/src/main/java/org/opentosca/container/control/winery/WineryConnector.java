@@ -203,7 +203,7 @@ public class WineryConnector {
         return Arrays.stream(response.getAllHeaders())
             .filter(header -> header.getName().equals(headerName))
             .findFirst()
-            .map(NameValuePair::getValue)
+            .map(header -> header.getValue())
             .orElse(null);
     }
 
