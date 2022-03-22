@@ -194,7 +194,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 "RUNNING", planInstanceUrlVarName);
 
             this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
-                newBuildPlan.getBpelMainSequenceOutputAssignElement(),
+                newBuildPlan.getBpelMainSequenceCallbackInvokeElement(),
                 "FINISHED", planInstanceUrlVarName);
 
             this.sitRegistrationPlugin.handle(serviceTemplate, newBuildPlan);
