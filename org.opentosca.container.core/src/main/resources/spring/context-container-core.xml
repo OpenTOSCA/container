@@ -22,6 +22,7 @@
     <context:component-scan base-package="org.opentosca.container.core.engine.next"/>
     <context:component-scan base-package="org.opentosca.container.core.next.repository"/>
     <context:component-scan base-package="org.opentosca.container.core.next.trigger"/>
+    <context:component-scan base-package="org.opentosca.container.core.next.services"/>
 
     <jpa:repositories base-package="org.opentosca.container.core.next.repository" entity-manager-factory-ref="emf"/>
 

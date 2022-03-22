@@ -1,7 +1,9 @@
 package org.opentosca.container.api.util;
 
+import java.util.Arrays;
 import java.util.List;
 
+import javax.ws.rs.NotFoundException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -13,13 +15,33 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTopologyTemplate;
 import org.eclipse.winery.model.tosca.utils.ModelUtilities;
 
+import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.next.model.PlanType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public abstract class ModelUtil {
+public abstract class Utils {
+
+    /**
+     * Get DTO for the plan with the given Id in the given Csar
+     *
+     * @param csar      the Csar containing the plan
+     * @param planTypes an array with possible types of the plan
+     * @param planId    the Id of the plan
+     * @return the PlanDto if found or
+     * @throws NotFoundException is thrown if the plan can not be found
+     */
+    public static PlanDTO getPlanDto(Csar csar, PlanType[] planTypes, String planId) throws NotFoundException {
+        return csar.plans().stream()
+            .filter(tplan -> Arrays.stream(planTypes).anyMatch(pt -> tplan.getPlanType().equals(pt.toString())))
+            .filter(tplan -> tplan.getId() != null && tplan.getId().equals(planId))
+            .findFirst()
+            .map(PlanDTO::new)
+            .orElseThrow(NotFoundException::new);
+    }
 
     public static boolean hasOpenRequirements(final Csar csar) {
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();

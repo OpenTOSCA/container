@@ -25,13 +25,13 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.opentosca.container.api.dto.NodeTemplateInstanceDTO;
 import org.opentosca.container.api.dto.NodeTemplateInstanceListDTO;
-import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
-import org.opentosca.container.api.util.ModelUtil;
+import org.opentosca.container.api.util.Utils;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
+import org.opentosca.container.core.next.services.instances.NodeTemplateInstanceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -43,8 +43,8 @@ import org.w3c.dom.Element;
 public class NodeTemplateInstanceController {
 
     private static final Logger logger = LoggerFactory.getLogger(NodeTemplateInstanceController.class);
-    private final InstanceService instanceService;
     private final NodeTemplateService nodeTemplateService;
+    private final NodeTemplateInstanceService nodeTemplateInstanceService;
     @ApiParam("ID of node template")
     @PathParam("nodetemplate")
     String nodetemplate;
@@ -57,10 +57,10 @@ public class NodeTemplateInstanceController {
     @Context
     UriInfo uriInfo;
 
-    public NodeTemplateInstanceController(final InstanceService instanceService,
-                                          NodeTemplateService nodeTemplateService) {
-        this.instanceService = instanceService;
+    public NodeTemplateInstanceController(final NodeTemplateService nodeTemplateService,
+                                          final NodeTemplateInstanceService nodeTemplateInstanceService) {
         this.nodeTemplateService = nodeTemplateService;
+        this.nodeTemplateInstanceService = nodeTemplateInstanceService;
     }
 
     @GET
@@ -70,7 +70,7 @@ public class NodeTemplateInstanceController {
                                              @QueryParam(value = "source") final List<Long> relationIds,
                                              @QueryParam(value = "serviceInstanceId") final Long serviceInstanceId) {
         logger.debug("Invoking getNodeTemplateInstances");
-        final Collection<NodeTemplateInstance> nodeInstances = this.instanceService.getNodeTemplateInstances(nodetemplate);
+        final Collection<NodeTemplateInstance> nodeInstances = this.nodeTemplateInstanceService.getNodeTemplateInstances(nodetemplate);
         logger.debug("Found <{}> instances of NodeTemplate \"{}\" ", nodeInstances.size(), this.nodetemplate);
 
         final NodeTemplateInstanceListDTO list = new NodeTemplateInstanceListDTO();
@@ -137,7 +137,7 @@ public class NodeTemplateInstanceController {
     public Response getNodeTemplateInstance(@ApiParam("ID of node template instance") @PathParam("id") final Long id) {
         logger.debug("Invoking getNodeTemplateInstance");
         final NodeTemplateInstance instance =
-            this.instanceService.resolveNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
+            this.nodeTemplateInstanceService.resolveNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
         final NodeTemplateInstanceDTO dto = NodeTemplateInstanceDTO.Converter.convert(instance);
 
         dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "state", false, "state"));
@@ -153,7 +153,7 @@ public class NodeTemplateInstanceController {
     @ApiOperation(hidden = true, value = "")
     public Response deleteNodeTemplateInstance(@PathParam("id") final Long id) {
         logger.debug("Invoking deleteNodeTemplateInstance");
-        this.instanceService.deleteNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
+        this.nodeTemplateInstanceService.deleteNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
         return Response.noContent().build();
     }
 
@@ -164,7 +164,7 @@ public class NodeTemplateInstanceController {
     public Response getNodeTemplateInstanceState(@ApiParam("ID node template instance") @PathParam("id") final Long id) {
         logger.debug("Invoking getNodeTemplateInstanceState");
         final NodeTemplateInstanceState state =
-            this.instanceService.getNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id);
+            this.nodeTemplateInstanceService.getNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id);
         return Response.ok(state.toString()).build();
     }
 
@@ -175,7 +175,7 @@ public class NodeTemplateInstanceController {
     public Response updateNodeTemplateInstanceState(@PathParam("id") final Long id, final String request) {
         logger.debug("Invoking updateNodeTemplateInstanceState");
         try {
-            this.instanceService.setNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id, request);
+            this.nodeTemplateInstanceService.setNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id, request);
         } catch (final IllegalArgumentException e) { // this handles a null request too
             return Response.status(Status.BAD_REQUEST).build();
         }
@@ -188,8 +188,7 @@ public class NodeTemplateInstanceController {
     @ApiOperation(hidden = true, value = "")
     public Response getNodeTemplateInstanceProperties(@PathParam("id") final Long id) {
         logger.debug("Invoking getNodeTemplateInstanceProperties");
-        final Document properties =
-            this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
+        final Document properties = this.nodeTemplateInstanceService.getNodeTemplateInstancePropertiesDocument(id);
 
         if (properties == null) {
             return Response.noContent().build();
@@ -207,7 +206,7 @@ public class NodeTemplateInstanceController {
     public Map<String, String> getNodeTemplateInstancePropertiesAsJson(@PathParam("id") final Long id) {
         logger.debug("Invoking getNodeTemplateInstancePropertiesAsJson");
         final NodeTemplateInstance instance =
-            this.instanceService.resolveNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
+            this.nodeTemplateInstanceService.resolveNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
         return instance.getPropertiesAsMap();
     }
 
@@ -218,13 +217,12 @@ public class NodeTemplateInstanceController {
     public Response getNodeTemplateInstanceProperty(@PathParam("id") final Long id,
                                                     @PathParam("propname") final String propertyName) {
         logger.debug("Invoking getNodeTemplateInstanceProperty");
-        final Document properties =
-            this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
+        final Document properties = this.nodeTemplateInstanceService.getNodeTemplateInstancePropertiesDocument(id);
 
-        if (properties == null && ModelUtil.fetchFirstChildElement(properties, propertyName) == null) {
+        if (properties == null && Utils.fetchFirstChildElement(properties, propertyName) == null) {
             return Response.noContent().build();
         } else {
-            return Response.ok(ModelUtil.createDocumentFromElement(ModelUtil.fetchFirstChildElement(properties,
+            return Response.ok(Utils.createDocumentFromElement(Utils.fetchFirstChildElement(properties,
                     propertyName)))
                 .build();
         }
@@ -238,8 +236,7 @@ public class NodeTemplateInstanceController {
     public Response updateNodeTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
         logger.debug("Invoking updateNodeTemplateInstanceProperties");
         try {
-            this.instanceService.setNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id,
-                request);
+            this.nodeTemplateInstanceService.setNodeTemplateInstanceProperties(id, request);
         } catch (final IllegalArgumentException e) { // this handles a null request too
             return Response.status(Status.BAD_REQUEST).build();
         } catch (final ReflectiveOperationException e) {
@@ -259,15 +256,13 @@ public class NodeTemplateInstanceController {
                                                        final Document request) {
         logger.debug("Invoking updateNodeTemplateInstanceProperty");
         try {
-            final Document properties =
-                this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
+            final Document properties = this.nodeTemplateInstanceService.getNodeTemplateInstancePropertiesDocument(id);
 
-            final Element propElement = ModelUtil.fetchFirstChildElement(properties, propertyName);
+            final Element propElement = Utils.fetchFirstChildElement(properties, propertyName);
 
             propElement.setTextContent(request.getDocumentElement().getTextContent());
 
-            this.instanceService.setNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id,
-                properties);
+            this.nodeTemplateInstanceService.setNodeTemplateInstanceProperties(id, properties);
         } catch (final IllegalArgumentException e) { // this handles a null request too
             return Response.status(Status.BAD_REQUEST).build();
         } catch (final ReflectiveOperationException e) {

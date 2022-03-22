@@ -20,7 +20,6 @@ import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.extension.TParameterDTO;
 import org.opentosca.container.core.extension.TPlanDTO;
-//import org.opentosca.container.core.tosca.extension.TPlanDTO;
 
 @XmlRootElement(name = "Plan")
 @XmlAccessorType(XmlAccessType.FIELD)

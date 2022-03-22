@@ -1,4 +1,4 @@
-package org.opentosca.container.api.service;
+package org.opentosca.container.core.next.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,7 +17,9 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TPropertyMapping;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import org.opentosca.container.core.common.jpa.DocumentConverter;
 import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
@@ -33,11 +35,9 @@ import org.w3c.dom.NodeList;
 
 public class PropertyMappingsHelper {
     private static final Logger logger = LoggerFactory.getLogger(PropertyMappingsHelper.class);
-    private final InstanceService instanceService;
     private final CsarStorageService storage;
 
-    public PropertyMappingsHelper(final InstanceService instanceService, CsarStorageService storage) {
-        this.instanceService = instanceService;
+    public PropertyMappingsHelper(CsarStorageService storage) {
         this.storage = storage;
     }
 
@@ -110,7 +110,7 @@ public class PropertyMappingsHelper {
                     continue;
                 }
 
-                final Document nodeProperties = this.instanceService.convertPropertyToDocument(firstProperty.get());
+                final Document nodeProperties = new DocumentConverter().convertToEntityAttribute(firstProperty.get().getValue());
                 final Element nodePropertiesRoot = (Element) nodeProperties.getFirstChild();
                 final String nodeTemplatePropertyQuery = mapping.getTargetPropertyRef();
                 final List<Element> nodePropertyElements = queryElementList(nodePropertiesRoot, nodeTemplatePropertyQuery);
@@ -126,7 +126,7 @@ public class PropertyMappingsHelper {
         }
 
         try {
-            serviceInstance.setProperties(Collections.singleton(Utils.convertDocumentToProperty(proprtiesAsXML,
+            serviceInstance.setProperties(Collections.singleton(ModelUtils.convertDocumentToProperty(proprtiesAsXML,
                 ServiceTemplateInstanceProperty.class)));
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {
             logger.error("Failed to store properties in service template instance object. Reason {}", e.getMessage());

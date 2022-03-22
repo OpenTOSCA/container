@@ -13,10 +13,14 @@ import org.opentosca.container.core.next.model.PersistenceObject;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PlanInstanceSubscriptionService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PlanInstanceSubscriptionService.class);
 
     private static Map<Long, Collection<PlanInstanceExpectedStateSubscription>> stateExpectedSubscriptions = Collections.synchronizedMap(new HashMap<>());
     private static Map<String, Collection<PlanInstanceAvailableSubscription>> instanceAvailableSubscriptions = Collections.synchronizedMap(new HashMap<>());
@@ -60,10 +64,10 @@ public class PlanInstanceSubscriptionService {
 
     @PostPersist
     void planInstanceAfterCreate(final PlanInstance planInstance) {
-        System.out.println("post create method was called");
+        logger.trace("post create method was called");
         Collection<PlanInstanceAvailableSubscription> subsInstanceAvailable = instanceAvailableSubscriptions.get(planInstance.getCorrelationId());
         if (subsInstanceAvailable != null && !subsInstanceAvailable.isEmpty()) {
-            System.out.println("Notifying planinstance available subscribers");
+            logger.trace("Notifying planinstance available subscribers");
             subsInstanceAvailable.forEach(sub -> {
                 sub.updatePlanInstance(planInstance);
             });
@@ -72,11 +76,11 @@ public class PlanInstanceSubscriptionService {
 
     @PostUpdate
     void planInstanceAfterUpdate(final PlanInstance planInstance) {
-        System.out.println("post update method was called");
+        logger.trace("post update method was called");
         Collection<PlanInstanceExpectedStateSubscription> subsStateExpected = stateExpectedSubscriptions.get(planInstance.getId());
 
         if (subsStateExpected != null && !subsStateExpected.isEmpty()) {
-            System.out.println("Notifying planinstance state expected subscribers");
+            logger.trace("Notifying planinstance state expected subscribers");
             subsStateExpected.forEach(sub -> {
                 sub.updatePlanInstance(planInstance);
             });
@@ -118,7 +122,7 @@ public class PlanInstanceSubscriptionService {
         private PlanInstanceSubscriptionService service;
 
         public PlanInstanceSubscription(PlanInstance planInstance, PlanInstanceSubscriptionService service) {
-            System.out.println("Created subscription");
+            logger.trace("Created subscription");
             this.planInstance = planInstance;
             this.service = service;
         }
@@ -128,8 +132,8 @@ public class PlanInstanceSubscriptionService {
         }
 
         public synchronized void updatePlanInstance(PlanInstance planInstance) {
-            System.out.println("Received updated plan instance");
-            System.out.println("InstanceState: " + planInstance.getState());
+            logger.trace("Received updated plan instance");
+            logger.trace("InstanceState: " + planInstance.getState());
             this.planInstance = planInstance;
         }
 
@@ -141,16 +145,15 @@ public class PlanInstanceSubscriptionService {
 
         @Override
         public void run() {
-            System.out.println("Started subscription");
+            logger.trace("Started subscription");
             while (!this.conditionIsMet()) {
                 try {
                     Thread.sleep(1000);
-                    //System.out.println("Current State: " + this.getInstance().getState() );
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            System.out.println("Ended subscription");
+            logger.trace("Ended subscription");
         }
     }
 
@@ -160,7 +163,7 @@ public class PlanInstanceSubscriptionService {
         public PlanInstanceAvailableSubscription(PlanInstance planInstance, PlanInstanceSubscriptionService service, String expectedCorrelation) {
             super(planInstance, service);
             this.expectedCorrelation = expectedCorrelation;
-            System.out.println("Created subscription for corrId: " + this.expectedCorrelation);
+            logger.trace("Created subscription for corrId: " + this.expectedCorrelation);
         }
 
         public boolean conditionIsMet() {
@@ -173,7 +176,7 @@ public class PlanInstanceSubscriptionService {
 
         public PlanInstanceExpectedStateSubscription(PlanInstance planInstance, PlanInstanceSubscriptionService service, PlanInstanceState expectedState) {
             super(planInstance, service);
-            System.out.println("InstanceState: " + planInstance.getState());
+            logger.trace("InstanceState: " + planInstance.getState());
             this.expectedState = expectedState;
         }
 

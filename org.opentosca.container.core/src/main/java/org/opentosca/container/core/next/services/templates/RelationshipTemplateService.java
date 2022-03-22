@@ -1,4 +1,4 @@
-package org.opentosca.container.api.service;
+package org.opentosca.container.core.next.services.templates;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,12 +9,9 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
-import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.CsarStorageService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 // TODO it is assumed that the name of the node template is the same as its id.
@@ -29,8 +26,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class RelationshipTemplateService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RelationshipTemplateService.class);
-
     @Inject
     private CsarStorageService storage;
 
@@ -41,19 +36,15 @@ public class RelationshipTemplateService {
      * @param serviceTemplateQName The QName of the service template within the given CSAR
      * @return A collection of relationship templates stored within the given service template.
      */
-    public List<RelationshipTemplateDTO> getRelationshipTemplatesOfServiceTemplate(final String csarId,
-                                                                                   final String serviceTemplateQName) {
+    public List<TRelationshipTemplate> getRelationshipTemplatesOfServiceTemplate(final String csarId,
+                                                                                 final String serviceTemplateQName) {
         final Csar csar = storage.findById(new CsarId(csarId));
-        List<TRelationshipTemplate> relationshipTemplates = csar.serviceTemplates().stream()
+        return csar.serviceTemplates().stream()
             .filter(st -> st.getName().equals(serviceTemplateQName))
             .findFirst()
             .get()
             .getTopologyTemplate()
             .getRelationshipTemplates();
-
-        return relationshipTemplates.stream()
-            .map(RelationshipTemplateDTO::fromToscaObject)
-            .collect(Collectors.toList());
     }
 
     /**
@@ -66,18 +57,16 @@ public class RelationshipTemplateService {
      * @return The relationship template specified by the given id
      * @throws NotFoundException If the service template does not contain the specified relationship template
      */
-    public RelationshipTemplateDTO getRelationshipTemplateById(final String csarId, final String serviceTemplateName,
-                                                               final String relationshipTemplateId) throws NotFoundException {
+    public TRelationshipTemplate getRelationshipTemplateById(final String csarId, final String serviceTemplateName,
+                                                             final String relationshipTemplateId) throws NotFoundException {
         final Csar csar = storage.findById(new CsarId(csarId));
 
-        TRelationshipTemplate template = csar.serviceTemplates().stream()
+        return csar.serviceTemplates().stream()
             .filter(st -> st.getName().equals(serviceTemplateName))
             .findFirst()
             .orElseThrow(() -> new NotFoundException("Relationship template \"" + relationshipTemplateId + "\" could not be found"))
             .getTopologyTemplate()
             .getRelationshipTemplate(relationshipTemplateId);
-
-        return RelationshipTemplateDTO.fromToscaObject(template);
     }
 
     /**
