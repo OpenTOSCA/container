@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import javax.persistence.NoResultException;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TParameter;

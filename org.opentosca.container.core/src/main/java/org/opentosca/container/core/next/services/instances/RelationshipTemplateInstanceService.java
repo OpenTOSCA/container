@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
@@ -18,7 +17,6 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstanceState;

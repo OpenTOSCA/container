@@ -10,7 +10,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.persistence.NoResultException;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
