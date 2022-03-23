@@ -185,7 +185,9 @@ public class MBUtils {
                 LOG.debug("Found new NodeTemplate: {}. Continue property search.", nodeTemplateInstance.getTemplateId());
                 // check if new NodeTemplateInstance contains property
                 propertyValue = getInstanceDataPropertyValue(nodeTemplateInstance, property);
-                break;
+                if (propertyValue != null) {
+                    break;
+                }
             }
         }
 

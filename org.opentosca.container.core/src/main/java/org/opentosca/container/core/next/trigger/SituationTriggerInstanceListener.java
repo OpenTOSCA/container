@@ -117,10 +117,8 @@ public class SituationTriggerInstanceListener {
             // iterate all events from current PlanInstance
             for (final PlanInstanceEvent aEvent : currInstance.getEvents()) {
                 if (Objects.nonNull(aEvent.getOperationName()) && Objects.nonNull(aEvent.getExecutionDuration())
-                    && Objects.nonNull(aEvent.getNodeTemplateID())) {
-                    if (oneOperationFromPlan.equals(aEvent.getNodeTemplateID() + aEvent.getOperationName())) {
+                    && Objects.nonNull(aEvent.getNodeTemplateID()) && oneOperationFromPlan.equals(aEvent.getNodeTemplateID() + aEvent.getOperationName())) {
                         checkIfCurrentOperationExecutionTimeIsLonger(longestDurationMap, aEvent);
-                    }
                 }
             }
         }
@@ -256,7 +254,7 @@ public class SituationTriggerInstanceListener {
 
                     // now wait for finished execution
                     PlanInstance planInstance = planRepository.findByCorrelationId(correlationId);
-                    while (!(planInstance.getState() == PlanInstanceState.FINISHED)
+                    while ((planInstance.getState() != PlanInstanceState.FINISHED)
                         || planInstance.getState() == PlanInstanceState.FAILED) {
                         Thread.sleep(10000);
                         planInstance = planRepository.findByCorrelationId(correlationId);

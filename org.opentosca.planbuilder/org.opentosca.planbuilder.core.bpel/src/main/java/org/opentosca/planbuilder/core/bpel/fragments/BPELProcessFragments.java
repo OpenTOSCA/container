@@ -38,7 +38,6 @@ public class BPELProcessFragments {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELProcessFragments.class);
 
-    private final DocumentBuilderFactory docFactory;
     private final DocumentBuilder docBuilder;
 
     /**
@@ -47,8 +46,8 @@ public class BPELProcessFragments {
      * @throws ParserConfigurationException is thrown when initializing the DOM Parsers fails
      */
     public BPELProcessFragments() throws ParserConfigurationException {
-        this.docFactory = DocumentBuilderFactory.newInstance();
-        this.docFactory.setNamespaceAware(true);
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        docFactory.setNamespaceAware(true);
         this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 

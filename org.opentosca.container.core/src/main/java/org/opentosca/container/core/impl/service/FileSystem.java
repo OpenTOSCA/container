@@ -38,15 +38,17 @@ public class FileSystem {
             candidate = FS_TEMP.resolve(String.valueOf(System.nanoTime()));
         }
         // create the directory
-        while (true) {
+        boolean created = false;
+        while (!created) {
             try {
                 Files.createDirectories(candidate);
             } catch (IOException e) {
                 LOG.warn("Could not create temporary directory {}", candidate, e);
                 continue;
             }
-            return candidate;
+            created = true;
         }
+        return candidate;
     }
 
     public static void zip(Path targetFile, Path... inputFiles) throws IOException {

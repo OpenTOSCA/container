@@ -133,7 +133,9 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
             case TOSCA_PROCESSED:
                 operations.add(DeploymentProcessOperation.INVOKE_PLAN_DEPL);
                 // intentional fallthrough
+                break;
             case STORED:
+                operations.add(DeploymentProcessOperation.INVOKE_PLAN_DEPL);
                 operations.add(DeploymentProcessOperation.PROCESS_TOSCA);
                 break;
             default:

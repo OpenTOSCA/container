@@ -49,7 +49,6 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
     private SchemaFactory schemaFactory;
     private Schema schema = null;
     private ValidationEventCollector validationEventCollector;
-    private boolean validationActive = false;
 
     private Marshaller marshaller;
     // This marshaller is for internal marshalling of data which is validated
@@ -59,7 +58,7 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
     // validation.
     private Marshaller marshallerWithoutValidation;
 
-    private DocumentBuilderFactory documentBuilderFactory;
+
     private DocumentBuilder documentBuilder;
 
     /**
@@ -83,8 +82,8 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
             this.marshallerWithoutValidation = JAXBSupport.createMarshaller(false);
             this.marshallerWithoutValidation.setEventHandler(this.validationEventCollector);
 
-            this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            this.documentBuilderFactory.setNamespaceAware(true);
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setNamespaceAware(true);
 
             // if the Schema object is null no validation is set
             if (schemaFile != null) {
@@ -95,12 +94,12 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
                 // set the validation
                 LOG.debug("Activate validation for serialization to JAXB classes.");
                 this.setValidation(true);
-                this.documentBuilderFactory.setSchema(this.schema);
+                documentBuilderFactory.setSchema(this.schema);
             } else {
                 LOG.info("Initialize without a Schema.");
             }
 
-            this.documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
+            this.documentBuilder = documentBuilderFactory.newDocumentBuilder();
         } catch (final JAXBException e) {
             LOG.error(e.getMessage());
         } catch (final SAXException e) {
@@ -288,14 +287,10 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 
             // get the name of the element
             String elementName = obj.getClass().getSimpleName();
-            if (elementName.equals("IToscaModelFactory") || elementName.equals("ObjectFactory")
-                || elementName.equals("package-info.java")) {
+            if (!(elementName.equals("IToscaModelFactory") || elementName.equals("ObjectFactory")
+                || elementName.equals("package-info.java"))) {
                 // classes inside of the model package which do not represent an
                 // element of TOSCA
-            } else {
-                // All classes except the one for Definitions begin with an
-                // leading "T" because of the typing inside of the TOSCA xsd.
-                // Thus the legal name is the name without the leading "T".
                 if (!elementName.equals("Definitions") && Character.isUpperCase(elementName.charAt(1))) {
                     elementName = elementName.substring(1);
                 }
@@ -367,8 +362,7 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
          * if true give the Schema to the marshaller and unmarshaller if false delete the reference to the
          * Schema
          */
-        this.validationActive = bool;
-        if (this.validationActive == true) {
+        if (bool) {
             this.marshaller.setSchema(this.schema);
         } else {
             this.marshaller.setSchema(null);

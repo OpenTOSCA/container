@@ -8,18 +8,12 @@ public class SituationRule {
 
     private final String situationCompliantPartnerName;
 
-    private final URL situationCompliantPartnerUrl;
-
     private final String alternativePartnerName;
-
-    private final URL alternativePartnerUrl;
 
     public SituationRule(URL situationRuleUrl, String situationCompliantPartnerName, URL situationCompliantPartnerUrl, String alternativePartnerName, URL alternativePartnerUrl) {
         this.situationRuleUrl = situationRuleUrl;
         this.situationCompliantPartnerName = situationCompliantPartnerName;
-        this.situationCompliantPartnerUrl = situationCompliantPartnerUrl;
         this.alternativePartnerName = alternativePartnerName;
-        this.alternativePartnerUrl = alternativePartnerUrl;
     }
 
     public String getSituationCompliantPartnerName() {

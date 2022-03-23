@@ -67,9 +67,8 @@ public class SituationTriggerRegistration {
                         appendAssignSituationIdFromInputToSituationIdVar(plan, inputName, i, situationIdVarName,
                             plan.getBpelMainFlowElement());
                         situationIdVarNames.add(situationIdVarName);
-                    } else {
-                        // TODO Add Selection of SituationId
                     }
+                    // TODO Add Selection of SituationId
                 }
 
                 // TODO set serviceInstanceId
@@ -321,13 +320,9 @@ public class SituationTriggerRegistration {
     }
 
     private Map<String, String> getPropertiesSafely(final TServiceTemplate serviceTemplate) {
-        if (serviceTemplate.getBoundaryDefinitions() != null) {
-            if (serviceTemplate.getBoundaryDefinitions().getProperties() != null) {
-                if (serviceTemplate.getBoundaryDefinitions().getProperties() != null && !ModelUtils.asMap(serviceTemplate.getBoundaryDefinitions().getProperties()).isEmpty()) {
+                if (serviceTemplate.getBoundaryDefinitions() != null && serviceTemplate.getBoundaryDefinitions().getProperties() != null && !ModelUtils.asMap(serviceTemplate.getBoundaryDefinitions().getProperties()).isEmpty()) {
                     return ModelUtils.asMap(serviceTemplate.getBoundaryDefinitions().getProperties());
                 }
-            }
-        }
         return null;
     }
 

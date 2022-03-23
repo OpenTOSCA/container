@@ -1268,10 +1268,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             LOG.debug("Value for property {} found: {}.", placeholderProperty, propertyValue);
             try {
                 endpoint = new URI(endpoint.toString().replace(placeholder, propertyValue));
+                break;
             } catch (final URISyntaxException e) {
                 e.printStackTrace();
             }
-            break;
+
         }
 
         return endpoint;

@@ -43,14 +43,6 @@ public class BPELAnsibleOperationPluginHandler {
 
     private final BPELInvokerPlugin invokerPlugin = new BPELInvokerPlugin();
 
-    private final DocumentBuilderFactory docFactory;
-
-    public BPELAnsibleOperationPluginHandler() {
-
-        this.docFactory = DocumentBuilderFactory.newInstance();
-        this.docFactory.setNamespaceAware(true);
-    }
-
     private Variable appendBPELAssignOperationShScript(final BPELPlanContext templateContext,
                                                        final TArtifactReference reference) {
 

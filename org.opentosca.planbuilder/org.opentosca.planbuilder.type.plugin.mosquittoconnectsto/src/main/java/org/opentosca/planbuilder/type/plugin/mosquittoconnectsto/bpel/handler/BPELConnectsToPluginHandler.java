@@ -42,7 +42,6 @@ public class BPELConnectsToPluginHandler {
     private final static Logger LOG = LoggerFactory.getLogger(BPELConnectsToPluginHandler.class);
     private final BPELInvokerPlugin invokerPlugin = new BPELInvokerPlugin();
 
-    private final DocumentBuilderFactory docFactory;
     private final DocumentBuilder docBuilder;
 
     /**
@@ -51,8 +50,8 @@ public class BPELConnectsToPluginHandler {
      * @throws ParserConfigurationException is thrown when initializing the DOM Parsers fails
      */
     public BPELConnectsToPluginHandler() throws ParserConfigurationException {
-        this.docFactory = DocumentBuilderFactory.newInstance();
-        this.docFactory.setNamespaceAware(true);
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        docFactory.setNamespaceAware(true);
         this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 

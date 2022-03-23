@@ -262,12 +262,10 @@ public class ContainerProxy {
         final NodeList appProps = propNode.getChildNodes();
         for (int i = 0; i < appProps.getLength(); i++) {
             final Node addProp = appProps.item(i);
-            if (addProp.getNodeType() == Node.ELEMENT_NODE) {
-                if (addProp.getLocalName().equals(PORT)) {
+            if (addProp.getNodeType() == Node.ELEMENT_NODE && addProp.getLocalName().equals(PORT)) {
                     final Integer port = Integer.parseInt(addProp.getTextContent().trim());
                     LOG.debug("Port property: {}", port);
-                    return port;
-                }
+                  s  return port;
             }
         }
         return null;
@@ -287,13 +285,10 @@ public class ContainerProxy {
 
             final Node addProp = appProps.item(i);
 
-            if (addProp.getNodeType() == Node.ELEMENT_NODE) {
-
-                if (addProp.getLocalName().equals(INVOCATION_TYPE)) {
+            if (addProp.getNodeType() == Node.ELEMENT_NODE && addProp.getLocalName().equals(INVOCATION_TYPE)) {
                     final String invocationType = addProp.getTextContent().trim();
                     LOG.debug("InvocationType property: {}", invocationType);
                     return invocationType;
-                }
             }
         }
         return null;
@@ -313,10 +308,7 @@ public class ContainerProxy {
 
             final Node addProp = appProps.item(i);
 
-            if (addProp.getNodeType() == Node.ELEMENT_NODE) {
-
-                if (addProp.getLocalName().equals(INTERFACE_INFORMATIONS)) {
-
+            if (addProp.getNodeType() == Node.ELEMENT_NODE && addProp.getLocalName().equals(INTERFACE_INFORMATIONS)) {
                     // check if interface matches
                     final NodeList appInvInterfaceInfo =
                         ((Element) addProp).getElementsByTagNameNS(NAMESPACE, INTERFACE_INFORMATION);
@@ -335,7 +327,6 @@ public class ContainerProxy {
                             LOG.debug("Class property: {}", className);
                             return className;
                         }
-                    }
                 }
             }
         }

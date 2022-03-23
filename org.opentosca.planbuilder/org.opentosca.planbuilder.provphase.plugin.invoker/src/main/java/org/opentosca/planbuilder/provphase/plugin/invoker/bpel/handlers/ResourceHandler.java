@@ -37,7 +37,6 @@ public class ResourceHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(ResourceHandler.class);
 
-    private final DocumentBuilderFactory docFactory;
     private final DocumentBuilder docBuilder;
 
     private final BPELProcessFragments fragments;
@@ -48,8 +47,8 @@ public class ResourceHandler {
      * @throws ParserConfigurationException is thrown when initializing the DOM Parsers fails
      */
     public ResourceHandler() throws ParserConfigurationException {
-        this.docFactory = DocumentBuilderFactory.newInstance();
-        this.docFactory.setNamespaceAware(true);
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        docFactory.setNamespaceAware(true);
         this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 
         this.fragments = new BPELProcessFragments();

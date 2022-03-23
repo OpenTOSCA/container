@@ -278,10 +278,8 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
     private Collection<TNodeTemplate> getNeededNodes(TNodeTemplate nodeTemplate, Csar csar) {
         for (IPlanBuilderTypePlugin<?> typePlugin : this.pluginRegistry.getTypePlugins()) {
-            if (typePlugin.canHandleCreate(csar, nodeTemplate)) {
-                if (typePlugin instanceof IPlanBuilderTypePlugin.NodeDependencyInformationInterface) {
+            if (typePlugin.canHandleCreate(csar, nodeTemplate) && typePlugin instanceof IPlanBuilderTypePlugin.NodeDependencyInformationInterface) {
                     return ((IPlanBuilderTypePlugin.NodeDependencyInformationInterface) typePlugin).getCreateDependencies(nodeTemplate, csar);
-                }
             }
         }
         return null;
