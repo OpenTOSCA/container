@@ -1,4 +1,4 @@
-package org.opentosca.container.connector.ode;
+package org.opentosca.container.plan.deployment.plugin.bpel;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,7 +73,7 @@ public class OdeConnector {
         if (uri == null) {
             return null;
         }
-        QName pid = null;
+        QName pid;
         try {
 
             final String fileName = process.getName();
@@ -415,7 +415,7 @@ public class OdeConnector {
         try {
             client = new ProcessManagementStub(serviceLocation);
         } catch (final AxisFault e) {
-            OdeConnector.LOG.error("Cannot resolve a URL from the service location {0}", serviceLocation);
+            OdeConnector.LOG.error("Cannot resolve a URL from the service location {}", serviceLocation);
         }
         return client;
     }
@@ -431,7 +431,7 @@ public class OdeConnector {
         try {
             client = new DeploymentServiceStub(serviceLocation);
         } catch (final AxisFault e) {
-            OdeConnector.LOG.error("Cannot resolve a URL from the service location {0}", serviceLocation);
+            OdeConnector.LOG.error("Cannot resolve a URL from the service location {}", serviceLocation);
         }
         return client;
     }

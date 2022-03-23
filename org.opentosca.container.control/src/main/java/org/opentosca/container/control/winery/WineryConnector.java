@@ -1,4 +1,4 @@
-package org.opentosca.container.connector.winery;
+package org.opentosca.container.control.winery;
 
 import java.io.File;
 import java.io.IOException;
@@ -141,7 +141,7 @@ public class WineryConnector {
         return result;
     }
 
-    private String uploadCSARToWinery(final File file, final boolean overwrite, String url) throws URISyntaxException, IOException {
+    private String uploadCSARToWinery(final File file, final boolean overwrite, String url) throws URISyntaxException {
         final MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 
         final ContentBody fileBody = new FileBody(file);
@@ -171,10 +171,6 @@ public class WineryConnector {
             LOG.error("Exception while uploading CSAR to the Container Repository: ", e);
             return "";
         }
-    }
-
-    private String uploadCSARToWinery(final File file, final boolean overwrite) throws URISyntaxException, IOException {
-        return this.uploadCSARToWinery(file, overwrite, this.wineryPath);
     }
 
     public QName uploadCSAR(final File file, final boolean overwrite) throws URISyntaxException, IOException {
@@ -216,53 +212,10 @@ public class WineryConnector {
      * @param file the file containing the CSAR for the management feature enrichment
      */
     public void performManagementFeatureEnrichment(final File file) {
-        if (!isWineryRepositoryAvailable()) {
-            LOG.error("Management feature enrichment enabled, but Container Repository is not available!");
-            return;
-        }
-        LOG.debug("Container Repository is available. Uploading file {} to repo...", file.getName());
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            // upload CSAR to enable enrichment in Winery
-            final String location = uploadCSARToWinery(file, false);
-
-            if (Objects.isNull(location)) {
-                LOG.error("Upload return location equal to null!");
-                return;
-            }
-
-            LOG.debug("Stored CSAR at location: {}", location);
-
-            // get all available features for the given CSAR
-            final HttpGet get = new HttpGet();
-            get.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
-            get.setURI(new URI(location + FEATURE_ENRICHMENT_SUFFIX));
-            CloseableHttpResponse resp = httpClient.execute(get);
-            final String jsonResponse = EntityUtils.toString(resp.getEntity());
-            resp.close();
-
-            LOG.debug("Container Repository returned the following features: {}", jsonResponse);
-
-            // apply the found features to the CSAR
-            final HttpPut put = new HttpPut();
-            put.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
-            put.setURI(new URI(location + FEATURE_ENRICHMENT_SUFFIX));
-            final StringEntity stringEntity = new StringEntity(jsonResponse);
-            put.setEntity(stringEntity);
-            resp = httpClient.execute(put);
-            resp.close();
-
-            LOG.debug("Feature enrichment returned status line: {}", resp.getStatusLine());
-
-            // retrieve updated CSAR from winery
-            final URL url = new URL(location + "/?csar");
-            Files.copy(url.openStream(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            LOG.debug("Updated CSAR file in the Container with enriched topology.");
-        } catch (final Exception e) {
-            LOG.error("{} while performing management feature enrichment: {}", e.getClass().getSimpleName(), e.getMessage(), e);
-        }
+        performManagementFeatureEnrichment(file, false, this.wineryPath);
     }
 
-    public void performManagementFeatureEnrichment(final File file, String wineryLocation) {
+    public void performManagementFeatureEnrichment(final File file, boolean overwrite, String wineryLocation) {
         if (!isWineryRepositoryAvailable()) {
             LOG.error("Management feature enrichment enabled, but Container Repository is not available!");
             return;
@@ -270,7 +223,7 @@ public class WineryConnector {
         LOG.debug("Container Repository is available. Uploading file {} to repo...", file.getName());
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             // upload CSAR to enable enrichment in Winery
-            final String location = uploadCSARToWinery(file, true, wineryLocation);
+            final String location = uploadCSARToWinery(file, overwrite, wineryLocation);
 
             if (Objects.isNull(location)) {
                 LOG.error("Upload return location equal to null!");

@@ -38,7 +38,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
 import org.opentosca.container.api.service.PlanInvokerService;
-import org.opentosca.container.connector.winery.WineryConnector;
+import org.opentosca.container.control.winery.WineryConnector;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.control.plan.PlanGenerationService;
 import org.opentosca.container.core.common.Settings;
@@ -81,7 +81,7 @@ public class TestUtils {
 
     public void enrichCsarFile(Path file, String wineryLocation) {
         WineryConnector connector = new WineryConnector();
-        connector.performManagementFeatureEnrichment(file.toFile(), wineryLocation);
+        connector.performManagementFeatureEnrichment(file.toFile(), true, wineryLocation);
     }
 
     public void clearWineryRepository(String wineryRepositoryUrl) {
