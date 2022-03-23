@@ -25,6 +25,8 @@ import org.eclipse.winery.repository.backend.filebased.FileUtils;
 import org.eclipse.winery.repository.importing.CsarImportOptions;
 import org.eclipse.winery.repository.importing.CsarImporter;
 import org.eclipse.winery.repository.importing.ImportMetaInformation;
+import org.eclipse.winery.repository.importing.YamlCsarImporter;
+import org.eclipse.winery.repository.yaml.YamlRepository;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -150,7 +152,13 @@ public class CsarStorageServiceImpl implements CsarStorageService {
                 importOptions.setValidate(false); // avoid triggering accountability meddling with this
                 importOptions.setAsyncWPDParsing(true);
                 importOptions.setOverwrite(false);
-                importInfo = importer.readCSAR(Files.newInputStream(csarLocation), importOptions);
+                try {
+                    importInfo = importer.readCSAR(Files.newInputStream(csarLocation), importOptions);
+                } catch (NullPointerException e) {
+                    // brutal hack
+                    YamlCsarImporter yamlCsarImporter = new YamlCsarImporter(new YamlRepository(permanentLocation));
+                    importInfo = yamlCsarImporter.readCSAR(Files.newInputStream(csarLocation), importOptions);
+                }
             }
             if (!importInfo.errors.isEmpty()) {
                 throw new UserException("Importing the csar failed with errors: " + importInfo.errors.stream().collect(Collectors.joining(System.lineSeparator())));
