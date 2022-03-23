@@ -184,7 +184,8 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         ServiceTemplateId entryServiceTemplate = importInfo.entryServiceTemplate;
         // we may be able to "guarantee" it's not null, since we validate CSARs on import
         if (entryServiceTemplate == null) {
-            return candidateId;
+            LOGGER.warn("Could not find EntryServiceTemplate for Csar [{}]", candidateId.csarName());
+            throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.");
         }
         // FIXME don't store this in the winery repo location. Use some database for this!
         try (OutputStream os = Files.newOutputStream(permanentLocation.resolve(CsarImpl.ENTRY_SERVICE_TEMPLATE_LOCATION), StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)) {
