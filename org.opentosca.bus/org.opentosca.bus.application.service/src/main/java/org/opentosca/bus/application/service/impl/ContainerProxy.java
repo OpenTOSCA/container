@@ -265,7 +265,7 @@ public class ContainerProxy {
             if (addProp.getNodeType() == Node.ELEMENT_NODE && addProp.getLocalName().equals(PORT)) {
                     final Integer port = Integer.parseInt(addProp.getTextContent().trim());
                     LOG.debug("Port property: {}", port);
-                  s  return port;
+                    return port;
             }
         }
         return null;
