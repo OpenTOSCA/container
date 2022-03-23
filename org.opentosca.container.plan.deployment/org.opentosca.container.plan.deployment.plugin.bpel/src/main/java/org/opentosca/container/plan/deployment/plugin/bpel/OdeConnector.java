@@ -1,4 +1,4 @@
-package org.opentosca.container.connector.ode;
+package org.opentosca.container.plan.deployment.plugin.bpel;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,7 +10,6 @@ import java.nio.file.Paths;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -27,11 +26,8 @@ import org.apache.www.ode.pmapi.DeployDocument;
 import org.apache.www.ode.pmapi.DeployResponseDocument;
 import org.apache.www.ode.pmapi.GetProcessInfoDocument;
 import org.apache.www.ode.pmapi.GetProcessInfoResponseDocument;
-import org.apache.www.ode.pmapi.ListAllProcessesDocument;
 import org.apache.www.ode.pmapi.ListDeployedPackagesDocument;
 import org.apache.www.ode.pmapi.ListDeployedPackagesResponseDocument;
-import org.apache.www.ode.pmapi.ListProcessesDocument;
-import org.apache.www.ode.pmapi.ListProcessesResponseDocument;
 import org.apache.www.ode.pmapi.UndeployDocument;
 import org.apache.www.ode.pmapi.types._2006._08._02.TEndpointReferences;
 import org.apache.www.ode.pmapi.types._2006._08._02.TProcessInfo;
@@ -77,7 +73,7 @@ public class OdeConnector {
         if (uri == null) {
             return null;
         }
-        QName pid = null;
+        QName pid;
         try {
 
             final String fileName = process.getName();
@@ -421,7 +417,7 @@ public class OdeConnector {
         try {
             client = new ProcessManagementStub(serviceLocation);
         } catch (final AxisFault e) {
-            OdeConnector.LOG.error("Cannot resolve a URL from the service location {0}", serviceLocation);
+            OdeConnector.LOG.error("Cannot resolve a URL from the service location {}", serviceLocation);
         }
         return client;
     }
@@ -437,7 +433,7 @@ public class OdeConnector {
         try {
             client = new DeploymentServiceStub(serviceLocation);
         } catch (final AxisFault e) {
-            OdeConnector.LOG.error("Cannot resolve a URL from the service location {0}", serviceLocation);
+            OdeConnector.LOG.error("Cannot resolve a URL from the service location {}", serviceLocation);
         }
         return client;
     }
