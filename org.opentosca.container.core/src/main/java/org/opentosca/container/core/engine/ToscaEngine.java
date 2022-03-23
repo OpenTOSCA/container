@@ -408,10 +408,10 @@ public abstract class ToscaEngine {
         }
 
         if (template.getProperties() instanceof TEntityTemplate.WineryKVProperties) {
-                TEntityTemplate.WineryKVProperties props = (TEntityTemplate.WineryKVProperties) template.getProperties();
-                Map<String, String> propMap = props.getKVProperties();
+            TEntityTemplate.WineryKVProperties props = (TEntityTemplate.WineryKVProperties) template.getProperties();
+            Map<String, String> propMap = props.getKVProperties();
 
-                // So just that people understand:
+            // So just that people understand:
                 /*
                 <Properties>
                     <Properties xmlns="http://opentosca.org/nodetypes/propertiesdefinition/winery">
@@ -439,17 +439,17 @@ public abstract class ToscaEngine {
                 TODO: FIXME in winery!
                  */
 
-                Element rootElement = doc.createElementNS(props.getNamespace(), props.getElementName() != null ? props.getElementName() : "Properties");
-                doc.appendChild(rootElement);
+            Element rootElement = doc.createElementNS(props.getNamespace(), props.getElementName() != null ? props.getElementName() : "Properties");
+            doc.appendChild(rootElement);
 
-                for (String propName : propMap.keySet()) {
-                    Element propElement = doc.createElementNS(props.getNamespace(), propName);
-                    propElement.setTextContent(propMap.get(propName));
-                    rootElement.appendChild(propElement);
-                }
+            for (String propName : propMap.keySet()) {
+                Element propElement = doc.createElementNS(props.getNamespace(), propName);
+                propElement.setTextContent(propMap.get(propName));
+                rootElement.appendChild(propElement);
             }
+        }
 
-            return doc;
+        return doc;
     }
 
     private static Stream<TExportedOperation> listOperations(TServiceTemplate serviceTemplate) {

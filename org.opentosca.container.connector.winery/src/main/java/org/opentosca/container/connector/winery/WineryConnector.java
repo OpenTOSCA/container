@@ -174,7 +174,7 @@ public class WineryConnector {
     }
 
     private String uploadCSARToWinery(final File file, final boolean overwrite) throws URISyntaxException, IOException {
-        return this.uploadCSARToWinery(file,overwrite, this.wineryPath);
+        return this.uploadCSARToWinery(file, overwrite, this.wineryPath);
     }
 
     public QName uploadCSAR(final File file, final boolean overwrite) throws URISyntaxException, IOException {

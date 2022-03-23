@@ -263,9 +263,9 @@ public class ContainerProxy {
         for (int i = 0; i < appProps.getLength(); i++) {
             final Node addProp = appProps.item(i);
             if (addProp.getNodeType() == Node.ELEMENT_NODE && addProp.getLocalName().equals(PORT)) {
-                    final Integer port = Integer.parseInt(addProp.getTextContent().trim());
-                    LOG.debug("Port property: {}", port);
-                    return port;
+                final Integer port = Integer.parseInt(addProp.getTextContent().trim());
+                LOG.debug("Port property: {}", port);
+                return port;
             }
         }
         return null;
@@ -286,9 +286,9 @@ public class ContainerProxy {
             final Node addProp = appProps.item(i);
 
             if (addProp.getNodeType() == Node.ELEMENT_NODE && addProp.getLocalName().equals(INVOCATION_TYPE)) {
-                    final String invocationType = addProp.getTextContent().trim();
-                    LOG.debug("InvocationType property: {}", invocationType);
-                    return invocationType;
+                final String invocationType = addProp.getTextContent().trim();
+                LOG.debug("InvocationType property: {}", invocationType);
+                return invocationType;
             }
         }
         return null;
@@ -309,24 +309,24 @@ public class ContainerProxy {
             final Node addProp = appProps.item(i);
 
             if (addProp.getNodeType() == Node.ELEMENT_NODE && addProp.getLocalName().equals(INTERFACE_INFORMATIONS)) {
-                    // check if interface matches
-                    final NodeList appInvInterfaceInfo =
-                        ((Element) addProp).getElementsByTagNameNS(NAMESPACE, INTERFACE_INFORMATION);
+                // check if interface matches
+                final NodeList appInvInterfaceInfo =
+                    ((Element) addProp).getElementsByTagNameNS(NAMESPACE, INTERFACE_INFORMATION);
 
-                    LOG.debug(INTERFACE_INFORMATIONS + " for " + +appInvInterfaceInfo.getLength()
-                        + " Interfaces found.");
+                LOG.debug(INTERFACE_INFORMATIONS + " for " + +appInvInterfaceInfo.getLength()
+                    + " Interfaces found.");
 
-                    for (int i2 = 0; i2 < appInvInterfaceInfo.getLength(); i2++) {
+                for (int i2 = 0; i2 < appInvInterfaceInfo.getLength(); i2++) {
 
-                        final String interfName =
-                            appInvInterfaceInfo.item(i2).getAttributes().getNamedItem("name").getNodeValue();
+                    final String interfName =
+                        appInvInterfaceInfo.item(i2).getAttributes().getNamedItem("name").getNodeValue();
 
-                        if (interfName.equals(interfaceName)) {
-                            final String className =
-                                appInvInterfaceInfo.item(i2).getAttributes().getNamedItem("class").getNodeValue();
-                            LOG.debug("Class property: {}", className);
-                            return className;
-                        }
+                    if (interfName.equals(interfaceName)) {
+                        final String className =
+                            appInvInterfaceInfo.item(i2).getAttributes().getNamedItem("class").getNodeValue();
+                        LOG.debug("Class property: {}", className);
+                        return className;
+                    }
                 }
             }
         }

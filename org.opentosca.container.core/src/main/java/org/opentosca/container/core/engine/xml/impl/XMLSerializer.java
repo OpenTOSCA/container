@@ -58,7 +58,6 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
     // validation.
     private Marshaller marshallerWithoutValidation;
 
-
     private DocumentBuilder documentBuilder;
 
     /**

@@ -28,7 +28,7 @@ import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService
 @EntityListeners(PlanInstanceSubscriptionService.class)
 @Entity
 @Table(name = PlanInstance.TABLE_NAME)
-@NamedEntityGraphs({
+@NamedEntityGraphs( {
     @NamedEntityGraph(name = "events", includeAllAttributes = true, attributeNodes = {
         @NamedAttributeNode("events"),
         @NamedAttributeNode("outputs")

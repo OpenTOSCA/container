@@ -5,9 +5,8 @@ import org.eclipse.winery.model.tosca.TPlan.PlanModel;
 import org.opentosca.container.core.model.csar.CsarId;
 
 /**
- * This is a subinterface of {@link IPlanEnginePluginService} and specifies
- * handling of PlanModel elements inside a Plan element specified in Topology and Orchestration Specification for Cloud
- * Applications Version 1.0 Chapter 11: Plans.
+ * This is a subinterface of {@link IPlanEnginePluginService} and specifies handling of PlanModel elements inside a Plan
+ * element specified in Topology and Orchestration Specification for Cloud Applications Version 1.0 Chapter 11: Plans.
  * <p>
  * A PlanModel element declares a Plan which is directly written inside ServiceTemplate, for example a bash script. This
  * means the plugin must deploy the script on a appropiate system capable of executing it.

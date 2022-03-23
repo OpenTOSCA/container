@@ -118,7 +118,7 @@ public class SituationTriggerInstanceListener {
             for (final PlanInstanceEvent aEvent : currInstance.getEvents()) {
                 if (Objects.nonNull(aEvent.getOperationName()) && Objects.nonNull(aEvent.getExecutionDuration())
                     && Objects.nonNull(aEvent.getNodeTemplateID()) && oneOperationFromPlan.equals(aEvent.getNodeTemplateID() + aEvent.getOperationName())) {
-                        checkIfCurrentOperationExecutionTimeIsLonger(longestDurationMap, aEvent);
+                    checkIfCurrentOperationExecutionTimeIsLonger(longestDurationMap, aEvent);
                 }
             }
         }

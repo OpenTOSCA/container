@@ -33,9 +33,9 @@ import org.springframework.stereotype.Service;
  * This class implements the interface {@link IPlanEngineService} and provides functionality for deployment/undeployment
  * of plans.
  * <p>
- * Plugins which implement the interfaces {@link IPlanEnginePlanModelPluginService}
- * and {@link IPlanEnginePlanRefPluginService} are discovered and injected
- * through Spring. The plans (of class TPlan) are delegated to the compatible plugin for deployment/undeployment.
+ * Plugins which implement the interfaces {@link IPlanEnginePlanModelPluginService} and {@link
+ * IPlanEnginePlanRefPluginService} are discovered and injected through Spring. The plans (of class TPlan) are delegated
+ * to the compatible plugin for deployment/undeployment.
  * <p>
  * Where the plans are deployed is business of the respective plugins. There should always be only one plugin for plans
  * written in the same language.

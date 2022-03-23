@@ -320,9 +320,9 @@ public class SituationTriggerRegistration {
     }
 
     private Map<String, String> getPropertiesSafely(final TServiceTemplate serviceTemplate) {
-                if (serviceTemplate.getBoundaryDefinitions() != null && serviceTemplate.getBoundaryDefinitions().getProperties() != null && !ModelUtils.asMap(serviceTemplate.getBoundaryDefinitions().getProperties()).isEmpty()) {
-                    return ModelUtils.asMap(serviceTemplate.getBoundaryDefinitions().getProperties());
-                }
+        if (serviceTemplate.getBoundaryDefinitions() != null && serviceTemplate.getBoundaryDefinitions().getProperties() != null && !ModelUtils.asMap(serviceTemplate.getBoundaryDefinitions().getProperties()).isEmpty()) {
+            return ModelUtils.asMap(serviceTemplate.getBoundaryDefinitions().getProperties());
+        }
         return null;
     }
 

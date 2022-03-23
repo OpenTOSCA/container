@@ -95,7 +95,7 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
             if (impl.getImplementationArtifacts() != null) {
                 for (TImplementationArtifact implArtifact : impl.getImplementationArtifacts()) {
                     if (implArtifact.getInterfaceName().equals(iface.getName()) && implArtifact.getArtifactType().equals(Types.scriptArtifactType)) {
-                            return true;
+                        return true;
                     }
                 }
             }

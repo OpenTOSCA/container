@@ -158,7 +158,6 @@ public class ScalingPlanDefinition {
             // if target is not in the nodesToScale list => relation crosses
             // border
             return target;
-
         }
 
         return null;

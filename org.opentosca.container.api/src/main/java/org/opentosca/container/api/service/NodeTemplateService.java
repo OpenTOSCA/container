@@ -153,7 +153,7 @@ public class NodeTemplateService {
                 try {
                     return createNodeTemplate(toscaNodeTemplate, csar);
                 } catch (NotFoundException e) {
-                    logger.error("Couldn't create NodeTemplate" , e);
+                    logger.error("Couldn't create NodeTemplate", e);
                     return null;
                 }
             })

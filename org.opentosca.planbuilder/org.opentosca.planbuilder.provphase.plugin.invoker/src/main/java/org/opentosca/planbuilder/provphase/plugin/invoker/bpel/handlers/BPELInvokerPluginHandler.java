@@ -53,11 +53,11 @@ public class BPELInvokerPluginHandler {
     private final DocumentBuilder docBuilder;
 
     public BPELInvokerPluginHandler() throws ParserConfigurationException {
-            this.resHandler = new ResourceHandler();
-            this.bpelFrags = new BPELProcessFragments();
-            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-            docFactory.setNamespaceAware(true);
-            this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        this.resHandler = new ResourceHandler();
+        this.bpelFrags = new BPELProcessFragments();
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        docFactory.setNamespaceAware(true);
+        this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
     public void appendLOGMessageActivity(final BPELPlanContext context, final String message,
@@ -264,7 +264,7 @@ public class BPELInvokerPluginHandler {
         final String requestVariableName =
             invokerPortType.getLocalPart() + InputMessageId.getLocalPart() + "Request" + context.getIdForNames();
         context.addVariable(requestVariableName, BPELPlan.VariableType.MESSAGE, InputMessageId);
-    final String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageId.getLocalPart()
+        final String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageId.getLocalPart()
             + "Response" + context.getIdForNames();
         context.addVariable(responseVariableName, BPELPlan.VariableType.MESSAGE, OutputMessageId);
 

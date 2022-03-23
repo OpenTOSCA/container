@@ -384,7 +384,7 @@ public class OdeConnector {
                         if (addList != null && addList.getLength() > 0 && addList.item(0).getFirstChild() != null) {
                             // By default there should be only one address element, therefore we take the
                             // first node
-                                return addList.item(0).getFirstChild().getNodeValue();
+                            return addList.item(0).getFirstChild().getNodeValue();
                         }
                     }
 

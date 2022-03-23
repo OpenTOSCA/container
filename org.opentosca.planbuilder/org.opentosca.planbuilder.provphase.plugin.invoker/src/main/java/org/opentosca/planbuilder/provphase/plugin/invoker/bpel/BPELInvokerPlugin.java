@@ -51,9 +51,8 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
     private static final Logger LOG = LoggerFactory.getLogger(BPELInvokerPlugin.class);
     private static final String PLUGIN_ID = "OpenTOSCA ProvPhase Plugin for the ServiceInvoker v0.1";
-
-    private  BPELInvokerPluginHandler handler;
     private final BPELNotifyHandler choreohandler = new BPELNotifyHandler();
+    private BPELInvokerPluginHandler handler;
 
     public BPELInvokerPlugin() {
         try {

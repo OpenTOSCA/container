@@ -116,7 +116,9 @@ public class OperationChain {
     }
 
     /**
-     * Checks whether this operation chain is valid, in the sense code generation is possible and there is an IA which implements the operations in the chain
+     * Checks whether this operation chain is valid, in the sense code generation is possible and there is an IA which
+     * implements the operations in the chain
+     *
      * @return true if there is a plugin which can generate code for the operations and there are IA implementing them
      */
     public boolean isValid() {

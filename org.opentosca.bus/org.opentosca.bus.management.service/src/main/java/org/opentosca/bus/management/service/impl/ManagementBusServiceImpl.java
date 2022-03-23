@@ -1272,7 +1272,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             } catch (final URISyntaxException e) {
                 e.printStackTrace();
             }
-
         }
 
         return endpoint;

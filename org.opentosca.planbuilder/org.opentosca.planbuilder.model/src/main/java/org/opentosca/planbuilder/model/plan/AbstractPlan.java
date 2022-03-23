@@ -135,7 +135,7 @@ public abstract class AbstractPlan {
         for (final AbstractActivity activity : this.activites) {
 
             if (activity instanceof NodeTemplateActivity && ((NodeTemplateActivity) activity).getNodeTemplate().equals(nodeTemplate)) {
-                    foundActivities.add(activity);
+                foundActivities.add(activity);
             }
         }
         return foundActivities;
@@ -146,7 +146,7 @@ public abstract class AbstractPlan {
         for (final AbstractActivity activity : this.activites) {
 
             if (activity instanceof RelationshipTemplateActivity && ((RelationshipTemplateActivity) activity).getRelationshipTemplate().equals(relationshipTemplate)) {
-                    foundActivities.add(activity);
+                foundActivities.add(activity);
             }
         }
         return foundActivities;

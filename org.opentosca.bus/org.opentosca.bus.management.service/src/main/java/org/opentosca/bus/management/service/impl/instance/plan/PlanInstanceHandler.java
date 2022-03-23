@@ -52,6 +52,18 @@ public class PlanInstanceHandler {
     }
 
     /**
+     * Parse the REST response returned by Camunda BPMN
+     *
+     * @param responseBody the body of the response
+     * @return the Camunda instance ID identifying the plan instance
+     */
+    private static String parseRESTResponse(final Object responseBody) {
+        final String resp = (String) responseBody;
+        final String instanceID = resp.substring(resp.indexOf("href\":\"") + 7);
+        return instanceID.substring(instanceID.lastIndexOf("/") + 1, instanceID.indexOf("\""));
+    }
+
+    /**
      * Create a unique correlation ID based on the current time.
      *
      * @return the unique correlation ID
@@ -63,7 +75,6 @@ public class PlanInstanceHandler {
         do {
             correlationId = String.valueOf(System.currentTimeMillis()) + Math.random();
             instance = planRepo.findByCorrelationId(correlationId);
-
         } while (instance != null);
         return correlationId;
     }
@@ -168,18 +179,6 @@ public class PlanInstanceHandler {
 
         // update the repo with the changed plan instance
         planRepo.save(plan);
-    }
-
-    /**
-     * Parse the REST response returned by Camunda BPMN
-     *
-     * @param responseBody the body of the response
-     * @return the Camunda instance ID identifying the plan instance
-     */
-    private static String parseRESTResponse(final Object responseBody) {
-        final String resp = (String) responseBody;
-        final String instanceID = resp.substring(resp.indexOf("href\":\"") + 7);
-        return instanceID.substring(instanceID.lastIndexOf("/") + 1, instanceID.indexOf("\""));
     }
 
     /**

@@ -250,8 +250,8 @@ public class ODEEndpointUpdater {
             }
             final int pos = file.getName().lastIndexOf('.');
             if (pos > 0 && pos < file.getName().length() - 1 && file.getName().substring(pos + 1).equals("wsdl")) {
-                    LOG.debug("Adding .wsdl file {} ", file.getName());
-                    tempFiles.add(file);
+                LOG.debug("Adding .wsdl file {} ", file.getName());
+                tempFiles.add(file);
             }
         }
         return tempFiles;
@@ -409,7 +409,7 @@ public class ODEEndpointUpdater {
             for (final Object obj : service.getPorts().values()) {
                 final Port port = (Port) obj;
                 if (port.getBinding().getPortType().getQName().equals(portType) && changePortAddressWithBpelEngineEndpoints(service, port)) {
-                        changed = true;
+                    changed = true;
                 }
             }
         }

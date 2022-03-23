@@ -73,7 +73,6 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
         do {
             correlationId = String.valueOf(System.currentTimeMillis()) + Math.random();
             instance = planRepo.findByChoreographyCorrelationId(correlationId);
-
         } while (instance != null);
         return correlationId;
     }
@@ -85,7 +84,6 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
         do {
             correlationId = String.valueOf(System.currentTimeMillis()) + Math.random();
             instance = planRepo.findByCorrelationId(correlationId);
-
         } while (instance != null);
         return correlationId;
     }

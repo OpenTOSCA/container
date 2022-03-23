@@ -219,7 +219,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
-            if (ModelUtils.findServiceTemplateOperation(definitions,OpenTOSCA_LifecycleInterface, OpenTOSCA_BuildPlanOperation) == null) {
+            if (ModelUtils.findServiceTemplateOperation(definitions, OpenTOSCA_LifecycleInterface, OpenTOSCA_BuildPlanOperation) == null) {
                 LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan",
                     serviceTemplate.getId());
                 final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
