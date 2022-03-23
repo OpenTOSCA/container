@@ -166,4 +166,13 @@ public class SituationTrigger extends PersistenceObject {
     public void setEventTime(final String eventTime) {
         this.eventTime = eventTime;
     }
+
+    public long getTimeAvailableInSeconds() {
+        return timeAvailableInSeconds;
+    }
+
+    public void setTimeAvailableInSeconds(long timeAvailableInSeconds) {
+        this.timeAvailableInSeconds = timeAvailableInSeconds;
+    }
+
 }

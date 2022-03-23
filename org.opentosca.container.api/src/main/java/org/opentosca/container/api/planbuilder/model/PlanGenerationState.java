@@ -19,10 +19,8 @@ public class PlanGenerationState {
 
     @XmlElement
     private final URL csarUrl;
-    private final CsarId csarId = null;
     @XmlElement
     private final URL planPostUrl;
-    private final File planTmpFile = null;
     @XmlElement
     public String currentMessage = "Task is initializing";
     @XmlElement

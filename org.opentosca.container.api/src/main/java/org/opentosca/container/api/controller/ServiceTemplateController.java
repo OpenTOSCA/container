@@ -61,9 +61,6 @@ public class ServiceTemplateController {
     private UriInfo uriInfo;
 
     @Context
-    private Request request;
-
-    @Context
     private ResourceContext resourceContext;
 
     @Inject

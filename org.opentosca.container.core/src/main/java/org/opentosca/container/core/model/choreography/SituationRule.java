@@ -10,7 +10,7 @@ public class SituationRule {
 
     private final String alternativePartnerName;
 
-    public SituationRule(URL situationRuleUrl, String situationCompliantPartnerName, URL situationCompliantPartnerUrl, String alternativePartnerName, URL alternativePartnerUrl) {
+    public SituationRule(URL situationRuleUrl, String situationCompliantPartnerName, String alternativePartnerName) {
         this.situationRuleUrl = situationRuleUrl;
         this.situationCompliantPartnerName = situationCompliantPartnerName;
         this.alternativePartnerName = alternativePartnerName;
