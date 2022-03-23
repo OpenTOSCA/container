@@ -52,17 +52,12 @@ public class BPELInvokerPluginHandler {
     private final BPELProcessFragments bpelFrags;
     private final DocumentBuilder docBuilder;
 
-    public BPELInvokerPluginHandler() {
-        try {
+    public BPELInvokerPluginHandler() throws ParserConfigurationException {
             this.resHandler = new ResourceHandler();
             this.bpelFrags = new BPELProcessFragments();
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             docFactory.setNamespaceAware(true);
             this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        } catch (final ParserConfigurationException e) {
-            LOG.error("Couldn't initialize ResourceHandler", e);
-            throw new RuntimeException(e);
-        }
     }
 
     public void appendLOGMessageActivity(final BPELPlanContext context, final String message,

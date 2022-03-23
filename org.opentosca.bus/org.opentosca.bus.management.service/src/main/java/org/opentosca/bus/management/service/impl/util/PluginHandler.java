@@ -2,6 +2,7 @@ package org.opentosca.bus.management.service.impl.util;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 

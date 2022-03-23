@@ -269,7 +269,7 @@ public class SituationTriggerInstanceListener {
                     instance.setFinished(true);
                     repo.save(instance);
                 } catch (final InterruptedException e) {
-                    throw new RuntimeException(e);
+                    LOG.error("Thread was interrupted", e);
                 }
             }
         }

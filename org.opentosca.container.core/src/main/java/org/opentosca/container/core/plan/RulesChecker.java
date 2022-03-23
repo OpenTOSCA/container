@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
@@ -75,7 +76,7 @@ public class RulesChecker {
         return propertiesMap;
     }
 
-    boolean check(final Csar csar, final TServiceTemplate serviceTemplate, final List<TParameterDTO> inputParameters) {
+    boolean check(final Csar csar, final TServiceTemplate serviceTemplate, final List<TParameterDTO> inputParameters) throws ParserConfigurationException {
         LOG.debug("Checking Rules");
         List<TServiceTemplate> stWhiteRuleList;
         List<TServiceTemplate> stBlackRuleList;
@@ -93,7 +94,7 @@ public class RulesChecker {
 
     private boolean checkRules(final List<TServiceTemplate> stRuleList, final String ruleType,
                                final TServiceTemplate serviceTemplate,
-                               final List<TParameterDTO> inputParameters) {
+                               final List<TParameterDTO> inputParameters) throws ParserConfigurationException {
 
         for (final TServiceTemplate stRule : stRuleList) {
 
@@ -283,7 +284,7 @@ public class RulesChecker {
 
     private boolean arePropertiesMatching(final TNodeTemplate relatedNodeTemplate,
                                           final List<TParameterDTO> inputParameters,
-                                          final TNodeTemplate targetRuleNTemplate) {
+                                          final TNodeTemplate targetRuleNTemplate) throws ParserConfigurationException {
         final Document propsDoc = ToscaEngine.getNodeTemplateProperties(relatedNodeTemplate);
 
         final Map<String, String> propertiesMap = getPropertiesFromDoc(propsDoc);

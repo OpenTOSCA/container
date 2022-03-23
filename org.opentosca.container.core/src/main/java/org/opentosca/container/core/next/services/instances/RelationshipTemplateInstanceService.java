@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
@@ -223,8 +224,7 @@ public class RelationshipTemplateInstanceService {
 
         // Properties
         // We set the properties of the template as initial properties
-        final Document propertiesAsDocument =
-            ToscaEngine.getEntityTemplateProperties(relationshipTemplate);
+        final Document propertiesAsDocument = ToscaEngine.getEntityTemplateProperties(relationshipTemplate);
 
         if (propertiesAsDocument != null) {
             final RelationshipTemplateInstanceProperty properties =

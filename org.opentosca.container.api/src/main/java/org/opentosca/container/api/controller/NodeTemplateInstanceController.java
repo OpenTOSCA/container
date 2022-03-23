@@ -19,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.parsers.ParserConfigurationException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -122,10 +123,13 @@ public class NodeTemplateInstanceController {
             final URI instanceURI = UriUtil.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
             return Response.ok(instanceURI).build();
         } catch (final IllegalArgumentException e) {
-            logger.warn("Failed to correctly parse request information for creating a NodeTemplateInstance", e);
+            logger.error("Failed to correctly parse request information for creating a NodeTemplateInstance", e);
             return Response.status(Status.BAD_REQUEST).build();
         } catch (InstantiationException | IllegalAccessException e) {
-            logger.warn("Failed to create new NodeTemplateInstance with exception.", e);
+            logger.error("Failed to create new NodeTemplateInstance with exception.", e);
+            return Response.serverError().build();
+        } catch (ParserConfigurationException e) {
+            logger.error("Failed to create new NodeTemplateInstance with exception.", e);
             return Response.serverError().build();
         }
     }
