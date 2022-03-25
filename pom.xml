@@ -25,6 +25,7 @@
         <springboot.version>2.5.9</springboot.version>
         <swagger.version>1.5.24</swagger.version>
         <tomcat.version>9.0.43</tomcat.version>
+        <winery.version>ustutt-SNAPSHOT</winery.version>
     </properties>
 
     <repositories>
