@@ -15,12 +15,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.opentosca.winery</groupId>
+            <groupId>${winery.groupid}</groupId>
             <artifactId>org.eclipse.winery.model.tosca.canonical</artifactId>
             <version>${winery.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.opentosca.winery</groupId>
+            <groupId>${winery.groupid}</groupId>
             <artifactId>org.eclipse.winery.repository</artifactId>
             <version>${winery.version}</version>
             <exclusions>
