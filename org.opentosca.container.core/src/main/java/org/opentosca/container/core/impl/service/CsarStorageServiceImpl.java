@@ -203,6 +203,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         LOGGER.debug("Deleting CSAR \"{}\"...", csarId.csarName());
         FileUtils.forceDelete(basePath.resolve(csarId.csarName()));
         LOGGER.info("Deleted CSAR \"{}\"...", csarId.csarName());
+        this.csarImpls.remove(csarId);
     }
 
     @Override
@@ -220,6 +221,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         } catch (IOException e) {
             throw new SystemException("Could not delete all CSARs.", e);
         }
+        this.csarImpls.clear();
     }
 
     @Override
