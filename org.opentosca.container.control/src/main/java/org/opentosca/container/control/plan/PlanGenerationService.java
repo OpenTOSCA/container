@@ -47,11 +47,6 @@ public class PlanGenerationService {
      * @return true for success or false for failure
      */
     public boolean generatePlans(final Csar csar) throws SystemException, UserException {
-        Optional<Path> zipFile = safeExport(csar);
-        if (zipFile.isEmpty()) {
-            return false;
-        }
-
         final List<AbstractPlan> plans = planBuilderImporter.generatePlans(csar);
         // no plans, save ourselves some work by returning early
         if (plans.isEmpty()) {
