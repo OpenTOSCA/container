@@ -19,9 +19,12 @@ import java.util.stream.Collectors;
 
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.common.configuration.FileBasedRepositoryConfiguration;
+import org.eclipse.winery.common.configuration.RepositoryConfigurationObject;
 import org.eclipse.winery.model.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
+import org.eclipse.winery.repository.backend.filebased.GitBasedRepository;
 import org.eclipse.winery.repository.importing.CsarImportOptions;
 import org.eclipse.winery.repository.importing.CsarImporter;
 import org.eclipse.winery.repository.importing.ImportMetaInformation;
@@ -147,7 +150,10 @@ public class CsarStorageServiceImpl implements CsarStorageService {
                 // That configuration must not be changed in a different thread during the import process
                 RepositoryFactory.reconfigure(new FileBasedRepositoryConfiguration(permanentLocation));
 
-                CsarImporter importer = new CsarImporter(RepositoryFactory.getRepository());
+
+                IRepository repository = RepositoryFactory.getRepository();
+
+                CsarImporter importer = new CsarImporter(repository);
                 final CsarImportOptions importOptions = new CsarImportOptions();
                 importOptions.setValidate(false); // avoid triggering accountability meddling with this
                 importOptions.setAsyncWPDParsing(true);
@@ -155,9 +161,15 @@ public class CsarStorageServiceImpl implements CsarStorageService {
                 try {
                     importInfo = importer.readCSAR(Files.newInputStream(csarLocation), importOptions);
                 } catch (NullPointerException e) {
+                    FileBasedRepositoryConfiguration configuration = new FileBasedRepositoryConfiguration();
+                    configuration.setRepositoryPath(permanentLocation);
+                    configuration.setRepositoryProvider(RepositoryConfigurationObject.RepositoryProvider.YAML);
+                    repository = RepositoryFactory.getRepository(configuration);
+
                     // brutal hack
-                    YamlCsarImporter yamlCsarImporter = new YamlCsarImporter(new YamlRepository(permanentLocation));
+                    YamlCsarImporter yamlCsarImporter = new YamlCsarImporter((YamlRepository) repository);
                     importInfo = yamlCsarImporter.readCSAR(Files.newInputStream(csarLocation), importOptions);
+                    candidateId.setLanguage("YAML");
                 }
             }
             if (!importInfo.errors.isEmpty()) {
@@ -212,6 +224,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         LOGGER.debug("Deleting CSAR \"{}\"...", csarId.csarName());
         FileUtils.forceDelete(basePath.resolve(csarId.csarName()));
         LOGGER.info("Deleted CSAR \"{}\"...", csarId.csarName());
+        this.csarImpls.remove(csarId);
     }
 
     @Override
@@ -229,6 +242,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         } catch (IOException e) {
             throw new SystemException("Could not delete all CSARs.", e);
         }
+        this.csarImpls.clear();
     }
 
     @Override

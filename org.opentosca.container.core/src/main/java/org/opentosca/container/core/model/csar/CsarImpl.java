@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
+import org.eclipse.winery.common.configuration.FileBasedRepositoryConfiguration;
+import org.eclipse.winery.common.configuration.RepositoryConfigurationObject;
 import org.eclipse.winery.model.ids.definitions.ArtifactTemplateId;
 import org.eclipse.winery.model.ids.definitions.ArtifactTypeId;
 import org.eclipse.winery.model.ids.definitions.DefinitionsChildId;
@@ -90,7 +92,16 @@ public class CsarImpl implements Csar {
     public CsarImpl(@NonNull CsarId id, @NonNull Path location) {
         this.id = id;
         this.location = location;
-        this.wineryRepo = RepositoryFactory.getRepository(location);
+
+        if (id.csarLanguage().equals("XML")) {
+            this.wineryRepo = RepositoryFactory.getRepository(location);
+        } else {
+            FileBasedRepositoryConfiguration configuration = new FileBasedRepositoryConfiguration();
+            configuration.setRepositoryPath(location);
+            configuration.setRepositoryProvider(RepositoryConfigurationObject.RepositoryProvider.YAML);
+            this.wineryRepo = RepositoryFactory.getRepository(configuration);
+        }
+
         this.loadContents();
     }
 
