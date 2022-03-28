@@ -223,7 +223,7 @@ public class BPELUbuntuVmTypePluginHandler {
         }
 
         if (instanceIdPropWrapper == null) {
-            BPELUbuntuVmTypePluginHandler.LOG.warn("Ubuntu Node doesn't have InstanceId property, altough it has the proper NodeType");
+            LOG.warn("Ubuntu Node doesn't have InstanceId property, although it has the proper NodeType");
             return false;
         }
 
@@ -236,7 +236,7 @@ public class BPELUbuntuVmTypePluginHandler {
         }
 
         if (serverIpPropWrapper == null) {
-            BPELUbuntuVmTypePluginHandler.LOG.warn("Ubuntu Node doesn't have ServerIp property, altough it has the proper NodeType");
+            LOG.warn("Ubuntu Node doesn't have ServerIp property, although it has the proper NodeType");
             return false;
         }
 
@@ -252,7 +252,7 @@ public class BPELUbuntuVmTypePluginHandler {
         } else {
             if (PluginUtils.isVariableValueEmpty(sshUserVariable)) {
                 // the property isn't set in the topology template -> we set it
-                // null here so it will be handled as an external parameter
+                // null here, so it will be handled as an external parameter
                 sshUserVariable = null;
             }
         }
@@ -314,15 +314,15 @@ public class BPELUbuntuVmTypePluginHandler {
             // if the variable is still null, something was not specified
             // properly
             if (variable == null) {
-                BPELUbuntuVmTypePluginHandler.LOG.warn("Didn't find  property variable for parameter "
+                LOG.warn("Didn't find  property variable for parameter "
                     + externalParameter);
                 return false;
             } else {
-                BPELUbuntuVmTypePluginHandler.LOG.debug("Found property variable " + externalParameter);
+                LOG.debug("Found property variable " + externalParameter);
             }
 
             if (PluginUtils.isVariableValueEmpty(variable)) {
-                BPELUbuntuVmTypePluginHandler.LOG.debug("Variable value is empty, adding to plan input");
+                LOG.debug("Variable value is empty, adding to plan input");
                 createEC2InternalExternalPropsInput.put(externalParameter, null);
             } else {
                 createEC2InternalExternalPropsInput.put(externalParameter, variable);
@@ -444,7 +444,7 @@ public class BPELUbuntuVmTypePluginHandler {
         }
 
         if (instanceIdPropWrapper == null) {
-            BPELUbuntuVmTypePluginHandler.LOG.warn("Ubuntu Node doesn't have InstanceId property, altough it has the proper NodeType");
+            LOG.warn("Ubuntu Node doesn't have InstanceId property, altough it has the proper NodeType");
             return false;
         }
 
@@ -460,7 +460,7 @@ public class BPELUbuntuVmTypePluginHandler {
         }
 
         if (serverIpPropWrapper == null) {
-            BPELUbuntuVmTypePluginHandler.LOG.warn("Ubuntu Node doesn't have ServerIp property, altough it has the proper NodeType");
+            LOG.warn("Ubuntu Node doesn't have ServerIp property, altough it has the proper NodeType");
             return false;
         }
 
@@ -528,9 +528,9 @@ public class BPELUbuntuVmTypePluginHandler {
         final Map<String, Variable> createEC2InternalExternalPropsInput = new HashMap<>();
 
         /*
-         * In the following part we take the know property names and try to match them unto the topology. If
-         * we found one property and it's set with a value it will be used without any problems. If the
-         * property is found but not set we will set an input param and take the value from planinput.
+         * In the following part we take the known property names and try to match them unto the topology. If
+         * we found one property, and it's set with a value, it will be used without any problems. If the
+         * property is found but not set, we will set an input param and take the value from planinput.
          * Everything else aborts this method
          */
 
@@ -551,18 +551,32 @@ public class BPELUbuntuVmTypePluginHandler {
                 continue;
             }
 
+            // quick fix... we should definitely rewrite this to a pattern-based handler and use required inputs
+            if (variable == null && externalParameter.trim().equalsIgnoreCase("HypervisorUserName")) {
+                variable = context.getPropertyVariable("HypervisorApplicationID", true);
+            }
+            if (variable == null && externalParameter.trim().equalsIgnoreCase("HypervisorUserPassword")) {
+                variable = context.getPropertyVariable("HypervisorApplicationSecret", true);
+            }
+            if (variable == null && externalParameter.trim().equalsIgnoreCase("HypervisorTenantID")
+                && context.getPropertyVariable("HypervisorApplicationID", true) != null
+                && context.getPropertyVariable("HypervisorApplicationSecret", true) != null) {
+                // In this case, the tenant ID is implicitly set as the app ID and secret are bound a specific tenant
+                continue;
+            }
+
             // if the variable is still null, something was not specified
             // properly
             if (variable == null) {
-                BPELUbuntuVmTypePluginHandler.LOG.warn("Didn't find  property variable for parameter "
+                LOG.error("Didn't find  property variable for parameter "
                     + externalParameter);
                 return false;
             } else {
-                BPELUbuntuVmTypePluginHandler.LOG.debug("Found property variable " + externalParameter);
+                LOG.debug("Found property variable " + externalParameter);
             }
 
             if (PluginUtils.isVariableValueEmpty(variable)) {
-                BPELUbuntuVmTypePluginHandler.LOG.debug("Variable value is empty, adding to plan input");
+                LOG.debug("Variable value is empty, adding to plan input");
 
                 // add the new property name to input
                 context.addStringValueToPlanRequest(externalParameter);
@@ -748,13 +762,13 @@ public class BPELUbuntuVmTypePluginHandler {
         final TNodeTemplate ubuntuNodeTemplate = findUbuntuNode(nodeTemplate, context.getCsar());
 
         if (ubuntuNodeTemplate == null) {
-            BPELUbuntuVmTypePluginHandler.LOG.error("Couldn't find Ubuntu Node");
+            LOG.error("Couldn't find Ubuntu Node");
             return false;
         }
 
         final Variable ubuntuAMIIdVar = getUbtuntuAMIId(context, ubuntuNodeTemplate);
 
-        BPELUbuntuVmTypePluginHandler.LOG.debug("Found following Ubuntu Node " + ubuntuNodeTemplate.getId()
+        LOG.debug("Found following Ubuntu Node " + ubuntuNodeTemplate.getId()
             + " of Type " + ubuntuNodeTemplate.getType().toString());
 
         Variable instanceIdPropWrapper = null;
@@ -771,7 +785,7 @@ public class BPELUbuntuVmTypePluginHandler {
         }
 
         if (instanceIdPropWrapper == null) {
-            BPELUbuntuVmTypePluginHandler.LOG.warn("Ubuntu Node doesn't have InstanceId property, altough it has the proper NodeType");
+            LOG.warn("Ubuntu Node doesn't have InstanceId property, altough it has the proper NodeType");
             return false;
         }
 
@@ -787,7 +801,7 @@ public class BPELUbuntuVmTypePluginHandler {
         }
 
         if (serverIpPropWrapper == null) {
-            BPELUbuntuVmTypePluginHandler.LOG.warn("Ubuntu Node doesn't have ServerIp property, altough it has the proper NodeType");
+            LOG.warn("Ubuntu Node doesn't have ServerIp property, altough it has the proper NodeType");
             return false;
         }
 
@@ -809,7 +823,7 @@ public class BPELUbuntuVmTypePluginHandler {
             if (PluginUtils.isVariableValueEmpty(sshUserVariable)) {
                 // the property isn't set in the topology template -> we set it
                 // null here so it will be handled as an external parameter
-                BPELUbuntuVmTypePluginHandler.LOG.debug("Adding sshUser field to plan input");
+                LOG.debug("Adding sshUser field to plan input");
                 // add the new property name (not sshUser)
                 context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
                 // add an assign from input to internal property variable
@@ -835,7 +849,7 @@ public class BPELUbuntuVmTypePluginHandler {
         } else {
             if (PluginUtils.isVariableValueEmpty(sshKeyVariable)) {
                 // see sshUserVariable..
-                BPELUbuntuVmTypePluginHandler.LOG.debug("Adding sshKey field to plan input");
+                LOG.debug("Adding sshKey field to plan input");
                 context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
                 context.addAssignFromInput2VariableToMainAssign(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD,
                     sshKeyVariable);
@@ -845,11 +859,11 @@ public class BPELUbuntuVmTypePluginHandler {
         // adds field into plan input message to give the plan it's own address
         // for the invoker PortType (callback etc.). This is needed as WSO2 BPS
         // 2.x can't give that at runtime (bug)
-        BPELUbuntuVmTypePluginHandler.LOG.debug("Adding plan callback address field to plan input");
+        LOG.debug("Adding plan callback address field to plan input");
         context.addStringValueToPlanRequest("planCallbackAddress_invoker");
 
         // add csarEntryPoint to plan input message
-        BPELUbuntuVmTypePluginHandler.LOG.debug("Adding csarEntryPoint field to plan input");
+        LOG.debug("Adding csarEntryPoint field to plan input");
         context.addStringValueToPlanRequest("csarEntrypoint");
 
         final Map<String, Variable> createEC2InternalExternalPropsInput = new HashMap<>();
@@ -885,15 +899,15 @@ public class BPELUbuntuVmTypePluginHandler {
             // if the variable is still null, something was not specified
             // properly
             if (variable == null) {
-                BPELUbuntuVmTypePluginHandler.LOG.warn("Didn't find  property variable for parameter "
+                LOG.warn("Didn't find  property variable for parameter "
                     + externalParameter);
                 return false;
             } else {
-                BPELUbuntuVmTypePluginHandler.LOG.debug("Found property variable " + externalParameter);
+                LOG.debug("Found property variable " + externalParameter);
             }
 
             if (PluginUtils.isVariableValueEmpty(variable)) {
-                BPELUbuntuVmTypePluginHandler.LOG.debug("Variable value is empty, adding to plan input");
+                LOG.debug("Variable value is empty, adding to plan input");
 
                 // add the new property name to input
                 context.addStringValueToPlanRequest(externalParameter);
