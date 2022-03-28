@@ -6,6 +6,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.common.version.VersionUtils;
+import org.eclipse.winery.model.ids.definitions.NodeTypeId;
 
 public class Utils {
 
@@ -84,6 +85,7 @@ public class Utils {
     }
 
     public static boolean isCloudProvider(QName nodeType) {
+        NodeTypeId nodeTypeId = new NodeTypeId(nodeType);
         return nodeType.equals(Types.amazonEc2NodeType)
             || nodeType.equals(Types.vmWareVsphere55NodeType)
             || nodeType.equals(Types.openStackLiberty12NodeType)
@@ -94,6 +96,9 @@ public class Utils {
                 && (nodeType.getLocalPart().startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())
                 || nodeType.getLocalPart().startsWith(Types.openStackTrainNodeType.getLocalPart())
                 || nodeType.getLocalPart().startsWith(Types.openStackTrainNodeType_legacy.getLocalPart()))
+                || nodeTypeId.getNameWithoutVersion().equalsIgnoreCase("OpenStack")
+                || nodeTypeId.getNameWithoutVersion().equalsIgnoreCase("AmazonEC2")
+
         );
     }
 
@@ -186,7 +191,7 @@ public class Utils {
      * PlanBuilder
      *
      * @param nodeType a QName denoting some nodeType
-     * @return a boolean. True if given nodeType is a virtual machine nodeType
+     * @return true if the given nodeType is a virtual machine nodeType
      */
     public static boolean isSupportedVMNodeType(final QName nodeType) {
         return nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2) || (
