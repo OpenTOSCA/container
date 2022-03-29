@@ -617,7 +617,7 @@ public abstract class ModelUtils {
             TNodeType referencedNodeType = null;
 
             if (lastFoundNodeType.getDerivedFrom() != null) {
-                referencedNodeType = findNodeType(lastFoundNodeType.getDerivedFrom().getTypeRef(), fetchAllNodeTypes(csar));
+                referencedNodeType = findNodeType(lastFoundNodeType.getDerivedFrom().getTypeRef(), csar.nodeTypes());
             }
 
             if (referencedNodeType == null) {
@@ -641,7 +641,7 @@ public abstract class ModelUtils {
     }
 
     public static TNodeType findNodeType(QName id, Csar csar) {
-        return findNodeType(id, fetchAllNodeTypes(csar));
+        return findNodeType(id, csar.nodeTypes());
     }
 
     public static TNodeType findNodeType(QName id, Collection<TNodeType> nodeTypes) {
@@ -650,13 +650,6 @@ public abstract class ModelUtils {
         }
 
         return nodeTypes.stream().filter(x -> x.getQName().equals(id)).findFirst().orElse(null);
-    }
-
-    public static Collection<TNodeType> fetchAllNodeTypes(Csar csar) {
-
-        Set<TNodeType> resultSet = Sets.newHashSet();
-        csar.definitions().forEach(x -> resultSet.addAll(x.getNodeTypes()));
-        return resultSet;
     }
 
     public static List<TRelationshipTemplate> getOutgoingInfrastructureEdges(final TNodeTemplate nodeTemplate, Csar csar) {
@@ -735,7 +728,7 @@ public abstract class ModelUtils {
         while (wasNotNull) {
             TRelationshipType referencedRelationshipType = null;
             if (lastFoundRelationshipType.getDerivedFrom() != null) {
-                referencedRelationshipType = findRelationshipType(lastFoundRelationshipType.getDerivedFrom().getType(), fetchAllRelationshipTypes(csar));
+                referencedRelationshipType = findRelationshipType(lastFoundRelationshipType.getDerivedFrom().getType(), csar.relationshipTypes());
             }
             if (referencedRelationshipType == null) {
                 wasNotNull = false;
@@ -756,18 +749,11 @@ public abstract class ModelUtils {
     }
 
     public static TRelationshipType findRelationshipType(QName id, Csar csar) {
-        return findRelationshipType(id, fetchAllRelationshipTypes(csar));
+        return findRelationshipType(id, csar.relationshipTypes());
     }
 
     public static TRelationshipType findRelationshipType(QName id, Collection<TRelationshipType> relTypes) {
         return relTypes.stream().filter(x -> x.getQName().equals(id)).findFirst().orElse(null);
-    }
-
-    public static Collection<TRelationshipType> fetchAllRelationshipTypes(Csar csar) {
-
-        Set<TRelationshipType> resultSet = Sets.newHashSet();
-        csar.definitions().forEach(x -> resultSet.addAll(x.getRelationshipTypes()));
-        return resultSet;
     }
 
     /**
