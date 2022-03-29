@@ -95,18 +95,6 @@ public class PlanGenerationService {
         return plans;
     }
 
-    private Optional<Path> safeExport(Csar csar) {
-        Optional<Path> zipFile = Optional.empty();
-        try {
-            zipFile = Optional.of(storage.exportCSAR(csar.id()));
-        } catch (UserException | SystemException e) {
-            logger.info("Exporting the Csar that is to be planned failed with an exception", e);
-            zipFile.ifPresent(FileUtils::forceDelete);
-            return Optional.empty();
-        }
-        return zipFile;
-    }
-
     public class AdaptationPlanGenerationResult {
         public CsarId csarId;
         public String planId;

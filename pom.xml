@@ -27,7 +27,7 @@
         <tomcat.version>9.0.43</tomcat.version>
         <winery.groupid>com.github.opentosca.winery</winery.groupid>
         <winery.version>ustutt-SNAPSHOT</winery.version>
-        <!-- 
+        <!--
             If you need to debug/fix something in regards to winery you can debug your changes in the following way:
             Change the following properties:
             <winery.groupid>org.eclipse.winery</winery.groupid>
