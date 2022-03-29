@@ -3,21 +3,13 @@ package org.opentosca.container.core.model.csar;
 public class CsarId implements Comparable<CsarId> {
 
     private final String name;
-    private String language;
 
     public CsarId(String name) {
         this.name = name;
-        this.language = "XML";
     }
 
     public String csarName() {
         return name;
-    }
-
-    public String csarLanguage() { return language; }
-
-    public void setLanguage(String language) {
-        this.language = language;
     }
 
     @Override

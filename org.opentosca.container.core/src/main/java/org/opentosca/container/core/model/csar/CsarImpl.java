@@ -71,6 +71,10 @@ public class CsarImpl implements Csar {
     public static final String ENTRY_SERVICE_TEMPLATE_LOCATION = "EntryServiceTemplate";
     private static final Logger LOGGER = LoggerFactory.getLogger(CsarImpl.class);
 
+    public enum CsarImplType {
+        XML, YAML
+    }
+
     @NonNull
     private final CsarId id;
     private Optional<ServiceTemplateId> entryServiceTemplate;
@@ -89,11 +93,12 @@ public class CsarImpl implements Csar {
     private Map<QName, TRelationshipType> relationshipTypes;
     private Map<QName, TRelationshipTypeImplementation> relationshipTypeImplementations;
 
-    public CsarImpl(@NonNull CsarId id, @NonNull Path location) {
+
+    public CsarImpl(@NonNull CsarId id, @NonNull Path location, CsarImplType implType) {
         this.id = id;
         this.location = location;
 
-        if (id.csarLanguage().equals("XML")) {
+        if (implType.equals(CsarImplType.XML)) {
             this.wineryRepo = RepositoryFactory.getRepository(location);
         } else {
             FileBasedRepositoryConfiguration configuration = new FileBasedRepositoryConfiguration();

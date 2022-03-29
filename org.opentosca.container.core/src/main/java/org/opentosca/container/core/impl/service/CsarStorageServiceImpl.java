@@ -99,15 +99,14 @@ public class CsarStorageServiceImpl implements CsarStorageService {
 
     @Override
     public Csar findById(CsarId id) throws NoSuchElementException {
+        return csarImpls.get(id);
+    }
+
+    private void addCsarImpl(CsarId id, CsarImpl.CsarImplType implType) {
         Path predictedSaveLocation = basePath.resolve(id.csarName());
         if (Files.exists(predictedSaveLocation)) {
-            if (!csarImpls.containsKey(id)) {
-                csarImpls.put(id, new CsarImpl(id, predictedSaveLocation));
-            }
-            return csarImpls.get(id);
+            csarImpls.put(id, new CsarImpl(id, predictedSaveLocation, implType));
         }
-        LOGGER.debug("CSAR '{}' could not be found", id.csarName());
-        throw new NoSuchElementException();
     }
 
     @Override
@@ -142,6 +141,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
                 "CSAR \"" + candidateId.csarName() + "\" is already stored. Overwriting a CSAR is not allowed.");
         }
         ImportMetaInformation importInfo = null;
+        CsarImpl.CsarImplType implType = null;
         try {
             Files.createDirectory(permanentLocation);
             synchronized (repositoryFactoryConfigurationMutex) {
@@ -160,6 +160,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
                 importOptions.setOverwrite(false);
                 try {
                     importInfo = importer.readCSAR(Files.newInputStream(csarLocation), importOptions);
+                    implType = CsarImpl.CsarImplType.XML;
                 } catch (NullPointerException e) {
                     FileBasedRepositoryConfiguration configuration = new FileBasedRepositoryConfiguration();
                     configuration.setRepositoryPath(permanentLocation);
@@ -169,7 +170,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
                     // brutal hack
                     YamlCsarImporter yamlCsarImporter = new YamlCsarImporter((YamlRepository) repository);
                     importInfo = yamlCsarImporter.readCSAR(Files.newInputStream(csarLocation), importOptions);
-                    candidateId.setLanguage("YAML");
+                    implType = CsarImpl.CsarImplType.YAML;
                 }
             }
             if (!importInfo.errors.isEmpty()) {
@@ -215,6 +216,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
             LOGGER.warn("Could not save EntryServiceTemplate for Csar [{}] due to {}", candidateId.csarName(), e);
             throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.");
         }
+        this.addCsarImpl(candidateId, implType);
         LOGGER.info("Successfully stored Csar as {}", candidateId.csarName());
         return candidateId;
     }
