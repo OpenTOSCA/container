@@ -238,7 +238,8 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
         boolean handle = true;
 
         List<TNodeTypeImplementation> nodeTypeImplementations = context.getCsar().nodeTypeImplementations().stream()
-            .filter(implementation -> implementation.getNodeType().equals(nodeTemplate.getType()))
+            // FIXME? In Yaml there are no nodeImplementations, it seems like that atleast, but here the code should update some DA if it is at the nodeTemplate right?
+            .filter(implementation -> implementation.getNodeType() != null && implementation.getNodeType().equals(nodeTemplate.getType()))
             .collect(Collectors.toList());
 
         for (TNodeTypeImplementation nodeTypeImplementation : nodeTypeImplementations) {
