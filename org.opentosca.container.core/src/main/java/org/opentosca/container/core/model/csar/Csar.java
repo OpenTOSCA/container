@@ -36,6 +36,8 @@ public interface Csar {
 
     @Nullable TServiceTemplate entryServiceTemplate();
 
+    TDefinitions entryDefinitions();
+
     List<TDefinitions> definitions();
 
     List<TExportedOperation> exportedOperations();
