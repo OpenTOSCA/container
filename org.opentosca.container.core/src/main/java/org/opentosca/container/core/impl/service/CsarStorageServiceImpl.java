@@ -123,7 +123,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     }
 
     @Override
-    public CsarId storeCSAR(Path csarLocation) throws UserException, SystemException {
+    public CsarId storeCSAR(Path csarLocation) throws UserException {
         LOGGER.debug("Given file to store: {}", csarLocation);
         if (!Files.isRegularFile(csarLocation)) {
             throw new UserException(
@@ -199,10 +199,11 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     }
 
     @Override
-    public void deleteCSAR(CsarId csarId) throws SystemException, UserException {
+    public void deleteCSAR(CsarId csarId) {
         LOGGER.debug("Deleting CSAR \"{}\"...", csarId.csarName());
         FileUtils.forceDelete(basePath.resolve(csarId.csarName()));
         LOGGER.info("Deleted CSAR \"{}\"...", csarId.csarName());
+        this.csarImpls.remove(csarId);
     }
 
     @Override
@@ -220,10 +221,11 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         } catch (IOException e) {
             throw new SystemException("Could not delete all CSARs.", e);
         }
+        this.csarImpls.clear();
     }
 
     @Override
-    public Path exportCSAR(final CsarId csarId) throws UserException, SystemException {
+    public Path exportCSAR(final CsarId csarId) throws SystemException {
         LOGGER.debug("Exporting CSAR \"{}\"...", csarId.csarName());
         Csar csar = findById(csarId);
 

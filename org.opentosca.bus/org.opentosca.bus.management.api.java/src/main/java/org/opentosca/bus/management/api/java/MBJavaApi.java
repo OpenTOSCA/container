@@ -204,7 +204,7 @@ public class MBJavaApi implements IManagementBus {
         Csar csar = this.storage.findById(instance.getCsarId());
 
         final TTopologyTemplate topology =
-            Lists.newArrayList(this.importer.getMainDefinitions(csar).getServiceTemplates()).get(0)
+            Lists.newArrayList(csar.entryDefinitions().getServiceTemplates()).get(0)
                 .getTopologyTemplate();
 
         final ServiceTemplateInstanceConfiguration currentConfig =
