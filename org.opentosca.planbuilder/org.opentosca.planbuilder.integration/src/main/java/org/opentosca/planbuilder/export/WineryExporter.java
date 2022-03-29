@@ -33,6 +33,7 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.backend.BackendUtils;
 import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.common.RepositoryFileReference;
+import org.eclipse.winery.repository.datatypes.ids.elements.SelfServiceMetaDataId;
 
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.tika.mime.MediaType;
@@ -89,25 +90,10 @@ public class WineryExporter extends AbstractExporter {
         return exportBPELToCSAR(bpelPlans, csarId, repository, storage);
     }
 
-    private org.eclipse.winery.model.tosca.TDefinitions getEntryDefs(Csar csar, IRepository repo) {
-        Collection<RepositoryFileReference> entryDefRefs = new HashSet<RepositoryFileReference>();
-        entryDefRefs.addAll(repo.getContainedFiles(new ServiceTemplateId(new QName(csar.entryServiceTemplate().getTargetNamespace(), csar.entryServiceTemplate().getId()))));
-        for (RepositoryFileReference ref : entryDefRefs) {
-            if (ref.getFileName().endsWith(".tosca")) {
-                try {
-                    return repo.definitionsFromRef(ref);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return null;
-    }
-
     public PlanExportResult exportBPELToCSAR(final List<BPELPlan> plans, final CsarId csarId, IRepository repository, CsarStorageService storage) {
         Csar csar = storage.findById(csarId);
         Collection<String> exportedBpelPlanIds = new ArrayList<String>();
-        final TDefinitions defs = this.getEntryDefs(csar, repository);
+        final TDefinitions defs = csar.entryDefinitions();
         final TServiceTemplate serviceTemplate = defs.getServiceTemplates().get(0);
         final String csarName = csarId.csarName();
         final Path tempDir = FileSystem.getTemporaryFolder();
@@ -205,7 +191,7 @@ public class WineryExporter extends AbstractExporter {
                                 final Path planInputFile = selfServiceDir.resolve(option.getPlanInputMessageUrl());
                                 if (!Files.exists(planInputFile)) {
                                     // the planinput file is defined in the xml, but no file exists in the csar -> write one
-                                    writePlanInputMessageInstance(plan, planInputFile.toFile());
+                                    writePlanInputMessageInstance(plan, planInputFile.toFile(), repository, serviceTemplate);
                                     exportedPlans.add(plan);
                                 }
                             }
@@ -221,7 +207,7 @@ public class WineryExporter extends AbstractExporter {
 
                             final ApplicationOption option = createApplicationOption(plan, optionCounter);
                             writePlanInputMessageInstance(plan,
-                                selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
+                                selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile(), repository, serviceTemplate);
 
                             appDesc.getOptions().getOption().add(option);
                             optionCounter++;
@@ -237,7 +223,7 @@ public class WineryExporter extends AbstractExporter {
                     for (final BPELPlan plan : plansToExport) {
                         final ApplicationOption option = createApplicationOption(plan, optionCounter);
                         writePlanInputMessageInstance(plan,
-                            selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
+                            selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile(), repository, serviceTemplate);
                         optionCounter++;
                         options.getOption().add(option);
                     }
@@ -266,7 +252,7 @@ public class WineryExporter extends AbstractExporter {
                 for (final BPELPlan plan : plansToExport) {
                     final ApplicationOption option = createApplicationOption(plan, optionCounter);
                     writePlanInputMessageInstance(plan,
-                        selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
+                        selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile(), repository, serviceTemplate);
                     optionCounter++;
                     options.getOption().add(option);
                 }
@@ -275,8 +261,7 @@ public class WineryExporter extends AbstractExporter {
                 final Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
                 wineryAppMarshaller.marshal(appDesc, selfServiceDataXml.toFile());
             }
-
-            FileSystem.zip(repackagedCsar, tempDir);
+            this.putSelfserviceFileToRepo(selfServiceDataXml, repository, serviceTemplate);
         } catch (final IOException e) {
             WineryExporter.LOG.error("Some IO Exception occured", e);
         } catch (final JAXBException e) {
@@ -285,6 +270,12 @@ public class WineryExporter extends AbstractExporter {
 
         WineryExporter.LOG.debug(repackagedCsar.toString());
         return new PlanExportResult(repackagedCsar, exportedBpelPlanIds);
+    }
+
+    private void putSelfserviceFileToRepo(Path selfServiceDataXmlPath, IRepository repo, TServiceTemplate serviceTemplate) throws IOException {
+        SelfServiceMetaDataId metaDataId = new SelfServiceMetaDataId(new ServiceTemplateId(new QName(serviceTemplate.getTargetNamespace(),serviceTemplate.getId())));
+        RepositoryFileReference fileRef = new RepositoryFileReference(metaDataId, selfServiceDataXmlPath.getFileName().toString());
+        repo.putContentToFile(fileRef, Files.newInputStream(selfServiceDataXmlPath), MediaType.APPLICATION_ZIP);
     }
 
     private ApplicationOption createApplicationOption(final BPELPlan plan, final int optionCounter) {
@@ -413,7 +404,7 @@ public class WineryExporter extends AbstractExporter {
         return null;
     }
 
-    private void writePlanInputMessageInstance(final BPELPlan buildPlan, final File xmlFile) throws IOException {
+    private void writePlanInputMessageInstance(final BPELPlan buildPlan, final File xmlFile, IRepository repo, TServiceTemplate serviceTemplate) throws IOException {
         final String messageNs = buildPlan.getWsdl().getTargetNamespace();
         final String requestMessageLocalName = buildPlan.getWsdl().getRequestMessageLocalName();
         final List<String> inputParamNames = buildPlan.getWsdl().getInputMessageLocalNames();
@@ -428,6 +419,11 @@ public class WineryExporter extends AbstractExporter {
         soapMessage += soapMessageSuffix;
 
         Files.write(xmlFile.toPath(), soapMessage.getBytes(StandardCharsets.UTF_8));
+
+
+        SelfServiceMetaDataId metaDataId = new SelfServiceMetaDataId(new ServiceTemplateId(new QName(serviceTemplate.getTargetNamespace(),serviceTemplate.getId())));
+        RepositoryFileReference fileRef = new RepositoryFileReference(metaDataId, xmlFile.toPath().getFileName().toString());
+        repo.putContentToFile(fileRef, Files.newInputStream(xmlFile.toPath()), MediaType.text("xml"));
     }
 
     private String createPrefixPartOfSoapMessage(final String namespace, final String messageBodyRootLocalName) {
