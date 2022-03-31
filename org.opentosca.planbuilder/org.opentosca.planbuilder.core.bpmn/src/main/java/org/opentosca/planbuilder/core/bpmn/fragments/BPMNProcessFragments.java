@@ -317,6 +317,7 @@ public class BPMNProcessFragments {
         return template;
     }
 
+    // TODO: make string as final variable
     public String createNodeOperation(BPMNScope bpmnScope) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateCallNodeOperationScriptTask.xml"));
         LOG.debug("BPMNScope {}", bpmnScope);
@@ -324,7 +325,7 @@ public class BPMNProcessFragments {
         template = template.replaceAll("NameToSet",
             "Call Operation " + bpmnScope.getInputParameter("Operation")
             + " of Interface " + bpmnScope.getInputParameter("Interface")
-            + " in NodeTemplate " + bpmnScope.getInputParameter("NodeTemplate"));
+            + " in NodeTemplate " + bpmnScope.getInputParameter("TargetNodeTemplate"));
         return template;
     }
 

@@ -21,7 +21,7 @@ import java.util.Map;
  * specifically generating Input/Output Parameter for script "CallNodeOperation.groovy"
  * reference in BPEL module: org.opentosca.planbuilder/org.opentosca.planbuilder.type.plugin.dockercontainer
  */
-public class EnginePatternHandler {
+public class EnginePatternHandler extends AbstractHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(EnginePatternHandler.class);
 
@@ -32,6 +32,9 @@ public class EnginePatternHandler {
     public static final String IMAGE_LOCATION = "ImageLocation";
     public static final String SERVICETEMPLATE_GETINPUT = "get_input:";
     public static final String OUTPUT_PARAM_NAMES = "OutputParamNames";
+    public static final String INPUT_PARAM_NAMES = "InputParamNames";
+    public static final String INPUT_PARAM_HOSTNODE_NAME = "HostNodeTemplate";
+    public static final String INPUT_PARAM_TARGETNODE_NAME = "TargetNodeTemplate";
 
     // TODO: implement detail
     public boolean isProvisionableByEnginePattern(TNodeTemplate nodeTemplate, Csar csar) {
@@ -127,7 +130,6 @@ public class EnginePatternHandler {
         // Input parameters of required and optional
         // Step-2-1 get all nodeTemplate property value by property name
 
-
         Map<String, String> containerPropMap = ModelUtils.asMap(nodeTemplate.getProperties());
         Map<String, String> enginePropMap = ModelUtils.asMap(dockerEngineNode.getProperties());
 
@@ -145,32 +147,41 @@ public class EnginePatternHandler {
         // TODO: make input parameter name into constant class
         callNodeOperationTask.addInputparameter("ServiceInstanceID", "${ServiceInstanceURL}");
         callNodeOperationTask.addInputparameter("CsarID", context.getCsar().id().csarName());
-        callNodeOperationTask.addInputparameter("ServiceTemplateID", context.getServiceInstanceIDVarName());
-        callNodeOperationTask.addInputparameter("NodeTemplate", dockerEngineNode.getId());
+        callNodeOperationTask.addInputparameter("ServiceTemplateID", context.getServiceTemplate().getId());
         callNodeOperationTask.addInputparameter("Interface", Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE);
-        callNodeOperationTask.addInputparameter("Operation",Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER);
+        callNodeOperationTask.addInputparameter("Operation", Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER);
+        // host node is for executing the operation
+        callNodeOperationTask.addInputparameter(INPUT_PARAM_HOSTNODE_NAME, dockerEngineNode.getId());
+        // target node is for setting node instance property
+        callNodeOperationTask.addInputparameter(INPUT_PARAM_TARGETNODE_NAME, nodeTemplate.getId());
 
         // volume data handling
         String containerMountPath = containerPropMap.getOrDefault(DockerContainerConstants.PROPERTY_CONTAINER_MOUNT_PATH, null);
 
-        // excluding IMAGE_ID will be handled separately
+        List<String> inputPropList = new ArrayList<>();
+
+        // "ContainerPorts">${ApplicationPort0}/${Protocol0},${ContainerPort0};
+        inputPropList.add(DockerEngineConstants.START_CONTAINER_INPUT_CONTAINER_PORTS);
+        String inputContainerPortsName = INPUT_PREFIX + DockerEngineConstants.START_CONTAINER_INPUT_CONTAINER_PORTS;
+        String inputContainerPortsValue = parsePropertyValueWithGetInput(portVar) + "," + parsePropertyValueWithGetInput(containerPortVar);
+        callNodeOperationTask.addInputparameter(inputContainerPortsName, inputContainerPortsValue);
+
+        // excluding IMAGE_ID, since it will be handled separately
         String[] containerProperties = new String[] {
-            DockerContainerConstants.PROPERTY_CONTAINER_PORT,
-            DockerContainerConstants.PROPERTY_PORT,
             DockerContainerConstants.PROPERTY_SSHPORT, // fetch (optional)
             DockerContainerConstants.PROPERTY_CONTAINER_IP,// fetch (optional)
             DockerContainerConstants.PROPERTY_CONTAINER_ID, // fetch (optional)
             DockerContainerConstants.PROPERTY_CONTAINER_MOUNT_PATH
         };
 
-        this.createInputParameterFromProperties(containerProperties, containerPropMap, callNodeOperationTask);
+        inputPropList.addAll(this.createInputParameterFromProperties(containerProperties, containerPropMap, callNodeOperationTask));
 
         String[] engineProperties = new String[] {
             DockerEngineConstants.PROPERTY_DOCKER_ENGINE_URL,
             DockerEngineConstants.PROPERTY_DOCKER_ENGINE_CERTIFICATE
         };
 
-        this.createInputParameterFromProperties(engineProperties, enginePropMap, callNodeOperationTask);
+        inputPropList.addAll(this.createInputParameterFromProperties(engineProperties, enginePropMap, callNodeOperationTask));
 
         // From Interface/Operation InterfaceDockerEngine/startContainer
         String[] dockerEngineOutput = new String[] {
@@ -179,7 +190,7 @@ public class EnginePatternHandler {
             DockerContainerConstants.PROPERTY_CONTAINER_IP
         };
 
-        this.createOutputParameterFromInterfaceDockerEngine(dockerEngineOutput, callNodeOperationTask);
+        this.createOutputParameterNamesFromProperties(dockerEngineOutput, callNodeOperationTask);
 
         // TODO: implement for volume mount
         /*
@@ -229,44 +240,16 @@ public class EnginePatternHandler {
             }
             callNodeOperationTask.addInputparameter(INPUT_PREFIX + IMAGE_LOCATION,
                 "DA!" + id + "#" + fileName);
+            inputPropList.add(IMAGE_LOCATION);
         // handle with imageID
         } else {
             callNodeOperationTask.addInputparameter(INPUT_PREFIX + DockerContainerConstants.PROPERTY_IMAGE_ID, containerImageVar);
+            inputPropList.add(DockerContainerConstants.PROPERTY_IMAGE_ID);
         }
 
+        collectPropAsInputParameter(inputPropList, callNodeOperationTask);
         return true;
     }
 
-    private void createOutputParameterFromInterfaceDockerEngine(String[] dockerEngineOutput, BPMNScope callNodeOperationTask) {
-        StringBuilder sb = new StringBuilder();
-        for (String outputName : dockerEngineOutput) {
-            // TODO: consider using hashset, since we are not setting output value
-            sb.append(outputName + ",");
-            callNodeOperationTask.addOutputParameter(OUTPUT_PREFIX + outputName, "");
-        }
-
-        // remove last ","
-        sb.deleteCharAt(sb.length() - 1);
-        callNodeOperationTask.addInputparameter(OUTPUT_PARAM_NAMES, sb.toString());
-    }
-
-    private void createInputParameterFromProperties(String[] properties, Map<String, String> propMap, BPMNScope callNodeOperationTask) {
-        for (String propName : properties) {
-            if (propMap.containsKey(propName)) {
-                String inputVariableName = INPUT_PREFIX + propName;
-                String inputVariableValue = parsePropertyValueWithGetInput(propMap.get(propName));
-                // no need to avoid setting empty input
-                callNodeOperationTask.addInputparameter(inputVariableName, inputVariableValue);
-            }
-        }
-    }
-
-    // "get_input: DockerEngineURL" -> "${DockerEngineURL}"
-    private String parsePropertyValueWithGetInput(String propValue) {
-        if (propValue.startsWith(SERVICETEMPLATE_GETINPUT)) {
-            return "${" + propValue.substring(SERVICETEMPLATE_GETINPUT.length()) + "}";
-        }
-        return propValue;
-    }
 
 }

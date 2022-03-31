@@ -1,5 +1,6 @@
 import groovy.json.*
 
+println "======== Executing CreateServiceInstance.groovy with exec ID: ${execution.getId()} ========"
 def post = new URL(execution.getVariable("instanceDataAPIUrl")).openConnection();
 def message = '<correlationID xmlns="http://opentosca.org/api">' + execution.getVariable("CorrelationID") + '</correlationID>';
 post.setRequestMethod("POST");
@@ -10,7 +11,7 @@ post.getOutputStream().write(message.getBytes("UTF-8"));
 
 def status = post.getResponseCode();
 if(status == 200){
-    def resultText = post.getInputStream().getText();    
+    def resultText = post.getInputStream().getText();
     def slurper = new JsonSlurper();
     def json = slurper.parseText(resultText);
     def message2 = execution.getVariable("State");
@@ -28,6 +29,7 @@ if(status == 200){
             throw new org.camunda.bpm.engine.delegate.BpmnError("InvalidStatusCode");
         }
     }
+    println "ServiceInstanceURL: $json";
     return json;
 }else{
     execution.setVariable("ErrorDescription", "Received status code " + status + " while creating ServiceTemplateInstance!");

@@ -14,12 +14,10 @@ import java.util.Map;
  * handle BPMN Activity for Docker Engine NodeTemplate
  * specifically  generating Input/Output Parameter for script "DataObject.groovy"
  */
-public class DockerEngineHandler {
+public class DockerEngineHandler extends AbstractHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(DockerEngineHandler.class);
 
-    public static final String INPUT_PREFIX = "Input_";
-    public static final String SERVICETEMPLATE_GETINPUT = "get_input:";
     /**
      * check the nodetemplate is a docker engine
      * @param nodeTemplate
@@ -56,25 +54,6 @@ public class DockerEngineHandler {
         createInputParameterFromProperties(engineProperties, propMap, activateDataObjectTask);
 
         return true;
-    }
-
-    private void createInputParameterFromProperties(String[] properties, Map<String, String> propMap, BPMNScope activateDataObjectTask) {
-        for (String propName : properties) {
-            if (propMap.containsKey(propName)) {
-                String inputVariableName = INPUT_PREFIX + propName;
-                String inputVariableValue = parsePropertyValueWithGetInput(propMap.get(propName));
-                // no need to avoid setting empty input
-                activateDataObjectTask.addInputparameter(inputVariableName, inputVariableValue);
-            }
-        }
-    }
-
-    // "get_input: DockerEngineURL" -> "${DockerEngineURL}"
-    private String parsePropertyValueWithGetInput(String propValue) {
-        if (propValue.startsWith(SERVICETEMPLATE_GETINPUT)) {
-            return "${" + propValue.substring(SERVICETEMPLATE_GETINPUT.length()) + "}";
-        }
-        return propValue;
     }
 }
 
