@@ -6,4 +6,7 @@ public class DockerEngineConstants {
 
 
     public static final String START_CONTAINER_INPUT_CONTAINER_PORTS = "ContainerPorts";
+    public static final String START_CONTAINER_OUTPUT_CONTAINER_PORTS = "ContainerPorts";
+    public static final String START_CONTAINER_OUTPUT_CONTAINER_ID = "ContainerID";
+    public static final String START_CONTAINER_OUTPUT_CONTAINER_IP = "ContainerIP";
 }

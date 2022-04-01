@@ -184,13 +184,13 @@ public class EnginePatternHandler extends AbstractHandler {
         inputPropList.addAll(this.createInputParameterFromProperties(engineProperties, enginePropMap, callNodeOperationTask));
 
         // From Interface/Operation InterfaceDockerEngine/startContainer
-        String[] dockerEngineOutput = new String[] {
-            DockerContainerConstants.PROPERTY_CONTAINER_PORT,
-            DockerContainerConstants.PROPERTY_CONTAINER_ID,
-            DockerContainerConstants.PROPERTY_CONTAINER_IP
+        String[] dockerEngineStartContainerOutput = new String[] {
+            DockerEngineConstants.START_CONTAINER_OUTPUT_CONTAINER_PORTS,
+            DockerEngineConstants.START_CONTAINER_OUTPUT_CONTAINER_ID,
+            DockerEngineConstants.START_CONTAINER_OUTPUT_CONTAINER_IP
         };
 
-        this.createOutputParameterNamesFromProperties(dockerEngineOutput, callNodeOperationTask);
+        this.createOutputParameterNamesFromProperties(dockerEngineStartContainerOutput, callNodeOperationTask);
 
         // TODO: implement for volume mount
         /*

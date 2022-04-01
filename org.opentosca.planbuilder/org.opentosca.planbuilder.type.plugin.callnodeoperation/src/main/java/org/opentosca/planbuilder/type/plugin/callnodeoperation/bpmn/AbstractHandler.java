@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+// TODO: refactor with PropertyVariableHandler
 public abstract class AbstractHandler {
     public static final String INPUT_PREFIX = "Input_";
     public static final String SERVICETEMPLATE_GETINPUT = "get_input:";
@@ -27,7 +28,7 @@ public abstract class AbstractHandler {
     }
 
     /**
-     * collecting the
+     * collecting the properties into a single string with delimiter ',' and adds as an input parameter
      * @param properties
      * @param bpmnTask
      */

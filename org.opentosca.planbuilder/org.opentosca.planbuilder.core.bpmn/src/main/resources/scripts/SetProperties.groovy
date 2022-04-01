@@ -2,12 +2,13 @@ import groovy.xml.XmlUtil
 
 println "======== Executing SetProperties.groovy with exec ID: ${execution.getId()} ========"
 
+def nodeTemplateID = execution.getVariable("NodeTemplate");
 def message2 = execution.getVariable("State");
 def nodeInstance = execution.getVariable("NodeInstanceURL");
 // get the actual value of node instance url
 def nodeInstanceURL = execution.getVariable(nodeInstance);
 
-println "$nodeInstance: $nodeInstanceURL"
+println "NodeTemplate: $nodeTemplateID with $nodeInstance: $nodeInstanceURL"
 
 if (nodeInstanceURL != null) {
     // change state if set
@@ -77,7 +78,19 @@ if (nodeInstanceURL != null) {
         println "properties[$i]:  ${properties[i]}"
         String propertyName = properties[i]
         String propertyValue = execution.getVariable("Input_${properties[i]}")
-        println "Input_${propertyName}: ${propertyValue}"
+        // propertyValue may only be set as global variable in runtime
+        if (propertyValue == null) {
+            String propertyGlobalVarName = nodeTemplateID + '_' + propertyName
+            propertyValue = execution.getVariable(propertyGlobalVarName)
+            println "Retrieveing ${propertyName} from ${propertyGlobalVarName} with ${propertyValue}"
+        } else {
+            println "Retrieveing ${propertyName} from Input_${propertyName} with ${propertyValue}"
+        }
+
+        if (propertyValue == null) {
+            continue
+        }
+
         xmlResponse.'**'.findAll { if (it.name() == propertyName) it.replaceBody(propertyValue)}
     }
 
@@ -96,3 +109,30 @@ if (nodeInstanceURL != null) {
         throw new org.camunda.bpm.engine.delegate.BpmnError("InvalidStatusCode");
     }
 }
+
+
+/* Ex. NodeTemplate: DockerEngine
+<camunda:inputParameter name="State" />
+<camunda:inputParameter name="NodeInstanceURL">DockerEngineNodeInstanceURL</camunda:inputParameter>
+<camunda:inputParameter name="NodeTemplate">DockerEngine</camunda:inputParameter>
+<camunda:inputParameter name="Properties">DockerEngineURL,DockerEngineCertificate</camunda:inputParameter>
+<camunda:inputParameter name="Values" />
+<camunda:inputParameter name="Input_DockerEngineURL">${DockerEngineURL}</camunda:inputParameter>
+<camunda:inputParameter name="Input_DockerEngineCertificate" />
+*/
+
+/* Ex. NodeTemplate: MyTinyToDoDockerContainer
+<camunda:inputParameter name="State">STARTED</camunda:inputParameter>
+<camunda:inputParameter name="NodeInstanceURL">MyTinyToDoDockerContainerNodeInstanceURL</camunda:inputParameter>
+<camunda:inputParameter name="NodeTemplate">MyTinyToDoDockerContainer</camunda:inputParameter>
+<camunda:inputParameter name="Properties">Port,ContainerPort,ContainerID,ContainerIP,ImageID,ContainerMountPath,HostMountFiles</camunda:inputParameter>
+<camunda:inputParameter name="Values" />
+<camunda:inputParameter name="Input_Port">${ApplicationPort}</camunda:inputParameter>
+<camunda:inputParameter name="Input_ContainerPort">80</camunda:inputParameter>
+<camunda:inputParameter name="Input_ContainerID" />
+<camunda:inputParameter name="Input_ContainerIP" />
+<camunda:inputParameter name="Input_ImageID" />
+<camunda:inputParameter name="Input_ContainerMountPath" />
+<camunda:inputParameter name="Input_HostMountFiles" />
+
+*/

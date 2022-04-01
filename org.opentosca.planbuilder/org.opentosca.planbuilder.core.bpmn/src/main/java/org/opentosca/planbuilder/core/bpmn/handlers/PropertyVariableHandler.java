@@ -9,6 +9,7 @@ public class PropertyVariableHandler {
     // fixed with groovy script: "SetProperties"
     public static final String INPUT_PREFIX = "Input_";
 
+    // TODO: consistency of prefix
     // fixed in service template
     public static final String SERVICETEMPLATE_GETINPUT = "get_input: ";
 

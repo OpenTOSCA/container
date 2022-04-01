@@ -136,7 +136,10 @@ while (true) {
         def responseJSON = pollingResultJSON.response;
         // ex. [ContainerPorts, ContainerID, ContainerIP] -> MyTinyToDoDockerContainer_0ContainerPorts, MyTinyToDoDockerContainer_0ContainerID
         outputParamNames.each { outputParam ->
-            execution.setVariable(targetNodeTemplateID + '_' + outputParam, responseJSON.get(outputParam));
+            String name = targetNodeTemplateID + '_' + outputParam
+            String value = responseJSON.get(outputParam)
+            execution.setVariable(name, value);
+            println "Set variable $name: $value"
         }
         return;
     }
