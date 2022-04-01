@@ -101,7 +101,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         if (sourceInterfaces != null) {
             TInterface lifeCycleInterface = ModelUtils.getLifecycleInterface(sourceInterfaces);
             if (lifeCycleInterface != null) {
-
+                this.executeLifecycleInterfaceCreateOperations(templateContext,relationTemplate, sourceNodeTemplate, lifeCycleInterface, true);
             }
         }
 
@@ -114,24 +114,24 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         TOperation start = ModelUtils.getOperation(lifecycleInterface, "start");
 
         if (install != null) {
-            BPELConnectsToPluginHandler.LOG.debug("Found install operation. Searching for matching parameters in the properties.");
-            Map<TParameter, Variable> param2propertyMapping = findInputParameters(templateContext, install, relationshipTemplate, ModelUtils.getSource(relationshipTemplate, templateContext.getCsar()),
-                ModelUtils.getTarget(relationshipTemplate, templateContext.getCsar()), isSource);
+            Map<TParameter, Variable> param2propertyMapping = Maps.newHashMap();
+            if (install.getInputParameters() != null) {
+                BPELConnectsToPluginHandler.LOG.debug("Found install operation. Searching for matching parameters in the properties.");
+                param2propertyMapping = findInputParameters(templateContext, install, relationshipTemplate, ModelUtils.getSource(relationshipTemplate, templateContext.getCsar()),
+                    ModelUtils.getTarget(relationshipTemplate, templateContext.getCsar()), isSource);
 
-            // check if all input params (or at least all required input params) can be matched with properties
-            if (param2propertyMapping.size() != install.getInputParameters().size()
-                && !allRequiredParamsAreMatched(install.getInputParameters(), param2propertyMapping)) {
-                BPELConnectsToPluginHandler.LOG.warn("Didn't find necessary matchings from parameter to property. Can't initialize connectsTo relationship.");
-            } else {
-                // execute the connectTo operation with the found parameters
-                BPELConnectsToPluginHandler.LOG.debug("Adding connectTo operation execution to build plan.");
-
-                // TODO FIXME outputs are not mapped yet
-                final Boolean result = templateContext.executeOperation(relationshipTemplate, lifecycleInterface.getName(),
-                    install.getName(), param2propertyMapping, new HashMap<>());
-                BPELConnectsToPluginHandler.LOG.debug("Result from adding operation: " + result);
+                // check if all input params (or at least all required input params) can be matched with properties
+                if (param2propertyMapping.size() != install.getInputParameters().size()
+                    && !allRequiredParamsAreMatched(install.getInputParameters(), param2propertyMapping)) {
+                    BPELConnectsToPluginHandler.LOG.warn("Didn't find necessary matchings from parameter to property. Can't initialize connectsTo relationship.");
+                    return false;
+                }
             }
-
+            // execute the connectTo operation with the found parameters
+            BPELConnectsToPluginHandler.LOG.debug("Adding connectTo operation execution to build plan.");
+            // TODO FIXME outputs are not mapped yet
+            return templateContext.executeOperation(relationshipTemplate, lifecycleInterface.getName(),
+                install.getName(), param2propertyMapping, new HashMap<>());
         }
 
         return true;
@@ -383,11 +383,13 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                                                           final TNodeTemplate targetParameterNode, boolean isSource) {
         final Map<TParameter, Variable> param2propertyMapping = new HashMap<>();
         // search the input parameters in the properties
-        for (final TParameter param : connectsToOp.getInputParameters()) {
-            if (this.isPrefixedParam(param)) {
-                this.findInputPrefixedParameter(templateContext, sourceParameterNode, targetParameterNode, param2propertyMapping, param);
-            } else {
-                this.findInputParameter(templateContext, relationshipTemplate, sourceParameterNode, targetParameterNode, param2propertyMapping, param, isSource);
+        if (connectsToOp.getInputParameters() != null) {
+            for (final TParameter param : connectsToOp.getInputParameters()) {
+                if (this.isPrefixedParam(param)) {
+                    this.findInputPrefixedParameter(templateContext, sourceParameterNode, targetParameterNode, param2propertyMapping, param);
+                } else {
+                    this.findInputParameter(templateContext, relationshipTemplate, sourceParameterNode, targetParameterNode, param2propertyMapping, param, isSource);
+                }
             }
         }
         return param2propertyMapping;
