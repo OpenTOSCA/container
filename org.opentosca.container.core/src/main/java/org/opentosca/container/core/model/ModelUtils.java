@@ -165,11 +165,31 @@ public abstract class ModelUtils {
     }
 
     public static TInterface getLifecycleInterface(Collection<TInterface> ifaces) {
+        return getInterface(ifaces, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE2);
+    }
+
+    public static TInterface getInterface(Collection<TInterface> ifaces, String ifaceName) {
         for (TInterface iface : ifaces) {
-            if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE2)) {
+            if (iface.getName().equals(ifaceName)) {
                 // we found atleast one lifecycle interface
                 return iface;
             }
+        }
+        return null;
+    }
+
+    public static TInterface findSourceInterface(TRelationshipType relationshipType, String interfaceName, Csar csar) {
+        Collection<TInterface> tInterface = relationshipType.getSourceInterfaces();
+        if (tInterface != null) {
+            return getInterface(tInterface, interfaceName);
+        }
+        return null;
+    }
+
+    public static TInterface findTargetInterface(TRelationshipType relationshipType, String interfaceName, Csar csar) {
+        Collection<TInterface> tInterface = relationshipType.getTargetInterfaces();
+        if (tInterface != null) {
+            return getInterface(tInterface, interfaceName);
         }
         return null;
     }
