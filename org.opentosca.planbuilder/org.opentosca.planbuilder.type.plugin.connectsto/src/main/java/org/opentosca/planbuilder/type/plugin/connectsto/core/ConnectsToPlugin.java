@@ -1,12 +1,16 @@
 package org.opentosca.planbuilder.type.plugin.connectsto.core;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipType;
 
+import com.google.common.collect.Lists;
+import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
@@ -58,7 +62,7 @@ public abstract class ConnectsToPlugin<T extends PlanContext> implements IPlanBu
         // look for a connectTo operation on the source node
         final TNodeTemplate sourceNode = ModelUtils.getSource(relationshipTemplate, csar);
 
-        List<TInterface> interfaces = ModelUtils.findNodeType(sourceNode, csar).getInterfaces();
+        Collection<TInterface> interfaces = ModelUtils.findNodeType(sourceNode, csar).getInterfaces();
         if (interfaces != null) {
             for (final TInterface iface : interfaces) {
                 for (final TOperation op : iface.getOperations()) {
@@ -67,6 +71,20 @@ public abstract class ConnectsToPlugin<T extends PlanContext> implements IPlanBu
                         return true;
                     }
                 }
+            }
+        }
+
+        TRelationshipType relationshipType = ModelUtils.findRelationshipType(relationshipTemplate, csar);
+        Collection<TInterface> sourceInterfaces = relationshipType.getSourceInterfaces();
+        Collection<TInterface> targetInterfaces = relationshipType.getSourceInterfaces();
+
+        if (sourceInterfaces != null || targetInterfaces != null) {
+            Collection<TInterface> allInterfaces = Lists.newArrayList();
+            allInterfaces.addAll(sourceInterfaces);
+            allInterfaces.addAll(targetInterfaces);
+
+            if (ModelUtils.getLifecycleInterface(allInterfaces) != null) {
+                return true;
             }
         }
 

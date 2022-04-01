@@ -39,6 +39,7 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
@@ -48,6 +49,7 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import com.google.common.collect.Sets;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
+import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.csar.Csar;
@@ -107,6 +109,66 @@ public abstract class ModelUtils {
                         }
                     }
                 }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the first node found connected trough a hostedOn relation
+     *
+     * @param nodeTemplate the node which is a possible source of an hostedOn relation
+     * @return an TNodeTemplate which is a target of an hostedOn relation. Null if the given nodeTemplate isn't
+     * connected to as a source to a hostedOn relation
+     */
+    public static TNodeTemplate fetchNodeConnectedWithHostedOn(final TNodeTemplate nodeTemplate, Csar csar) {
+        for (final TRelationshipTemplate relation : ModelUtils.getOutgoingRelations(nodeTemplate, csar)) {
+            if (ModelUtils.getRelationshipTypeHierarchy(ModelUtils.findRelationshipType(relation, csar), csar)
+                .contains(Types.hostedOnRelationType)) {
+                return ModelUtils.getTarget(relation, csar);
+            }
+        }
+        return null;
+    }
+
+    public static String getInterface(final TNodeTemplate nodeTemplate, final String operationName, Csar csar) {
+        List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
+        if (interfaces != null) {
+            for (final TInterface iface : interfaces) {
+                for (final TOperation op : iface.getOperations()) {
+                    if (op.getName().equals(operationName)) {
+                        return iface.getName();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public static boolean startAndStopAvailable(final TNodeTemplate nodeTemplate, Csar csar) {
+        return hasOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, csar)
+            & hasOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, csar);
+    }
+
+    public static boolean hasOperation(final TNodeTemplate nodeTemplate, final String operationName, Csar csar) {
+        TNodeType nodeType = ModelUtils.findNodeType(nodeTemplate, csar);
+        if (Objects.isNull(nodeType.getInterfaces())) {
+            return false;
+        } else {
+            return nodeType.getInterfaces().stream().flatMap(inter -> inter.getOperations().stream())
+                .filter(op -> op.getName().equals(operationName)).findFirst().isPresent();
+        }
+    }
+
+    public static TOperation getOperation(TInterface iface, String operationName) {
+        return iface.getOperations().stream().filter(op -> op.getName().equals(operationName)).findFirst().orElse(null);
+    }
+
+    public static TInterface getLifecycleInterface(Collection<TInterface> ifaces) {
+        for (TInterface iface : ifaces) {
+            if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE2)) {
+                // we found atleast one lifecycle interface
+                return iface;
             }
         }
         return null;
