@@ -59,7 +59,7 @@ public class BPMNPlan extends AbstractPlan {
 
     // for building diagram
     private BPMNScope bpmnStartEventElement;
-
+    private String processName;
 
 
     public BPMNPlan(String id, PlanType type, TDefinitions definitions, TServiceTemplate serviceTemplate, Collection<AbstractActivity> activities, Collection<AbstractPlan.Link> links) {
@@ -291,4 +291,11 @@ public class BPMNPlan extends AbstractPlan {
         this.bpmnScriptNames = bpmnScriptNames;
     }
 
+    public void setProcessName(String processName) {
+        this.processName = processName;
+    }
+
+    public String getProcessName() {
+        return processName;
+    }
 }

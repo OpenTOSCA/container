@@ -49,6 +49,7 @@ import org.xml.sax.SAXException;
 public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
     final static Logger LOG = LoggerFactory.getLogger(BPMNBuildProcessBuilder.class);
+    public static final String SUFFIX_BPMN_BUILD_PLAN = "_bpmn_buildPlan";
 
     private BPMNPlanHandler planHandler;
     private BPMNFinalizer bpmnFinalizer;
@@ -109,8 +110,8 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             LOG.info("Start Building BPMN buildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
                 serviceTemplateQname.toString(), definitions.getId(), csar.id().csarName());
 
-            final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_bpmn_buildPlan");
-            final String processNamespace = serviceTemplate.getTargetNamespace() + "_bpmn_buildPlan";
+            final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + SUFFIX_BPMN_BUILD_PLAN);
+            final String processNamespace = serviceTemplate.getTargetNamespace() + SUFFIX_BPMN_BUILD_PLAN;
 
             AbstractPlan buildPlan =
                 AbstractBuildPlanBuilder.generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate, csar);

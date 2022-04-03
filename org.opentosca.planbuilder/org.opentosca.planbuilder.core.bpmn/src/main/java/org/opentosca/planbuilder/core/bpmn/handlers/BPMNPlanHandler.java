@@ -75,6 +75,7 @@ public class BPMNPlanHandler {
             new BPMNPlan(abstractPlan.getId(), abstractPlan.getType(), abstractPlan.getDefinitions(),
                 abstractPlan.getServiceTemplate(), abstractPlan.getActivites(), abstractPlan.getLinks());
         buildPlan.setCsar(csar);
+        buildPlan.setProcessName(processName);
         initializeXMLElements(buildPlan);
         initializeScriptDocuments(buildPlan);
 
@@ -107,52 +108,59 @@ public class BPMNPlanHandler {
      * bpmn:definitions
      * - bpmn:process
      * - bpmndi:BPMNDiagram
-     * @param newBuildPlan
+     * @param buildPlan
      */
-    public void initializeXMLElements(final BPMNPlan newBuildPlan) {
-        newBuildPlan.setBpmnDocument(this.documentBuilder.newDocument());
+    public void initializeXMLElements(final BPMNPlan buildPlan) {
+        buildPlan.setBpmnDocument(this.documentBuilder.newDocument());
         // root: definition element
-        Element definition = newBuildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace, "bpmn:definitions");
+        Element definition = buildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace, "bpmn:definitions");
 
         // declare xml schema namespace
         for (String[] pair : NS_PAIRS) {
             definition.setAttributeNS("http://www.w3.org/2000/xmlns/", pair[0], pair[1]);
         }
 
-        // TODO: consider non-hardcode process_id
-        definition.setAttribute("id", "Definitions_0");
+        String defName = "Definitions_" + buildPlan.getProcessName();
+        definition.setAttribute("id", defName);
+        definition.setAttribute("name", defName);
         definition.setAttribute("targetNamespace", "http://bpmn.io/schema/bpmn");
 
-        newBuildPlan.setBpmnDefinitionElement(definition);
-        newBuildPlan.getBpmnDocument().appendChild(newBuildPlan.getBpmnDefinitionElement());
+        buildPlan.setBpmnDefinitionElement(definition);
+        buildPlan.getBpmnDocument().appendChild(buildPlan.getBpmnDefinitionElement());
 
         // initialize and append extensions element to process
         // process element
-        Element process = newBuildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace, "bpmn:process");
+        Element process = buildPlan.getBpmnDocument().createElementNS(BPMNPlan.bpmnNamespace, "bpmn:process");
 
-        process.setAttribute("id", "Process_0");
+        String processName = "Process_" + buildPlan.getProcessName();
+        process.setAttribute("id", processName);
+        // without process name Camunda will ran into database persistant issue after execution
+        process.setAttribute("name", processName);
         process.setAttribute("isExecutable", "true");
 
 
-        newBuildPlan.setBpmnProcessElement(process);
-        newBuildPlan.getBpmnDefinitionElement().appendChild(newBuildPlan.getBpmnProcessElement());
+        buildPlan.setBpmnProcessElement(process);
+        buildPlan.getBpmnDefinitionElement().appendChild(buildPlan.getBpmnProcessElement());
 
         // diagram element
-        Element diagram = newBuildPlan.getBpmnDocument().createElement("bpmndi:BPMNDiagram");
+        Element diagram = buildPlan.getBpmnDocument().createElement("bpmndi:BPMNDiagram");
 
-        diagram.setAttribute("id", "Diagram_0");
+        String diagramName = "Diagram_" + buildPlan.getProcessName();
+        diagram.setAttribute("id", diagramName);
 
-        newBuildPlan.setBpmnDiagramElement(diagram);
-        newBuildPlan.getBpmnDefinitionElement().appendChild(newBuildPlan.getBpmnDiagramElement());
+        buildPlan.setBpmnDiagramElement(diagram);
+        buildPlan.getBpmnDefinitionElement().appendChild(buildPlan.getBpmnDiagramElement());
 
-        Element planeElement = newBuildPlan.getBpmnDocument().createElement("bpmndi:BPMNPlane");
+        Element planeElement = buildPlan.getBpmnDocument().createElement("bpmndi:BPMNPlane");
 
-        planeElement.setAttribute("id", "Plane_0");
+        // plnane doesn't has attribute name
+        String planeName = "Plane_" + buildPlan.getProcessName();
+        planeElement.setAttribute("id", planeName);
         // every elements in bpmn:BPMNDiagram needs to have a matching element in bpmn:process
-        planeElement.setAttribute("bpmnElement", "Process_0");
+        planeElement.setAttribute("bpmnElement", processName);
 
-        newBuildPlan.setBpmnPlaneElement(planeElement);
-        newBuildPlan.getBpmnDiagramElement().appendChild(newBuildPlan.getBpmnPlaneElement());
+        buildPlan.setBpmnPlaneElement(planeElement);
+        buildPlan.getBpmnDiagramElement().appendChild(buildPlan.getBpmnPlaneElement());
     }
 
     /**

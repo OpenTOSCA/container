@@ -12,12 +12,8 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
 
-import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -34,6 +30,8 @@ public class BPMNPlanHandlerTests {
         {"xmlns:di", "http://www.omg.org/spec/DD/20100524/DI"},
         {"xmlns:qa", "http://some-company/schema/bpmn/qa"},
     };
+
+    final static String PROCESS_NAME = "buildPlan";
     AbstractPlan emptyAbstractPlan;
     BPMNPlan bpmnPlan;
     BPELPlan bpelPlan;
@@ -65,12 +63,12 @@ public class BPMNPlanHandlerTests {
     }
 
     @Test
-    public void testInitEmptyAbstractPlanShouldBeNoNull() {
+    public void testInitEmptyAbstractPlanShouldNotBeNull() {
         assertThat(emptyAbstractPlan, is(notNullValue()));
     }
 
     @Test
-    public void testInitBPMNPlanShouldBeNoNull() {
+    public void testInitBPMNPlanShouldNotBeNull() {
         assertThat(bpmnPlan, is(notNullValue()));
     }
 
@@ -91,7 +89,7 @@ public class BPMNPlanHandlerTests {
         Element element = bpmnPlan.getBpmnDefinitionElement();
         assertThat(element, is(notNullValue()));
         assertThat(element.hasAttribute("id"), is(true));
-
+        assertThat(element.hasAttribute("name"), is(true));
     }
 
     @Test
@@ -100,6 +98,7 @@ public class BPMNPlanHandlerTests {
         Element element = bpmnPlan.getBpmnProcessElement();
         assertThat(element, is(notNullValue()));
         assertThat(element.hasAttribute("id"), is(true));
+        assertThat(element.hasAttribute("name"), is(true));
     }
 
     @Test
@@ -108,6 +107,7 @@ public class BPMNPlanHandlerTests {
         Element element = bpmnPlan.getBpmnDiagramElement();
         assertThat(element, is(notNullValue()));
         assertThat(element.hasAttribute("id"), is(true));
+        assertThat(element.hasAttribute("name"), is(true));
     }
 
     @Test
@@ -119,7 +119,25 @@ public class BPMNPlanHandlerTests {
     }
 
     @Test
+    public void testAttributeNameConsistent() {
+        bpmnPlan.setProcessName(PROCESS_NAME);
+        bpmnPlanHandler.initializeXMLElements(bpmnPlan);
+        Element planeElement = bpmnPlan.getBpmnPlaneElement();
+        Element processElement = bpmnPlan.getBpmnProcessElement();
+        assertThat(planeElement.getAttribute("bpmnElement"),
+                    is(processElement.getAttribute("id"))
+            );
+    }
+
+    @Test
+    public void testSetPorcessName() {
+        bpmnPlan.setProcessName(PROCESS_NAME);
+        assertThat(bpmnPlan.getProcessName(), is(PROCESS_NAME));
+    }
+
+    @Test
     public void testInitializeXMLElementsNSDefined() {
+
         bpmnPlanHandler.initializeXMLElements(bpmnPlan);
         Element defElement = bpmnPlan.getBpmnDefinitionElement();
         for (String[] p : NS_PAIRS) {
