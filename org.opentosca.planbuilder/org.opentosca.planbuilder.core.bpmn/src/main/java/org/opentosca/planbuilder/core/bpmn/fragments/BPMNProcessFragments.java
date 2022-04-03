@@ -120,7 +120,7 @@ public class BPMNProcessFragments {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateActivateDataObjectScriptTask.xml"));
         TNodeTemplate nodeTemplate = bpmnScope.getNodeTemplate();
         template = template.replace("ActivateDataObject_IdToReplace", bpmnScope.getId());
-        template = template.replace("NameToSet", "Activate " + nodeTemplate.getId() + "DataObject");
+        template = template.replace("NameToSet", "Activate " + nodeTemplate.getId() + " DataObject");
         return template;
     }
 
