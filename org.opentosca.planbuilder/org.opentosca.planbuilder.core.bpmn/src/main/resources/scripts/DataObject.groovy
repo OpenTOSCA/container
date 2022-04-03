@@ -12,7 +12,10 @@ for (int i in 0..properties.size() - 1) {
         def value = execution.getVariable(property)
         property = property.split('_')[1]
         println "Parsing  ${property}: ${value} from ${properties[i]}"
-        execution.setVariable(nodeInstance + property, value)
+        // properties will be set as variabe in SetProperties.groovy.
+        if (value != null) {
+            // execution.setVariable(nodeInstance + property, value)
+        }
     }
 }
-execution.setVariable(dataObject, nodeInstance)
+// execution.setVariable(dataObject, nodeInstance)
