@@ -62,6 +62,8 @@ public enum MBHeader {
      */
     OPERATIONNAME_STRING,
 
+    ISSOURCEINTERFACE_BOOLEAN,
+
     /**
      * <b>PLANID_QNAME</b> This header field specifies the ID of a plan which shall be executed by
      * passing the camel exchange message to an invocation plug-in.

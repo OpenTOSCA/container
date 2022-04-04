@@ -218,6 +218,9 @@ public class RequestProcessor implements Processor {
 
             operationName = invokeIaRequest.getOperationName();
 
+            Boolean isSourceInterface = invokeIaRequest.getSourceInterface();
+            exchange.getIn().setHeader(MBHeader.ISSOURCEINTERFACE_BOOLEAN.toString(), isSourceInterface);
+
             callbackAddress = invokeIaRequest.getReplyTo();
 
             messageID = invokeIaRequest.getMessageID();

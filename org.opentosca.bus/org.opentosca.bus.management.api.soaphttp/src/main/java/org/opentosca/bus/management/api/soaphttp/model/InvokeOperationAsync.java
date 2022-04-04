@@ -77,6 +77,8 @@ public class InvokeOperationAsync {
     protected String interfaceName;
     @XmlElement(name = "OperationName", required = true)
     protected String operationName;
+    @XmlElement(name = "isSourceInterface")
+    protected Boolean isSourceInterface;
     @XmlElement(name = "ReplyTo", required = true)
     protected String replyTo;
     @XmlElement(name = "MessageID", required = true)
@@ -264,6 +266,14 @@ public class InvokeOperationAsync {
      */
     public void setOperationName(final String value) {
         this.operationName = value;
+    }
+
+    public Boolean getSourceInterface() {
+        return isSourceInterface;
+    }
+
+    public void setSourceInterface(Boolean sourceInterface) {
+        isSourceInterface = sourceInterface;
     }
 
     /**

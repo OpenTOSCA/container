@@ -220,13 +220,16 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final String neededOperation = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
         LOG.debug("Operation: {}", neededOperation);
 
+        final Boolean isSourceInterface = message.getHeader(MBHeader.ISSOURCEINTERFACE_BOOLEAN.toString(), Boolean.class);
+        LOG.debug("isSourceInterface: {}", isSourceInterface);
+
         // log event to monitor the IA execution time
         // operation invocation is only possible with retrieved ServiceTemplateInstance ID
         if (!serviceTemplateInstanceID.equals(Long.MIN_VALUE)) {
 
             final IAInvocationArguments arguments =
                 new IAInvocationArguments(csarID, serviceInstanceID, serviceTemplateID, serviceTemplateInstanceID,
-                    nodeTemplateID, relationship, neededInterface, neededOperation);
+                    nodeTemplateID, relationship, neededInterface, neededOperation, isSourceInterface);
             final PlanInstanceEvent event = internalInvokeIA(arguments, exchange);
             LOG.info("IA execution duration: {}", event.getDuration());
         } else {
@@ -372,7 +375,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             inputParams =
                 this.parameterHandler.updateInputParams(inputParams, replacementCsar == null ? csar : replacementCsar,
                     nodeInstance, relationshipInstance, arguments.interfaceName,
-                    arguments.operationName);
+                    arguments.operationName, arguments.isSourceInterface);
             message.setBody(inputParams);
         } else {
             LOG.warn("There are no input parameters specified.");
@@ -1350,10 +1353,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         public final String relationshipTemplateId;
         public final String interfaceName;
         public final String operationName;
+        public final Boolean isSourceInterface;
 
         public IAInvocationArguments(CsarId csarId, URI serviceInstanceId, QName serviceTemplateId,
                                      long serviceTemplateInstanceId, String nodeTemplateId,
-                                     String relationshipTemplateId, String interfaceName, String operationName) {
+                                     String relationshipTemplateId, String interfaceName, String operationName, Boolean isSourceInterface) {
             this.csarId = csarId;
             this.serviceInstanceId = serviceInstanceId;
             this.serviceTemplateId = serviceTemplateId;
@@ -1362,6 +1366,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             this.relationshipTemplateId = relationshipTemplateId;
             this.interfaceName = interfaceName;
             this.operationName = operationName;
+            this.isSourceInterface = isSourceInterface;
         }
     }
 }

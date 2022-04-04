@@ -12,7 +12,7 @@
 		    <xs:element minOccurs="0" maxOccurs="1" name="PlanCorrelationID"
 				type="xs:string" />
 			<xs:element minOccurs="1" maxOccurs="1" name="CsarID"
-				type="xs:string" />		
+				type="xs:string" />
 			<xs:element minOccurs="1" maxOccurs="1"
 				name="ServiceTemplateIDNamespaceURI" type="xs:string" />
 			<xs:element minOccurs="1" maxOccurs="1"
@@ -25,7 +25,7 @@
 			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
-	
+
 	<xs:complexType name="ParamsMapItemType">
 		<xs:sequence>
 			<xs:element name="key" type="xs:string" />
@@ -69,6 +69,8 @@
 				type="xs:string" />
 			<xs:element minOccurs="1" maxOccurs="1" name="OperationName"
 				type="xs:string" />
+            <xs:element minOccurs="0" maxOccurs="1" name="isSourceInterface"
+                        type="xs:string"/>
 			<xs:element minOccurs="1" maxOccurs="1" name="ReplyTo"
 				type="xs:string" />
 			<xs:element minOccurs="1" maxOccurs="1" name="MessageID"

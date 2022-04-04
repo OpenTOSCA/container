@@ -15,12 +15,15 @@ import org.eclipse.winery.model.tosca.TEntityType;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipType;
 
 import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.engine.ToscaEngine;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
@@ -86,9 +89,10 @@ public class ParameterHandler {
                                                  final NodeTemplateInstance nodeTemplateInstance,
                                                  final RelationshipTemplateInstance relationshipTemplateInstance,
                                                  final String neededInterface,
-                                                 final String neededOperation) {
+                                                 final String neededOperation,
+                                                 Boolean isSourceInterface) {
         if (Objects.nonNull(relationshipTemplateInstance)) {
-            return updateInputParamsForRelationshipTemplate(inputParams, csar, relationshipTemplateInstance, neededInterface, neededOperation);
+            return updateInputParamsForRelationshipTemplate(inputParams, csar, relationshipTemplateInstance, neededInterface, neededOperation, isSourceInterface);
         } else if (Objects.nonNull(nodeTemplateInstance)) {
             return updateInputParamsForNodeTemplate(inputParams, csar, nodeTemplateInstance, neededInterface, neededOperation);
         } else {
@@ -224,7 +228,7 @@ public class ParameterHandler {
                                                                          final Csar csar,
                                                                          final RelationshipTemplateInstance relationshipTemplateInstance,
                                                                          final String neededInterface,
-                                                                         final String neededOperation) {
+                                                                         final String neededOperation, Boolean isSourceInterface) {
 
         Objects.requireNonNull(relationshipTemplateInstance);
 
@@ -232,7 +236,7 @@ public class ParameterHandler {
         LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(), neededOperation, inputParams);
 
         // check if operation has input params at all
-        final Set<String> expectedParams = getExpectedInputParams(csar, relationshipTemplateInstance.getTemplateType(), neededInterface, neededOperation);
+        final Set<String> expectedParams = getExpectedInputParams(csar, relationshipTemplateInstance.getTemplateType(), neededInterface, neededOperation, isSourceInterface);
         if (expectedParams.isEmpty()) {
             LOG.debug("No input params defined for this operation.");
             return inputParams;
@@ -275,7 +279,34 @@ public class ParameterHandler {
         final TOperation resolvedOperation;
         try {
             TEntityType entityType = ToscaEngine.resolveEntityTypeReference(csar, typeID);
-            TInterface typeInterface = ToscaEngine.resolveInterface(csar, entityType, interfaceName);
+            TInterface typeInterface =  ToscaEngine.resolveInterface(csar, entityType, interfaceName);
+            resolvedOperation = ToscaEngine.resolveOperation(typeInterface, operationName);
+        } catch (NotFoundException e) {
+            LOG.warn("Could not resolve Operation {} on Interface {} for Type {}", operationName, interfaceName, typeID);
+            return Collections.emptySet();
+        }
+
+        return Optional.ofNullable(resolvedOperation.getInputParameters())
+            .map(l -> l.stream().map(TParameter::getName).collect(Collectors.toSet()))
+            .orElse(Collections.emptySet());
+    }
+
+    private Set<String> getExpectedInputParams(final Csar csar, final QName typeID,
+                                               final String interfaceName, final String operationName, Boolean isSourceInterface) {
+
+        final TOperation resolvedOperation;
+        try {
+            TEntityType entityType = ToscaEngine.resolveEntityTypeReference(csar, typeID);
+            TRelationshipType relationshipType = ModelUtils.findRelationshipType(typeID, csar);
+            TInterface typeInterface = null;
+            if (isSourceInterface == null) {
+                typeInterface = ToscaEngine.resolveInterface(csar, entityType, interfaceName);
+            } else if (isSourceInterface){
+                typeInterface = ModelUtils.findSourceInterface(relationshipType, interfaceName, csar);
+            } else if (!isSourceInterface) {
+                typeInterface = ModelUtils.findTargetInterface(relationshipType, interfaceName, csar);
+            }
+
             resolvedOperation = ToscaEngine.resolveOperation(typeInterface, operationName);
         } catch (NotFoundException e) {
             LOG.warn("Could not resolve Operation {} on Interface {} for Type {}", operationName, interfaceName, typeID);
