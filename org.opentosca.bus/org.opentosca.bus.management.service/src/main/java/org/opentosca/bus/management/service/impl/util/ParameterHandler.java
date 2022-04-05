@@ -296,15 +296,14 @@ public class ParameterHandler {
 
         final TOperation resolvedOperation;
         try {
-            TEntityType entityType = ToscaEngine.resolveEntityTypeReference(csar, typeID);
             TRelationshipType relationshipType = ModelUtils.findRelationshipType(typeID, csar);
             TInterface typeInterface = null;
             if (isSourceInterface == null) {
-                typeInterface = ToscaEngine.resolveInterface(csar, entityType, interfaceName);
+                typeInterface = ModelUtils.getInterface(relationshipType.getInterfaces(), interfaceName);
             } else if (isSourceInterface){
-                typeInterface = ModelUtils.findSourceInterface(relationshipType, interfaceName, csar);
-            } else if (!isSourceInterface) {
-                typeInterface = ModelUtils.findTargetInterface(relationshipType, interfaceName, csar);
+                typeInterface = ModelUtils.getInterface(relationshipType.getSourceInterfaces(), interfaceName);
+            } else  {
+                typeInterface = ModelUtils.getInterface(relationshipType.getTargetInterfaces(), interfaceName);
             }
 
             resolvedOperation = ToscaEngine.resolveOperation(typeInterface, operationName);

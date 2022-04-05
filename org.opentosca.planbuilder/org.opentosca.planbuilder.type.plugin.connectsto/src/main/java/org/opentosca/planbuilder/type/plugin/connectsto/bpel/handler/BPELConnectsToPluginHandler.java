@@ -96,7 +96,8 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
 
         TRelationshipType relationshipType = ModelUtils.findRelationshipType(relationTemplate, templateContext.getCsar());
         Collection<TInterface> sourceInterfaces = relationshipType.getSourceInterfaces();
-        Collection<TInterface> targetInterfaces = relationshipType.getSourceInterfaces();
+        Collection<TInterface> targetInterfaces = relationshipType.getTargetInterfaces();
+        Collection<TInterface> ifaces = relationshipType.getInterfaces();
 
         if (sourceInterfaces != null) {
             TInterface lifeCycleInterface = ModelUtils.getLifecycleInterface(sourceInterfaces);
@@ -105,15 +106,44 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             }
         }
 
+        if (targetInterfaces != null) {
+            TInterface lifeCycleInterface = ModelUtils.getLifecycleInterface(targetInterfaces);
+            if (lifeCycleInterface != null) {
+                this.executeLifecycleInterfaceCreateOperations(templateContext,relationTemplate, targetNodeTemplate, lifeCycleInterface, false);
+            }
+        }
+
+        if (ifaces != null) {
+            TInterface lifeCycleInterface = ModelUtils.getLifecycleInterface(ifaces);
+            if (lifeCycleInterface != null) {
+                this.executeLifecycleInterfaceCreateOperations(templateContext,relationTemplate, sourceNodeTemplate, lifeCycleInterface, null);
+            }
+        }
+
         return true;
     }
 
-    private boolean executeLifecycleInterfaceCreateOperations(BPELPlanContext templateContext, final TRelationshipTemplate relationshipTemplate, TNodeTemplate connectedNodeTemplate, TInterface lifecycleInterface, boolean isSource) {
+    private boolean executeLifecycleInterfaceCreateOperations(BPELPlanContext templateContext, final TRelationshipTemplate relationshipTemplate, TNodeTemplate connectedNodeTemplate, TInterface lifecycleInterface, Boolean isSource) {
         TOperation install = ModelUtils.getOperation(lifecycleInterface, "install");
         TOperation configure = ModelUtils.getOperation(lifecycleInterface, "configure");
         TOperation start = ModelUtils.getOperation(lifecycleInterface, "start");
 
         if (install != null) {
+            this.callLifecycleOperation(templateContext, relationshipTemplate, lifecycleInterface, install, isSource);
+        }
+
+        if (configure != null) {
+            this.callLifecycleOperation(templateContext, relationshipTemplate, lifecycleInterface, configure, isSource);
+        }
+
+        if (start != null) {
+            this.callLifecycleOperation(templateContext, relationshipTemplate, lifecycleInterface, start, isSource);
+        }
+
+        return true;
+    }
+
+    private boolean callLifecycleOperation(BPELPlanContext templateContext, TRelationshipTemplate relationshipTemplate, TInterface lifecycleInterface, TOperation install, Boolean isSource) {
             Map<TParameter, Variable> param2propertyMapping = Maps.newHashMap();
             if (install.getInputParameters() != null) {
                 BPELConnectsToPluginHandler.LOG.debug("Found install operation. Searching for matching parameters in the properties.");
@@ -132,9 +162,6 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             // TODO FIXME outputs are not mapped yet
             return templateContext.executeOperation(relationshipTemplate, lifecycleInterface.getName(),
                 install.getName(), param2propertyMapping, new HashMap<>());
-        }
-
-        return true;
     }
 
     /**

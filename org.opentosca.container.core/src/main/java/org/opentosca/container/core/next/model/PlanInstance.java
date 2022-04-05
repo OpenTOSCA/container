@@ -31,7 +31,9 @@ import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService
 @NamedEntityGraphs({
     @NamedEntityGraph(name = "events", includeAllAttributes = true, attributeNodes = {
         @NamedAttributeNode("events"),
-        @NamedAttributeNode("outputs")
+        @NamedAttributeNode("outputs"),
+        @NamedAttributeNode("inputs"),
+        @NamedAttributeNode("serviceTemplateInstance")
     })
 })
 public class PlanInstance extends PersistenceObject {

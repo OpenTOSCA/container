@@ -78,16 +78,20 @@ public abstract class ConnectsToPlugin<T extends PlanContext> implements IPlanBu
         Collection<TInterface> sourceInterfaces = relationshipType.getSourceInterfaces();
         Collection<TInterface> targetInterfaces = relationshipType.getSourceInterfaces();
         Collection<TInterface> ifaces = relationshipType.getInterfaces();
+        Collection<TInterface> allInterfaces = Lists.newArrayList();
 
-        if (sourceInterfaces != null || targetInterfaces != null) {
-            Collection<TInterface> allInterfaces = Lists.newArrayList();
+        if (sourceInterfaces != null) {
             allInterfaces.addAll(sourceInterfaces);
+        }
+        if (targetInterfaces != null) {
             allInterfaces.addAll(targetInterfaces);
+        }
+        if (ifaces != null) {
             allInterfaces.addAll(ifaces);
+        }
 
-            if (ModelUtils.getLifecycleInterface(allInterfaces) != null) {
-                return true;
-            }
+        if (ModelUtils.getLifecycleInterface(allInterfaces) != null) {
+            return true;
         }
 
         return false;

@@ -15,8 +15,14 @@ public interface PlanInstanceRepository extends JpaRepository<PlanInstance, Long
     @EntityGraph(attributePaths = {"events"})
     PlanInstance findWithLogsByCorrelationId(String correlationId);
 
+    @EntityGraph(attributePaths = {"inputs"})
+    PlanInstance findWithInputsByCorrelationId(String correlationId);
+
     @EntityGraph(attributePaths = {"events", "outputs"})
     PlanInstance findWithLogsAndOutputsByCorrelationId(String correlationId);
+
+    @EntityGraph(attributePaths = {"events", "outputs", "inputs", "serviceTemplateInstance"})
+    PlanInstance findWithAllByCorrelationId(String correlationId);
 
     PlanInstance findByChoreographyCorrelationId(String choreographyCorrelationId);
 

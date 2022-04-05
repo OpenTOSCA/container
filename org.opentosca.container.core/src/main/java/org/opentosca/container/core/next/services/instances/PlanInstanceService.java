@@ -93,6 +93,10 @@ public class PlanInstanceService {
         return planInstanceRepository.findWithLogsByCorrelationId(correlationId);
     }
 
+    public PlanInstance getPlanInstanceWithAllByCorrelationid(final String correlationId) {
+        return planInstanceRepository.findWithAllByCorrelationId(correlationId);
+    }
+
     public PlanInstance resolvePlanInstance(Long serviceTemplateInstanceId, String correlationId) {
         PlanInstance pi = (PlanInstance) this.waitForInstanceAvailable(correlationId).joinAndGet(30000);
 
