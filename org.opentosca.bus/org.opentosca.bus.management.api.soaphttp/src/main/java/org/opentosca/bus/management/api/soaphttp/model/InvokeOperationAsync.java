@@ -53,7 +53,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "invokeOperationAsync",
     propOrder = {"planCorrelation", "csarID", "serviceInstanceID", "nodeInstanceID",
         "serviceTemplateIDNamespaceURI", "serviceTemplateIDLocalPart", "nodeTemplateID",
-        "relationshipTemplateID", "interfaceName", "operationName", "replyTo", "messageID", "params",
+        "relationshipTemplateID", "interfaceName", "operationName", "isSourceInterface", "replyTo", "messageID", "params",
         "doc"})
 public class InvokeOperationAsync {
 
@@ -269,11 +269,11 @@ public class InvokeOperationAsync {
     }
 
     public Boolean getSourceInterface() {
-        return isSourceInterface;
+        return this.isSourceInterface;
     }
 
     public void setSourceInterface(Boolean sourceInterface) {
-        isSourceInterface = sourceInterface;
+        this.isSourceInterface = sourceInterface;
     }
 
     /**
