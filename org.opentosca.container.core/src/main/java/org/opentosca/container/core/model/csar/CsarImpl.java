@@ -210,6 +210,11 @@ public class CsarImpl implements Csar {
     }
 
     @Override
+    public TDefinitions entryDefinitions() {
+        return this.definitions.get(this.entryServiceTemplate.get().getQName());
+    }
+
+    @Override
     public @NonNull List<TDefinitions> definitions() {
         return Lists.newArrayList(this.definitions.values());
     }

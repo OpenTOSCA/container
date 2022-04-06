@@ -21,10 +21,22 @@
         <logback.version>1.1.11</logback.version>
         <!-- needs to match the jersey version used in winery to avoid conflicts -->
         <jersey.version>2.30.1</jersey.version>
-        <spring.version>5.3.15</spring.version>
-        <springboot.version>2.5.9</springboot.version>
+        <spring.version>5.3.18</spring.version>
+        <springdata.version>2.5.10</springdata.version>
+        <springboot.version>2.5.12</springboot.version>
         <swagger.version>1.5.24</swagger.version>
         <tomcat.version>9.0.43</tomcat.version>
+        <winery.version>ustutt-SNAPSHOT</winery.version>
+        <winery.groupid>com.github.opentosca.winery</winery.groupid>
+        <!--
+            If you need to debug/fix something in regards to winery you can debug your changes in the following way:
+            Change the properties to:
+            <winery.groupid>org.eclipse.winery</winery.groupid>
+            <winery.version>3.0.0-SNAPSHOT</winery.version>
+            Make you changes in you local winery code and run 'mvn install -DskipTests' and now you changes should be useable here
+            Why is this necessary:
+            The jitpack dependencies have a different group id than the actually pom files of winery
+        -->
     </properties>
 
     <repositories>
@@ -208,7 +220,7 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jpa</artifactId>
-            <version>${springboot.version}</version>
+            <version>${springdata.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

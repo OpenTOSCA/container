@@ -47,11 +47,6 @@ public class PlanGenerationService {
      * @return true for success or false for failure
      */
     public boolean generatePlans(final Csar csar) throws SystemException, UserException {
-        Optional<Path> zipFile = safeExport(csar);
-        if (zipFile.isEmpty()) {
-            return false;
-        }
-
         final List<AbstractPlan> plans = planBuilderImporter.generatePlans(csar);
         // no plans, save ourselves some work by returning early
         if (plans.isEmpty()) {
@@ -98,18 +93,6 @@ public class PlanGenerationService {
         sourceCsar.reload();
         targetCsar.reload();
         return plans;
-    }
-
-    private Optional<Path> safeExport(Csar csar) {
-        Optional<Path> zipFile = Optional.empty();
-        try {
-            zipFile = Optional.of(storage.exportCSAR(csar.id()));
-        } catch (UserException | SystemException e) {
-            logger.info("Exporting the Csar that is to be planned failed with an exception", e);
-            zipFile.ifPresent(FileUtils::forceDelete);
-            return Optional.empty();
-        }
-        return zipFile;
     }
 
     public class AdaptationPlanGenerationResult {
