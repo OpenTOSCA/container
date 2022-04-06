@@ -255,15 +255,19 @@ public abstract class ToscaEngine {
     }
 
     public static TInterface resolveInterface(TRelationshipType relationshipType, String interfaceName) {
-        return resolveInterface(relationshipType.getInterfaces(), interfaceName);
-    }
-
-    private static TInterface resolveInterface(List<TInterface> interfaces, String interfaceName) {
-        return Stream.of(Optional.ofNullable(interfaces))
-            .flatMap(opt -> opt.orElse(Collections.emptyList()).stream())
-            .filter(anInterface -> anInterface.getName().equals(interfaceName))
-            .findFirst()
-            .orElse(null);
+        TInterface iface = ModelUtils.getInterface(relationshipType.getInterfaces(), interfaceName);
+        if (iface != null) {
+            return iface;
+        }
+        TInterface sourceIface = ModelUtils.getInterface(relationshipType.getSourceInterfaces(), interfaceName);
+        if (sourceIface != null) {
+            return sourceIface;
+        }
+        TInterface targetIface = ModelUtils.getInterface(relationshipType.getTargetInterfaces(), interfaceName);
+        if (targetIface != null) {
+            return targetIface;
+        }
+        return null;
     }
 
     public static TOperation resolveOperation(TInterface tInterface, String operationName) throws NotFoundException {

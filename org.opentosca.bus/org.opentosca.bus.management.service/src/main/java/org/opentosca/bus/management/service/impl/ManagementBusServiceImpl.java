@@ -321,32 +321,21 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
 
         // get NodeTemplateInstance object for the deployment distribution decision
-        NodeTemplateInstance nodeInstance;
-        final RelationshipTemplateInstance relationshipInstance;
+        NodeTemplateInstance nodeInstance = null;
+        RelationshipTemplateInstance relationshipInstance = null;
         if (Objects.nonNull(arguments.nodeTemplateId)) {
             nodeInstance =
                 mbUtils.getNodeTemplateInstance(arguments.serviceTemplateInstanceId, arguments.nodeTemplateId);
-            relationshipInstance = null;
         } else if (Objects.nonNull(arguments.relationshipTemplateId)) {
             relationshipInstance = mbUtils.getRelationshipTemplateInstance(arguments.serviceTemplateInstanceId,
                 arguments.relationshipTemplateId);
-            // assuming type is a TRelationshipType, because otherwise this should be unreachable
-            final TRelationshipType relationshipType = (TRelationshipType) type;
-            if (Objects.nonNull(relationshipInstance) && Objects.nonNull(relationshipType)) {
-                nodeInstance =
-                    ContainerEngine.resolveRelationshipOperationTarget(relationshipInstance, relationshipType,
-                        arguments.interfaceName,
-                        arguments.operationName);
-            } else {
-                nodeInstance = null;
-            }
         } else {
             relationshipInstance = null;
             nodeInstance = null;
         }
 
         Csar replacementCsar = null;
-        if (typeID.equals(Types.abstractOperatingSystemNodeType)) {
+        if (typeID.equals(Types.abstractOperatingSystemNodeType) && nodeInstance != null) {
             // replace abstract operating system node instance
             nodeInstance = mbUtils.getAbstractOSReplacementInstance(nodeInstance);
             assert nodeInstance != null; // if not, we're fucked anyways
@@ -382,7 +371,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
 
         internalInvokeIA(exchange, replacementCsar != null ? replacementCsar : csar,
-            arguments.serviceTemplateInstanceId, type, nodeInstance, arguments.interfaceName,
+            arguments.serviceTemplateInstanceId, type, nodeInstance, relationshipInstance, arguments.interfaceName,
             arguments.operationName);
         event.setEndTimestamp(new Date());
         return event;
@@ -400,7 +389,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * @param neededOperation           the searched operation
      */
     private void internalInvokeIA(final Exchange exchange, final Csar csar, final Long serviceTemplateInstanceID,
-                                  final TEntityType type, final NodeTemplateInstance nodeTemplateInstance,
+                                  final TEntityType type, final NodeTemplateInstance nodeTemplateInstance, RelationshipTemplateInstance relationshipTemplateInstance,
                                   final String neededInterface, final String neededOperation) {
 
         LOG.debug("NodeType/RelationshipType: {}", type.getQName());
@@ -408,9 +397,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         // check whether operation has output parameters
         final boolean hasOutputParams;
+        TInterface typeInterface = null;
+        TOperation operation = null;
         try {
-            final TInterface nodeTypeInterface = ToscaEngine.resolveInterface(csar, type, neededInterface);
-            final TOperation operation = ToscaEngine.resolveOperation(nodeTypeInterface, neededOperation);
+
+            typeInterface = ToscaEngine.resolveInterface(csar, type, neededInterface);
+            operation = ToscaEngine.resolveOperation(typeInterface, neededOperation);
             hasOutputParams = operation.getOutputParameters() != null
                 && !operation.getOutputParameters().isEmpty();
         } catch (final NotFoundException notFound) {
@@ -437,7 +429,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
             for (final TImplementationArtifact ia : ias) {
                 // try to invoke the operation on the current IA
-                if (invokeIAOperation(exchange, csar, serviceTemplateInstanceID, type, nodeTemplateInstance,
+                if (invokeIAOperation(exchange, csar, serviceTemplateInstanceID, type, nodeTemplateInstance, relationshipTemplateInstance,
                     implementation, ia, neededInterface, neededOperation)) {
                     LOG.info("Successfully invoked Operation {} on IA {}", neededOperation, ia.getName());
                     return;
@@ -466,7 +458,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * <tt>false</tt> otherwise
      */
     private boolean invokeIAOperation(Exchange exchange, final Csar csar, final Long serviceTemplateInstanceID,
-                                      final TEntityType type, final NodeTemplateInstance nodeTemplateInstance,
+                                      final TEntityType type, final NodeTemplateInstance nodeTemplateInstance, RelationshipTemplateInstance relationshipTemplateInstance,
                                       final TEntityTypeImplementation typeImplementation,
                                       final TImplementationArtifact ia, final String neededInterface,
                                       final String neededOperation) {
@@ -535,6 +527,18 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 ia.getName(), serviceTemplateInstanceID.toString());
         synchronized (getLockForString(identifier)) {
 
+            URI endpointURI  = this.deployIA(triggeringContainer,deploymentLocation,typeImplementation,serviceTemplateInstanceID, ia,message,csar,exchange,portType,invocationType,deploymentType,artifactTemplate,nodeTemplateInstance,null);
+            LOG.debug("Endpoint: {}", endpointURI.toString());
+
+            // Call IA, send response to caller and terminate bus
+            LOG.debug("Trying to invoke the operation on the deployed implementation artifact.");
+            handleResponse(this.pluginHandler.callMatchingInvocationPlugin(exchange, invocationType,
+                deploymentLocation));
+            return true;
+        }
+    }
+
+    private URI deployIA(String triggeringContainer, String deploymentLocation, TEntityTypeImplementation typeImplementation, final Long serviceTemplateInstanceID, TImplementationArtifact ia, Message message, Csar csar, Exchange exchange, QName portType, String invocationType, String deploymentType, TArtifactTemplate artifactTemplate, NodeTemplateInstance nodeTemplateInstance, RelationshipTemplateInstance relationshipTemplateInstance) {
             LOG.debug("Checking whether IA [{}] was already deployed", ia.getName());
 
             // check whether there are already stored endpoints for this IA
@@ -565,7 +569,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 LOG.debug("Trying to invoke the operation on the deployed implementation artifact.");
                 handleResponse(this.pluginHandler.callMatchingInvocationPlugin(exchange, invocationType,
                     deploymentLocation));
-                return true;
+                return endpointURI;
             }
             LOG.debug("IA not yet deployed. Trying to deploy...");
             LOG.debug("Checking if all required features are met by the deployment plug-in or the environment.");
@@ -578,7 +582,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             // check whether all features are met and abort deployment otherwise
             if (!this.capabilityChecker.capabilitiesAreMet(requiredFeatures, deploymentPlugin)) {
                 LOG.debug("Required features not completely satisfied by the plug-in.");
-                return false;
+                return null;
             }
 
             // get all artifact references for this ArtifactTemplate
@@ -613,7 +617,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
             if (artifactReferences.isEmpty()) {
                 LOG.debug("No artifact references found. No deployment and invocation possible for this ArtifactTemplate.");
-                return false;
+                return null;
             }
             // add references list to header to enable access from the deployment plug-ins
             message.setHeader(MBHeader.ARTIFACTREFERENCES_LISTSTRING.toString(), artifactReferences);
@@ -634,7 +638,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
             if (!Objects.nonNull(endpointURI)) {
                 LOG.debug("IA deployment failed.");
-                return false;
+                return null;
             }
             if (endpointURI.toString().contains(Constants.PLACEHOLDER_START)
                 && endpointURI.toString().contains(Constants.PLACEHOLDER_END)) {
@@ -642,8 +646,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 // If a placeholder is specified, the service is part of the topology.
                 // We do not store this endpoints as they are not part of the management environment.
                 LOG.debug("Received endpoint contains placeholders. Service is part of the topology and called without deployment.");
-                endpointURI = replacePlaceholderWithInstanceData(endpointURI, nodeTemplateInstance);
-                message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpointURI);
+                if (nodeTemplateInstance != null) {
+                    endpointURI = replacePlaceholderWithInstanceData(endpointURI, nodeTemplateInstance);
+                    message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpointURI);
+                }
+
+                // TODO do we need this for relationshipinstances aswell? probably right ?
             } else {
                 LOG.debug("IA successfully deployed. Storing endpoint...");
 
@@ -656,14 +664,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     serviceTemplateInstanceID, null, typeImplementation.getQName(), ia.getName(), new HashMap<>());
                 this.endpointService.storeEndpoint(endpoint);
             }
-            LOG.debug("Endpoint: {}", endpointURI.toString());
+            return endpointURI;
 
-            // Call IA, send response to caller and terminate bus
-            LOG.debug("Trying to invoke the operation on the deployed implementation artifact.");
-            handleResponse(this.pluginHandler.callMatchingInvocationPlugin(exchange, invocationType,
-                deploymentLocation));
-            return true;
-        }
     }
 
     @Override
@@ -1276,7 +1278,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             }
             break;
         }
-
         return endpoint;
     }
 
