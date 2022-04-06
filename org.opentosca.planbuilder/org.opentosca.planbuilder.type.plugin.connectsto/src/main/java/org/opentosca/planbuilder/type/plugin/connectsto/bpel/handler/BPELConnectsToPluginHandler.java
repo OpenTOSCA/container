@@ -239,18 +239,18 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         if (!param2propertyMapping.containsKey(param) && Utils.isSupportedVirtualMachineIPProperty(unprefixedParam)) {
             // we didn't find anything yet, lets try the whole topology and for ambigious properties (IPs etc.)
 
-                // the params seems to be an IP property and prefixed therefore search in the stack according to the prefix
-                for (final String ipParam : Utils.getSupportedVirtualMachineIPPropertyNames()) {
-                    if (isSource) {
-                        if (this.searchAndAddIfFound(templateContext, sourceParameterNode, ipParam, param, param2propertyMapping)) {
-                            break;
-                        }
-                    } else {
-                        if (this.searchAndAddIfFound(templateContext, targetParameterNode, ipParam, param, param2propertyMapping)) {
-                            break;
-                        }
+            // the params seems to be an IP property and prefixed therefore search in the stack according to the prefix
+            for (final String ipParam : Utils.getSupportedVirtualMachineIPPropertyNames()) {
+                if (isSource) {
+                    if (this.searchAndAddIfFound(templateContext, sourceParameterNode, ipParam, param, param2propertyMapping)) {
+                        break;
+                    }
+                } else {
+                    if (this.searchAndAddIfFound(templateContext, targetParameterNode, ipParam, param, param2propertyMapping)) {
+                        break;
                     }
                 }
+            }
         }
 
         return false;

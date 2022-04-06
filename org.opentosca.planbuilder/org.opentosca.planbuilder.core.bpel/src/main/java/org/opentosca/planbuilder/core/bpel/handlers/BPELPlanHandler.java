@@ -58,7 +58,6 @@ public class BPELPlanHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELPlanHandler.class);
 
-    private final DocumentBuilderFactory documentBuilderFactory;
     private final DocumentBuilder documentBuilder;
 
     private final ObjectFactory ddFactory;
@@ -71,9 +70,9 @@ public class BPELPlanHandler {
      * @throws ParserConfigurationException is thrown when the interal DOM Builders couldn't be initialized
      */
     public BPELPlanHandler() throws ParserConfigurationException {
-        this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        this.documentBuilderFactory.setNamespaceAware(true);
-        this.documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setNamespaceAware(true);
+        this.documentBuilder = documentBuilderFactory.newDocumentBuilder();
         this.bpelScopeHandler = new BPELScopeHandler();
         this.ddFactory = new ObjectFactory();
     }

@@ -81,11 +81,9 @@ public class PluginHandler {
 
         IManagementBusInvocationPluginService invocationPlugin = pluginRegistry.getInvocationPluginServices().get(invocationType);
         // redirect invocation call to 'remote' plug-in if deployment location is not the local Container and we're invoking the Script plugin
-        if (!deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
-            if (invocationPlugin.getSupportedTypes().contains(Types.scriptArtifactType.toString())) {
-                LOG.debug("Deployment location is remote. Redirecting invocation to remote plug-in.");
-                invocationPlugin = pluginRegistry.getInvocationPluginServices().get(Constants.REMOTE_TYPE);
-            }
+        if (!deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME) && invocationPlugin.getSupportedTypes().contains(Types.scriptArtifactType.toString())) {
+            LOG.debug("Deployment location is remote. Redirecting invocation to remote plug-in.");
+            invocationPlugin = pluginRegistry.getInvocationPluginServices().get(Constants.REMOTE_TYPE);
         }
 
         if (invocationPlugin != null) {
@@ -163,11 +161,9 @@ public class PluginHandler {
             final Document properties = ToscaEngine.getEntityTemplateProperties(artifactTemplate);
             // Second check if a invocation-type is specified in TOSCA definition
             final String invocationType = getInvocationType(properties);
-            if (invocationType != null) {
-                if (pluginRegistry.getInvocationPluginServices().containsKey(invocationType)) {
-                    LOG.debug("Found a supported invocation type in the artifact template properties");
-                    return invocationType;
-                }
+            if (invocationType != null && pluginRegistry.getInvocationPluginServices().containsKey(invocationType)) {
+                LOG.debug("Found a supported invocation type in the artifact template properties");
+                return invocationType;
             }
         }
 

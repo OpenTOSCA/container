@@ -125,7 +125,7 @@ public class ChoreographyHandler {
 
                 if (Objects.nonNull(situationUrl) && Objects.nonNull(situationCompliantPartnerUrl) && Objects.nonNull(alternativePartnerUrl)) {
                     try {
-                        situationRules.add(new SituationRule(new URL(situationUrl), situationRuleParts[1], new URL(situationCompliantPartnerUrl), situationRuleParts[2], new URL(alternativePartnerUrl)));
+                        situationRules.add(new SituationRule(new URL(situationUrl), situationRuleParts[1], situationRuleParts[2]));
                     } catch (MalformedURLException e) {
                         LOG.error("Unable to generate situation rule because of malformed URL: {}", e.getMessage());
                     }

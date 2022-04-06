@@ -38,7 +38,6 @@ import org.xml.sax.SAXException;
 public class BPELFinalizer {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELFinalizer.class);
-    private DocumentBuilderFactory docFactory;
     private DocumentBuilder docBuilder;
     private BPELPlanHandler buildPlanHandler;
 
@@ -46,8 +45,8 @@ public class BPELFinalizer {
 
     public BPELFinalizer() {
         try {
-            this.docFactory = DocumentBuilderFactory.newInstance();
-            this.docFactory.setNamespaceAware(true);
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            docFactory.setNamespaceAware(true);
             this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             this.buildPlanHandler = new BPELPlanHandler();
             this.scopeHandler = new BPELScopeHandler();
@@ -275,7 +274,7 @@ public class BPELFinalizer {
 
     private BPELScope getUnmarkedNode(final Map<BPELScope, TopologicalSortMarking> markings) {
         for (final BPELScope plan : markings.keySet()) {
-            if (markings.get(plan).permMark == false & markings.get(plan).tempMark == false) {
+            if (!markings.get(plan).permMark & !markings.get(plan).tempMark) {
                 return plan;
             }
         }
@@ -284,7 +283,7 @@ public class BPELFinalizer {
 
     private boolean hasUnmarkedNode(final Map<BPELScope, TopologicalSortMarking> markings) {
         for (final TopologicalSortMarking marking : markings.values()) {
-            if (marking.permMark == false & marking.tempMark == false) {
+            if (!marking.permMark & !marking.tempMark) {
                 return true;
             }
         }

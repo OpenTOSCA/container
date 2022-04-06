@@ -44,12 +44,10 @@ public class LogFilter implements ContainerRequestFilter {
             final List<MediaType> mediaTypes =
                 Lists.newArrayList(MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_XML_TYPE,
                     MediaType.TEXT_PLAIN_TYPE, MediaType.TEXT_XML_TYPE, MediaType.TEXT_HTML_TYPE);
-            if (request.getMediaType() != null && mediaTypes.contains(request.getMediaType())) {
-                if (request.hasEntity()) {
-                    final String body = IOUtils.toString(request.getEntityStream());
-                    request.setEntityStream(IOUtils.toInputStream(body));
-                    logger.debug("Body: {}", body);
-                }
+            if (request.getMediaType() != null && mediaTypes.contains(request.getMediaType()) && request.hasEntity()) {
+                final String body = IOUtils.toString(request.getEntityStream());
+                request.setEntityStream(IOUtils.toInputStream(body));
+                logger.debug("Body: {}", body);
             }
             logger.debug("=== LogFilter END ===");
         }

@@ -37,5 +37,4 @@ public interface NodeTemplateInstanceRepository extends JpaRepository<NodeTempla
 
     @EntityGraph(attributePaths = {"incomingRelations"})
     Optional<NodeTemplateInstance> findWithIncomingById(Long id);
-
 }

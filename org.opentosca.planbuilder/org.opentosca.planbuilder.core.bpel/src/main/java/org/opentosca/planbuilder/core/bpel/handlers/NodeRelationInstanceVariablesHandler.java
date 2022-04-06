@@ -84,7 +84,7 @@ public class NodeRelationInstanceVariablesHandler {
                                             final String query, TServiceTemplate serviceTemplate) {
 
         if (templatePlan.getNodeTemplate() == null) {
-            throw new RuntimeException("Can't create instance find logic only for nodes");
+            throw new IllegalArgumentException("Can't create instance find logic only for nodes");
         }
         // add XML Schema Namespace for the logic
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
@@ -130,7 +130,7 @@ public class NodeRelationInstanceVariablesHandler {
     public boolean addRelationInstanceFindLogic(final BPELScope templatePlan, final String serviceTemplateUrlVarName,
                                                 final String query, TServiceTemplate serviceTemplate) {
         if (templatePlan.getRelationshipTemplate() == null) {
-            throw new RuntimeException("Can't create instance find logic only for relations");
+            throw new IllegalArgumentException("Can't create instance find logic only for relations");
         }
         // add XML Schema Namespace for the logic
         final String xsdPrefix = "xsd" + System.currentTimeMillis();

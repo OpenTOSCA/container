@@ -12,12 +12,14 @@ import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
+import org.apache.camel.CamelExchangeException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.opentosca.bus.management.header.MBHeader;
+import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +48,7 @@ public class InvocationRequestProcessor implements Processor {
 
         if (infosMap == null) {
             LOG.warn("Needed information not specified.");
-            throw new Exception("Needed information not specified.");
+            throw new CamelExchangeException("Needed information not specified.", exchange);
         }
         checkRequiredKeys(infosMap, "csarID", "serviceTemplateID", "interface", "operation");
         String nodeTemplateID = null;
@@ -64,8 +66,8 @@ public class InvocationRequestProcessor implements Processor {
 
         if (nodeTemplateID == null && relationshipTemplateID == null) {
             LOG.debug("Can't process request: Eighter nodeTemplateID or relationshipTemplateID is required!");
-            throw new Exception(
-                "Can't process request: Eighter nodeTemplateID or relationshipTemplateID is required!");
+            throw new CamelExchangeException(
+                "Can't process request: Eighter nodeTemplateID or relationshipTemplateID is required!", exchange);
         }
 
         final String csarID = infosMap.get("csarID");
@@ -110,14 +112,14 @@ public class InvocationRequestProcessor implements Processor {
         exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), "org.opentosca.bus.management.api.resthttp");
     }
 
-    private void checkRequiredKeys(Map<String, ?> parameters, String... keys) {
+    private void checkRequiredKeys(Map<String, ?> parameters, String... keys) throws NotFoundException {
         Set<String> missing = Arrays.stream(keys)
             .filter(((Predicate<String>) parameters::containsKey).negate())
             .collect(Collectors.toSet());
         if (!missing.isEmpty()) {
             final String pretty = missing.stream().collect(Collectors.joining(", "));
             LOG.warn("Can not process request due to missing information. Missing key(s): {}", pretty);
-            throw new RuntimeException(String.format("\"Can not process request due to missing information. Missing key(s): %s", pretty));
+            throw new NotFoundException(String.format("\"Can not process request due to missing information. Missing key(s): %s", pretty));
         }
     }
 

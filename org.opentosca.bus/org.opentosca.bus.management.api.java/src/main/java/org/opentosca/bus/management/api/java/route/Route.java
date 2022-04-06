@@ -28,15 +28,15 @@ public class Route extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         this.from("direct:invoke").to("stream:out").process(exchange -> {
-            final String messageID =
-                exchange.getIn().getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
-            if (messageID != null) {
-                exchange.getIn().setMessageId(messageID);
-                exchange.getIn().setHeader(MBHeader.SYNCINVOCATION_BOOLEAN.toString(), false);
-            } else {
-                exchange.getIn().setHeader(MBHeader.SYNCINVOCATION_BOOLEAN.toString(), true);
-            }
-        }).to("stream:out")
+                final String messageID =
+                    exchange.getIn().getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
+                if (messageID != null) {
+                    exchange.getIn().setMessageId(messageID);
+                    exchange.getIn().setHeader(MBHeader.SYNCINVOCATION_BOOLEAN.toString(), false);
+                } else {
+                    exchange.getIn().setHeader(MBHeader.SYNCINVOCATION_BOOLEAN.toString(), true);
+                }
+            }).to("stream:out")
             .choice()
             .when(header("OPERATION").isEqualTo(ExposedManagementBusOperations.INVOKE_IA.getHeaderValue()))
             .to("direct:invokeIA")

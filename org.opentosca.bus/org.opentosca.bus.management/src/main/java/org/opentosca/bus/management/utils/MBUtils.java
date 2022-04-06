@@ -33,6 +33,7 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Properties;
 import org.opentosca.container.core.convention.Types;
@@ -184,7 +185,9 @@ public class MBUtils {
                 LOG.debug("Found new NodeTemplate: {}. Continue property search.", nodeTemplateInstance.getTemplateId());
                 // check if new NodeTemplateInstance contains property
                 propertyValue = getInstanceDataPropertyValue(nodeTemplateInstance, property);
-                break;
+                if (propertyValue != null) {
+                    break;
+                }
             }
         }
 
@@ -444,7 +447,7 @@ public class MBUtils {
                                                         final TServiceTemplate serviceTemplate,
                                                         final TNodeTemplate nodeTemplate,
                                                         boolean mustHaveNodeInstance,
-                                                        Long serviceTemplateInstanceId) {
+                                                        Long serviceTemplateInstanceId) throws NotFoundException {
 
         // Need to do exhaustive checking of all osNodeTypes for NodeInstance criteria
         final Queue<TNodeTemplate> osNodeTemplates = new LinkedList<>();
