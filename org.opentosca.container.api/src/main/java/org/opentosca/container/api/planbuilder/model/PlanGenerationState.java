@@ -1,12 +1,9 @@
 package org.opentosca.container.api.planbuilder.model;
 
-import java.io.File;
 import java.net.URL;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.opentosca.container.core.model.csar.CsarId;
 
 /**
  * Copyright 2015 IAAS University of Stuttgart <br>
