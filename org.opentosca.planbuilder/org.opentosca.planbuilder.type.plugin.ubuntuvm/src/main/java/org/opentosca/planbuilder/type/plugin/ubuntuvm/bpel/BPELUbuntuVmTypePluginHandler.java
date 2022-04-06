@@ -355,7 +355,7 @@ public class BPELUbuntuVmTypePluginHandler {
         // of properties at the InstanceDataAPI
 
         this.invokerOpPlugin.handle(context, "create", "InterfaceAmazonEC2VM", "planCallbackAddress_invoker",
-            createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput);
+            createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput, null);
 
         /*
          * Check whether the SSH port is open on the VM
@@ -368,7 +368,7 @@ public class BPELUbuntuVmTypePluginHandler {
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true, "start", "InterfaceUbuntu",
             startRequestInputParams, new HashMap<>(),
-            context.getProvisioningPhaseElement());
+            context.getProvisioningPhaseElement(), null);
 
         return true;
     }
@@ -401,7 +401,7 @@ public class BPELUbuntuVmTypePluginHandler {
                 return this.invokerOpPlugin.handle(context, infraNode.getId(), true,
                     org.opentosca.container.core.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
                     org.opentosca.container.core.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
-                    inputs, outputs, elementToAppendTo);
+                    inputs, outputs, elementToAppendTo, null);
             }
         }
         return false;
@@ -636,7 +636,7 @@ public class BPELUbuntuVmTypePluginHandler {
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
             createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput,
-            context.getProvisioningPhaseElement());
+            context.getProvisioningPhaseElement(), null);
 
         /*
          * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
@@ -655,7 +655,7 @@ public class BPELUbuntuVmTypePluginHandler {
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
-            startRequestOutputParams, context.getProvisioningPhaseElement());
+            startRequestOutputParams, context.getProvisioningPhaseElement(), null);
 
         this.handleTerminateWithCloudProviderInterface(context, ubuntuNodeTemplate, context.getProvisioningCompensationPhaseElement());
 
@@ -721,7 +721,7 @@ public class BPELUbuntuVmTypePluginHandler {
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
-            startRequestOutputParams, context.getProvisioningPhaseElement());
+            startRequestOutputParams, context.getProvisioningPhaseElement(), null);
     }
 
     private List<Variable> fetchModeledPortsOfInfrastructure(final PlanContext context,
@@ -951,7 +951,7 @@ public class BPELUbuntuVmTypePluginHandler {
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
             createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput,
-            context.getProvisioningPhaseElement());
+            context.getProvisioningPhaseElement(), null);
 
         /*
          * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
@@ -969,7 +969,7 @@ public class BPELUbuntuVmTypePluginHandler {
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, startRequestInputParams,
-            startRequestOutputParams, context.getProvisioningPhaseElement());
+            startRequestOutputParams, context.getProvisioningPhaseElement(), null);
 
         return true;
     }

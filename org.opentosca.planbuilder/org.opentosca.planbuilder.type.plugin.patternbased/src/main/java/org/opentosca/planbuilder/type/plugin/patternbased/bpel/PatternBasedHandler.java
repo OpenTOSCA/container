@@ -32,7 +32,7 @@ public abstract class PatternBasedHandler {
 
         return invoker.handle(context, hostingContainer.getId(), true, matching.operationName.getName(),
             matching.interfaceName.getName(), transformForInvoker(matching.inputMatching),
-            transformForInvoker(matching.outputMatching), elementToAppendTo);
+            transformForInvoker(matching.outputMatching), elementToAppendTo, null);
     }
 
     private Map<String, Variable> transformForInvoker(final Map<TParameter, Variable> map) {

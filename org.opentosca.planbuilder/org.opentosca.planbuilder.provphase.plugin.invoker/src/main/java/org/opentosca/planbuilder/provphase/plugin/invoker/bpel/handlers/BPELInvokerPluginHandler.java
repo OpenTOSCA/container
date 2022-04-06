@@ -21,6 +21,7 @@ import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.convention.Interfaces;
@@ -155,7 +156,7 @@ public class BPELInvokerPluginHandler {
         return ref;
     }
 
-    private String findInterfaceForOperation(final BPELPlanContext context, final TOperation operation) {
+    private TInterface getInterfaceForOperation(final BPELPlanContext context, final TOperation operation) {
         List<TInterface> interfaces = null;
         if (context.getNodeTemplate() != null) {
             interfaces = ModelUtils.findNodeType(context.getNodeTemplate(), context.getCsar()).getInterfaces();
@@ -168,12 +169,21 @@ public class BPELInvokerPluginHandler {
             for (final TInterface iface : interfaces) {
                 for (final TOperation op : iface.getOperations()) {
                     if (op.equals(operation)) {
-                        return iface.getName();
+                        return iface;
                     }
                 }
             }
         }
         return null;
+    }
+
+    private String findInterfaceForOperation(final BPELPlanContext context, final TOperation operation) {
+        TInterface iface = this.getInterfaceForOperation(context, operation);
+        if (iface != null) {
+            return iface.getName();
+        } else {
+            return null;
+        }
     }
 
     private Variable findVar(final BPELPlanContext context, final String propName) {
@@ -192,11 +202,13 @@ public class BPELInvokerPluginHandler {
 
         boolean isNodeTemplate = true;
         String templateId = "";
+        Boolean isSource = null;
         if (context.getNodeTemplate() != null) {
             templateId = context.getNodeTemplate().getId();
         } else {
             templateId = context.getRelationshipTemplate().getId();
             isNodeTemplate = false;
+            isSource = ModelUtils.isOperationDefinedOnSource(context.getRelationshipTemplate(), operation, context.getCsar());
         }
 
         final String interfaceName = findInterfaceForOperation(context, operation);
@@ -233,14 +245,14 @@ public class BPELInvokerPluginHandler {
         }
 
         return this.handle(context, templateId, isNodeTemplate, operationName, interfaceName,
-            internalExternalPropsInput, internalExternalPropsOutput, context.getProvisioningPhaseElement());
+            internalExternalPropsInput, internalExternalPropsOutput, context.getProvisioningPhaseElement(), isSource);
     }
 
     public boolean handle(final BPELPlanContext context, final String templateId, final boolean isNodeTemplate,
                           final String operationName, final String interfaceName,
                           final Map<String, Variable> internalExternalPropsInput,
                           final Map<String, Variable> internalExternalPropsOutput,
-                          Element elementToAppendTo) throws IOException {
+                          Element elementToAppendTo, Boolean isSource) throws IOException {
         final Path xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
         final Path wsdlFile = this.resHandler.getServiceInvokerWSDLFile(xsdFile, context.getIdForNames());
         // register wsdls and xsd
@@ -342,7 +354,7 @@ public class BPELInvokerPluginHandler {
                     InputMessagePartName,
                     interfaceName, isNodeTemplate,
                     templateId,
-                    internalExternalPropsInput);
+                    internalExternalPropsInput, isSource);
 
             assignNode = context.importNode(assignNode);
 
@@ -470,7 +482,7 @@ public class BPELInvokerPluginHandler {
     public boolean handle(final BPELPlanContext context, final String operationName, final String interfaceName,
                           final String callbackAddressVarName, final Map<String, Variable> internalExternalPropsInput,
                           final Map<String, Variable> internalExternalPropsOutput,
-                          final Element elementToAppendTo) throws Exception {
+                          final Element elementToAppendTo, Boolean isSource) throws Exception {
 
         // fetch "meta"-data for invoker message (e.g. csarid, nodetemplate id..)
         boolean isNodeTemplate = true;
@@ -482,7 +494,7 @@ public class BPELInvokerPluginHandler {
             isNodeTemplate = false;
         }
         return this.handle(context, templateId, isNodeTemplate, operationName, interfaceName,
-            internalExternalPropsInput, internalExternalPropsOutput, elementToAppendTo);
+            internalExternalPropsInput, internalExternalPropsOutput, elementToAppendTo, isSource);
     }
 
     private List<String> getRunScriptParams(final TNodeTemplate nodeTemplate, Csar csar) {
@@ -591,7 +603,7 @@ public class BPELInvokerPluginHandler {
                     runScriptRequestInputParams.put(serverIp.getPropertyName(), serverIp);
                 }
                 this.handle(templateContext, infraTemplate.getId(), true, "runScript", "ContainerManagementInterface",
-                    runScriptRequestInputParams, new HashMap<String, Variable>(), elementToAppendTo);
+                    runScriptRequestInputParams, new HashMap<String, Variable>(), elementToAppendTo, null);
 
                 // transfer the file
                 if (transferFileInputParams.contains(serverIp.getPropertyName())) {
@@ -600,7 +612,7 @@ public class BPELInvokerPluginHandler {
                 this.handle(templateContext, infraTemplate.getId(), true,
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE,
                     "ContainerManagementInterface", transferFileRequestInputParams,
-                    new HashMap<>(), elementToAppendTo);
+                    new HashMap<>(), elementToAppendTo, null);
                 break;
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
@@ -616,7 +628,7 @@ public class BPELInvokerPluginHandler {
                 }
                 this.handle(templateContext, infraTemplate.getId(), true, "runScript",
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, runScriptRequestInputParams,
-                    new HashMap<>(), elementToAppendTo);
+                    new HashMap<>(), elementToAppendTo, null);
 
                 // transfer the file
                 if (transferFileInputParams.contains(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP)) {
@@ -631,7 +643,7 @@ public class BPELInvokerPluginHandler {
                 this.handle(templateContext, infraTemplate.getId(), true,
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE,
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, transferFileRequestInputParams,
-                    new HashMap<>(), elementToAppendTo);
+                    new HashMap<>(), elementToAppendTo, null);
                 break;
             default:
                 return false;

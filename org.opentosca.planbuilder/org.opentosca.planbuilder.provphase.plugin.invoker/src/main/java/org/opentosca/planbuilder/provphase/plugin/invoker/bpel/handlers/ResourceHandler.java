@@ -16,6 +16,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.hibernate.boot.model.source.spi.DiscriminatorSource;
 import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
@@ -338,7 +339,8 @@ public class ResourceHandler {
                                                                   final String requestVarName,
                                                                   final String requestVarPartName, final String iface,
                                                                   final boolean isNodeTemplate, final String templateId,
-                                                                  final Map<String, Variable> internalExternalProps) throws IOException {
+                                                                  final Map<String, Variable> internalExternalProps,
+                                                                  Boolean isSource) throws IOException {
         URL url = getClass().getClassLoader().getResource("invoker-plugin/assignInvokerAsyncMessage.xml");
         String assignTemplateString = ResourceAccess.readResourceAsString(url);
 
@@ -430,6 +432,16 @@ public class ResourceHandler {
 
         // TODO REPLACE THIS PART <?xml version="1.0" encoding="UTF-8"?>
 
+        if (isSource == null) {
+            assignTemplateString = assignTemplateString.replace("{isSource}", "");
+        } else {
+            if (isSource) {
+                assignTemplateString = assignTemplateString.replace("{isSource}", "<impl:isSourceInterface>true</impl:isSourceInterface>");
+            } else {
+                assignTemplateString = assignTemplateString.replace("{isSource}", "<impl:isSourceInterface>false</impl:isSourceInterface>");
+            }
+        }
+
         LOG.debug("Generated Invoker Operation Call:");
         LOG.debug(assignTemplateString);
         return assignTemplateString;
@@ -445,13 +457,14 @@ public class ResourceHandler {
                                                                       final String requestVarPartName,
                                                                       final String iface, final boolean isNodeTemplate,
                                                                       final String templateId,
-                                                                      final Map<String, Variable> internalExternalProps) throws IOException,
+                                                                      final Map<String, Variable> internalExternalProps,
+                                                                      Boolean isSource) throws IOException,
         SAXException {
         final String templateString =
             generateInvokerRequestMessageInitAssignTemplate(csarName, serviceTemplateId, serviceInstanceIdVarName,
                 nodeInstanceIdVarName, operationName, messageId,
                 requestVarName, requestVarPartName, iface, isNodeTemplate,
-                templateId, internalExternalProps);
+                templateId, internalExternalProps, isSource);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);

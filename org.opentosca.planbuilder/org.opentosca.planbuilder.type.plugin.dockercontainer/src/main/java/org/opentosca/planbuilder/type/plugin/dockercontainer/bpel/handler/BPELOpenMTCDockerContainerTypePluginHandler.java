@@ -422,7 +422,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler {
         this.invokerPlugin.handle(context, dockerEngineNode.getId(), true,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE, createDEInternalExternalPropsInput,
-            createDEInternalExternalPropsOutput, context.getProvisioningPhaseElement());
+            createDEInternalExternalPropsOutput, context.getProvisioningPhaseElement(), null);
 
         return true;
     }

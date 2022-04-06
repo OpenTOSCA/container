@@ -133,7 +133,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER,
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
                     createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
-                    elementToAppendTo);
+                    elementToAppendTo, null);
             }
         }
 
@@ -480,7 +480,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
             createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
-            context.getProvisioningPhaseElement())
+            context.getProvisioningPhaseElement(), null)
             && this.handleTerminate(context, context.getProvisioningCompensationPhaseElement());
     }
 
@@ -528,7 +528,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
             createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
-            context.getProvisioningPhaseElement());
+            context.getProvisioningPhaseElement(), null);
 
         check &= this.handleTerminate(context, context.getProvisioningCompensationPhaseElement());
 

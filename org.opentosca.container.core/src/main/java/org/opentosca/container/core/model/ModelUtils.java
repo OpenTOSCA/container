@@ -45,6 +45,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TRequirement;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
@@ -219,6 +220,44 @@ public abstract class ModelUtils {
             }
         }
         return null;
+    }
+
+    public static boolean isSourceOperation(TRelationshipTemplate relationshipTemplate, TOperation operation, Csar csar) {
+        return !getSourceInterfaces(relationshipTemplate, csar).stream().filter(tInterface -> tInterface.getOperations().contains(operation)).collect(Collectors.toList()).isEmpty();
+    }
+
+    public static boolean isTargetOperation(TRelationshipTemplate relationshipTemplate, TOperation operation, Csar csar) {
+        return !getTargetInterfaces(relationshipTemplate, csar).stream().filter(tInterface -> tInterface.getOperations().contains(operation)).collect(Collectors.toList()).isEmpty();
+    }
+
+    public static Boolean isOperationDefinedOnSource(TRelationshipTemplate relationshipTemplate, TOperation operation, Csar csar) {
+        boolean isSource = isSourceOperation(relationshipTemplate, operation, csar);
+        boolean isTarget = isTargetOperation(relationshipTemplate, operation, csar);
+
+        if (!(isSource || isTarget)) {
+            // at this point the operation is not defined either on source or target
+            return null;
+        }
+
+        return isSource;
+    }
+
+    public static Collection<TInterface> getTargetInterfaces(TRelationshipTemplate relationshipTemplate, Csar csar) {
+        TRelationshipType relType = findRelationshipType(relationshipTemplate, csar);
+        if (relType.getTargetInterfaces() != null) {
+            return relType.getTargetInterfaces();
+        } else {
+            return Lists.newArrayList();
+        }
+    }
+
+    public static Collection<TInterface> getSourceInterfaces(TRelationshipTemplate relationshipTemplate, Csar csar) {
+        TRelationshipType relType = findRelationshipType(relationshipTemplate, csar);
+        if (relType.getSourceInterfaces() != null) {
+            return relType.getSourceInterfaces();
+        } else {
+            return Lists.newArrayList();
+        }
     }
 
     public static boolean doesNotHaveBuildPlan(TServiceTemplate serviceTemplate) {

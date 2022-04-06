@@ -80,11 +80,13 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                           Element elementToAppendTo) {
         String templateId;
         boolean isNodeTemplate = false;
+        Boolean isSource = null;
         if (context.getNodeTemplate() != null) {
             templateId = context.getNodeTemplate().getId();
             isNodeTemplate = true;
         } else {
             templateId = context.getRelationshipTemplate().getId();
+            isSource = ModelUtils.isOperationDefinedOnSource(context.getRelationshipTemplate(), operation, context.getCsar());
         }
 
         final Map<String, Variable> inputParams = new HashMap<>();
@@ -95,7 +97,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                inputParams, new HashMap<>(), elementToAppendTo);
+                inputParams, new HashMap<>(), elementToAppendTo, isSource);
         } catch (final Exception e) {
             e.printStackTrace();
             return false;
@@ -108,11 +110,13 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                           final Map<TParameter, Variable> param2propertyMapping) {
         String templateId;
         boolean isNodeTemplate = false;
+        Boolean isSource = null;
         if (context.getNodeTemplate() != null) {
             templateId = context.getNodeTemplate().getId();
             isNodeTemplate = true;
         } else {
             templateId = context.getRelationshipTemplate().getId();
+            isSource = ModelUtils.isOperationDefinedOnSource(context.getRelationshipTemplate(), operation, context.getCsar());
         }
 
         final Map<String, Variable> inputParams = new HashMap<>();
@@ -123,7 +127,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                inputParams, new HashMap<>(), context.getProvisioningPhaseElement());
+                inputParams, new HashMap<>(), context.getProvisioningPhaseElement(), isSource);
         } catch (final Exception e) {
             e.printStackTrace();
             return false;
@@ -146,10 +150,10 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
     public boolean handle(final BPELPlanContext context, final String templateId, final boolean isNodeTemplate,
                           final String operationName, final String interfaceName,
                           final Map<String, Variable> internalExternalPropsInput,
-                          final Map<String, Variable> internalExternalPropsOutput, Element elementToAppendTo) {
+                          final Map<String, Variable> internalExternalPropsOutput, Element elementToAppendTo, Boolean isSource) {
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operationName, interfaceName,
-                internalExternalPropsInput, internalExternalPropsOutput, elementToAppendTo);
+                internalExternalPropsInput, internalExternalPropsOutput, elementToAppendTo, isSource);
         } catch (final Exception e) {
             LOG.error("Couldn't append logic to provivioning phase of Template: {}",
                 context.getNodeTemplate() != null
@@ -175,10 +179,10 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
      */
     public boolean handle(final BPELPlanContext context, final String operationName, final String interfaceName,
                           final String callbackAddressVarName, final Map<String, Variable> internalExternalPropsInput,
-                          final Map<String, Variable> internalExternalPropsOutput) {
+                          final Map<String, Variable> internalExternalPropsOutput, Boolean isSource) {
         try {
             return this.handler.handle(context, operationName, interfaceName, callbackAddressVarName,
-                internalExternalPropsInput, internalExternalPropsOutput, context.getProvisioningPhaseElement());
+                internalExternalPropsInput, internalExternalPropsOutput, context.getProvisioningPhaseElement(), isSource);
         } catch (final Exception e) {
             LOG.error("Couldn't append logic to provisoining phase of Template: {}",
                 context.getNodeTemplate() != null
@@ -290,11 +294,13 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
                           final Map<TParameter, Variable> param2PropertyOutputMapping) {
         String templateId;
         boolean isNodeTemplate = false;
+        Boolean isSource = null;
         if (context.getNodeTemplate() != null) {
             templateId = context.getNodeTemplate().getId();
             isNodeTemplate = true;
         } else {
             templateId = context.getRelationshipTemplate().getId();
+            isSource = ModelUtils.isOperationDefinedOnSource(context.getRelationshipTemplate(), operation, context.getCsar());
         }
 
         final Map<String, Variable> inputParams = new HashMap<>();
@@ -309,7 +315,7 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                inputParams, outputParams, context.getProvisioningPhaseElement());
+                inputParams, outputParams, context.getProvisioningPhaseElement(), isSource);
         } catch (final IOException e) {
             e.printStackTrace();
             return false;
@@ -331,9 +337,14 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
             outputParams.put(key.getName(), param2PropertyOutputMapping.get(key));
         }
 
+        Boolean isSource = null;
+        if (context.getRelationshipTemplate() != null) {
+            isSource = ModelUtils.isOperationDefinedOnSource(context.getRelationshipTemplate(), operation, context.getCsar());
+        }
+
         try {
             return this.handler.handle(context, operation.getName(), ia.getInterfaceName(), null, inputParams,
-                outputParams, elementToAppendTo);
+                outputParams, elementToAppendTo, isSource);
         } catch (final Exception e) {
             LOG.error("Error while handling operation {} with IA {}", operation.getName(), ia.getArtifactRef());
             return false;

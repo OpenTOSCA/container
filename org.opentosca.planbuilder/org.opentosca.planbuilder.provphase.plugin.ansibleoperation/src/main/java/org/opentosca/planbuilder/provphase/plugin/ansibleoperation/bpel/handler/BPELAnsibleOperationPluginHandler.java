@@ -127,7 +127,7 @@ public class BPELAnsibleOperationPluginHandler {
                 runScriptRequestInputParams.put("sshUser", sshUserVariable);
                 runScriptRequestInputParams.put("script", runShScriptStringVar);
                 this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", runScriptRequestInputParams,
-                    new HashMap<String, Variable>(), templateContext.getProvisioningPhaseElement());
+                    new HashMap<String, Variable>(), templateContext.getProvisioningPhaseElement(), null);
 
                 break;
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
@@ -138,7 +138,7 @@ public class BPELAnsibleOperationPluginHandler {
                 runScriptRequestInputParams.put("Script", runShScriptStringVar);
                 this.invokerPlugin.handle(templateContext, templateId, true, "runScript",
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, runScriptRequestInputParams,
-                    new HashMap<String, Variable>(), templateContext.getProvisioningPhaseElement());
+                    new HashMap<String, Variable>(), templateContext.getProvisioningPhaseElement(), null);
                 break;
             default:
                 return false;

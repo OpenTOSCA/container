@@ -395,7 +395,7 @@ public class BPELPlanContext extends PlanContext {
 
     public boolean executeOperation(final TRelationshipTemplate relationshipTemplate, final String interfaceName,
                                     final String operationName, Map<TParameter, Variable> inputPropertyMapping,
-                                    Map<TParameter, Variable> outputPropertyMapping) {
+                                    Map<TParameter, Variable> outputPropertyMapping, Boolean isSource) {
 
         if (inputPropertyMapping == null) {
             inputPropertyMapping = new HashMap<>();

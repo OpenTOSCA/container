@@ -32,7 +32,7 @@ public class BPELConfigureRelationsPluginHandler implements ConnectsToPluginHand
             final Map<TParameter, Variable> input =
                 findInputParameters(templateContext, op, sourceNodeTemplate, targetNodeTemplate);
             templateContext.executeOperation(relationTemplate, ConfigureRelationsPlugin.INTERFACE_NAME,
-                ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_SOURCE, input, null);
+                ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_SOURCE, input, null, null);
         }
 
         if (hasOperation(relationTemplate, ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_TARGET, templateContext.getCsar())) {
@@ -41,7 +41,7 @@ public class BPELConfigureRelationsPluginHandler implements ConnectsToPluginHand
             final Map<TParameter, Variable> input =
                 findInputParameters(templateContext, op, sourceNodeTemplate, targetNodeTemplate);
             templateContext.executeOperation(relationTemplate, ConfigureRelationsPlugin.INTERFACE_NAME,
-                ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_TARGET, input, null);
+                ConfigureRelationsPlugin.OPERATION_POST_CONFIGURE_TARGET, input, null, null);
         }
 
         return true;

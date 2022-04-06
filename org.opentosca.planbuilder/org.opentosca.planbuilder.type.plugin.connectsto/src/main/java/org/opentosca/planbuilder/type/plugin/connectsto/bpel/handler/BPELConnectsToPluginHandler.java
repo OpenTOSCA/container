@@ -161,7 +161,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             BPELConnectsToPluginHandler.LOG.debug("Adding connectTo operation execution to build plan.");
             // TODO FIXME outputs are not mapped yet
             return templateContext.executeOperation(relationshipTemplate, lifecycleInterface.getName(),
-                operation.getName(), param2propertyMapping, new HashMap<>());
+                operation.getName(), param2propertyMapping, new HashMap<>(), isSource);
     }
 
     /**

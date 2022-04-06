@@ -171,7 +171,7 @@ public class BPELConnectsToPluginHandler {
 
         this.invokerPlugin.handle(templateContext, ubuntuTemplateId, true, "runScript",
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, runScriptRequestInputParams,
-            new HashMap<String, Variable>(), templateContext.getProvisioningPhaseElement());
+            new HashMap<String, Variable>(), templateContext.getProvisioningPhaseElement(), null);
 
         return true;
     }
