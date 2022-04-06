@@ -15,7 +15,6 @@ import org.eclipse.winery.model.tosca.TEntityType;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
-import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 
 import org.opentosca.bus.management.utils.MBUtils;
@@ -300,7 +299,7 @@ public class ParameterHandler {
             TInterface typeInterface = null;
             if (isSourceInterface == null) {
                 typeInterface = ModelUtils.getInterface(relationshipType.getInterfaces(), interfaceName);
-            } else if (isSourceInterface){
+            } else if (isSourceInterface) {
                 typeInterface = ModelUtils.getInterface(relationshipType.getSourceInterfaces(), interfaceName);
             } else  {
                 typeInterface = ModelUtils.getInterface(relationshipType.getTargetInterfaces(), interfaceName);

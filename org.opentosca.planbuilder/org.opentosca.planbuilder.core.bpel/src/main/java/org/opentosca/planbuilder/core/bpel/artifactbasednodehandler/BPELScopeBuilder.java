@@ -531,34 +531,18 @@ public class BPELScopeBuilder {
 
         TRelationshipType relType = ModelUtils.findRelationshipType(relationshipTemplate, csar);
 
-        if (relType.getSourceInterfaces() != null) {
-            for (final TInterface iface : relType.getSourceInterfaces()) {
-                for (final TOperation op : iface.getOperations()) {
-                    if (op.getName().equals(name)) {
-                        return op;
-                    }
-                }
-            }
+        TOperation op = ModelUtils.getOperation(relType.getSourceInterfaces(), name);
+        if (op != null) {
+            return op;
         }
 
-        if (relType.getTargetInterfaces() != null) {
-            for (final TInterface iface : relType.getTargetInterfaces()) {
-                for (final TOperation op : iface.getOperations()) {
-                    if (op.getName().equals(name)) {
-                        return op;
-                    }
-                }
-            }
+        op = ModelUtils.getOperation(relType.getTargetInterfaces(), name);
+        if (op != null) {
+            return op;
         }
-
-        if (relType.getInterfaces() != null) {
-            for (final TInterface iface : relType.getInterfaces()) {
-                for (final TOperation op : iface.getOperations()) {
-                    if (op.getName().equals(name)) {
-                        return op;
-                    }
-                }
-            }
+        op = ModelUtils.getOperation(relType.getInterfaces(), name);
+        if (op != null) {
+            return op;
         }
 
         return null;

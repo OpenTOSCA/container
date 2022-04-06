@@ -4,11 +4,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
-import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
@@ -16,18 +14,14 @@ import org.eclipse.winery.model.tosca.TRelationshipType;
 
 import com.google.common.collect.Maps;
 import org.opentosca.container.core.convention.Interfaces;
-import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.model.ModelUtils;
-import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
-import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.type.plugin.connectsto.core.handler.ConnectsToPluginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ui.Model;
 
 /**
  * Copyright 2016 IAAS University of Stuttgart <br>
@@ -94,6 +88,12 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             }
         }
 
+        this.handleLifecycleInterface(templateContext, relationTemplate);
+
+        return true;
+    }
+
+    private boolean handleLifecycleInterface(BPELPlanContext templateContext, TRelationshipTemplate relationTemplate) {
         TRelationshipType relationshipType = ModelUtils.findRelationshipType(relationTemplate, templateContext.getCsar());
         Collection<TInterface> sourceInterfaces = relationshipType.getSourceInterfaces();
         Collection<TInterface> targetInterfaces = relationshipType.getTargetInterfaces();
@@ -102,28 +102,28 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         if (sourceInterfaces != null) {
             TInterface lifeCycleInterface = ModelUtils.getLifecycleInterface(sourceInterfaces);
             if (lifeCycleInterface != null) {
-                this.executeLifecycleInterfaceCreateOperations(templateContext,relationTemplate, sourceNodeTemplate, lifeCycleInterface, true);
+                this.executeLifecycleInterfaceCreateOperations(templateContext,relationTemplate, lifeCycleInterface, true);
             }
         }
 
         if (targetInterfaces != null) {
             TInterface lifeCycleInterface = ModelUtils.getLifecycleInterface(targetInterfaces);
             if (lifeCycleInterface != null) {
-                this.executeLifecycleInterfaceCreateOperations(templateContext,relationTemplate, targetNodeTemplate, lifeCycleInterface, false);
+                this.executeLifecycleInterfaceCreateOperations(templateContext,relationTemplate, lifeCycleInterface, false);
             }
         }
 
         if (ifaces != null) {
             TInterface lifeCycleInterface = ModelUtils.getLifecycleInterface(ifaces);
             if (lifeCycleInterface != null) {
-                this.executeLifecycleInterfaceCreateOperations(templateContext,relationTemplate, sourceNodeTemplate, lifeCycleInterface, null);
+                this.executeLifecycleInterfaceCreateOperations(templateContext,relationTemplate, lifeCycleInterface, null);
             }
         }
 
         return true;
     }
 
-    private boolean executeLifecycleInterfaceCreateOperations(BPELPlanContext templateContext, final TRelationshipTemplate relationshipTemplate, TNodeTemplate connectedNodeTemplate, TInterface lifecycleInterface, Boolean isSource) {
+    private boolean executeLifecycleInterfaceCreateOperations(BPELPlanContext templateContext, final TRelationshipTemplate relationshipTemplate, TInterface lifecycleInterface, Boolean isSource) {
         TOperation install = ModelUtils.getOperation(lifecycleInterface, "install");
         TOperation configure = ModelUtils.getOperation(lifecycleInterface, "configure");
         TOperation start = ModelUtils.getOperation(lifecycleInterface, "start");
@@ -143,16 +143,16 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         return true;
     }
 
-    private boolean callLifecycleOperation(BPELPlanContext templateContext, TRelationshipTemplate relationshipTemplate, TInterface lifecycleInterface, TOperation install, Boolean isSource) {
+    private boolean callLifecycleOperation(BPELPlanContext templateContext, TRelationshipTemplate relationshipTemplate, TInterface lifecycleInterface, TOperation operation, Boolean isSource) {
             Map<TParameter, Variable> param2propertyMapping = Maps.newHashMap();
-            if (install.getInputParameters() != null) {
+            if (operation.getInputParameters() != null) {
                 BPELConnectsToPluginHandler.LOG.debug("Found install operation. Searching for matching parameters in the properties.");
-                param2propertyMapping = findInputParameters(templateContext, install, relationshipTemplate, ModelUtils.getSource(relationshipTemplate, templateContext.getCsar()),
+                param2propertyMapping = findInputParameters(templateContext, operation, ModelUtils.getSource(relationshipTemplate, templateContext.getCsar()),
                     ModelUtils.getTarget(relationshipTemplate, templateContext.getCsar()), isSource);
 
                 // check if all input params (or at least all required input params) can be matched with properties
-                if (param2propertyMapping.size() != install.getInputParameters().size()
-                    && !allRequiredParamsAreMatched(install.getInputParameters(), param2propertyMapping)) {
+                if (param2propertyMapping.size() != operation.getInputParameters().size()
+                    && !allRequiredParamsAreMatched(operation.getInputParameters(), param2propertyMapping)) {
                     BPELConnectsToPluginHandler.LOG.warn("Didn't find necessary matchings from parameter to property. Can't initialize connectsTo relationship.");
                     return false;
                 }
@@ -161,7 +161,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             BPELConnectsToPluginHandler.LOG.debug("Adding connectTo operation execution to build plan.");
             // TODO FIXME outputs are not mapped yet
             return templateContext.executeOperation(relationshipTemplate, lifecycleInterface.getName(),
-                install.getName(), param2propertyMapping, new HashMap<>());
+                operation.getName(), param2propertyMapping, new HashMap<>());
     }
 
     /**
@@ -275,7 +275,6 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
     }
 
     private boolean findInputParameter(final BPELPlanContext templateContext,
-                                       final TRelationshipTemplate relationshipTemplate,
                                        final TNodeTemplate sourceParameterNode,
                                        final TNodeTemplate targetParameterNode,
                                        Map<TParameter, Variable> param2propertyMapping, TParameter param, boolean definedOnSource) {
@@ -405,7 +404,6 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
 
     private Map<TParameter, Variable> findInputParameters(final BPELPlanContext templateContext,
                                                           final TOperation connectsToOp,
-                                                          final TRelationshipTemplate relationshipTemplate,
                                                           final TNodeTemplate sourceParameterNode,
                                                           final TNodeTemplate targetParameterNode, boolean isSource) {
         final Map<TParameter, Variable> param2propertyMapping = new HashMap<>();
@@ -415,7 +413,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                 if (this.isPrefixedParam(param)) {
                     this.findInputPrefixedParameter(templateContext, sourceParameterNode, targetParameterNode, param2propertyMapping, param);
                 } else {
-                    this.findInputParameter(templateContext, relationshipTemplate, sourceParameterNode, targetParameterNode, param2propertyMapping, param, isSource);
+                    this.findInputParameter(templateContext, sourceParameterNode, targetParameterNode, param2propertyMapping, param, isSource);
                 }
             }
         }
@@ -483,12 +481,13 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
      */
     private Variable searchPropertyInStack(final PlanContext templateContext, TNodeTemplate currentNode,
                                            final String propName) {
-        while (currentNode != null) {
-            final Variable property = templateContext.getPropertyVariable(currentNode, propName);
+        TNodeTemplate searchNode = currentNode;
+        while (searchNode != null) {
+            final Variable property = templateContext.getPropertyVariable(searchNode, propName);
             if (property != null) {
                 return property;
             } else {
-                currentNode = ModelUtils.fetchNodeConnectedWithHostedOn(currentNode, templateContext.getCsar());
+                searchNode = ModelUtils.fetchNodeConnectedWithHostedOn(searchNode, templateContext.getCsar());
             }
         }
         return null;

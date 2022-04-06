@@ -39,7 +39,6 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TOperation;
-import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
@@ -162,6 +161,16 @@ public abstract class ModelUtils {
 
     public static TOperation getOperation(TInterface iface, String operationName) {
         return iface.getOperations().stream().filter(op -> op.getName().equals(operationName)).findFirst().orElse(null);
+    }
+
+    public static TOperation getOperation(Collection<TInterface> ifaces, String operationName) {
+        for (TInterface iface : ifaces) {
+            TOperation op = getOperation(iface, operationName);
+            if (op != null) {
+                return op;
+            }
+        }
+        return null;
     }
 
     public static TInterface getLifecycleInterface(Collection<TInterface> ifaces) {

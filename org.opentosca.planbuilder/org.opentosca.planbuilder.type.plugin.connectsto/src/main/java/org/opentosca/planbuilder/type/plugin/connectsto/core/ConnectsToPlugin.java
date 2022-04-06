@@ -1,7 +1,6 @@
 package org.opentosca.planbuilder.type.plugin.connectsto.core;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -10,7 +9,6 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 
 import com.google.common.collect.Lists;
-import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
@@ -90,11 +88,7 @@ public abstract class ConnectsToPlugin<T extends PlanContext> implements IPlanBu
             allInterfaces.addAll(ifaces);
         }
 
-        if (ModelUtils.getLifecycleInterface(allInterfaces) != null) {
-            return true;
-        }
-
-        return false;
+        return ModelUtils.getLifecycleInterface(allInterfaces) != null;
     }
 
     /*
