@@ -381,12 +381,10 @@ public class OdeConnector {
                     if (node.getNodeType() == Node.ELEMENT_NODE) {
                         final Element epr = (Element) node;
                         final NodeList addList = epr.getElementsByTagNameNS(NS_WS_ADDRESSING, "Address");
-                        if (addList != null && addList.getLength() > 0) {
+                        if (addList != null && addList.getLength() > 0 && addList.item(0).getFirstChild() != null) {
                             // By default there should be only one address element, therefore we take the
                             // first node
-                            if (addList.item(0).getFirstChild() != null) {
-                                return addList.item(0).getFirstChild().getNodeValue();
-                            }
+                            return addList.item(0).getFirstChild().getNodeValue();
                         }
                     }
 

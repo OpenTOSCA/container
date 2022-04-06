@@ -112,6 +112,7 @@ public class IncomingProcessor implements Processor {
                     break;
                 default:
                     LOG.warn("Header has unknown type and can not be added to the exchange!");
+                    break;
             }
         }
     }

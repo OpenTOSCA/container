@@ -99,9 +99,9 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
 
                 if (isConcatQuery(templatePropertyName)) {
                     processHandler.addCopyStringToOutputAssign(generateCopyFromQueryToOutputAsString(templatePropertyName,
-                        "//*[local-name()='"
-                            + serviceTemplatePropertyName
-                            + "']"),
+                            "//*[local-name()='"
+                                + serviceTemplatePropertyName
+                                + "']"),
                         buildPlan);
                 } else {
                     final String templateId = mapping.getTemplateId(serviceTemplatePropertyName);
@@ -212,7 +212,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
             // this will be a localName in the output
             final String serviceTemplatePropLocalName = getTemplatePropertyLocalName(propElement, propertyMapping.getServiceTemplatePropertyRef());
 
-            String templatePropLocalName = this.determinePropLocalName(targetPropertyRef,propertyMapping,buildPlanServiceTemplate, templateId,serviceTemplateQName,propMap,serviceTemplatePropLocalName);
+            String templatePropLocalName = this.determinePropLocalName(targetPropertyRef, propertyMapping, buildPlanServiceTemplate, templateId, serviceTemplateQName, propMap, serviceTemplatePropLocalName);
 
             if (templatePropLocalName == null) {
                 ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.warn("Referenced Template {} in ServiceTemplate {} has no Properties defined, continueing with other PropertyMapping",
@@ -228,7 +228,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
     }
 
     private String determinePropLocalName(String targetPropertyRef, TPropertyMapping propertyMapping, TServiceTemplate buildPlanServiceTemplate,
-                                          String templateId, QName serviceTemplateQName, Property2VariableMapping propMap, String serviceTemplatePropLocalName){
+                                          String templateId, QName serviceTemplateQName, Property2VariableMapping propMap, String serviceTemplatePropLocalName) {
         String templatePropLocalName = null;
         boolean isConcatQuery = false;
         if (isConcatQuery(targetPropertyRef)) {

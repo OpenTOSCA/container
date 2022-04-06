@@ -31,6 +31,5 @@ public class LoggingExceptionMapper implements ExceptionMapper<Throwable> {
         } else {
             return Response.serverError().entity("Something really unexpected happened").build();
         }
-
     }
 }

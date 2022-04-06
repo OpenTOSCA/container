@@ -68,6 +68,7 @@ public class BPELPluginHandler {
                 break;
             case UPDATE:
                 handleUpdateActivity(context, bpelScope, nodeTemplate);
+                break;
         }
 
         return result;

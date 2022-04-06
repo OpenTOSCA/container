@@ -17,14 +17,13 @@ import org.xml.sax.SAXException;
 public class CorrelationIDInitializer {
 
     private BPELPlanHandler buildPlanHandler;
-    private DocumentBuilderFactory docFactory;
     private DocumentBuilder docBuilder;
 
     public CorrelationIDInitializer() {
         try {
             this.buildPlanHandler = new BPELPlanHandler();
-            this.docFactory = DocumentBuilderFactory.newInstance();
-            this.docFactory.setNamespaceAware(true);
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            docFactory.setNamespaceAware(true);
             this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         } catch (final ParserConfigurationException e) {
             e.printStackTrace();

@@ -93,6 +93,7 @@ public class PlacementController {
                 }
             }
         }
+        logger.debug("Responding with map: " + resultMap);
         return Response.ok(resultMap).build();
     }
 }

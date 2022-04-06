@@ -77,7 +77,7 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
                     activities.add(activityStart);
                     mappingStart.put(nodeTemplate, activityStart);
                 } else {
-                    throw new RuntimeException("Policy expected, behavior not implemented");
+                    throw new IllegalArgumentException("Policy expected, behavior not implemented");
                 }
             } else if (isUpdatableComponent(nodeTemplate, csar)) {
                 // Bottommost updatable node.

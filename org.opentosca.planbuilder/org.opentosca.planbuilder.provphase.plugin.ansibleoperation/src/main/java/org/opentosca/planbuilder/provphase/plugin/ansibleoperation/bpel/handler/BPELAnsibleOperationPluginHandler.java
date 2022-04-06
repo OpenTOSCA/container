@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -42,14 +40,6 @@ public class BPELAnsibleOperationPluginHandler {
     private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(BPELAnsibleOperationPluginHandler.class);
 
     private final BPELInvokerPlugin invokerPlugin = new BPELInvokerPlugin();
-
-    private final DocumentBuilderFactory docFactory;
-
-    public BPELAnsibleOperationPluginHandler() {
-
-        this.docFactory = DocumentBuilderFactory.newInstance();
-        this.docFactory.setNamespaceAware(true);
-    }
 
     private Variable appendBPELAssignOperationShScript(final BPELPlanContext templateContext,
                                                        final TArtifactReference reference) {

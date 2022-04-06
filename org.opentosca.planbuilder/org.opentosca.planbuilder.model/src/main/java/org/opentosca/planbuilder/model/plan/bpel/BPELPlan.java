@@ -36,6 +36,7 @@ public class BPELPlan extends AbstractPlan {
 
     public static final String bpelNamespace = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
     public static final String xpath2Namespace = "urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0";
+    private final List<BPELScope> templateBuildPlans = new ArrayList<>();
     public Map<String, String> namespaceMap = new HashMap<>();
     // xml document
     private Document bpelProcessDocument;
@@ -50,7 +51,6 @@ public class BPELPlan extends AbstractPlan {
     private Element bpelMainSequenceElement;
     // assign element for property assigns
     private Element bpelMainSequencePropertyAssignElement;
-
     // variables associated with the bpel orchestration
     // the main sequence element of this process
     // assign element for output
@@ -63,7 +63,6 @@ public class BPELPlan extends AbstractPlan {
     // will work on
     private Element bpelMainFlowElement;
     private Element bpelMainFlowLinksElement;
-    private final List<BPELScope> templateBuildPlans = new ArrayList<>();
     // imported files of the whole buildplan, to keep track for export
     private Set<Path> importedFiles;
     // variable for TemplateBuildPlans, makes it easier or handlers and

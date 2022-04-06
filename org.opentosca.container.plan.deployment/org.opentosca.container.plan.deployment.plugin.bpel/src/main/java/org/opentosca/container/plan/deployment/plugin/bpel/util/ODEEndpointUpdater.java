@@ -249,11 +249,9 @@ public class ODEEndpointUpdater {
                 tempFiles.addAll(getAllWSDLFiles(temp));
             }
             final int pos = file.getName().lastIndexOf('.');
-            if (pos > 0 && pos < file.getName().length() - 1) {
-                if (file.getName().substring(pos + 1).equals("wsdl")) {
-                    LOG.debug("Adding .wsdl file {} ", file.getName());
-                    tempFiles.add(file);
-                }
+            if (pos > 0 && pos < file.getName().length() - 1 && file.getName().substring(pos + 1).equals("wsdl")) {
+                LOG.debug("Adding .wsdl file {} ", file.getName());
+                tempFiles.add(file);
             }
         }
         return tempFiles;
@@ -410,10 +408,8 @@ public class ODEEndpointUpdater {
             final Service service = (Service) o;
             for (final Object obj : service.getPorts().values()) {
                 final Port port = (Port) obj;
-                if (port.getBinding().getPortType().getQName().equals(portType)) {
-                    if (changePortAddressWithBpelEngineEndpoints(service, port)) {
-                        changed = true;
-                    }
+                if (port.getBinding().getPortType().getQName().equals(portType) && changePortAddressWithBpelEngineEndpoints(service, port)) {
+                    changed = true;
                 }
             }
         }
@@ -605,9 +601,14 @@ public class ODEEndpointUpdater {
             final Unmarshaller unmarshaller = context.createUnmarshaller();
             final TDeployment deploy =
                 unmarshaller.unmarshal(new StreamSource(deployXML), TDeployment.class).getValue();
+            QName processName = null;
             for (final TDeployment.Process process : deploy.getProcess()) {
-                return process.getName();
+                processName = process.getName();
+                if (processName != null) {
+                    break;
+                }
             }
+            return processName;
         } catch (final JAXBException e) {
             e.printStackTrace();
         }
