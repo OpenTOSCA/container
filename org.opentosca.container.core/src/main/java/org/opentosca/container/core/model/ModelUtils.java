@@ -179,12 +179,10 @@ public abstract class ModelUtils {
     }
 
     public static TInterface getInterface(Collection<TInterface> ifaces, String ifaceName) {
-        if (ifaces != null) {
-            for (TInterface iface : ifaces) {
-                if (iface.getName().equals(ifaceName)) {
-                    // we found atleast one lifecycle interface
-                    return iface;
-                }
+        for (TInterface iface : ifaces) {
+            if (iface.getName().equals(ifaceName)) {
+                // we found atleast one lifecycle interface
+                return iface;
             }
         }
         return null;
