@@ -15,7 +15,7 @@ import com.google.gson.JsonParser;
 import org.glassfish.jersey.client.JerseyClient;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.glassfish.jersey.client.JerseyWebTarget;
-import org.opentosca.bus.management.service.impl.Constants;
+import org.opentosca.bus.management.Constants;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.ToscaEngine;

@@ -1,8 +1,6 @@
 package org.opentosca.bus.management.service.impl;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -20,15 +18,11 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.namespace.QName;
 
-import org.eclipse.winery.model.ids.definitions.ArtifactTemplateId;
-import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TEntityType;
 import org.eclipse.winery.model.tosca.TEntityTypeImplementation;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
-import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
-import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
@@ -40,6 +34,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.support.DefaultExchange;
+import org.opentosca.bus.management.Constants;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.IManagementBusService;
@@ -54,7 +49,6 @@ import org.opentosca.bus.management.service.impl.util.Util;
 import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.Settings;
-import org.opentosca.container.core.common.xml.XMLHelper;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.next.ContainerEngine;
@@ -441,7 +435,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         message.setHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), triggeringContainer);
 
         // check if requested interface/operation is provided
-        if (!iaProvidesRequestedOperation(csar, ia, type, neededInterface, neededOperation)) {
+        if (!mbUtils.iaProvidesRequestedOperation(csar, ia, type, neededInterface, neededOperation)) {
             LOG.debug("Implementation Artifact does not provide the requested operation.");
             return false;
         }
@@ -477,7 +471,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final QName portType = Util.getPortTypeQName(artifactTemplate);
 
         // retrieve specific content for the IA if defined and add to the headers
-        exchange = addSpecificContent(exchange, ia);
+        exchange = mbUtils.addSpecificContent(exchange, ia);
 
         // host name of the container where the IA has to be deployed
         final String deploymentLocation = this.decisionMaker.getDeploymentLocation(nodeTemplateInstance);
@@ -547,7 +541,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             // files from other OpenTOSCA Container nodes
             LOG.debug("Searching for artifact references for ArtifactTemplate {}",
                 artifactTemplate.getIdFromIdOrNameField());
-            final List<String> artifactReferences = findAbsoluteArtifactReferences(csar, artifactTemplate);
+            final List<String> artifactReferences = mbUtils.findAbsoluteArtifactReferences(csar, artifactTemplate);
 
             if (artifactReferences.isEmpty()) {
                 LOG.debug("No artifact references found. No deployment and invocation possible for this ArtifactTemplate.");
@@ -580,7 +574,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 // If a placeholder is specified, the service is part of the topology.
                 // We do not store this endpoints as they are not part of the management environment.
                 LOG.debug("Received endpoint contains placeholders. Service is part of the topology and called without deployment.");
-                endpointURI = replacePlaceholderWithInstanceData(endpointURI, nodeTemplateInstance);
+                endpointURI = mbUtils.replacePlaceholderWithInstanceData(endpointURI, nodeTemplateInstance);
                 message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpointURI);
             } else {
                 LOG.debug("IA successfully deployed. Storing endpoint...");
@@ -602,38 +596,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 deploymentLocation));
             return true;
         }
-    }
-
-    private List<String> findAbsoluteArtifactReferences(Csar csar, TArtifactTemplate artifactTemplate) {
-        final List<TArtifactReference> artifacts =
-            Optional.ofNullable(artifactTemplate.getArtifactReferences())
-                .orElse(Collections.emptyList());
-
-        // convert relative references to absolute references to enable access to the IA
-        // files from other OpenTOSCA Container nodes
-        LOG.debug("Searching for artifact references for ArtifactTemplate {}",
-            artifactTemplate.getIdFromIdOrNameField());
-        final List<String> artifactReferences = new ArrayList<>();
-        for (final TArtifactReference artifact : artifacts) {
-            // XML validated to be anyUri, therefore must be parsable as URI
-            final URI reference = URI.create(artifact.getReference().trim());
-            if (reference.getScheme() != null) {
-                LOG.warn("ArtifactReference {} of Csar {} is not supported", artifact.getReference(), csar.id());
-                continue;
-            }
-            // artifact is exposed via the content endpoint
-            final String absoluteArtifactReference =
-                Settings.OPENTOSCA_CONTAINER_CONTENT_API_ARTIFACTREFERENCE.replace("{csarid}", csar.id().csarName())
-                    // reference here is relative to CSAR basedirectory, with
-                    // spaces being URLEncoded
-                    .replace("{artifactreference}",
-                        artifact.getReference().trim().replaceAll(" ",
-                            "%20"));
-
-            artifactReferences.add(absoluteArtifactReference);
-            LOG.debug("Found reference: {} ", absoluteArtifactReference);
-        }
-        return artifactReferences;
     }
 
     @Override
@@ -769,24 +731,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         inputMap.put(Constants.MESSAGE_ID_PARAM, String.valueOf(System.currentTimeMillis()));
 
         // parse to doc and add input parameters
-        final Document inputDoc =
-            MBUtils.mapToDoc(Constants.BUS_WSDL_NAMESPACE, Constants.RECEIVE_NOTIFY_PARTNER_OPERATION, inputMap);
-
-        final Element root = inputDoc.getDocumentElement();
-        final Element paramsWrapper = inputDoc.createElement(Constants.PARAMS_PARAM);
-        root.appendChild(paramsWrapper);
-        for (final Entry<String, String> entry : params.entrySet()) {
-            final Element paramElement = inputDoc.createElement("Param");
-            paramsWrapper.appendChild(paramElement);
-
-            final Element keyElement = inputDoc.createElement("key");
-            keyElement.setTextContent(entry.getKey());
-            paramElement.appendChild(keyElement);
-
-            final Element valueElement = inputDoc.createElement("value");
-            valueElement.setTextContent(entry.getValue());
-            paramElement.appendChild(valueElement);
-        }
+        final Document inputDoc = this.mbUtils.createInputDocFromInputMap(inputMap, params);
         message.setBody(inputDoc);
 
         this.pluginHandler.callMatchingInvocationPlugin(exchange, "SOAP/HTTP", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
@@ -985,7 +930,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 final ServiceTemplateInstance serviceInstance = plan.getServiceTemplateInstance();
 
                 if (serviceInstance != null) {
-                    deleteEndpointsForServiceInstance(arguments.csar.id(), serviceInstance);
+                    deleteEndpointsForServiceInstance(arguments.csar.id(), serviceInstance, this.storage, this.endpointService, this.collaborationContext, this.pluginRegistry);
                 } else {
                     LOG.warn("Unable to retrieve ServiceTemplateInstance related to the plan.");
                 }
@@ -1005,7 +950,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
     }
 
-    private void updateWCET(PlanInvocationArguments arguments, PlanInstanceEvent event, PlanInstance plan) {
+    public void updateWCET(PlanInvocationArguments arguments, PlanInstanceEvent event, PlanInstance plan) {
         // write WCET back to Plan
         TPlan currentPlan = null;
         try {
@@ -1023,7 +968,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.info("Plan execution duration: {}ms", duration);
 
         final SituationTriggerInstanceListener instanceListener = new SituationTriggerInstanceListener();
-        final long calculatedWCET = instanceListener.calculateWCETForPlan(currentPlan, planInstanceRepository.findAll());
+        final long calculatedWCET = instanceListener.calculateWCETForPlan(currentPlan, this.planInstanceRepository.findAll());
 
         // if total duration larger than calculatedWCET, use duration
         if (calculatedWCET > 0 && calculatedWCET < duration) {
@@ -1048,7 +993,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             LOG.debug("Executed plan was a termination plan. Removing endpoints...");
             final ServiceTemplateInstance serviceInstance = plan.getServiceTemplateInstance();
             if (serviceInstance != null) {
-                deleteEndpointsForServiceInstance(arguments.csar.id(), serviceInstance);
+                deleteEndpointsForServiceInstance(arguments.csar.id(), serviceInstance, this.storage, this.endpointService, this.collaborationContext, this.pluginRegistry);
             } else {
                 LOG.warn("Unable to retrieve ServiceTemplateInstance related to the plan.");
             }
@@ -1058,47 +1003,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         planInstanceRepository.save(plan);
     }
 
-    private boolean iaProvidesRequestedOperation(Csar csar, TImplementationArtifact ia, TEntityType type,
-                                                 String neededInterface, String neededOperation) {
-        final String providedOperation = ia.getOperationName();
-        final String providedInterface = ia.getInterfaceName();
-
-        LOG.debug("Needed interface: {}. Provided interface: {}", neededInterface, providedInterface);
-        LOG.debug("Needed operation: {}. Provided operation: {}", neededOperation, providedOperation);
-
-        if (providedInterface == null && providedOperation == null) {
-            // IA implements all operations of all interfaces defined in the node type
-            LOG.debug("Correct IA found. IA: {} implements all operations of all interfaces defined in NodeType.",
-                ia.getName());
-            return true;
-        }
-
-        // IA implements all operations of one interface defined in NodeType
-        if (providedInterface != null && providedOperation == null && providedInterface.equals(neededInterface)) {
-            LOG.debug("Correct IA found. IA: {} implements all operations of one interface defined in NodeType.",
-                ia.getName());
-            return true;
-        }
-
-        // IA implements one operation of an interface defined in NodeType
-        if (providedInterface != null && providedOperation != null && providedInterface.equals(neededInterface)
-            && providedOperation.equals(neededOperation)) {
-            LOG.debug("Correct IA found. IA: {} implements one operation of an interface defined in NodeType.",
-                ia.getName());
-            return true;
-        }
-
-        // In this case - if there is no interface specified - the operation
-        // should be unique within the NodeType
-        if (neededInterface == null && neededOperation != null && providedInterface != null
-            && providedOperation == null) {
-            return ToscaEngine.isOperationUniqueInType(csar, type, providedInterface, neededOperation);
-        }
-
-        LOG.debug("ImplementationArtifact {} does not provide needed interface/operation", ia.getName());
-        return false;
-    }
-
     /**
      * Delete all endpoints for the given ServiceTemplateInstance from the <tt>EndpointService</tt>. In case an endpoint
      * is the only one for a certain implementation artifact, it is undeployed too.
@@ -1106,15 +1010,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * @param csarID          The CSAR to which the ServiceTemplateInstance belongs.
      * @param serviceInstance The ServiceTemplateInstance for which the endpoints have to be removed.
      */
-    private void deleteEndpointsForServiceInstance(final CsarId csarID, final ServiceTemplateInstance serviceInstance) {
+    public void deleteEndpointsForServiceInstance(final CsarId csarID, final ServiceTemplateInstance serviceInstance, CsarStorageService storage, ICoreEndpointService endpointService, CollaborationContext collaborationContext, PluginRegistry pluginRegistry) {
         final Long instanceID = serviceInstance.getId();
-        LOG.debug("Deleting endpoints for ServiceTemplateInstance with ID: {}", instanceID);
-
-        final Csar csar = this.storage.findById(csarID);
-
+        final Csar csar = storage.findById(csarID);
         final List<Endpoint> serviceEndpoints =
-            this.endpointService.getEndpointsForSTID(Settings.OPENTOSCA_CONTAINER_HOSTNAME, instanceID);
-        LOG.debug("Found {} endpoints to delete...", serviceEndpoints.size());
+            endpointService.getEndpointsForSTID(Settings.OPENTOSCA_CONTAINER_HOSTNAME, instanceID);
 
         for (final Endpoint serviceEndpoint : serviceEndpoints) {
 
@@ -1122,11 +1022,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             final String deploymentLocation = serviceEndpoint.getManagingContainer();
             final QName typeImpl = serviceEndpoint.getTypeImplementation();
             final String iaName = serviceEndpoint.getIaName();
-
-            LOG.debug("Deleting endpoint: Triggering Container: {}; "
-                    + "Managing Container: {}; NodeTypeImplementation: {}; IA name: {}", triggeringContainer,
-                deploymentLocation, typeImpl, iaName);
-
             final String identifier = getUniqueSynchronizationString(triggeringContainer, deploymentLocation, typeImpl,
                 iaName, instanceID.toString());
 
@@ -1135,30 +1030,27 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                 // get number of endpoints for the same IA
                 final int count =
-                    this.endpointService.getEndpointsForNTImplAndIAName(triggeringContainer, deploymentLocation,
+                    endpointService.getEndpointsForNTImplAndIAName(triggeringContainer, deploymentLocation,
                             typeImpl, iaName)
                         .size();
 
                 // only undeploy the IA if this is the only endpoint
                 if (count == 1) {
-                    LOG.debug("Undeploying corresponding IA...");
 
                     final TImplementationArtifact ia = ModelUtils.findIA(csar, typeImpl, iaName);
                     final String artifactType = ia.getArtifactType().toString();
 
                     // create exchange for the undeployment plug-in invocation
-                    Exchange exchange = new DefaultExchange(this.collaborationContext.getCamelContext());
+                    Exchange exchange = new DefaultExchange(collaborationContext.getCamelContext());
                     exchange.getIn().setHeader(MBHeader.ENDPOINT_URI.toString(), serviceEndpoint.getUri());
                     exchange.getIn().setHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), artifactType);
 
                     // get plug-in for the undeployment
                     IManagementBusDeploymentPluginService deploymentPlugin;
                     if (deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
-                        LOG.debug("Undeployment is done locally.");
-                        deploymentPlugin = this.pluginRegistry.getDeploymentPluginServices().get(artifactType);
+                        deploymentPlugin = pluginRegistry.getDeploymentPluginServices().get(artifactType);
                     } else {
-                        LOG.debug("Undeployment is done on a remote Container.");
-                        deploymentPlugin = this.pluginRegistry.getDeploymentPluginServices().get(Constants.REMOTE_TYPE);
+                        deploymentPlugin = pluginRegistry.getDeploymentPluginServices().get(Constants.REMOTE_TYPE);
 
                         // add header fields that are needed for the undeployment on a
                         // remote OpenTOSCA Container
@@ -1182,68 +1074,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 }
 
                 // delete the endpoint
-                this.endpointService.removeEndpoint(serviceEndpoint);
+                endpointService.removeEndpoint(serviceEndpoint);
                 LOG.debug("Endpoint deleted.");
             }
         }
-
         LOG.debug("Endpoint deletion terminated.");
-    }
-
-    /**
-     * Add the specific content of the ImplementationArtifact to the Exchange headers if defined.
-     */
-    private Exchange addSpecificContent(final Exchange exchange, final TImplementationArtifact implementationArtifact) {
-        final Object any = implementationArtifact.getAny();
-        final Document specificContent = any instanceof Element ? XMLHelper.fromRootNode((Element) any) : null;
-        if (specificContent != null) {
-            LOG.debug("ArtifactSpecificContent specified!");
-            exchange.getIn().setHeader(MBHeader.SPECIFICCONTENT_DOCUMENT.toString(), specificContent);
-        }
-        return exchange;
-    }
-
-    /**
-     * Replaces placeholder with a matching instance data value. Placeholder is defined like
-     * "/PLACEHOLDER_VMIP_IP_PLACEHOLDER/"
-     *
-     * @param endpoint             the endpoint URI containing the placeholder
-     * @param nodeTemplateInstance the NodeTemplateInstance where the endpoint belongs to
-     * @return the endpoint URI with replaced placeholder if matching instance data was found, the unchanged endpoint
-     * URI otherwise
-     */
-    private URI replacePlaceholderWithInstanceData(URI endpoint, final NodeTemplateInstance nodeTemplateInstance) {
-
-        if (nodeTemplateInstance == null) {
-            LOG.warn("NodeTemplateInstance is null. Unable to replace placeholders!");
-            return endpoint;
-        }
-        final String placeholder =
-            endpoint.toString().substring(endpoint.toString().lastIndexOf(Constants.PLACEHOLDER_START),
-                endpoint.toString().lastIndexOf(Constants.PLACEHOLDER_END)
-                    + Constants.PLACEHOLDER_END.length());
-
-        LOG.debug("Placeholder: {} detected in Endpoint: {}", placeholder, endpoint);
-        final String[] placeholderProperties =
-            placeholder.replace(Constants.PLACEHOLDER_START, "").replace(Constants.PLACEHOLDER_END, "").split("_");
-
-        for (final String placeholderProperty : placeholderProperties) {
-            LOG.debug("Searching instance data value for property {} ...", placeholderProperty);
-            final String propertyValue = MBUtils.searchProperty(nodeTemplateInstance, placeholderProperty);
-            if (propertyValue == null) {
-                LOG.warn("Value for property {} not found.", placeholderProperty);
-                continue;
-            }
-            LOG.debug("Value for property {} found: {}.", placeholderProperty, propertyValue);
-            try {
-                endpoint = new URI(endpoint.toString().replace(placeholder, propertyValue));
-                break;
-            } catch (final URISyntaxException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return endpoint;
     }
 
     /**

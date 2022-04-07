@@ -40,7 +40,7 @@ import org.opentosca.bus.management.api.soaphttp.model.ReceiveNotifyPartner;
 import org.opentosca.bus.management.api.soaphttp.model.ReceiveNotifyPartners;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.IManagementBusService;
-import org.opentosca.bus.management.service.impl.Constants;
+import org.opentosca.bus.management.Constants;
 import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.convention.Types;

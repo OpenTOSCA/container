@@ -1,10 +1,15 @@
 package org.opentosca.bus.management.utils;
 
 import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -22,6 +27,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.eclipse.winery.model.tosca.TArtifactReference;
+import org.eclipse.winery.model.tosca.TArtifactTemplate;
+import org.eclipse.winery.model.tosca.TEntityType;
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TInterface;
@@ -31,9 +39,14 @@ import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import org.apache.camel.Exchange;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.opentosca.bus.management.Constants;
+import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.container.core.common.NotFoundException;
+import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.common.xml.XMLHelper;
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Properties;
 import org.opentosca.container.core.convention.Types;
@@ -483,5 +496,148 @@ public class MBUtils {
             }
         }
         return null;
+    }
+
+    public List<String> findAbsoluteArtifactReferences(Csar csar, TArtifactTemplate artifactTemplate) {
+        final List<TArtifactReference> artifacts =
+            Optional.ofNullable(artifactTemplate.getArtifactReferences())
+                .orElse(Collections.emptyList());
+
+        // convert relative references to absolute references to enable access to the IA
+        // files from other OpenTOSCA Container nodes
+        final List<String> artifactReferences = new ArrayList<>();
+        for (final TArtifactReference artifact : artifacts) {
+            // XML validated to be anyUri, therefore must be parsable as URI
+            final URI reference = URI.create(artifact.getReference().trim());
+            if (reference.getScheme() != null) {
+                continue;
+            }
+            // artifact is exposed via the content endpoint
+            final String absoluteArtifactReference =
+                Settings.OPENTOSCA_CONTAINER_CONTENT_API_ARTIFACTREFERENCE.replace("{csarid}", csar.id().csarName())
+                    // reference here is relative to CSAR basedirectory, with
+                    // spaces being URLEncoded
+                    .replace("{artifactreference}",
+                        artifact.getReference().trim().replaceAll(" ",
+                            "%20"));
+
+            artifactReferences.add(absoluteArtifactReference);
+        }
+        return artifactReferences;
+    }
+
+    /**
+     * Replaces placeholder with a matching instance data value. Placeholder is defined like
+     * "/PLACEHOLDER_VMIP_IP_PLACEHOLDER/"
+     *
+     * @param endpoint             the endpoint URI containing the placeholder
+     * @param nodeTemplateInstance the NodeTemplateInstance where the endpoint belongs to
+     * @return the endpoint URI with replaced placeholder if matching instance data was found, the unchanged endpoint
+     * URI otherwise
+     */
+    public URI replacePlaceholderWithInstanceData(URI endpoint, final NodeTemplateInstance nodeTemplateInstance) {
+
+        if (nodeTemplateInstance == null) {
+            return endpoint;
+        }
+        final String placeholder =
+            endpoint.toString().substring(endpoint.toString().lastIndexOf(Constants.PLACEHOLDER_START),
+                endpoint.toString().lastIndexOf(Constants.PLACEHOLDER_END)
+                    + Constants.PLACEHOLDER_END.length());
+
+        final String[] placeholderProperties =
+            placeholder.replace(Constants.PLACEHOLDER_START, "").replace(Constants.PLACEHOLDER_END, "").split("_");
+
+        for (final String placeholderProperty : placeholderProperties) {
+            final String propertyValue = searchProperty(nodeTemplateInstance, placeholderProperty);
+            if (propertyValue == null) {
+                continue;
+            }
+            try {
+                endpoint = new URI(endpoint.toString().replace(placeholder, propertyValue));
+                break;
+            } catch (final URISyntaxException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return endpoint;
+    }
+
+    /**
+     * Add the specific content of the ImplementationArtifact to the Exchange headers if defined.
+     * @param exchange
+     * @param implementationArtifact
+     */
+    public Exchange addSpecificContent(final Exchange exchange, final TImplementationArtifact implementationArtifact) {
+        final Object any = implementationArtifact.getAny();
+        final Document specificContent = any instanceof Element ? XMLHelper.fromRootNode((Element) any) : null;
+        if (specificContent != null) {
+            exchange.getIn().setHeader(MBHeader.SPECIFICCONTENT_DOCUMENT.toString(), specificContent);
+        }
+        return exchange;
+    }
+
+    public boolean iaProvidesRequestedOperation(Csar csar, TImplementationArtifact ia, TEntityType type,
+                                                String neededInterface, String neededOperation) {
+        final String providedOperation = ia.getOperationName();
+        final String providedInterface = ia.getInterfaceName();
+
+        LOG.debug("Needed interface: {}. Provided interface: {}", neededInterface, providedInterface);
+        LOG.debug("Needed operation: {}. Provided operation: {}", neededOperation, providedOperation);
+
+        if (providedInterface == null && providedOperation == null) {
+            // IA implements all operations of all interfaces defined in the node type
+            LOG.debug("Correct IA found. IA: {} implements all operations of all interfaces defined in NodeType.",
+                ia.getName());
+            return true;
+        }
+
+        // IA implements all operations of one interface defined in NodeType
+        if (providedInterface != null && providedOperation == null && providedInterface.equals(neededInterface)) {
+            LOG.debug("Correct IA found. IA: {} implements all operations of one interface defined in NodeType.",
+                ia.getName());
+            return true;
+        }
+
+        // IA implements one operation of an interface defined in NodeType
+        if (providedInterface != null && providedOperation != null && providedInterface.equals(neededInterface)
+            && providedOperation.equals(neededOperation)) {
+            LOG.debug("Correct IA found. IA: {} implements one operation of an interface defined in NodeType.",
+                ia.getName());
+            return true;
+        }
+
+        // In this case - if there is no interface specified - the operation
+        // should be unique within the NodeType
+        if (neededInterface == null && neededOperation != null && providedInterface != null
+            && providedOperation == null) {
+            return ToscaEngine.isOperationUniqueInType(csar, type, providedInterface, neededOperation);
+        }
+
+        LOG.debug("ImplementationArtifact {} does not provide needed interface/operation", ia.getName());
+        return false;
+    }
+
+    public Document createInputDocFromInputMap(HashMap<String,String> inputMap, HashMap<String, String> params) {
+        final Document inputDoc =
+            mapToDoc(Constants.BUS_WSDL_NAMESPACE, Constants.RECEIVE_NOTIFY_PARTNER_OPERATION, inputMap);
+
+        final Element root = inputDoc.getDocumentElement();
+        final Element paramsWrapper = inputDoc.createElement(Constants.PARAMS_PARAM);
+        root.appendChild(paramsWrapper);
+        for (final Entry<String, String> entry : params.entrySet()) {
+            final Element paramElement = inputDoc.createElement("Param");
+            paramsWrapper.appendChild(paramElement);
+
+            final Element keyElement = inputDoc.createElement("key");
+            keyElement.setTextContent(entry.getKey());
+            paramElement.appendChild(keyElement);
+
+            final Element valueElement = inputDoc.createElement("value");
+            valueElement.setTextContent(entry.getValue());
+            paramElement.appendChild(valueElement);
+        }
+        return inputDoc;
     }
 }

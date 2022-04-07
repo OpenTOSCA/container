@@ -13,7 +13,7 @@ import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.opentosca.bus.management.header.MBHeader;
-import org.opentosca.bus.management.service.impl.Constants;
+import org.opentosca.bus.management.Constants;
 import org.opentosca.bus.management.service.impl.collaboration.model.CollaborationMessage;
 import org.opentosca.bus.management.service.impl.collaboration.model.RemoteOperations;
 import org.slf4j.Logger;

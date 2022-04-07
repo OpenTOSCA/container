@@ -1,4 +1,4 @@
-package org.opentosca.bus.management.service.impl;
+package org.opentosca.bus.management;
 
 import javax.xml.namespace.QName;
 

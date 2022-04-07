@@ -7,7 +7,7 @@ import javax.inject.Named;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
-import org.opentosca.bus.management.service.impl.Constants;
+import org.opentosca.bus.management.Constants;
 import org.opentosca.bus.management.service.impl.collaboration.route.ReceiveRequestRoute;
 import org.opentosca.bus.management.service.impl.collaboration.route.ReceiveResponseRoute;
 import org.opentosca.bus.management.service.impl.collaboration.route.SendRequestResponseRoute;

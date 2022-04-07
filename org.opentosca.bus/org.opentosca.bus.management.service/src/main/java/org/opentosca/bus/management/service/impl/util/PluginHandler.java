@@ -8,7 +8,7 @@ import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.apache.camel.Exchange;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
-import org.opentosca.bus.management.service.impl.Constants;
+import org.opentosca.bus.management.Constants;
 import org.opentosca.bus.management.service.impl.PluginRegistry;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.convention.Types;
