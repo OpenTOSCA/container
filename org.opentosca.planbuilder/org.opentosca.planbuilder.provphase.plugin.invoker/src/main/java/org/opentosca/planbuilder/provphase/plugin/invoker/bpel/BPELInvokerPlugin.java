@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
@@ -50,9 +51,16 @@ public class BPELInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
 
     private static final Logger LOG = LoggerFactory.getLogger(BPELInvokerPlugin.class);
     private static final String PLUGIN_ID = "OpenTOSCA ProvPhase Plugin for the ServiceInvoker v0.1";
-
-    private final BPELInvokerPluginHandler handler = new BPELInvokerPluginHandler();
     private final BPELNotifyHandler choreohandler = new BPELNotifyHandler();
+    private BPELInvokerPluginHandler handler;
+
+    public BPELInvokerPlugin() {
+        try {
+            this.handler = new BPELInvokerPluginHandler();
+        } catch (ParserConfigurationException e) {
+            LOG.error("Couldn't start invoker plugin handler", e);
+        }
+    }
 
     public void addLogActivity(final BPELPlanContext context, final String message, final BPELPlanContext.Phase phase) {
         this.handler.appendLOGMessageActivity(context, message, phase);

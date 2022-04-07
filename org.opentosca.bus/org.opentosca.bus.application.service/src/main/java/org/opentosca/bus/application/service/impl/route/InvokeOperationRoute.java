@@ -64,7 +64,7 @@ public class InvokeOperationRoute extends RouteBuilder {
         // handle response: set "isFinsihed"-flag to true and store result in
         // ResultMap
         from("direct:handleResponse").bean(QueueMap.class,
-            "finished(${header." + APPLICATION_BUS_REQUEST_ID_HEADER + "})")
+                "finished(${header." + APPLICATION_BUS_REQUEST_ID_HEADER + "})")
             .bean(ResultMap.class,
                 "put(${header." + APPLICATION_BUS_REQUEST_ID_HEADER + "}, ${body})")
             .stop();

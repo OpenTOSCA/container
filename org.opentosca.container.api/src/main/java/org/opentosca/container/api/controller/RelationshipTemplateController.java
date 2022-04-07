@@ -31,16 +31,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class RelationshipTemplateController {
     private static final Logger logger = LoggerFactory.getLogger(RelationshipTemplateController.class);
-
+    private final RelationshipTemplateService relationshipTemplateService;
+    private final RelationshipTemplateInstanceService relationshipTemplateInstanceService;
     @Context
     UriInfo uriInfo;
-
     @Context
     ResourceContext resourceContext;
-
-    private final RelationshipTemplateService relationshipTemplateService;
-
-    private final RelationshipTemplateInstanceService relationshipTemplateInstanceService;
 
     public RelationshipTemplateController(final RelationshipTemplateService relationshipTemplateService,
                                           final RelationshipTemplateInstanceService relationshipTemplateInstanceService) {

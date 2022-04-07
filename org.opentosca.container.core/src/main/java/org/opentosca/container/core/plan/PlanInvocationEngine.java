@@ -10,8 +10,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.persistence.NoResultException;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
@@ -73,7 +73,6 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
         do {
             correlationId = String.valueOf(System.currentTimeMillis()) + Math.random();
             instance = planRepo.findByChoreographyCorrelationId(correlationId);
-
         } while (instance != null);
         return correlationId;
     }
@@ -85,7 +84,6 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
         do {
             correlationId = String.valueOf(System.currentTimeMillis()) + Math.random();
             instance = planRepo.findByCorrelationId(correlationId);
-
         } while (instance != null);
         return correlationId;
     }
@@ -112,11 +110,16 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
         final Csar csar = csarStorage.findById(csarID);
 
         if (rulesChecker.areRulesContained(csar)) {
-            if (rulesChecker.check(csar, serviceTemplate, givenPlan.getInputParameters())) {
-                LOG.debug("Deployment Rules are fulfilled. Continuing the provisioning.");
-            } else {
-                LOG.debug("Deployment Rules are not fulfilled. Aborting the provisioning.");
-                return;
+            try {
+                if (rulesChecker.check(csar, serviceTemplate, givenPlan.getInputParameters())) {
+                    LOG.debug("Deployment Rules are fulfilled. Continuing the provisioning.");
+                } else {
+                    LOG.debug("Deployment Rules are not fulfilled. Aborting the provisioning.");
+                    return;
+                }
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+                LOG.error("Couldn't create parser", e);
             }
         }
 

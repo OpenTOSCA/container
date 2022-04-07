@@ -107,11 +107,11 @@ public abstract class AbstractServiceInstanceHandler {
                                                                        String serviceInstanceURLVarName,
                                                                        String serviceInstanceIDVarName) {
         if (serviceInstanceURLVarName == null) {
-            throw new RuntimeException("ServiceInstanceURLVarName is null in plan " + plan.getId());
+            throw new IllegalArgumentException("ServiceInstanceURLVarName is null in plan " + plan.getId());
         }
 
         if (serviceInstanceIDVarName == null) {
-            throw new RuntimeException("ServiceInstanceIDVarName is null in plan " + plan.getId());
+            throw new IllegalArgumentException("ServiceInstanceIDVarName is null in plan " + plan.getId());
         }
 
         try {

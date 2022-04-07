@@ -27,5 +27,4 @@ public interface PlanInstanceRepository extends JpaRepository<PlanInstance, Long
 
     @EntityGraph(attributePaths = {"outputs"})
     PlanInstance findWithOutputsById(Long id);
-
 }

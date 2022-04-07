@@ -184,7 +184,7 @@ public abstract class ToscaEngine {
             .collect(Collectors.toList());
     }
 
-    public static List<TInterface> getInterfaces(TNodeTemplate nodeTemplate, Csar csar) {
+    public static List<TInterface> getInterfaces(TNodeTemplate nodeTemplate, Csar csar) throws NotFoundException {
         TNodeType nodeType = resolveNodeType(csar, nodeTemplate);
         return Optional.ofNullable(nodeType.getInterfaces())
             .orElse(Collections.emptyList());
@@ -204,12 +204,8 @@ public abstract class ToscaEngine {
         }
     }
 
-    public static TNodeType resolveNodeType(Csar csar, TNodeTemplate nodeTemplate) {
-        try {
-            return resolveNodeTypeReference(csar, nodeTemplate.getType());
-        } catch (NotFoundException e) {
-            throw new RuntimeException("Could not resolve NodeType of an existing NodeTemplate, something went badly wrong", e);
-        }
+    public static TNodeType resolveNodeType(Csar csar, TNodeTemplate nodeTemplate) throws NotFoundException {
+        return resolveNodeTypeReference(csar, nodeTemplate.getType());
     }
 
     public static TNodeType resolveNodeTypeReference(Csar csar, QName nodeTypeId) throws NotFoundException {
@@ -403,14 +399,19 @@ public abstract class ToscaEngine {
     public static Document getEntityTemplateProperties(TEntityTemplate template) {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setNamespaceAware(true);
+        Document doc = null;
         try {
-            Document doc = documentBuilderFactory.newDocumentBuilder().newDocument();
+            doc = documentBuilderFactory.newDocumentBuilder().newDocument();
+        } catch (ParserConfigurationException e) {
+            LOG.error("Couldn't create parser", e);
+            return null;
+        }
 
-            if (template.getProperties() instanceof TEntityTemplate.WineryKVProperties) {
-                TEntityTemplate.WineryKVProperties props = (TEntityTemplate.WineryKVProperties) template.getProperties();
-                Map<String, String> propMap = props.getKVProperties();
+        if (template.getProperties() instanceof TEntityTemplate.WineryKVProperties) {
+            TEntityTemplate.WineryKVProperties props = (TEntityTemplate.WineryKVProperties) template.getProperties();
+            Map<String, String> propMap = props.getKVProperties();
 
-                // So just that people understand:
+            // So just that people understand:
                 /*
                 <Properties>
                     <Properties xmlns="http://opentosca.org/nodetypes/propertiesdefinition/winery">
@@ -438,20 +439,17 @@ public abstract class ToscaEngine {
                 TODO: FIXME in winery!
                  */
 
-                Element rootElement = doc.createElementNS(props.getNamespace(), props.getElementName() != null ? props.getElementName() : "Properties");
-                doc.appendChild(rootElement);
+            Element rootElement = doc.createElementNS(props.getNamespace(), props.getElementName() != null ? props.getElementName() : "Properties");
+            doc.appendChild(rootElement);
 
-                for (String propName : propMap.keySet()) {
-                    Element propElement = doc.createElementNS(props.getNamespace(), propName);
-                    propElement.setTextContent(propMap.get(propName));
-                    rootElement.appendChild(propElement);
-                }
+            for (String propName : propMap.keySet()) {
+                Element propElement = doc.createElementNS(props.getNamespace(), propName);
+                propElement.setTextContent(propMap.get(propName));
+                rootElement.appendChild(propElement);
             }
-
-            return doc;
-        } catch (ParserConfigurationException e) {
-            throw new RuntimeException(e);
         }
+
+        return doc;
     }
 
     private static Stream<TExportedOperation> listOperations(TServiceTemplate serviceTemplate) {

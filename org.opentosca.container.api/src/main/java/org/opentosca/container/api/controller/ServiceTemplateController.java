@@ -27,7 +27,6 @@ import io.swagger.annotations.ApiParam;
 import org.opentosca.container.api.dto.ServiceTemplateDTO;
 import org.opentosca.container.api.dto.ServiceTemplateListDTO;
 import org.opentosca.container.api.dto.request.ServiceTransformRequest;
-import org.opentosca.container.core.next.services.instances.RelationshipTemplateInstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.api.util.Utils;
@@ -41,6 +40,7 @@ import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.next.services.instances.NodeTemplateInstanceService;
 import org.opentosca.container.core.next.services.instances.PlanInstanceService;
+import org.opentosca.container.core.next.services.instances.RelationshipTemplateInstanceService;
 import org.opentosca.container.core.next.services.instances.ServiceTemplateInstanceService;
 import org.opentosca.container.core.next.services.instances.SituationInstanceService;
 import org.opentosca.container.core.next.services.templates.RelationshipTemplateService;
@@ -59,9 +59,6 @@ public class ServiceTemplateController {
 
     @Context
     private UriInfo uriInfo;
-
-    @Context
-    private Request request;
 
     @Context
     private ResourceContext resourceContext;

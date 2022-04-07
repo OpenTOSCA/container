@@ -63,8 +63,6 @@ public class BoundaryDefinitionController {
     private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
     @Context
     private UriInfo uriInfo;
-    @Context
-    private Request request;
 
     @Inject
     public BoundaryDefinitionController(CsarStorageService storage,
