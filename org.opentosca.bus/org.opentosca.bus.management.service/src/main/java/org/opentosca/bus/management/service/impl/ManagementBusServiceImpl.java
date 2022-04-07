@@ -234,30 +234,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             LOG.error("Unable to invoke operation without ServiceTemplateInstance ID!");
             handleResponse(exchange);
         }
-
-        // this block of code is never entered
-        /*
-        final String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
-        LOG.debug("Correlation ID: {}", correlationID);
-        if (Objects.nonNull(correlationID)) {
-            // update plan in repository with new log event
-            final PlanInstance plan = planInstanceRepository.findByCorrelationId(correlationID);
-            if (Objects.nonNull(plan)) {
-                // add end timestamp and log message with duration
-                event.setEndTimestamp(new Date());
-                final long duration = event.getEndTimestamp().getTime() - event.getStartTimestamp().getTime();
-                event.setMessage("Finished execution of IA for NodeTemplate '" + nodeTemplateID + "' interface '"
-                    + neededInterface + "' and operation '" + neededOperation + "' after " + duration + "ms");
-                LOG.info("IA execution duration: {}ms", duration);
-                event.setNodeTemplateID(nodeTemplateID);
-                event.setInterfaceName(neededInterface);
-                event.setOperationName(neededOperation);
-                event.setExecutionDuration(duration);
-
-                plan.addEvent(event);
-                planInstanceRepository.save(plan);
-            }
-        }*/
     }
 
     /**
@@ -289,17 +265,14 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             if (nodeTemplate != null) {
                 typeID = nodeTemplate.getType();
             }
-            type = csar.nodeTypes().stream().filter(x -> x.getQName().equals(nodeTemplate.getTypeAsQName())).findFirst()
-                .orElse(null);
+            type = ModelUtils.getType(csar, nodeTemplate);
         } else if (Objects.nonNull(arguments.relationshipTemplateId)) {
             final TRelationshipTemplate relationshipTemplate =
                 serviceTemplate.getTopologyTemplate().getRelationshipTemplate(arguments.relationshipTemplateId);
             if (relationshipTemplate != null) {
                 typeID = relationshipTemplate.getType();
             }
-            type =
-                csar.relationshipTypes().stream()
-                    .filter(x -> x.getQName().equals(relationshipTemplate.getTypeAsQName())).findFirst().orElse(null);
+            type = ModelUtils.getType(csar, relationshipTemplate);
         }
         if (typeID == null) {
             LOG.error(String.format("Could not resolve a type for the given nodeTemplateId/relationshipTemplateId [%s/%s]",
@@ -405,16 +378,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final Message message = exchange.getIn();
 
         // check whether operation has output parameters
-        final boolean hasOutputParams;
-        try {
-            final TInterface nodeTypeInterface = ToscaEngine.resolveInterface(csar, type, neededInterface);
-            final TOperation operation = ToscaEngine.resolveOperation(nodeTypeInterface, neededOperation);
-            hasOutputParams = operation.getOutputParameters() != null
-                && !operation.getOutputParameters().isEmpty();
-        } catch (final NotFoundException notFound) {
-            LOG.error("Tried to invoke unknown operation '{}' in interface '{}!", neededOperation, neededInterface);
-            return;
-        }
+        final boolean hasOutputParams = ModelUtils.hasOutputParameters(csar, type.getQName(), neededInterface, neededOperation);
+
         message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), hasOutputParams);
 
         final List<? extends TEntityTypeImplementation> typeImplementations =
@@ -481,9 +446,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             return false;
         }
 
+
         // get ArtifactTemplate and ArtifactType of the IA
-        final ArtifactTemplateId artifactTemplateId = new ArtifactTemplateId(ia.getArtifactRef());
-        final TArtifactTemplate artifactTemplate = (TArtifactTemplate) csar.queryRepository(artifactTemplateId);
+        final TArtifactTemplate artifactTemplate = ModelUtils.getArtifactTemplate(csar, ia.getArtifactRef());
         LOG.debug("ArtifactTemplate: {}", artifactTemplate.toString());
 
         final QName artifactTypeQName = ia.getArtifactType();
@@ -523,7 +488,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         message.setHeader(MBHeader.PORT_TYPE_QNAME.toString(), portType);
         message.setHeader(MBHeader.INVOCATIONTYPE_STRING.toString(), invocationType);
         message.setHeader(MBHeader.IMPLEMENTATION_ARTIFACT_NAME_STRING.toString(), ia.getName());
-        message.setHeader(MBHeader.ARTIFACTTEMPLATEID_QNAME.toString(), artifactTemplateId.getQName());
+        message.setHeader(MBHeader.ARTIFACTTEMPLATEID_QNAME.toString(), ModelUtils.getArtifactTemplateId(ia.getArtifactRef()));
         message.setHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), artifactTypeQName);
 
         // Prevent two threads from trying to deploy the same IA concurrently and avoid the deletion
@@ -578,36 +543,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 LOG.debug("Required features not completely satisfied by the plug-in.");
                 return false;
             }
-
-            // get all artifact references for this ArtifactTemplate
-            final List<TArtifactReference> artifacts =
-                Optional.ofNullable(artifactTemplate.getArtifactReferences())
-                    .orElse(Collections.emptyList());
-
             // convert relative references to absolute references to enable access to the IA
             // files from other OpenTOSCA Container nodes
             LOG.debug("Searching for artifact references for ArtifactTemplate {}",
                 artifactTemplate.getIdFromIdOrNameField());
-            final List<String> artifactReferences = new ArrayList<>();
-            for (final TArtifactReference artifact : artifacts) {
-                // XML validated to be anyUri, therefore must be parsable as URI
-                final URI reference = URI.create(artifact.getReference().trim());
-                if (reference.getScheme() != null) {
-                    LOG.warn("ArtifactReference {} of Csar {} is not supported", artifact.getReference(), csar.id());
-                    continue;
-                }
-                // artifact is exposed via the content endpoint
-                final String absoluteArtifactReference =
-                    Settings.OPENTOSCA_CONTAINER_CONTENT_API_ARTIFACTREFERENCE.replace("{csarid}", csar.id().csarName())
-                        // reference here is relative to CSAR basedirectory, with
-                        // spaces being URLEncoded
-                        .replace("{artifactreference}",
-                            artifact.getReference().trim().replaceAll(" ",
-                                "%20"));
-
-                artifactReferences.add(absoluteArtifactReference);
-                LOG.debug("Found reference: {} ", absoluteArtifactReference);
-            }
+            final List<String> artifactReferences = findAbsoluteArtifactReferences(csar, artifactTemplate);
 
             if (artifactReferences.isEmpty()) {
                 LOG.debug("No artifact references found. No deployment and invocation possible for this ArtifactTemplate.");
@@ -662,6 +602,38 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 deploymentLocation));
             return true;
         }
+    }
+
+    private List<String> findAbsoluteArtifactReferences(Csar csar, TArtifactTemplate artifactTemplate) {
+        final List<TArtifactReference> artifacts =
+            Optional.ofNullable(artifactTemplate.getArtifactReferences())
+                .orElse(Collections.emptyList());
+
+        // convert relative references to absolute references to enable access to the IA
+        // files from other OpenTOSCA Container nodes
+        LOG.debug("Searching for artifact references for ArtifactTemplate {}",
+            artifactTemplate.getIdFromIdOrNameField());
+        final List<String> artifactReferences = new ArrayList<>();
+        for (final TArtifactReference artifact : artifacts) {
+            // XML validated to be anyUri, therefore must be parsable as URI
+            final URI reference = URI.create(artifact.getReference().trim());
+            if (reference.getScheme() != null) {
+                LOG.warn("ArtifactReference {} of Csar {} is not supported", artifact.getReference(), csar.id());
+                continue;
+            }
+            // artifact is exposed via the content endpoint
+            final String absoluteArtifactReference =
+                Settings.OPENTOSCA_CONTAINER_CONTENT_API_ARTIFACTREFERENCE.replace("{csarid}", csar.id().csarName())
+                    // reference here is relative to CSAR basedirectory, with
+                    // spaces being URLEncoded
+                    .replace("{artifactreference}",
+                        artifact.getReference().trim().replaceAll(" ",
+                            "%20"));
+
+            artifactReferences.add(absoluteArtifactReference);
+            LOG.debug("Found reference: {} ", absoluteArtifactReference);
+        }
+        return artifactReferences;
     }
 
     @Override
@@ -1023,6 +995,17 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 arguments.csar.id());
         }
 
+        this.updateWCET(arguments, event, plan);
+
+        if (exchange != null) {
+            // update the output parameters in the plan instance
+            planInstanceHandler.updatePlanInstanceOutput(plan, arguments.csar, exchange.getIn().getBody());
+
+            handleResponse(exchange);
+        }
+    }
+
+    private void updateWCET(PlanInvocationArguments arguments, PlanInstanceEvent event, PlanInstance plan) {
         // write WCET back to Plan
         TPlan currentPlan = null;
         try {
@@ -1073,13 +1056,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         plan.addEvent(event);
         planInstanceRepository.save(plan);
-
-        if (exchange != null) {
-            // update the output parameters in the plan instance
-            planInstanceHandler.updatePlanInstanceOutput(plan, arguments.csar, exchange.getIn().getBody());
-
-            handleResponse(exchange);
-        }
     }
 
     private boolean iaProvidesRequestedOperation(Csar csar, TImplementationArtifact ia, TEntityType type,
@@ -1308,53 +1284,5 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             return activePartners.get(correlationID).contains(partnerID);
         }
         return false;
-    }
-
-    private static class PlanInvocationArguments {
-        public final Csar csar;
-        public final QName serviceTemplateId;
-        public final Long serviceTemplateInstanceId;
-        public final QName planId;
-        public final String correlationId;
-        public final String chorCorrelationId;
-        public final String chorPartners;
-        public final String operationName;
-
-        public PlanInvocationArguments(Csar csar, QName serviceTemplateID, Long serviceTemplateInstanceID, QName planID,
-                                       String operationName, String correlationID, String chorCorrelationId,
-                                       String chorPartners) {
-            this.csar = csar;
-            this.serviceTemplateId = serviceTemplateID;
-            this.serviceTemplateInstanceId = serviceTemplateInstanceID;
-            this.planId = planID;
-            this.operationName = operationName;
-            this.correlationId = correlationID;
-            this.chorCorrelationId = chorCorrelationId;
-            this.chorPartners = chorPartners;
-        }
-    }
-
-    private static class IAInvocationArguments {
-        public final CsarId csarId;
-        public final URI serviceInstanceId;
-        public final QName serviceTemplateId;
-        public final long serviceTemplateInstanceId;
-        public final String nodeTemplateId;
-        public final String relationshipTemplateId;
-        public final String interfaceName;
-        public final String operationName;
-
-        public IAInvocationArguments(CsarId csarId, URI serviceInstanceId, QName serviceTemplateId,
-                                     long serviceTemplateInstanceId, String nodeTemplateId,
-                                     String relationshipTemplateId, String interfaceName, String operationName) {
-            this.csarId = csarId;
-            this.serviceInstanceId = serviceInstanceId;
-            this.serviceTemplateId = serviceTemplateId;
-            this.serviceTemplateInstanceId = serviceTemplateInstanceId;
-            this.nodeTemplateId = nodeTemplateId;
-            this.relationshipTemplateId = relationshipTemplateId;
-            this.interfaceName = interfaceName;
-            this.operationName = operationName;
-        }
     }
 }

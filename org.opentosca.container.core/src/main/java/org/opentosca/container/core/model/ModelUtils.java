@@ -24,6 +24,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.eclipse.winery.model.ids.definitions.ArtifactTemplateId;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TArtifactType;
 import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
@@ -55,6 +56,7 @@ import org.opentosca.container.core.next.model.Property;
 import org.opentosca.container.core.next.xml.PropertyParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ui.Model;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -122,6 +124,43 @@ public abstract class ModelUtils {
             return findIA(csar, relationshipType, iaName);
         }
         return null;
+    }
+
+    public static TRelationshipType getType(Csar csar, TRelationshipTemplate relationshipTemplate) {
+        return csar.relationshipTypes().stream()
+            .filter(x -> x.getQName().equals(relationshipTemplate.getTypeAsQName())).findFirst().orElse(null);
+    }
+
+    public static TNodeType getType(Csar csar, TNodeTemplate nodeTemplate) {
+        return csar.nodeTypes().stream().filter(x -> x.getQName().equals(nodeTemplate.getTypeAsQName())).findFirst()
+            .orElse(null);
+    }
+
+
+    public static boolean hasOutputParameters(Csar csar, QName typeId, String ifaceName, String opName) {
+        TNodeType nodeType = ModelUtils.findNodeType(typeId, csar);
+        if (nodeType != null) {
+            TOperation op = getOperation(csar,nodeType,ifaceName,opName);
+            return op.getOutputParameters() != null
+                && !op.getOutputParameters().isEmpty();
+        }
+        TRelationshipType relationshipType = ModelUtils.findRelationshipType(typeId, csar);
+        if (relationshipType != null) {
+            TOperation op = getOperation(csar, relationshipType, ifaceName, opName);
+            return op.getOutputParameters() != null
+                && !op.getOutputParameters().isEmpty();
+        }
+        return false;
+    }
+
+    public static TArtifactTemplate getArtifactTemplate(Csar csar, QName artifactRef) {
+        final ArtifactTemplateId artifactTemplateId = new ArtifactTemplateId(artifactRef);
+        return (TArtifactTemplate) csar.queryRepository(artifactTemplateId);
+    }
+
+    public static QName getArtifactTemplateId(QName artifactRef) {
+        final ArtifactTemplateId artifactTemplateId = new ArtifactTemplateId(artifactRef);
+        return artifactTemplateId.getQName();
     }
 
     public static TImplementationArtifact findIA(Csar csar, TRelationshipType relationshipType, String iaName) {
@@ -1007,12 +1046,40 @@ public abstract class ModelUtils {
         }
     }
 
-    private static TOperation getOperation(Csar csar, TNodeType nodeType, String interfaceName, String operationName) {
+    public static TOperation getOperation(Csar csar, TNodeType nodeType, String interfaceName, String operationName) {
         TInterface iface = getInterfaceOfNodeType(csar, nodeType, interfaceName);
         if (iface == null) {
             return null;
         }
         return iface.getOperations().stream().filter(op -> op.getName().equals(operationName)).findFirst().orElse(null);
+    }
+
+    public static TOperation getOperation(Csar csar, TRelationshipType relationshipType, String interfaceName, String operationName) {
+        TInterface iface = getInterfaceOfRelationshipType(csar,relationshipType,interfaceName);
+        if (iface == null) {
+            return null;
+        }
+        return iface.getOperations().stream().filter(op -> op.getName().equals(operationName)).findFirst().orElse(null);
+    }
+
+    public static TInterface getInterfaceOfRelationshipType(Csar csar, TRelationshipType relationshipType, String interfaceName) {
+        TInterface iface = getInterface(relationshipType.getInterfaces(), interfaceName);
+        if (iface != null) {
+            return iface;
+        }
+        iface = getInterface(relationshipType.getSourceInterfaces(), interfaceName);
+        if (iface != null) {
+            return iface;
+        }
+        iface = getInterface(relationshipType.getTargetInterfaces(), interfaceName);
+        if (iface != null) {
+            return iface;
+        }
+        return null;
+    }
+
+    public static TInterface getInterface(Collection<TInterface> ifaces, String ifaceName) {
+        return ifaces.stream().filter(tInterface -> tInterface.getName().equals(ifaceName)).findFirst().orElse(null);
     }
 
     private static TInterface getInterfaceOfNodeType(Csar csar, TNodeType startingNodeType, String interfaceName, TInterface interfaceOfStartingNodeType) {
