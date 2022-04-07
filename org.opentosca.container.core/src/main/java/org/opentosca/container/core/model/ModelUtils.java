@@ -112,6 +112,50 @@ public abstract class ModelUtils {
         return null;
     }
 
+    public static TImplementationArtifact findIA(Csar csar, QName typeId, String iaName) {
+        TNodeType nodeType = findNodeType(typeId, csar);
+        if (nodeType != null) {
+            return findIA(csar, nodeType, iaName);
+        }
+        TRelationshipType relationshipType = findRelationshipType(typeId, csar);
+        if (relationshipType != null) {
+            return findIA(csar, relationshipType, iaName);
+        }
+        return null;
+    }
+
+    public static TImplementationArtifact findIA(Csar csar, TRelationshipType relationshipType, String iaName) {
+        Collection<TRelationshipTypeImplementation> relationshipTypeImplementations = findRelationshipTypeImplementation(relationshipType, csar);
+
+        return relationshipTypeImplementations
+            .stream()
+            .filter(tNodeTypeImplementation -> tNodeTypeImplementation.getImplementationArtifacts()
+                .stream()
+                .filter(tImplementationArtifact -> !tImplementationArtifact.getName().equals(iaName)).collect(Collectors.toList()).isEmpty())
+            .findFirst()
+            .get()
+            .getImplementationArtifacts()
+            .stream()
+            .filter(tImplementationArtifact -> tImplementationArtifact.getName().equals(iaName))
+            .findFirst().orElse(null);
+    }
+
+    public static TImplementationArtifact findIA(Csar csar, TNodeType nodeType, String iaName) {
+        Collection<TNodeTypeImplementation> nodeTypeImplementations = findNodeTypeImplementation(nodeType, csar);
+
+        return nodeTypeImplementations
+            .stream()
+            .filter(tNodeTypeImplementation -> tNodeTypeImplementation.getImplementationArtifacts()
+                .stream()
+                .filter(tImplementationArtifact -> !tImplementationArtifact.getName().equals(iaName)).collect(Collectors.toList()).isEmpty())
+            .findFirst()
+            .get()
+            .getImplementationArtifacts()
+            .stream()
+            .filter(tImplementationArtifact -> tImplementationArtifact.getName().equals(iaName))
+            .findFirst().orElse(null);
+    }
+
     public static TExportedOperation findServiceTemplateOperation(TDefinitions defs, String interfaceName, String operationName) {
         for (TServiceTemplate serviceTemplate : defs.getServiceTemplates()) {
             TBoundaryDefinitions boundaryDefinitions = serviceTemplate.getBoundaryDefinitions();

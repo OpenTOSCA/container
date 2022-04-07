@@ -58,6 +58,7 @@ import org.opentosca.container.core.common.xml.XMLHelper;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.next.ContainerEngine;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.Endpoint;
@@ -1165,16 +1166,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 // only undeploy the IA if this is the only endpoint
                 if (count == 1) {
                     LOG.debug("Undeploying corresponding IA...");
-                    final TImplementationArtifact ia;
-                    try {
-                        final TEntityTypeImplementation typeImplementation =
-                            ToscaEngine.resolveTypeImplementation(csar, typeImpl);
-                        ia = ToscaEngine.resolveImplementationArtifact(typeImplementation, iaName);
-                    } catch (final NotFoundException e) {
-                        LOG.warn("Could not find ImplementationArtifact {} for existing WSDLEndpoint  [{}] in Csar [{}]",
-                            iaName, serviceEndpoint, csar.id());
-                        continue;
-                    }
+
+                    final TImplementationArtifact ia = ModelUtils.findIA(csar, typeImpl, iaName);
                     final String artifactType = ia.getArtifactType().toString();
 
                     // create exchange for the undeployment plug-in invocation
