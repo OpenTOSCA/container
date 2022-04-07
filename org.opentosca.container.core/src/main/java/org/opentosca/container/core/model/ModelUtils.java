@@ -32,6 +32,7 @@ import org.eclipse.winery.model.tosca.TCapability;
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
+import org.eclipse.winery.model.tosca.TEntityTypeImplementation;
 import org.eclipse.winery.model.tosca.TExportedInterface;
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
@@ -46,6 +47,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TRequirement;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
@@ -116,12 +118,35 @@ public abstract class ModelUtils {
 
     public static TImplementationArtifact findIA(Csar csar, QName typeId, String iaName) {
         TNodeType nodeType = findNodeType(typeId, csar);
+        TImplementationArtifact result = null;
         if (nodeType != null) {
-            return findIA(csar, nodeType, iaName);
+            result = findIA(csar, nodeType, iaName);
+
         }
+
+        TNodeTypeImplementation nodeTypeImplementation = findNodeTypeImplementation(typeId, csar);
+        if (result == null && nodeTypeImplementation != null) {
+            result = findIA(nodeTypeImplementation, iaName);
+        }
+
         TRelationshipType relationshipType = findRelationshipType(typeId, csar);
-        if (relationshipType != null) {
-            return findIA(csar, relationshipType, iaName);
+        if (relationshipType != null && result == null) {
+            result = findIA(csar, relationshipType, iaName);
+        }
+
+        TRelationshipTypeImplementation relationshipTypeImplementation = findRelationshipTypeImplementation(typeId, csar);
+        if (result == null && relationshipTypeImplementation != null) {
+            result = findIA(relationshipTypeImplementation, iaName);
+        }
+
+        return result;
+    }
+
+    public static TImplementationArtifact findIA(TEntityTypeImplementation entityTypeImplementation, String iaName) {
+        for (TImplementationArtifact tImplementationArtifact : entityTypeImplementation.getImplementationArtifacts()) {
+            if (tImplementationArtifact.getName().equals(iaName)) {
+                return tImplementationArtifact;
+            }
         }
         return null;
     }
@@ -215,10 +240,6 @@ public abstract class ModelUtils {
 
     public static boolean doesNotHaveBuildPlan(TServiceTemplate serviceTemplate) {
         return !hasPlansOfType(serviceTemplate, "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan");
-    }
-
-    public static boolean hasTerminationPlan(TServiceTemplate serviceTemplate) {
-        return hasPlansOfType(serviceTemplate, "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan");
     }
 
     public static boolean hasPlansOfType(TServiceTemplate serviceTemplate, String planType) {
@@ -911,15 +932,12 @@ public abstract class ModelUtils {
         return csar.nodeTypeImplementations().stream().filter(x -> x.getNodeType().equals(nodeType.getQName())).collect(Collectors.toList());
     }
 
-    /**
-     * Finds all NodeTypeImplementations of a nodeTemplate and its complete hierarchy
-     *
-     * @param nodeTemplate the nodeTemplate
-     * @param csar         the csar it belongs to
-     * @return a list of nodetype implementations usable on the hierachy of the nodetype
-     */
-    public static Collection<TNodeTypeImplementation> findAllNodeTypeImplemenations(TNodeTemplate nodeTemplate, Csar csar) {
-        return findAllNodeTypeImplemenations(findNodeType(nodeTemplate, csar), csar);
+    public static TNodeTypeImplementation findNodeTypeImplementation(QName  nodeTypeImplId, Csar csar) {
+        return csar.nodeTypeImplementations().stream().filter(x -> x.getQName().equals(nodeTypeImplId)).findFirst().orElse(null);
+    }
+
+    public static TRelationshipTypeImplementation findRelationshipTypeImplementation(QName  relationshipTypeImplId, Csar csar) {
+        return csar.relationshipTypeImplementations().stream().filter(x -> x.getQName().equals(relationshipTypeImplId)).findFirst().orElse(null);
     }
 
     /**
@@ -997,53 +1015,6 @@ public abstract class ModelUtils {
             return null;
         }
         return csar.nodeTypes().stream().filter(x -> x.getQName().equals(nodeType.getDerivedFrom().getTypeAsQName())).findFirst().orElse(null);
-    }
-
-    public static boolean isOperationImplemented(Csar csar, TNodeType nodeType, String interfaceName, String operationName) {
-        TOperation op = getOperation(csar, nodeType, interfaceName, operationName);
-
-        if (op == null) {
-            return false;
-        }
-
-        Collection<TNodeTypeImplementation> impls = findAllNodeTypeImplemenations(nodeType, csar);
-
-        for (TNodeTypeImplementation nodeImpl : impls) {
-            if (isOperationImplemented(csar, nodeImpl, interfaceName, operationName)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static TNodeTypeImplementation getDerivedFrom(Csar csar, TNodeTypeImplementation nodeTypeImpl) {
-        return csar.nodeTypeImplementations().stream().filter(impl -> impl.getQName().equals(nodeTypeImpl.getDerivedFrom().getType())).findFirst().orElse(null);
-    }
-
-    private static boolean isOperationImplemented(Csar csar, TNodeTypeImplementation nodeImpl, String interfaceName, String operationName) {
-        // at some point we didn't find an implementation along the type hierarchy
-        if (nodeImpl == null) {
-            return false;
-        }
-        for (TImplementationArtifact ia : nodeImpl.getImplementationArtifacts()) {
-            if (isOperationImplemented(ia, interfaceName, operationName)) {
-                return true;
-            }
-        }
-        return isOperationImplemented(csar, getDerivedFrom(csar, nodeImpl), interfaceName, operationName);
-    }
-
-    private static boolean isOperationImplemented(TImplementationArtifact ia, String interfaceName, String operationName) {
-        if (!ia.getInterfaceName().equals(interfaceName)) {
-            return false;
-        }
-        if (ia.getOperationName() == null) {
-            // if the ia has no operation defined but the interface names fit -> implemented
-            return true;
-        } else {
-            return ia.getOperationName().equals(operationName);
-        }
     }
 
     public static TOperation getOperation(Csar csar, TNodeType nodeType, String interfaceName, String operationName) {
@@ -1167,71 +1138,6 @@ public abstract class ModelUtils {
         }
 
         return baseInterface;*/
-    }
-
-    /**
-     * Check if the given operation is not realized by an ImplementationArtifact
-     *
-     * @param foundInterface        the found interface of the current type
-     * @param baseInterface         the interface of the lowest child in the type hierarchy defining the specified
-     *                              interface
-     * @param overriddenOperations  the list of operations that are overridden by children of the current type
-     * @param notRealizedOperations the list of not realized operations
-     * @param operation             the operation to check if it is already realized
-     * @return true if the operation is not realized, false otherwise
-     */
-    private static boolean isOperationNotRealizedByAnImplementationArtifact(TInterface foundInterface, TInterface baseInterface, List<TOperation> overriddenOperations, List<String> notRealizedOperations, TOperation operation) {
-        return (
-            // In case the baseInterface is the foundInterface, we can directly remove the not realized operations
-            baseInterface == foundInterface
-                || overriddenOperations.stream().noneMatch(overriddenOperation -> operation.getName().equals(operation.getName()))
-        )
-            && notRealizedOperations.contains(operation.getName());
-    }
-
-    /**
-     * Check which operations of the given interface definition are realized by the given ImplementationArtifacts and
-     * add them to corresponding live lists
-     *
-     * @param tInterface              the interface definition to determine the operations that are realized by the
-     *                                given ImplementationArtifacts
-     * @param notRealizedOperations   the list of operations that are not realized by any ImplementationArtifact
-     * @param realizedOperations      the list of operations that are already realized by any ImplementationArtifact
-     * @param implementationArtifacts the list of ImplementationArtifacts that may realise an operation of the given
-     *                                interface definition
-     */
-    private static void determineOperationsRealizedByImplementationArtifacts(TInterface tInterface, List<String> notRealizedOperations, List<String> realizedOperations, List<TImplementationArtifact> implementationArtifacts) {
-        if (implementationArtifacts != null) {
-            if (implementationArtifacts.stream().anyMatch(ia -> ia.getInterfaceName() == null && ia.getOperationName() == null)) {
-                LOG.debug("Found IA that realizes everything!");
-            } else if (implementationArtifacts.stream()
-                .anyMatch(ia -> ia.getInterfaceName() != null
-                    && ia.getInterfaceName().equals(tInterface.getName())
-                    && ia.getOperationName() == null)) {
-                LOG.debug("Found IA that realizes the whole interface {}!}", tInterface.getName());
-            } else {
-                List<TOperation> neededOperations = tInterface.getOperations();
-                List<String> operationsRealizedInImplementation = implementationArtifacts.stream()
-                    .filter(ia -> ia.getInterfaceName() == null
-                        || (ia.getInterfaceName() != null && ia.getInterfaceName().equals(tInterface.getName())))
-                    .map(TImplementationArtifact::getOperationName)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-
-                neededOperations.forEach(neededOperation -> {
-                    if (operationsRealizedInImplementation.stream()
-                        .anyMatch(providedOperation -> providedOperation.equals(neededOperation.getName()))
-                    ) {
-                        notRealizedOperations.remove(neededOperation.getName());
-                        realizedOperations.add(neededOperation.getName());
-                    } else if (!realizedOperations.contains(neededOperation.getName())) {
-                        notRealizedOperations.add(neededOperation.getName());
-                    }
-                });
-            }
-        } else {
-            LOG.warn("No implementation found for interface {}!", tInterface.getName());
-        }
     }
 
     /**

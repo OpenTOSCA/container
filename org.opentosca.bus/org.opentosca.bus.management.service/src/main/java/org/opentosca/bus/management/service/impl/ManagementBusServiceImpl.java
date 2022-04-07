@@ -940,7 +940,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 arguments.csar.id());
         }
 
-        this.updateWCET(arguments, event, plan);
+        plan = this.updateWCET(arguments, event, plan);
 
         if (exchange != null) {
             // update the output parameters in the plan instance
@@ -950,7 +950,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
     }
 
-    public void updateWCET(PlanInvocationArguments arguments, PlanInstanceEvent event, PlanInstance plan) {
+    public PlanInstance updateWCET(PlanInvocationArguments arguments, PlanInstanceEvent event, PlanInstance plan) {
         // write WCET back to Plan
         TPlan currentPlan = null;
         try {
@@ -1001,6 +1001,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         plan.addEvent(event);
         planInstanceRepository.save(plan);
+        return plan;
     }
 
     /**
