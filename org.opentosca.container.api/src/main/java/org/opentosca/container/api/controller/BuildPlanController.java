@@ -155,7 +155,7 @@ public class BuildPlanController {
                                          @ApiParam("correlation ID") @PathParam("instance") final String instance,
                                          @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstance");
-        PlanInstance pi = planInstanceService.resolvePlanInstance(null, instance);
+        PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);
 
         final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
         // Add service template instance link
