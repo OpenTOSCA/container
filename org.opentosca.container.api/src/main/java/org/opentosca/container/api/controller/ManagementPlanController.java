@@ -120,14 +120,17 @@ public class ManagementPlanController {
         planInstances.stream()
             .filter(planInstance -> planInstance.getTemplateId().getLocalPart().equals(plan) && planInstance.getServiceTemplateInstance().getId().equals(this.serviceTemplateInstanceId))
             .map(pi -> {
-                PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
-                if (pi.getServiceTemplateInstance() != null) {
+                // load plan instance with related entities for DTO conversion
+                PlanInstance planInstanceWithEntities = planInstanceService.getPlanInstanceByIdWithConnectedEntities(pi.getId());
+
+                PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(planInstanceWithEntities);
+                if (planInstanceWithEntities.getServiceTemplateInstance() != null) {
                     final URI uri = uriInfo.getBaseUriBuilder()
                         .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
-                        .build(csar.id().csarName(), serviceTemplate.toString(), pi.getServiceTemplateInstance().getId());
+                        .build(csar.id().csarName(), serviceTemplate.toString(), planInstanceWithEntities.getServiceTemplateInstance().getId());
                     dto.add(Link.fromUri(UriUtil.encode(uri)).rel("service_template_instance").build());
                 }
-                dto.add(UriUtil.generateSubResourceLink(uriInfo, pi.getCorrelationId(), false, "self"));
+                dto.add(UriUtil.generateSubResourceLink(uriInfo, planInstanceWithEntities.getCorrelationId(), false, "self"));
                 return dto;
             })
             .forEach(list::add);
@@ -156,7 +159,7 @@ public class ManagementPlanController {
     public Response getManagementPlanInstance(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
                                               @ApiParam("correlation ID") @PathParam("instance") final String instance,
                                               @Context final UriInfo uriInfo) {
-        PlanInstance pi = planInstanceService.resolvePlanInstance(null, instance);
+        PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);
 
         final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
         // Add service template instance link
@@ -209,7 +212,7 @@ public class ManagementPlanController {
     public Response getManagementPlanInstanceLogs(@ApiParam("management plan id") @PathParam("plan") final String plan,
                                                   @ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
                                                   @Context final UriInfo uriInfo) {
-        PlanInstance pi = planInstanceService.resolvePlanInstance(null, instance);
+        PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);
 
         final PlanInstanceDTO piDto = PlanInstanceDTO.Converter.convert(pi);
         final PlanInstanceEventListDTO dto = new PlanInstanceEventListDTO(piDto.getLogs());
