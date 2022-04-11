@@ -1,4 +1,4 @@
-package org.opentosca.container.war.tests;
+package tests;
 
 import java.io.IOException;
 import java.util.ArrayList;

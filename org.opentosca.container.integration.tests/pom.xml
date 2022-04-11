@@ -18,25 +18,7 @@
     </dependency>
     <dependency>
       <groupId>org.opentosca</groupId>
-      <artifactId>org.opentosca.container.core</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.opentosca</groupId>
-      <artifactId>org.opentosca.planbuilder.integration</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.opentosca</groupId>
-      <artifactId>org.opentosca.deployment.checks</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.opentosca</groupId>
-      <artifactId>org.opentosca.container.api</artifactId>
+      <artifactId>org.opentosca.container.war</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

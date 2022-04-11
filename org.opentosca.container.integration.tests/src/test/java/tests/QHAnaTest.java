@@ -1,4 +1,4 @@
-package org.opentosca.container.war.tests;
+package tests;
 
 import java.net.URI;
 import java.net.http.HttpClient;

@@ -1,4 +1,4 @@
-package org.opentosca.container.war.tests;
+package tests;
 
 import java.io.BufferedReader;
 import java.io.IOException;

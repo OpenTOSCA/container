@@ -33,6 +33,7 @@
             Change the properties to:
             <winery.groupid>org.eclipse.winery</winery.groupid>
             <winery.version>3.0.0-SNAPSHOT</winery.version>
+
             Make you changes in you local winery code and run 'mvn install -DskipTests' and now you changes should be useable here
             Why is this necessary:
             The jitpack dependencies have a different group id than the actually pom files of winery
