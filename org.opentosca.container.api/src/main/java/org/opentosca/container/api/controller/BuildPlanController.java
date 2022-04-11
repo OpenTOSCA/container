@@ -116,14 +116,17 @@ public class BuildPlanController {
         final PlanInstanceListDTO list = new PlanInstanceListDTO();
         planInstances.stream()
             .map(pi -> {
-                PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
-                if (pi.getServiceTemplateInstance() != null) {
+                // load plan instance with related entities for DTO conversion
+                PlanInstance planInstanceWithEntities = planInstanceService.getPlanInstanceByIdWithConnectedEntities(pi.getId());
+
+                PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(planInstanceWithEntities);
+                if (planInstanceWithEntities.getServiceTemplateInstance() != null) {
                     final URI uri = uriInfo.getBaseUriBuilder()
                         .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
-                        .build(csar.id().csarName(), serviceTemplate.getId(), pi.getServiceTemplateInstance().getId());
+                        .build(csar.id().csarName(), serviceTemplate.getId(), planInstanceWithEntities.getServiceTemplateInstance().getId());
                     dto.add(Link.fromUri(UriUtil.encode(uri)).rel("service_template_instance").build());
                 }
-                dto.add(UriUtil.generateSubResourceLink(uriInfo, pi.getCorrelationId(), false, "self"));
+                dto.add(UriUtil.generateSubResourceLink(uriInfo, planInstanceWithEntities.getCorrelationId(), false, "self"));
                 return dto;
             })
             .forEach(list::add);
@@ -155,7 +158,7 @@ public class BuildPlanController {
                                          @ApiParam("correlation ID") @PathParam("instance") final String instance,
                                          @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstance");
-        PlanInstance pi = planInstanceService.resolvePlanInstance(null, instance);
+        PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);
 
         final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
         // Add service template instance link
@@ -211,7 +214,7 @@ public class BuildPlanController {
                                              @ApiParam("Correlation ID") @PathParam("instance") final String instance,
                                              @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstanceLogs");
-        PlanInstance pi = planInstanceService.resolvePlanInstance(null, instance);
+        PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);
 
         final PlanInstanceDTO piDto = PlanInstanceDTO.Converter.convert(pi);
         final PlanInstanceEventListDTO dto = new PlanInstanceEventListDTO(piDto.getLogs());
