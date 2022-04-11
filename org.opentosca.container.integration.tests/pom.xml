@@ -20,6 +20,7 @@
       <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.container.war</artifactId>
       <version>${project.version}</version>
+      <type>war</type>
       <scope>test</scope>
     </dependency>
     <dependency>
