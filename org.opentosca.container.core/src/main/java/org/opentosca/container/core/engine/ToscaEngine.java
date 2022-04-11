@@ -173,7 +173,7 @@ public abstract class ToscaEngine {
             .map(TNodeTemplate.class::cast);
     }
 
-    public static List<TNodeTemplate> getRelatedSourceNodeTemplate(TServiceTemplate serviceTemplate, TNodeTemplate template, QName... relationshipType) {
+    public static List<TNodeTemplate> getRelatedSourceNodeTemplate(TServiceTemplate serviceTemplate, QName... relationshipType) {
         return serviceTemplate.getTopologyTemplate().getNodeTemplateOrRelationshipTemplate().stream()
             .filter(candidate -> candidate instanceof TRelationshipTemplate)
             .map(relation -> (TRelationshipTemplate) relation)
