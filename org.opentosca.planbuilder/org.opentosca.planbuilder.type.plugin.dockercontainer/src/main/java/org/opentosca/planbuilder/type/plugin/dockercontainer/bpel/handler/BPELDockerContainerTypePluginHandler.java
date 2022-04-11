@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TArtifact;
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -33,6 +34,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import static org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContainerTypePlugin.getTArtifact;
 import static org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContainerTypePlugin.getTDeploymentArtifact;
 
 /**
@@ -63,6 +65,10 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
     public static TDeploymentArtifact fetchFirstDockerContainerDA(final TNodeTemplate nodeTemplate, Csar csar) {
         return getTDeploymentArtifact(nodeTemplate, csar);
+    }
+
+    public static TArtifact fetchFirstDockerContainerAT(final TNodeTemplate nodeTemplate) {
+        return getTArtifact(nodeTemplate);
     }
 
     public static List<TDeploymentArtifact> fetchVolumeDeploymentArtifacts(final TNodeTemplate nodeTemplate, Csar csar) {
@@ -235,11 +241,20 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             }
         }
 
-        if ((containerImageVar == null || PluginUtils.isVariableValueEmpty(containerImageVar)) && (nodeTemplate.getDeploymentArtifacts() != null && !nodeTemplate.getDeploymentArtifacts().isEmpty())) {
+        final TDeploymentArtifact da = fetchFirstDockerContainerDA(nodeTemplate, templateContext.getCsar());
+        final TArtifact at = fetchFirstDockerContainerAT(nodeTemplate);
+
+        if ((containerImageVar == null || PluginUtils.isVariableValueEmpty(containerImageVar)) && da != null) {
             // handle with DA -> construct URL to the DockerImage .zip
 
-            final TDeploymentArtifact da = fetchFirstDockerContainerDA(nodeTemplate, templateContext.getCsar());
+
             return handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar,
+                containerIpVar, containerIdVar,
+                fetchEnvironmentVariables(templateContext, nodeTemplate), null, null,
+                containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable,
+                vmPrivateKeyVariable, privilegedModeVar);
+        } else if((containerImageVar == null || PluginUtils.isVariableValueEmpty(containerImageVar)) && at != null) {
+            return handleWithAT(templateContext, dockerEngineNode, at, portMappingVar, dockerEngineUrlVar, sshPortVar,
                 containerIpVar, containerIdVar,
                 fetchEnvironmentVariables(templateContext, nodeTemplate), null, null,
                 containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable,
@@ -431,20 +446,16 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         return null;
     }
 
-    protected boolean handleWithDA(final BPELPlanContext context, final TNodeTemplate dockerEngineNode,
-                                   final TDeploymentArtifact da, final Variable portMappingVar,
-                                   final Variable dockerEngineUrlVar, final Variable sshPortVar,
-                                   final Variable containerIpVar, final Variable containerIdVar,
-                                   final Variable envMappingVar, final Variable linksVar,
-                                   final Variable deviceMappingVar, final Variable containerMountPath,
-                                   final Variable remoteVolumeDataVariable, final Variable hostVolumeDataVariable,
-                                   final Variable vmIpVariable, final Variable vmPrivateKeyVariable,
-                                   final Variable privilegedModeVar) {
+    protected boolean handleWithArtifactPathQuery(final BPELPlanContext context, final TNodeTemplate dockerEngineNode,
+                                                  final String artifactPathQuery, final Variable portMappingVar,
+                                                  final Variable dockerEngineUrlVar, final Variable sshPortVar,
+                                                  final Variable containerIpVar, final Variable containerIdVar,
+                                                  final Variable envMappingVar, final Variable linksVar,
+                                                  final Variable deviceMappingVar, final Variable containerMountPath,
+                                                  final Variable remoteVolumeDataVariable, final Variable hostVolumeDataVariable,
+                                                  final Variable vmIpVariable, final Variable vmPrivateKeyVariable,
+                                                  final Variable privilegedModeVar) {
         context.addStringValueToPlanRequest("containerApiAddress");
-
-        final String artifactPathQuery =
-            this.planBuilderFragments.createXPathQueryForURLRemoteFilePathViaContainerAPI(ModelUtils.findArtifactTemplate(da.getArtifactRef(), context.getCsar()).getArtifactReferences().stream().findFirst().get()
-                .getReference(), context.getCSARFileName());
 
         final String artefactVarName = "dockerContainerFile" + System.currentTimeMillis();
 
@@ -482,6 +493,41 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
             context.getProvisioningPhaseElement())
             && this.handleTerminate(context, context.getProvisioningCompensationPhaseElement());
+    }
+
+    protected boolean handleWithAT(final BPELPlanContext context, final TNodeTemplate dockerEngineNode,
+                                   final TArtifact da, final Variable portMappingVar,
+                                   final Variable dockerEngineUrlVar, final Variable sshPortVar,
+                                   final Variable containerIpVar, final Variable containerIdVar,
+                                   final Variable envMappingVar, final Variable linksVar,
+                                   final Variable deviceMappingVar, final Variable containerMountPath,
+                                   final Variable remoteVolumeDataVariable, final Variable hostVolumeDataVariable,
+                                   final Variable vmIpVariable, final Variable vmPrivateKeyVariable,
+                                   final Variable privilegedModeVar) {
+
+        final String artifactPathQuery =
+            this.planBuilderFragments.createXPathQueryForURLRemoteFilePathViaContainerAPI(da.getFile(), context.getCSARFileName());
+        return this.handleWithArtifactPathQuery(context,dockerEngineNode,artifactPathQuery,portMappingVar,dockerEngineUrlVar,
+            sshPortVar,containerIpVar,containerIdVar,envMappingVar,linksVar,deviceMappingVar,containerMountPath,remoteVolumeDataVariable,hostVolumeDataVariable,vmIpVariable,vmPrivateKeyVariable,privilegedModeVar);
+
+    }
+
+    protected boolean handleWithDA(final BPELPlanContext context, final TNodeTemplate dockerEngineNode,
+                                   final TDeploymentArtifact da, final Variable portMappingVar,
+                                   final Variable dockerEngineUrlVar, final Variable sshPortVar,
+                                   final Variable containerIpVar, final Variable containerIdVar,
+                                   final Variable envMappingVar, final Variable linksVar,
+                                   final Variable deviceMappingVar, final Variable containerMountPath,
+                                   final Variable remoteVolumeDataVariable, final Variable hostVolumeDataVariable,
+                                   final Variable vmIpVariable, final Variable vmPrivateKeyVariable,
+                                   final Variable privilegedModeVar) {
+
+
+        final String artifactPathQuery =
+            this.planBuilderFragments.createXPathQueryForURLRemoteFilePathViaContainerAPI(ModelUtils.findArtifactTemplate(da.getArtifactRef(), context.getCsar()).getArtifactReferences().stream().findFirst().get()
+                .getReference(), context.getCSARFileName());
+             return this.handleWithArtifactPathQuery(context,dockerEngineNode,artifactPathQuery,portMappingVar,dockerEngineUrlVar,
+            sshPortVar,containerIpVar,containerIdVar,envMappingVar,linksVar,deviceMappingVar,containerMountPath,remoteVolumeDataVariable,hostVolumeDataVariable,vmIpVariable,vmPrivateKeyVariable,privilegedModeVar);
     }
 
     protected boolean handleWithImageId(final BPELPlanContext context, final TNodeTemplate dockerEngineNode,

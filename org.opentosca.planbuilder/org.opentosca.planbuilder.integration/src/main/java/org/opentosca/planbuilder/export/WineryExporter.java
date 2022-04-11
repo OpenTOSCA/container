@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
@@ -43,7 +42,6 @@ import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.export.exporters.SimpleFileExporter;
-import org.opentosca.planbuilder.integration.layer.AbstractExporter;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
@@ -61,7 +59,7 @@ import org.springframework.stereotype.Service;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  */
 @Service
-public class WineryExporter extends AbstractExporter {
+public class WineryExporter {
 
     private final static Logger LOG = LoggerFactory.getLogger(WineryExporter.class);
     private final SimpleFileExporter simpleExporter = new SimpleFileExporter();

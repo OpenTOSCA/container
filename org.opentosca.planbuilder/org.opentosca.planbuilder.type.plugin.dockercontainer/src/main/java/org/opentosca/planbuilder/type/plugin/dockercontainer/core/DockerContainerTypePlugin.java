@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.winery.model.tosca.TArtifact;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
@@ -31,6 +32,21 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
 
     public static TDeploymentArtifact fetchFirstDockerContainerDA(final TNodeTemplate nodeTemplate, Csar csar) {
         return getTDeploymentArtifact(nodeTemplate, csar);
+    }
+
+    public static TArtifact getTArtifact(TNodeTemplate nodeTemplate) {
+        if (nodeTemplate.getArtifacts() == null) {
+            return null;
+        }
+
+        for (final TArtifact da : nodeTemplate.getArtifacts()) {
+            if (da.getType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTIFACTTYPE)
+                || da.getType()
+                .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTIFACTTYPE_OLD)) {
+                return da;
+            }
+        }
+        return null;
     }
 
     public static TDeploymentArtifact getTDeploymentArtifact(TNodeTemplate nodeTemplate, Csar csar) {

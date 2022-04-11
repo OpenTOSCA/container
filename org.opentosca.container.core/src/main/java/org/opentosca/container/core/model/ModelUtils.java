@@ -24,6 +24,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.eclipse.winery.model.tosca.TArtifact;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TArtifactType;
 import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
@@ -45,6 +46,8 @@ import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TRequirement;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
@@ -280,6 +283,7 @@ public abstract class ModelUtils {
             .equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl");
         boolean isWineryKV = properties.getClass().getName()
             .equals(TEntityTemplate.WineryKVProperties.class.getName());
+        boolean isYaml = properties.getClass().getName().equals(TEntityTemplate.YamlProperties.class.getName());
 
         if (isDOM) {
             return ((Element) properties).getNamespaceURI();
@@ -287,6 +291,11 @@ public abstract class ModelUtils {
 
         if (isWineryKV) {
             return ((TEntityTemplate.WineryKVProperties) properties).getNamespace();
+        }
+
+        if (isYaml) {
+            // this is probably a super cheap way to handle this... FIXME
+            return "tosca_simple_yaml_1_3";
         }
 
         return null;
@@ -297,6 +306,7 @@ public abstract class ModelUtils {
             .equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl");
         boolean isWineryKV = properties.getClass().getName()
             .equals(TEntityTemplate.WineryKVProperties.class.getName());
+        boolean isYaml = properties.getClass().getName().equals(TEntityTemplate.YamlProperties.class.getName());
 
         if (isDOM) {
             return ((Element) properties).getLocalName();
@@ -325,6 +335,7 @@ public abstract class ModelUtils {
             .equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl");
         boolean isWineryKV = properties.getClass().getName()
             .equals(TEntityTemplate.WineryKVProperties.class.getName());
+        boolean isYaml = properties.getClass().getName().equals(TEntityTemplate.YamlProperties.class.getName());
 
         if (isDOM) {
             final PropertyParser parser = new PropertyParser();
@@ -334,7 +345,16 @@ public abstract class ModelUtils {
         if (isWineryKV) {
             return ((TEntityTemplate.WineryKVProperties) properties).getKVProperties();
         }
+        if (isYaml) {
+            return asMap(((TEntityTemplate.YamlProperties) properties).getProperties());
+        }
         return new HashMap<>();
+    }
+
+    public static Map<String, String> asMap(Map<String, Object> map) {
+        Map<String, String> resultMap = Maps.newHashMap();
+        map.forEach((s, o) -> resultMap.put(s, (String) o));
+        return resultMap;
     }
 
     /**
