@@ -26,6 +26,7 @@ import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTestManageme
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTransformationProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELUpdateProcessBuilder;
 import org.opentosca.planbuilder.core.bpmn.typebasedplanbuilder.BPMNBuildProcessBuilder;
+import org.opentosca.planbuilder.core.bpmn.typebasedplanbuilder.BPMNTerminationProcessBuilder;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.container.core.model.ModelUtils;
@@ -125,6 +126,7 @@ public abstract class AbstractImporter {
         // }
 
         final AbstractSimplePlanBuilder terminationPlanBuilder = new BPELTerminationProcessBuilder(pluginRegistry);
+        final AbstractSimplePlanBuilder bpmnTerminationPlanBuilder = new BPMNTerminationProcessBuilder(pluginRegistry);
         final AbstractSimplePlanBuilder scalingPlanBuilder = new BPELScaleOutProcessBuilder(pluginRegistry);
 
         final AbstractSimplePlanBuilder freezePlanBuilder = new BPELFreezeProcessBuilder(pluginRegistry);
@@ -149,6 +151,7 @@ public abstract class AbstractImporter {
                 plans.addAll(updatePlanBuilder.buildPlans(csar, defs));
             } else if (Settings.OPENTOSCA_PLANBUILDER_LANGUAGE.equals("BPMN")) {
                 plans.addAll(bpmnBuildPlanBuilder.buildPlans(csar, defs));
+                plans.addAll(bpmnTerminationPlanBuilder.buildPlans(csar, defs));
             }
 
         }
