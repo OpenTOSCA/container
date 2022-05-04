@@ -75,7 +75,7 @@ public class MyTinyToDoSqlIntegrationTest {
         String wineryRepositoryUrl = "http://localhost:8091/winery";
 
         // download csar from winery
-        Path csarPath = testUtils.exportCsarFromRepository(testUtils.fetchRepository(TESTAPPLICATIONSREPOSITORY), csarId);
+        Path csarPath = testUtils.exportCsarFromRepository(testUtils.fetchRepository(TESTAPPLICATIONSREPOSITORY, false), csarId, false);
         // enrich csar
         testUtils.enrichCsarFile(csarPath, wineryRepositoryUrl);
         Csar csar = this.storage.findById(this.storage.storeCSAR(csarPath));

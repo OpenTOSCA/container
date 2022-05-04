@@ -31,6 +31,7 @@ import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.eclipse.winery.repository.export.CsarExporter;
+import org.eclipse.winery.repository.yaml.export.YamlExporter;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -70,8 +71,8 @@ public class TestUtils {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(TestUtils.class);
 
-    public Csar setupCsarTestRepository(QName csarId, CsarStorageService storage) throws Exception {
-        return setupCsarTestRepository(csarId, storage, Settings.OPENTOSCA_TEST_REMOTE_REPOSITORY_URL);
+    public Csar setupCsarTestRepository(QName csarId, CsarStorageService storage, boolean yaml) throws Exception {
+        return setupCsarTestRepository(csarId, storage, Settings.OPENTOSCA_TEST_REMOTE_REPOSITORY_URL, yaml);
     }
 
     public Collection<QName> getServiceTemplateIdsFromWineryRepository(String wineryRepositoryUrl) {
@@ -118,7 +119,7 @@ public class TestUtils {
         connector.uploadCSAR(csarFilePath.toFile(), true, wineryRepositoryUrl);
     }
 
-    public Csar setupCsarTestRepository(QName csarId, CsarStorageService storage, String testRemoteRepositoryUrl) throws Exception {
+    public Csar setupCsarTestRepository(QName csarId, CsarStorageService storage, String testRemoteRepositoryUrl, boolean yaml) throws Exception {
         String testLocalRepositoryPath = Settings.OPENTOSCA_TEST_LOCAL_REPOSITORY_PATH;
 
         Path repositoryPath;
@@ -135,7 +136,11 @@ public class TestUtils {
             remoteUrl = null;
         }
 
-        return this.loadCSARFromRepositoryIntoStorage(RepositoryConfigurationObject.RepositoryProvider.FILE, csarId, storage, repositoryPath, remoteUrl);
+        if (!yaml) {
+            return this.loadCSARFromRepositoryIntoStorage(RepositoryConfigurationObject.RepositoryProvider.FILE, csarId, storage, repositoryPath, remoteUrl, yaml);
+        } else {
+            return this.loadCSARFromRepositoryIntoStorage(RepositoryConfigurationObject.RepositoryProvider.YAML, csarId, storage, repositoryPath, remoteUrl, yaml);
+        }
     }
 
     private Path getRepositoryPath(String testRemoteRepositoryUrl) {
@@ -154,18 +159,24 @@ public class TestUtils {
     }
 
     public Csar loadCSARFromRepositoryIntoStorage(RepositoryConfigurationObject.RepositoryProvider provider, QName serviceTemplateId,
-                                                  CsarStorageService storage, Path repositoryInputPath, String remoteUrl)
+                                                  CsarStorageService storage, Path repositoryInputPath, String remoteUrl, boolean yaml)
         throws Exception {
         IRepository repository = fetchRepository(provider, repositoryInputPath, remoteUrl);
         LOGGER.debug("Initialized test repository");
 
-        Path csarFilePath = exportCsarFromRepository(repository, serviceTemplateId);
+        Path csarFilePath = exportCsarFromRepository(repository, serviceTemplateId, yaml);
 
         return storeCsarFileIntoStorage(serviceTemplateId, storage, csarFilePath);
     }
 
-    public Path exportCsarFromRepository(IRepository repository, QName serviceTemplateId) throws IOException, AccountabilityException, RepositoryCorruptException, ExecutionException, InterruptedException {
-        CsarExporter exporter = new CsarExporter(repository);
+    public Path exportCsarFromRepository(IRepository repository, QName serviceTemplateId, boolean yaml) throws IOException, AccountabilityException, RepositoryCorruptException, ExecutionException, InterruptedException {
+        CsarExporter exporter;
+        if (!yaml) {
+            exporter = new CsarExporter(repository);
+        } else {
+            exporter = new YamlExporter(repository);
+        }
+
         Path csarFilePath = Files.createTempDirectory(serviceTemplateId.getLocalPart() + "_Test").resolve(serviceTemplateId.getLocalPart() + ".csar");
 
         Map<String, Object> exportConfiguration = new HashMap<>();
@@ -187,7 +198,7 @@ public class TestUtils {
         return storage.findById(csarId);
     }
 
-    public IRepository fetchRepository(String testRemoteRepositoryUrl) throws GitAPIException, IOException {
+    public IRepository fetchRepository(String testRemoteRepositoryUrl, boolean yaml) throws GitAPIException, IOException {
         String testLocalRepositoryPath = Settings.OPENTOSCA_TEST_LOCAL_REPOSITORY_PATH;
 
         Path repositoryPath;
@@ -203,7 +214,11 @@ public class TestUtils {
         } else {
             remoteUrl = null;
         }
-        return fetchRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, repositoryPath, remoteUrl);
+        if (!yaml) {
+            return fetchRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, repositoryPath, remoteUrl);
+        } else {
+            return fetchRepository(RepositoryConfigurationObject.RepositoryProvider.YAML, repositoryPath, remoteUrl);
+        }
     }
 
     private IRepository fetchRepository(RepositoryConfigurationObject.RepositoryProvider provider, Path repositoryInputPath, String remoteUrl) throws GitAPIException, IOException {

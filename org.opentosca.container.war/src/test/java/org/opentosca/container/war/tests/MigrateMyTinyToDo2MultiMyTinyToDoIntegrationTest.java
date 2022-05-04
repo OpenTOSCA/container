@@ -71,8 +71,8 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
 
     @Test
     public void test() throws Exception {
-        Csar myTinyToDoCsar = testUtils.setupCsarTestRepository(this.myTinyToDocsarId, this.storage, TESTAPPLICATIONSREPOSITORY);
-        Csar multiMyTinyToDoCsar = testUtils.setupCsarTestRepository(this.multiMyTinyToDoCsarId, this.storage, TESTAPPLICATIONSREPOSITORY);
+        Csar myTinyToDoCsar = testUtils.setupCsarTestRepository(this.myTinyToDocsarId, this.storage, TESTAPPLICATIONSREPOSITORY, false);
+        Csar multiMyTinyToDoCsar = testUtils.setupCsarTestRepository(this.multiMyTinyToDoCsarId, this.storage, TESTAPPLICATIONSREPOSITORY, false);
         testUtils.generatePlans(this.planGenerationService, myTinyToDoCsar);
         testUtils.generatePlans(this.planGenerationService, multiMyTinyToDoCsar);
 

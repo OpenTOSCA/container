@@ -226,6 +226,7 @@ public class CsarController {
 
     private Response handleCsarUpload(final String filename, final InputStream is, final String applyEnrichment) {
         LocalDateTime startTIme = LocalDateTime.now();
+
         Path tempFile = storage.storeCSARTemporarily(filename, is);
         if (tempFile == null) {
             // writing to temporary file failed
