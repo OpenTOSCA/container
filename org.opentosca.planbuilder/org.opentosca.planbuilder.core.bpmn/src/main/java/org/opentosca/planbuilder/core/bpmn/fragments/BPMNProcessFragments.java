@@ -209,6 +209,7 @@ public class BPMNProcessFragments {
         int sourceId = id - 1;
         template = template.replaceAll("CallNodeOperation_IdToReplace", bpmnSubprocess.getId());
         //template = template.replaceAll("ServiceInstanceURLToSet", bpmnSubprocess.getServiceInstanceURL());
+        // bpmnSubprocess.getBuildPlan().getServiceTemplate().getTargetNamespace();
         template = template.replaceAll("CsarToSet", bpmnSubprocess.getBuildPlan().getCsarName());
         //template = template.replaceAll("NodeTemplateToSet", bpmnSubprocess.getNodeTemplate().getId());
         template = template.replaceAll("NodeTemplateToSet", bpmnSubprocess.getParentProcess().getNodeTemplate().getId());
@@ -1389,7 +1390,7 @@ public class BPMNProcessFragments {
     public String createBPMNSubprocessErrorBoundaryEvent(BPMNSubprocess bpmnSubprocess, int id) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNSubprocessErrorBoundaryEvent.xml"));
         String idPrefix = BPMNSubprocessType.SUBPROCESS_ERROR_BOUNDARY.toString();
-        String attachedElementId = bpmnSubprocess.getId().replace("ErrorEvent", "");
+        String attachedElementId = bpmnSubprocess.getId().replace("BoundaryEvent_ErrorEvent", "");
         template = template.replaceAll("Event_IdToSet", bpmnSubprocess.getId());
         template = template.replaceAll("Activity_ActIdToSet", attachedElementId);
         template = template.replaceAll("IdToSet", bpmnSubprocess.getId());

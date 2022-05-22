@@ -89,7 +89,7 @@ public class BPMNFinalizer {
             bpmnSubprocess.getErrorEventIds().add(idError0);
             for (Integer idError : bpmnSubprocess.getErrorEventIds()) {
                 BPMNSubprocess errorOuterFlow = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "ErrorOuterFlow_" + buildPlan.getIdForErrorOuterFlowAndIncrement());
-                BPMNSubprocess errorSubprocess = new BPMNSubprocess(BPMNSubprocessType.EVENT, "ErrorEvent" + bpmnSubprocess.getId());
+                BPMNSubprocess errorSubprocess = new BPMNSubprocess(BPMNSubprocessType.EVENT, "BoundaryEvent_ErrorEvent" + bpmnSubprocess.getId());
                 errorSubprocess.setBuildPlan(buildPlan);
                 errorOuterFlow.setBuildPlan(bpmnSubprocess.getBuildPlan());
                 errorOuterFlow.setIncomingTestScope(errorSubprocess);
@@ -157,7 +157,7 @@ public class BPMNFinalizer {
         setInstanceState.setInstanceState("CREATED");
 
         //create set Service instance state boundary error event
-        BPMNSubprocess errorSubprocess2 = new BPMNSubprocess(BPMNSubprocessType.EVENT, "ErrorEvent" + setInstanceState.getId());
+        BPMNSubprocess errorSubprocess2 = new BPMNSubprocess(BPMNSubprocessType.EVENT, "BoundaryEvent_ErrorEvent" + setInstanceState.getId());
         errorSubprocess2.setBuildPlan(buildPlan);
         errorOuterFlow.setBuildPlan(buildPlan);
         errorOuterFlow.setIncomingTestScope(errorSubprocess2);
