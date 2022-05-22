@@ -2,10 +2,12 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <description>
-    Register the beans within the planbuilder provisioning-phase invoker plugin
-  </description>
+    <description>
+        Register the beans within the planbuilder provisioning-phase invoker plugin
+    </description>
 
-  <bean class="org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin" />
+    <bean class="org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin" />
+    <bean class="org.opentosca.planbuilder.provphase.plugin.invoker.bpmn.BPMNInvokerPlugin" />
+
 
 </beans>

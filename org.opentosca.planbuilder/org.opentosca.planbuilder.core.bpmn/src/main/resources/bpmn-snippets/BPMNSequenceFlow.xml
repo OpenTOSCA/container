@@ -1,0 +1,1 @@
+<bpmn:sequenceFlow id="Flow_IdToReplace" sourceRef="SourceToReplace" targetRef="TargetToReplace" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"/>

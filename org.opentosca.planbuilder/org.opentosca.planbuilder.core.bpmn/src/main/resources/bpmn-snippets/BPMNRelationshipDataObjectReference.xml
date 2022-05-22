@@ -1,0 +1,10 @@
+<bpmn:dataObjectReference id="DataObjectReference_IdToSet" name="IdToSet" dataObjectRef="IdToSet">
+    <bpmn:extensionElements>
+        <camunda:inputOutput>
+            <camunda:inputParameter name="RelationshipInstanceURL">RelationshipInstanceURLToSet</camunda:inputParameter>
+            <camunda:inputParameter name="RelationshipTemplate">RelationshipTemplateToSet</camunda:inputParameter>
+            <camunda:inputParameter name="SourceURL">SourceURLToSet</camunda:inputParameter>
+            <camunda:inputParameter name="TargetURL">TargetURLToSet</camunda:inputParameter>
+        </camunda:inputOutput>
+    </bpmn:extensionElements>
+</bpmn:dataObjectReference>

@@ -1,0 +1,8 @@
+<bpmn:scriptTask id="Activity_IdToSet" name="Set State" scriptFormat="groovy" xmlns:qa="http://some-company/schema/bpmn/qa" qa:nytpe="TEST" camunda:resource="deployment://SetState.groovy">
+    <bpmn:extensionElements>
+        <camunda:inputOutput>
+            <camunda:inputParameter name="State">StateToSet</camunda:inputParameter>
+            <camunda:inputParameter name="InstanceURL">InstanceURLToSet</camunda:inputParameter>
+        </camunda:inputOutput>
+    </bpmn:extensionElements>
+</bpmn:scriptTask>

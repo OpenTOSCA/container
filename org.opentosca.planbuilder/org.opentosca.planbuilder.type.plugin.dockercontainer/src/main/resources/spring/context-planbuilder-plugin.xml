@@ -6,6 +6,8 @@
     Register the beans within the planbuilder dockercontainer type plugin
   </description>
 
-  <bean class="org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.BPELDockerContainerTypePlugin" />
-  <bean class="org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.BPELOpenMTCDockerContainerTypePlugin" />
+  <!--bean class="org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.BPELDockerContainerTypePlugin" />
+  <bean class="org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.BPELOpenMTCDockerContainerTypePlugin" /-->
+
+    <bean class="org.opentosca.planbuilder.type.plugin.dockercontainer.bpmn.BPMNDockerContainerTypePlugin" />
 </beans>

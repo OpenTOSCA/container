@@ -1,0 +1,9 @@
+<bpmn:dataObjectReference id="DataObjectReference_IdToSet" name="ServiceInstance DataObject of Task with name ServiceInstanceTaskName" dataObjectRef="DataObject_IdToSet">
+    <bpmn:extensionElements>
+        <camunda:inputOutput>
+            <camunda:inputParameter name="ServiceInstanceURL">ServiceInstanceURLToSet</camunda:inputParameter>
+            <camunda:inputParameter name="ServiceTemplateID">ServiceTemplateIdToSet</camunda:inputParameter>
+            <camunda:inputParameter name="CsarID">CsarIdToSet</camunda:inputParameter>
+        </camunda:inputOutput>
+    </bpmn:extensionElements>
+</bpmn:dataObjectReference>

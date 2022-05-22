@@ -1,0 +1,10 @@
+<bpmn:dataObjectReference id="DataObjectReference_IdToSet" name="IdToSet" dataObjectRef="IdToSet">
+    <bpmn:extensionElements>
+        <camunda:inputOutput>
+            <camunda:inputParameter name='InputParameterNames'>InputParameterNamesToSet</camunda:inputParameter>
+            <camunda:inputParameter name='InputParameter'>InputParameterToSet</camunda:inputParameter>
+            <camunda:inputParameter name='OutputParameterNames'>OutputParameterNamesToSet</camunda:inputParameter>
+            <camunda:inputParameter name='OutputParameter'>OutputParameterToSet</camunda:inputParameter>
+        </camunda:inputOutput>
+    </bpmn:extensionElements>
+</bpmn:dataObjectReference>

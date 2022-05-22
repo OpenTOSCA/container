@@ -1,0 +1,3 @@
+<bpmndi:BPMNShape id="DataObjectReference_IdToSet_di" bpmnElement="DataObjectReference_IdToSet">
+    <dc:Bounds x='xToSet' y='yToSet' width='36' height='50' />
+</bpmndi:BPMNShape>

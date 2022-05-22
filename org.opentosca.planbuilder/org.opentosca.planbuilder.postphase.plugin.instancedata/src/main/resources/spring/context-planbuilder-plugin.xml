@@ -7,4 +7,5 @@
   </description>
 
   <bean class="org.opentosca.planbuilder.postphase.plugin.instancedata.bpel.BPELInstanceDataPlugin" />
+    <bean class="org.opentosca.planbuilder.postphase.plugin.instancedata.bpmn.BPMNInstanceDataPlugin" />
 </beans>

@@ -1,0 +1,9 @@
+<bpmn:dataObjectReference id="DataObjectReference_IdToSet" name="IdToSet" dataObjectRef="IdToSet">
+    <bpmn:extensionElements>
+        <camunda:inputOutput>
+            <camunda:inputParameter name="ResultVariable">NodeInstanceURLToSet</camunda:inputParameter>
+            <camunda:inputParameter name="NodeTemplate">NodeTemplateToSet</camunda:inputParameter>
+            <camunda:inputParameter name='Properties'>PropertiesToSet</camunda:inputParameter>
+        </camunda:inputOutput>
+    </bpmn:extensionElements>
+</bpmn:dataObjectReference>

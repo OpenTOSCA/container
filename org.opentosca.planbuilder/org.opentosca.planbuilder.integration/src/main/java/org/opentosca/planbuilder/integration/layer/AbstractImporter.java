@@ -25,6 +25,7 @@ import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTerminationP
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTestManagementProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELTransformationProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.typebasedplanbuilder.BPELUpdateProcessBuilder;
+import org.opentosca.planbuilder.core.bpmn.typebasedplanbuilder.BPMNBuildProcessBuilder;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 
@@ -113,6 +114,7 @@ public abstract class AbstractImporter {
         }
 
         AbstractSimplePlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder(pluginRegistry);
+        AbstractSimplePlanBuilder bpmnBuildPlanBuilder = new BPMNBuildProcessBuilder(pluginRegistry);
         final BPELSituationAwareBuildProcessBuilder sitAwareBuilder = new BPELSituationAwareBuildProcessBuilder(pluginRegistry);
 
         if (!sitAwareBuilder.buildPlans(csar, defs).isEmpty()) {
@@ -145,6 +147,7 @@ public abstract class AbstractImporter {
 
         if (ModelUtils.findServiceTemplateOperation(defs, OpenTOSCA_LifecycleInterface, OpenTOSCA_BuildPlanOperation) == null) {
             plans.addAll(buildPlanBuilder.buildPlans(csar, defs));
+            plans.addAll(bpmnBuildPlanBuilder.buildPlans(csar, defs));
         }
 
         if (ModelUtils.findServiceTemplateOperation(defs, OpenTOSCA_LifecycleInterface, OpenTOSCA_TerminationPlanOperation) == null) {

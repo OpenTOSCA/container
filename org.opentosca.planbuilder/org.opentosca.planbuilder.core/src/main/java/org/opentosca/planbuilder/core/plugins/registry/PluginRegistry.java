@@ -17,6 +17,9 @@ import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhase
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.core.plugins.choreography.IPlanBuilderChoreographyPlugin;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
+import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderBPMNPostPhasePlugin;
+import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderBPMNPrePhasePlugin;
+import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderBPMNTypePlugin;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPlugin;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPolicyAwarePostPhasePlugin;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPolicyAwarePrePhasePlugin;
@@ -56,6 +59,10 @@ public class PluginRegistry {
     private final List<IPlanBuilderPolicyAwarePostPhasePlugin<?>> policyAwarePostPhasePlugins = new ArrayList<>();
     private final List<IPlanBuilderPolicyAwarePrePhasePlugin<?>> policyAwarePrePhasePlugins = new ArrayList<>();
     private final List<IPlanBuilderChoreographyPlugin<?>> choreographyPlugins = new ArrayList<>();
+
+    private final List<IPlanBuilderBPMNPrePhasePlugin<?>> prePhaseBPMNPlugins = new ArrayList<>();
+    private final List<IPlanBuilderBPMNPostPhasePlugin<?>> postBPMNPlugins = new ArrayList<>();
+    private final List<IPlanBuilderBPMNTypePlugin<?>> genericBPMNPlugins = new ArrayList<>();
 
     @Inject
     // required is false to allow starting without any planbuilder plugins
@@ -114,6 +121,18 @@ public class PluginRegistry {
             roles.add(IPlanBuilderChoreographyPlugin.class.getSimpleName());
             choreographyPlugins.add((IPlanBuilderChoreographyPlugin<?>) plugin);
         }
+        if (plugin instanceof IPlanBuilderBPMNPrePhasePlugin<?>) {
+            roles.add(IPlanBuilderBPMNPrePhasePlugin.class.getSimpleName());
+            prePhaseBPMNPlugins.add((IPlanBuilderBPMNPrePhasePlugin<?>) plugin);
+        }
+        if (plugin instanceof IPlanBuilderBPMNTypePlugin<?>) {
+            roles.add(IPlanBuilderBPMNTypePlugin.class.getSimpleName());
+            genericBPMNPlugins.add((IPlanBuilderBPMNTypePlugin<?>) plugin);
+        }
+        if (plugin instanceof IPlanBuilderBPMNPostPhasePlugin<?>) {
+            roles.add(IPlanBuilderBPMNPostPhasePlugin.class.getSimpleName());
+            postBPMNPlugins.add((IPlanBuilderBPMNPostPhasePlugin<?>) plugin);
+        }
         if (roles.isEmpty()) {
             LOG.warn("Plugin {} could not be registered for any roles. It's not available from the PluginRegistry", plugin.getClass().getSimpleName());
             return;
@@ -130,8 +149,17 @@ public class PluginRegistry {
         return genericPlugins;
     }
 
+    public List<IPlanBuilderBPMNTypePlugin<?>> getBPMNTypePlugins() {
+        return genericBPMNPlugins;
+    }
+
+
     public List<IPlanBuilderPrePhasePlugin<?>> getPrePlugins() {
         return prePhasePlugins;
+    }
+
+    public List<IPlanBuilderBPMNPrePhasePlugin<?>> getPreBPMNPlugins() {
+        return prePhaseBPMNPlugins;
     }
 
     /**
@@ -170,6 +198,9 @@ public class PluginRegistry {
         return postPlugins;
     }
 
+    public List<IPlanBuilderBPMNPostPhasePlugin<?>> getPostBPMNPlugins() {
+        return postBPMNPlugins;
+    }
     /**
      * Returns all registered SelectionPlugins
      *
@@ -228,6 +259,15 @@ public class PluginRegistry {
 
     public IPlanBuilderTypePlugin<?> findTypePluginForCreation(final TNodeTemplate nodeTemplate, Csar csar) {
         return getTypePlugins().stream()
+            .filter(p -> p.canHandleCreate(csar, nodeTemplate))
+            // sort highest priority first
+            .sorted(Comparator.comparingInt(IPlanBuilderPlugin::getPriority).reversed())
+            .findFirst()
+            .orElse(null);
+    }
+
+    public IPlanBuilderBPMNTypePlugin<?> findBPMNTypePluginForCreation(final TNodeTemplate nodeTemplate, Csar csar) {
+        return getBPMNTypePlugins().stream()
             .filter(p -> p.canHandleCreate(csar, nodeTemplate))
             // sort highest priority first
             .sorted(Comparator.comparingInt(IPlanBuilderPlugin::getPriority).reversed())

@@ -1,0 +1,12 @@
+<bpmn:scriptTask id="ActivateDataObject_IdToReplace" name="NameToSet" scriptFormat="groovy" camunda:resource="deployment://DataObject.groovy"  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:camunda="http://camunda.org/schema/1.0/bpmn">
+    <bpmn:extensionElements>
+        <camunda:inputOutput>
+            <camunda:inputParameter name="DataObject">DataObjectIdToSet</camunda:inputParameter>
+            <camunda:inputParameter name="InputParameterNames">InputParameterNamesToSet</camunda:inputParameter>
+            <camunda:inputParameter name="OutputParameterNames">OutputParameterNamesToSet</camunda:inputParameter>
+            <camunda:inputParameter name='OutputParameter'>OutputParameterToSet</camunda:inputParameter>
+            <camunda:inputParameter name='PropertiesNames'>PropertiesNamesToSet</camunda:inputParameter>
+            <camunda:inputParameter name='Properties'>PropertiesToSet</camunda:inputParameter>
+        </camunda:inputOutput>
+    </bpmn:extensionElements>
+</bpmn:scriptTask>

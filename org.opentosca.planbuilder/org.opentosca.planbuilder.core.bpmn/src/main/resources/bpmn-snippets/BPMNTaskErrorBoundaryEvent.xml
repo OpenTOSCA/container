@@ -1,0 +1,4 @@
+<bpmn:boundaryEvent id="Event_IdToSet" attachedToRef="Activity_ActIdToSet">
+    <bpmn:errorEventDefinition id="ErrorEventDefinition_IdToSet" errorRef="Error_Id" />
+</bpmn:boundaryEvent>
+

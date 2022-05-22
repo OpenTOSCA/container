@@ -1,0 +1,8 @@
+<bpmn:scriptTask id="SetProperties_IdToReplace" name="Set ServiceTemplate State" scriptFormat="groovy" camunda:resource="deployment://SetState.groovy">
+    <bpmn:extensionElements>
+        <camunda:inputOutput>
+            <camunda:inputParameter name="State">StateToSet</camunda:inputParameter>
+            <camunda:inputParameter name="InstanceURL">${ServiceInstanceURL}</camunda:inputParameter>
+        </camunda:inputOutput>
+    </bpmn:extensionElements>
+</bpmn:scriptTask>

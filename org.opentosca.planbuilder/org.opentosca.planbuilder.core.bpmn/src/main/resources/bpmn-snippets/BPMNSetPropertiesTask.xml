@@ -1,0 +1,10 @@
+<bpmn:scriptTask id="Activity_IdToSet" name="name_toSet" scriptFormat="groovy" camunda:resource="deployment://SetProperties.groovy">
+    <bpmn:extensionElements>
+        <camunda:inputOutput>
+            <camunda:inputParameter name="State">StateToSet</camunda:inputParameter>
+            <camunda:inputParameter name="NodeInstanceURL">NodeInstanceURLToSet</camunda:inputParameter>
+            <camunda:inputParameter name="NodeTemplate">NodeTemplateToSet</camunda:inputParameter>
+            <camunda:inputParameter name="Properties">PropertiesToSet</camunda:inputParameter>
+        </camunda:inputOutput>
+    </bpmn:extensionElements>
+</bpmn:scriptTask>

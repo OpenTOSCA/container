@@ -21,6 +21,12 @@
       <artifactId>org.opentosca.planbuilder.core.bpel</artifactId>
       <version>${project.version}</version>
     </dependency>
+      <dependency>
+          <groupId>org.opentosca</groupId>
+          <artifactId>org.opentosca.planbuilder.core.bpmn</artifactId>
+          <version>${project.version}</version>
+          <scope>compile</scope>
+      </dependency>
     <dependency>
       <groupId>org.opentosca</groupId>
       <artifactId>org.opentosca.planbuilder.model</artifactId>

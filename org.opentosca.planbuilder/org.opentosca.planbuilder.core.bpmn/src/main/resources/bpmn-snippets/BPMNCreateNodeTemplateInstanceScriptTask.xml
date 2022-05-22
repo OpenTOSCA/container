@@ -1,0 +1,10 @@
+<bpmn:scriptTask id="NodeTemplateInstance_IdToReplace" name="NodeTemplateInstance_IdToReplace of NodeTemplate" scriptFormat="groovy" camunda:resultVariable="ResultVariableToSet" camunda:resource="deployment://CreateNodeInstance.groovy" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:camunda="http://camunda.org/schema/1.0/bpmn">
+    <bpmn:extensionElements>
+        <camunda:inputOutput>
+            <camunda:inputParameter name="State">StateToSet</camunda:inputParameter>
+            <camunda:inputParameter name="ResultVariableName">ResultVariableToSet</camunda:inputParameter>
+            <camunda:inputParameter name="ServiceInstanceURL">ServiceInstanceURLToSet</camunda:inputParameter>
+            <camunda:inputParameter name="NodeTemplate">NodeTemplateToSet</camunda:inputParameter>
+        </camunda:inputOutput>
+    </bpmn:extensionElements>
+</bpmn:scriptTask>
