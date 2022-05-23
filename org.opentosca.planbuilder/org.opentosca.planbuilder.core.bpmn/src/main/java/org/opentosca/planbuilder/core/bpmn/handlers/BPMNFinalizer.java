@@ -46,13 +46,9 @@ public class BPMNFinalizer {
     }
 
     /**
-     * The method is responsible to add the xml code of the BPMN subprocess to the bpmnDocument.
-     * After adding the xml elements, the DiagramAutoGenerator is called (which makes use of the Camunda API).
-     * Since data objects are not supported by now, we added them manually to the document.
-     *
-     * @param buildPlan
-     * @throws IOException
-     * @throws SAXException
+     * The method is responsible to add the xml code of the BPMN subprocess to the bpmnDocument. After adding the xml
+     * elements, the DiagramAutoGenerator is called (which makes use of the Camunda API). Since data objects are not
+     * supported by now, we added them manually to the document.
      */
     public void finalize(final BPMNPlan buildPlan) throws IOException, SAXException {
         LOG.info("Finalizing BPMN build Plan {}", buildPlan.getId());
@@ -134,27 +130,33 @@ public class BPMNFinalizer {
             //userTask.setIncomingSubprocess(boundaryEvents);
         }
 
+        BPMNSubprocess outputParamTask = new BPMNSubprocess(BPMNSubprocessType.COMPUTE_OUTPUT_PARAMS_TASK, "Activity_outputParamTask");
+        setBuildPlanAndSequenceFlows(buildPlan, flowElements, previousIncoming, outputParamTask);
+        previousIncoming = outputParamTask;
+
         // create setService instance state
         BPMNSubprocess setInstanceState = new BPMNSubprocess(BPMNSubprocessType.SET_ST_STATE, "Activity_ServiceInstanceState");
-        setInstanceState.setBuildPlan(buildPlan);
-        BPMNSubprocess subprocessToStateFlow = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "TestOuterFlow_" + buildPlan.getIdForOuterFlowTestAndIncrement());
-        subprocessToStateFlow.setBuildPlan(buildPlan);
-        subprocessToStateFlow.setIncomingTestScope(previousIncoming);
-        subprocessToStateFlow.setOuterflow(setInstanceState);
-        flowElements.add(subprocessToStateFlow);
-        buildPlan.setFlowElements(flowElements);
+        setBuildPlanAndSequenceFlows(buildPlan, flowElements, previousIncoming, setInstanceState);
         //create last end event
         BPMNSubprocess lastFlow = new BPMNSubprocess(BPMNSubprocessType.END_EVENT, "lastEndEvent");
-        lastFlow.setBuildPlan(buildPlan);
-
-        BPMNSubprocess lastOuterFlow = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "TestOuterFlow_" + buildPlan.getIdForOuterFlowTestAndIncrement());
-        lastOuterFlow.setBuildPlan(buildPlan);
-        lastOuterFlow.setIncomingTestScope(setInstanceState);
-        lastOuterFlow.setOuterflow(lastFlow);
-        flowElements.add(lastOuterFlow);
-        buildPlan.setFlowElements(flowElements);
+        setBuildPlanAndSequenceFlows(buildPlan, flowElements, setInstanceState, lastFlow);
         BPMNSubprocess errorOuterFlow = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "ErrorOuterFlow_" + buildPlan.getIdForErrorOuterFlowAndIncrement());
         setInstanceState.setInstanceState("CREATED");
+
+        BPMNSubprocess outputParamTaskToSetInstanceStateErrorOuterFlow = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "ErrorOuterFlow_" + buildPlan.getIdForErrorOuterFlowAndIncrement());
+
+        //create computeOutputParamsTask boundary error event
+        BPMNSubprocess errorSubprocess3 = new BPMNSubprocess(BPMNSubprocessType.EVENT, "BoundaryEvent_ErrorEvent" + outputParamTask.getId());
+        errorSubprocess3.setBuildPlan(buildPlan);
+        outputParamTaskToSetInstanceStateErrorOuterFlow.setBuildPlan(buildPlan);
+        outputParamTaskToSetInstanceStateErrorOuterFlow.setIncomingTestScope(errorSubprocess3);
+        outputParamTaskToSetInstanceStateErrorOuterFlow.setOuterflow(userTask);
+        errorflowElements.add(outputParamTaskToSetInstanceStateErrorOuterFlow);
+        buildPlan.setErrorFlowElements(errorflowElements);
+
+        // add outputParam Task to bpmn document
+        Node outputParamTaskNode = processFragments.createBPMNSubprocessAndComponentsAsNode(outputParamTask);
+        processFragments.addNodeToBPMN(outputParamTaskNode, buildPlan);
 
         //create set Service instance state boundary error event
         BPMNSubprocess errorSubprocess2 = new BPMNSubprocess(BPMNSubprocessType.EVENT, "BoundaryEvent_ErrorEvent" + setInstanceState.getId());
@@ -175,6 +177,8 @@ public class BPMNFinalizer {
 
         previousErrorSubprocess = setInstanceState;
 
+        Node errorNode3 = processFragments.createSubprocessErrorBoundaryEventAsNode(errorSubprocess3, idError0);
+        processElement.appendChild(errorNode3);
         Node errorNode2 = processFragments.createSubprocessErrorBoundaryEventAsNode(errorSubprocess2, idError0);
         processElement.appendChild(errorNode2);
         //boundaryEvents.add(errorSubprocess2);
@@ -241,6 +245,16 @@ public class BPMNFinalizer {
         }
 
         LOG.info("BPMN build Plan is finalized");
+    }
+
+    public void setBuildPlanAndSequenceFlows(BPMNPlan buildPlan, ArrayList<BPMNSubprocess> flowElements, BPMNSubprocess previousIncoming, BPMNSubprocess outputParamTask) {
+        outputParamTask.setBuildPlan(buildPlan);
+        BPMNSubprocess subprocessToOutputParamTask = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "TestOuterFlow_" + buildPlan.getIdForOuterFlowTestAndIncrement());
+        subprocessToOutputParamTask.setBuildPlan(buildPlan);
+        subprocessToOutputParamTask.setIncomingTestScope(previousIncoming);
+        subprocessToOutputParamTask.setOuterflow(outputParamTask);
+        flowElements.add(subprocessToOutputParamTask);
+        buildPlan.setFlowElements(flowElements);
     }
 
     public void writeXML(Document s) {

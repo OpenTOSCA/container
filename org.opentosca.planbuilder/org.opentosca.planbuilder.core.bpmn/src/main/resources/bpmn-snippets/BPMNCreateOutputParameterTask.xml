@@ -1,0 +1,9 @@
+<bpmn:scriptTask id="Activity_IdToSet" name="CreateOutputParamTask" scriptFormat="SetOutputParameters.groovy" camunda:resource="deployment://scriptname.groovy">
+    <bpmn:extensionElements>
+        <camunda:inputOutput>
+            <camunda:inputParameter name="DataObject">DataObjectToSet</camunda:inputParameter>
+            <camunda:inputParameter name="OutputParameterNames">OutputParameterNamesToSet</camunda:inputParameter>
+            <camunda:inputParameter name='OutputParameter'>OutputParameterToSet</camunda:inputParameter>
+        </camunda:inputOutput>
+    </bpmn:extensionElements>
+</bpmn:scriptTask>

@@ -5,6 +5,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -538,6 +539,9 @@ public class BPMNProcessFragments {
                     break;
                 case ACTIVATE_DATA_OBJECT_TASK:
                     node = this.createActivateDataObjectTaskAsNode(bpmnSubprocess);
+                    break;
+                case COMPUTE_OUTPUT_PARAMS_TASK:
+                    node = this.createOutputParamsTaskAsNode(bpmnSubprocess);
                     break;
                 //case ERROR_INNER_FLOW:
                 //  node = this.createBPMNInnerErrorSequenceFlow(bpmnSubprocess, bpmnSubprocess);
@@ -1775,5 +1779,65 @@ public class BPMNProcessFragments {
         Node startEvent = this.createImportNodeFromString(bpmnSubprocess, template);
         //bpmnSubprocess.setOutflow("OuterFlow_" + id);
         return startEvent;
+    }
+
+    public Node createOutputParamsTaskAsNode(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
+        String template = createOutputParamsTask(bpmnSubprocess);
+        Node node = this.createImportNodeFromString(bpmnSubprocess, template);
+        return node;
+    }
+
+    private String createOutputParamsTask(BPMNSubprocess bpmnSubprocess) throws IOException {
+        LOG.info("Create output paramter task of id {}", bpmnSubprocess.getId());
+        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateOutputParameterTask.xml"));
+        template = template.replace("Activity_IdToSet", bpmnSubprocess.getId());
+        final BPMNPlan bpmnPlan = bpmnSubprocess.getBuildPlan();
+        // find data object
+        HashMap<String, String> outputParams = null;
+        if (bpmnSubprocess.getBuildPlan().getDataObjectsList() != null) {
+            for (BPMNDataObject dataObject : bpmnSubprocess.getBuildPlan().getDataObjectsList()) {
+                if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_INOUT) {
+                    template = template.replaceAll("DataObjectToSet", BPMNSubprocessType.DATA_OBJECT_REFERENCE + "_" + dataObject.getId());
+                }
+            }
+        }
+        String outputParameters = "";
+        String outputParameterNames = "";
+        final String concat = "concat(";
+        for (String outputParameterName : bpmnPlan.getPropertiesOutputParameters().keySet()) {
+            outputParameterNames += outputParameterName + ",";
+            if (outputParameterName.equals(bpmnPlan.getPropertiesOutputParameters().get(outputParameterName))) {
+                outputParameters = outputParameters + "<camunda:inputParameter name='Output." + outputParameterName + "'>" + "\\${" + bpmnPlan.getPropertiesOutputParameters().get(outputParameterName) + "}" + "</camunda:inputParameter>";
+            } else {
+                String outputParameterValue = "";
+                // this is the case where we have in the service template some property mapping and each property is associated to a nodetemplate.
+                // To find the dataobject which holds the correct properties we split at the first 'point'
+                for (BPMNDataObject dataObject : bpmnPlan.getDataObjectsList()) {
+                    if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_NODE) {
+                        outputParameterValue = bpmnPlan.getPropertiesOutputParameters().get(outputParameterName);
+                        // schema: NodeTemplate.Properties.PropertyName
+                        String[] outputParameterValueParts = outputParameterValue.split(",");
+                        for (String outputParameterValuePart : outputParameterValueParts) {
+                            if (outputParameterValuePart.contains(".")) {
+                                String nodeTemplate = outputParameterValuePart.split("\\.")[0].trim();
+                                if (dataObject.getNodeTemplate().equals(nodeTemplate)) {
+                                    String outputParameterPartValue = outputParameterValuePart.replaceAll(nodeTemplate, BPMNSubprocessType.DATA_OBJECT_REFERENCE + "_" + dataObject.getId());
+                                    if (outputParameterValue.contains(concat)) {
+                                        outputParameterValue = outputParameterValue.replaceAll(",", "\\+");
+                                        outputParameterValue = outputParameterValue.replace(outputParameterValuePart, outputParameterPartValue);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                outputParameterValue = outputParameterValue.substring(outputParameterValue.indexOf(concat) + concat.length(), outputParameterValue.lastIndexOf(")"));
+                outputParameters = outputParameters + "<camunda:inputParameter name='Output." + outputParameterName + "'>" + outputParameterValue + "</camunda:inputParameter>";
+            }
+        }
+        outputParameterNames = outputParameterNames.substring(0, outputParameterNames.lastIndexOf(","));
+        template = template.replaceAll("<camunda:inputParameter name='OutputParameter'>OutputParameterToSet</camunda:inputParameter>", outputParameters);
+        template = template.replaceAll("OutputParameterNamesToSet", outputParameterNames);
+        return template;
     }
 }

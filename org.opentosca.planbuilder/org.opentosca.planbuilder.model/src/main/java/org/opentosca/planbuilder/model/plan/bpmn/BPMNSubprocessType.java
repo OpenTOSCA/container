@@ -18,6 +18,7 @@ public enum BPMNSubprocessType {
     SET_NODE_PROPERTY_TASK("Task"),
     ACTIVATE_DATA_OBJECT_TASK("Task"),
     SET_ST_STATE("Task"),
+    COMPUTE_OUTPUT_PARAMS_TASK("Task"),
     DATA_OBJECT("DataObject"),
     DATA_OBJECT_REFERENCE("DataObjectReference"),
     DATA_OBJECT_INOUT("DataObject"),
