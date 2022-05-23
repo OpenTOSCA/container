@@ -4,6 +4,7 @@
             <camunda:inputParameter name="State">StateToSet</camunda:inputParameter>
             <camunda:inputParameter name="NodeInstanceURL">NodeInstanceURLToSet</camunda:inputParameter>
             <camunda:inputParameter name="NodeTemplate">NodeTemplateToSet</camunda:inputParameter>
+            <camunda:inputParameter name="DataObject">DataObjectToSet</camunda:inputParameter>
             <camunda:inputParameter name="Properties">PropertiesToSet</camunda:inputParameter>
         </camunda:inputOutput>
     </bpmn:extensionElements>

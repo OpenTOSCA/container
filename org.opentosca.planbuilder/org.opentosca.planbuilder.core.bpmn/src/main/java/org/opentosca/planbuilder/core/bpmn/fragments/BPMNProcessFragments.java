@@ -35,6 +35,7 @@ public class BPMNProcessFragments {
 
     private final DocumentBuilderFactory docFactory;
     private final DocumentBuilder docBuilder;
+    protected static final String ServiceInstanceURLVarKeyword = "OpenTOSCAContainerAPIServiceInstanceURL";
 
     /**
      * Constructor
@@ -65,8 +66,6 @@ public class BPMNProcessFragments {
      * @param sourceBpmnSubprocess source for the sequence flow
      * @param targetBpmnSubprocess target for the sequence flow
      * @return sequenceFlow Node
-     * @throws IOException
-     * @throws SAXException
      */
     public Node createBPMNSequenceFlow2(BPMNSubprocess sourceBpmnSubprocess, BPMNSubprocess targetBpmnSubprocess) throws IOException, SAXException {
         String sequenceFlow = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNSequenceFlow.xml"));
@@ -86,8 +85,6 @@ public class BPMNProcessFragments {
      * @param sourceBpmnSubprocess source for the sequence flow
      * @param targetBpmnSubprocess target for the sequence flow
      * @return sequenceFlow Node
-     * @throws IOException
-     * @throws SAXException
      */
     public Node createBPMNOuterErrorSequenceFlow(BPMNSubprocess sourceBpmnSubprocess, BPMNSubprocess targetBpmnSubprocess) throws IOException, SAXException {
         String errorOuterFlow = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNSequenceFlow.xml"));
@@ -112,8 +109,6 @@ public class BPMNProcessFragments {
      * @param SourceBpmnSubprocess source for the sequence flow
      * @param targetBpmnSubprocess target for the sequence flow
      * @return sequenceFlow Node
-     * @throws IOException
-     * @throws SAXException
      */
     public Node createBPMNInnerErrorSequenceFlow(BPMNSubprocess SourceBpmnSubprocess, BPMNSubprocess targetBpmnSubprocess) throws IOException, SAXException {
         String errorInnerFlow = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNSequenceFlow.xml"));
@@ -131,8 +126,6 @@ public class BPMNProcessFragments {
      *
      * @param bpmnSubprocess the subprocess
      * @return createRelationshipTemplateInstance Node
-     * @throws IOException
-     * @throws SAXException
      */
     public String createRelationshipTemplateInstance(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         int id = bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement();
@@ -149,11 +142,7 @@ public class BPMNProcessFragments {
         createRelationshipInstance = createRelationshipInstance.replaceAll("SourceURLToSet", bpmnSubprocess.getSourceInstanceURL());
         createRelationshipInstance = createRelationshipInstance.replaceAll("TargetURLToSet", bpmnSubprocess.getTargetInstanceURL());
 
-        for (BPMNDataObject bpmnDataObject : bpmnSubprocess.getBuildPlan().getDataObjectsList()) {
-            if (bpmnDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_ST) {
-                createRelationshipInstance = createRelationshipInstance.replaceAll("ServiceInstanceURLToSet", bpmnDataObject.getServiceInstanceURL());
-            }
-        }
+        createRelationshipInstance = getServiceInstanceURLFromDataObject(bpmnSubprocess, createRelationshipInstance);
         //Node relationshipInstanceNode = this.transformStringToNode(template);
         //bpmnSubprocess.setBpmnSubprocessElement((Element) relationshipInstanceNode);
         bpmnSubprocess.setInflow("Flow_" + sourceId);
@@ -166,8 +155,6 @@ public class BPMNProcessFragments {
      *
      * @param bpmnSubprocess the subprocess
      * @return createNodeTemplateInstance Node
-     * @throws IOException
-     * @throws SAXException
      */
     public String createNodeTemplateInstance(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         int id = bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement();
@@ -183,11 +170,7 @@ public class BPMNProcessFragments {
         template = template.replaceAll("Flow_Input", "Flow_" + sourceId);
         template = template.replaceAll("Flow_Output", "Flow_" + id);
         template = template.replaceAll("StateToSet", "INITIAL");
-        for (BPMNDataObject bpmnDataObject : bpmnSubprocess.getBuildPlan().getDataObjectsList()) {
-            if (bpmnDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_ST) {
-                template = template.replaceAll("ServiceInstanceURLToSet", bpmnDataObject.getServiceInstanceURL());
-            }
-        }
+        template = getServiceInstanceURLFromDataObject(bpmnSubprocess, template);
 
         bpmnSubprocess.setInflow("Flow_" + sourceId);
         bpmnSubprocess.setOutflow("Flow_" + id);
@@ -200,8 +183,6 @@ public class BPMNProcessFragments {
      *
      * @param bpmnSubprocess the subprocess
      * @return createNodeOperation Node
-     * @throws IOException
-     * @throws SAXException
      */
     public String createNodeOperation(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateNodeOperationScriptTask.xml"));
@@ -226,9 +207,7 @@ public class BPMNProcessFragments {
         template = template.replaceAll("Flow_Output", "Flow_" + id);
         //Node callNodeOperationNode = this.transformStringToNode(template);
 
-        if (bpmnSubprocess.getServiceInstanceURL() != null) {
-            template = template.replaceAll("ServiceInstanceURLToSet", bpmnSubprocess.getServiceInstanceURL());
-        }
+        template = getServiceInstanceURLFromDataObject(bpmnSubprocess, template);
         LOG.info("interface variable: " + bpmnSubprocess.getInterfaceVariable());
         if (bpmnSubprocess.getInterfaceVariable() != null) {
             template = template.replaceAll("InterfaceToSet", bpmnSubprocess.getInterfaceVariable());
@@ -279,14 +258,23 @@ public class BPMNProcessFragments {
         return resultstring;
     }
 
+    public String getServiceInstanceURLFromDataObject(BPMNSubprocess bpmnSubprocess, String template) {
+        for (BPMNDataObject bpmnDataObject : bpmnSubprocess.getBuildPlan().getDataObjectsList()) {
+            if (bpmnDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_ST) {
+                template = template.replaceAll("ServiceInstanceURLToSet", bpmnDataObject.getServiceInstanceURL());
+            } else if (bpmnDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_INOUT) {
+                template = template.replaceAll("ServiceInstanceURLToSet", bpmnDataObject.getProperties().stream().filter(property -> property.startsWith(ServiceInstanceURLVarKeyword)).toString());
+            }
+        }
+        return template;
+    }
+
     /**
      * create EndEvent Node for the outside process
      *
      * @param bpmnSubprocess the subprocess
      * @param name           name of the end event node
      * @return outer end event node
-     * @throws IOException
-     * @throws SAXException
      */
     public Node createOuterBPMNEndEvent(BPMNSubprocess bpmnSubprocess, String name) throws IOException, SAXException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNEndEvent.xml"));
@@ -305,8 +293,6 @@ public class BPMNProcessFragments {
      * @param bpmnSubprocess the subprocess
      * @param name           name of the error end event node
      * @return outer end event error node
-     * @throws IOException
-     * @throws SAXException
      */
     public Node createOuterBPMNErrorEndEvent(BPMNSubprocess bpmnSubprocess, String name) throws IOException, SAXException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNEndEvent.xml"));
@@ -329,8 +315,6 @@ public class BPMNProcessFragments {
      *
      * @param bpmnSubprocess the subprocess
      * @return bpmn userTask node
-     * @throws IOException
-     * @throws SAXException
      */
     public Node createBPMNUserTaskAsNode(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         String userTask = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNUserTask.xml"));
@@ -365,12 +349,6 @@ public class BPMNProcessFragments {
 
     /**
      * Creates a relationship data object which consists of the source & targeturl.
-     *
-     * @param dataObject
-     * @param bpmnPlan
-     * @return
-     * @throws IOException
-     * @throws SAXException
      */
     public String createRelationDataObjectReference(BPMNDataObject dataObject, BPMNPlan bpmnPlan) throws IOException, SAXException {
         String relationshipDataObject = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNRelationshipDataObjectReference.xml"));
@@ -384,12 +362,6 @@ public class BPMNProcessFragments {
 
     /**
      * Creates a node instance data object which consists of the nodetemplate and its properties
-     *
-     * @param dataObject
-     * @param bpmnPlan
-     * @return
-     * @throws IOException
-     * @throws SAXException
      */
     public String createNodeDataObjectReference(BPMNDataObject dataObject, BPMNPlan bpmnPlan) throws IOException, SAXException {
         String nodeDataObject = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNNodeDataObjectReference.xml"));
@@ -420,12 +392,6 @@ public class BPMNProcessFragments {
 
     /**
      * Creates a service instance data object which consists of the servicetemplate and its properties
-     *
-     * @param dataObject
-     * @param bpmnPlan
-     * @return
-     * @throws IOException
-     * @throws SAXException
      */
     public String createServiceInstanceDataObjectReference(BPMNDataObject dataObject, BPMNPlan bpmnPlan) throws IOException, SAXException {
         String serviceTemplateNamespace = bpmnPlan.getServiceTemplate().getTargetNamespace();
@@ -445,12 +411,6 @@ public class BPMNProcessFragments {
 
     /**
      * Creates a inputoutput data object which handles in and outputs properties
-     *
-     * @param dataObject
-     * @param bpmnPlan
-     * @return
-     * @throws IOException
-     * @throws SAXException
      */
     public String createInputOutputDataObjectReference(BPMNDataObject dataObject, BPMNPlan bpmnPlan) throws IOException, SAXException {
         String inputOutputDataObject = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNInputOutputDataObjectReference.xml"));
@@ -482,14 +442,11 @@ public class BPMNProcessFragments {
     }
 
     /**
-     * Each dataObject is composed of two components:
-     * 1)DataObjectReference which holds the actual content of the data object
-     * 2) the data Object itself
+     * Each dataObject is composed of two components: 1)DataObjectReference which holds the actual content of the data
+     * object 2) the data Object itself
      *
-     * @param bpmnPlan
-     * @param d        The finalized Document (with diagramelements) without dataObjects
+     * @param d The finalized Document (with diagramelements) without dataObjects
      * @return finished data object node
-     * @throws IOException
      * @throws SAXException Erweitern auf die verschiedenen Typen
      */
     public Node createDataObjectAsNode(BPMNPlan bpmnPlan, Document d, BPMNDataObject dataObject) throws IOException, SAXException {
@@ -519,11 +476,6 @@ public class BPMNProcessFragments {
 
     /**
      * create data object reference for diagram
-     *
-     * @param dataObject
-     * @param bpmnPlan
-     * @return
-     * @throws IOException
      */
     private String createDiagramDataObjectReference(BPMNDataObject dataObject, BPMNPlan bpmnPlan) throws IOException {
         String dataObjectReference = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/diagram/BPMNDiagramDataObjectReference.xml"));
@@ -604,10 +556,7 @@ public class BPMNProcessFragments {
     /**
      * create ActivateDataObjectTask node and import node to document
      *
-     * @param bpmnSubprocess
      * @return created Node
-     * @throws IOException
-     * @throws SAXException
      */
     private Node createActivateDataObjectTaskAsNode(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         LOG.info("ACTIVATEDATAOBJECT");
@@ -621,9 +570,7 @@ public class BPMNProcessFragments {
     /**
      * create the template String for a ActivateDataObjectTask node
      *
-     * @param bpmnSubprocess
      * @return template String
-     * @throws IOException
      */
     private String createActivateDataObjectString(BPMNSubprocess bpmnSubprocess) throws IOException {
         int id = bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement();
@@ -633,7 +580,7 @@ public class BPMNProcessFragments {
         //TNodeTemplate nodeTemplate = bpmnSubprocess.getNodeTemplate();
         activateDataObjectTask = activateDataObjectTask.replace("ActivateDataObject_IdToReplace", bpmnSubprocess.getId());
         activateDataObjectTask = activateDataObjectTask.replace("NameToSet", "Activate data object " + bpmnSubprocess.getDataObject().getId());
-        activateDataObjectTask = activateDataObjectTask.replace("DataObjectIdToSet", bpmnSubprocess.getDataObject().getId());
+        activateDataObjectTask = activateDataObjectTask.replace("DataObjectIdToSet", BPMNSubprocessType.DATA_OBJECT_REFERENCE + "_" + bpmnSubprocess.getDataObject().getId());
         //activateDataObjectTask = activateDataObjectTask.replace("FlowIncomingToSet", "Flow_" + sourceId);
         //activateDataObjectTask = activateDataObjectTask.replace("FlowOutgoingToSet", "Flow_" + id);
         //activateDataObjectTask = activateDataObjectTask.replace("NameToSet", "Activate " + nodeTemplate.getId() + " DataObject");
@@ -667,13 +614,14 @@ public class BPMNProcessFragments {
             for (String property : bpmnSubprocess.getDataObject().getProperties()) {
                 LOG.info("PRO2");
                 LOG.info(property);
-
-                propertiesNames += property + ",";
                 String propertyName = property;
                 String propertyValue = property;
                 if (property.contains("#")) {
                     propertyName = property.split("#")[0];
                     propertyValue = property.split("#")[1];
+                    propertiesNames += propertyName + ",";
+                } else {
+                    propertiesNames += property + ",";
                 }
                 if (propertyValue.equals(propertyName) && (!propertyValue.startsWith("G"))) {
                     properties = properties + "<camunda:inputParameter name='Properties." + propertyName + "'>" + propertyValue + "</camunda:inputParameter>";
@@ -706,10 +654,7 @@ public class BPMNProcessFragments {
     /**
      * create setNodePropertiesTask node and import node to document
      *
-     * @param bpmnSubprocess
      * @return created Node
-     * @throws IOException
-     * @throws SAXException
      */
     private Node createSetNodePropertiesTaskAsNode(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         final String templateString = createSetNodePropertiesState(bpmnSubprocess);
@@ -722,73 +667,68 @@ public class BPMNProcessFragments {
     /**
      * create the template String for a SetNodeProperties node
      *
-     * @param bpmnSubprocess
      * @return template String
-     * @throws IOException
      */
     private String createSetNodePropertiesState(BPMNSubprocess bpmnSubprocess) throws IOException {
-
+        final String PROPERTIES = ".Properties.";
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNSetPropertiesTask.xml"));
         template = template.replace("Activity_IdToSet", bpmnSubprocess.getId());
         template = template.replace("name_toSet", bpmnSubprocess.getId());
         int id = bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement();
         int sourceId = id - 1;
         String nodeTemplateId = bpmnSubprocess.getNodeTemplate().getId();
-        String dataObjectidentifier = bpmnSubprocess.getParentProcess().getId().split("_")[1];
+        String nodeInstanceURL = bpmnSubprocess.getParentProcess().getId().replace("Subprocess_", "ResultVariable");
 
         if (bpmnSubprocess.getInstanceState() != null) {
             template = template.replaceAll("StateToSet", bpmnSubprocess.getInstanceState());
         }
 
-        String parentId = bpmnSubprocess.getParentProcess().getId().replace("Subprocess_", "ResultVariable");
-        template = template.replace("NodeInstanceURLToSet", "${" + parentId + "}");
+        LOG.info("PARENTPROPERTIES");
+        String parentId = bpmnSubprocess.getParentProcess().getId();
+        LOG.info(parentId);
+        template = template.replace("NodeInstanceURLToSet", "${" + nodeInstanceURL + "}");
         template = template.replaceAll("NodeTemplateToSet", nodeTemplateId);
+        String prefix = BPMNSubprocessType.DATA_OBJECT_REFERENCE.toString() + "_" + BPMNSubprocessType.DATA_OBJECT.toString();
+        String dataObjectReferenceId = parentId.replace("Subprocess", prefix);
+        template = template.replaceAll("DataObjectToSet", dataObjectReferenceId);
 
         List<String> properties = null;
         String propertiesToSet = "";
-
+        LOG.info("DATAOBJECTREFERENCE");
+        LOG.info(dataObjectReferenceId);
         // find correspondant data object
         if (bpmnSubprocess.getBuildPlan().getDataObjectsList() != null) {
-            if (!bpmnSubprocess.getBuildPlan().getDataObjectsList().isEmpty()) {
-                for (BPMNDataObject dataObject : bpmnSubprocess.getBuildPlan().getDataObjectsList()) {
-                    // (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_NODE) &&
-                    if (dataObject.getId().contains(dataObjectidentifier)) {
-                        if (dataObject.getProperties() != null) {
-                            LOG.info("OK");
-                            properties = dataObject.getProperties();
-                        }
+            for (BPMNDataObject dataObject : bpmnSubprocess.getBuildPlan().getDataObjectsList()) {
+                LOG.info(dataObject.getId());
+                // (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_NODE) &&
+                if (dataObjectReferenceId.contains(dataObject.getId())) {
+                    if (dataObject.getProperties() != null) {
+                        LOG.info("OK");
+                        properties = dataObject.getProperties();
                     }
                 }
-            } else {
-                LOG.info("NO DATA OBJECTS");
             }
         }
+
         String inputparambuilder = "";
 
         //set input properties
         if (!properties.isEmpty()) {
             for (String property : properties) {
-                if (propertiesToSet.equals("")) {
-                    propertiesToSet = propertiesToSet + property;
-                } else {
-                    propertiesToSet = propertiesToSet + "," + property;
-                }
                 String inputparamname = property.split("#")[0];
-                String inputparamvalue = property.split("#")[1];
-                if (inputparamname.charAt(0) == 'G') {
-                    inputparamname = "${" + inputparamname.substring(1) + "}";
-                }
-                if (inputparamvalue.charAt(0) == 'G') {
-                    inputparamvalue = "${" + inputparamvalue.substring(1) + "}";
-                }
-                inputparambuilder = inputparambuilder + "<camunda:inputParameter name=\"Input_" + inputparamname + "\">" + inputparamvalue + "</camunda:inputParameter>";
+                propertiesToSet = propertiesToSet + "," + inputparamname;
+                //String inputparamvalue = property.split("#")[1];
+                LOG.info("DIEPROPERTIES");
+                LOG.info(property);
+                inputparambuilder = inputparambuilder + "<camunda:inputParameter name=\"Input_" + inputparamname + "\">" + dataObjectReferenceId + PROPERTIES + inputparamname + "</camunda:inputParameter>";
             }
         }
-
+        // cut the first semicolon out
+        propertiesToSet = propertiesToSet.substring(propertiesToSet.indexOf(",") + 1, propertiesToSet.length());
         template = template.replaceAll("PropertiesToSet", propertiesToSet);
 
-        template = template.replace("Flow_Input", "Flow_" + sourceId);
-        template = template.replace("Flow_Output", "Flow_" + id);
+        //template = template.replace("Flow_Input", "Flow_" + sourceId);
+        //template = template.replace("Flow_Output", "Flow_" + id);
 
         bpmnSubprocess.setInflow("Flow_" + sourceId);
         bpmnSubprocess.setOutflow("Flow_" + id);
@@ -797,7 +737,8 @@ public class BPMNProcessFragments {
         String[] original = template.split("</camunda:inputOutput>");
         original[1] = "</camunda:inputOutput>" + original[1];
         String resultstring = original[0] + inputparambuilder + original[1];
-
+        LOG.info("TEMPLATE");
+        LOG.info(template);
         return resultstring;
     }
 
@@ -806,8 +747,6 @@ public class BPMNProcessFragments {
      *
      * @param bpmnSubprocess the subprocess
      * @return created Node
-     * @throws IOException
-     * @throws SAXException
      */
     public Node createBPMNSubprocessAsNode(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         LOG.info("id {}, type {}", bpmnSubprocess.getId(), bpmnSubprocess.getBpmnSubprocessType());
@@ -985,8 +924,6 @@ public class BPMNProcessFragments {
      * @param bpmnSubprocess the subprocess
      * @param s              template String to trnsform into a Node
      * @return the created and imported Node
-     * @throws IOException
-     * @throws SAXException
      */
     private Node createImportNodeFromString(BPMNSubprocess bpmnSubprocess, String s) throws
         IOException, SAXException {
@@ -1170,16 +1107,8 @@ public class BPMNProcessFragments {
     }
 
     /**
-     * Adds the node to the corresponding part of the document. Diagram elements are not inside
-     * the process element so they have to be moved after it.
-     *
-     * @param bpmnPlan
-     * @param d
-     * @param s
-     * @param diagramNode
-     * @return
-     * @throws IOException
-     * @throws SAXException
+     * Adds the node to the corresponding part of the document. Diagram elements are not inside the process element so
+     * they have to be moved after it.
      */
     private Node createImportNodeFromString(BPMNPlan bpmnPlan, Document d, String s, boolean diagramNode) throws
         IOException, SAXException {
@@ -1211,7 +1140,6 @@ public class BPMNProcessFragments {
      *
      * @param bpmnSubprocess thr subprocess
      * @return created Node
-     * @throws IOException
      */
     private String createBPMNSubprocess(BPMNSubprocess bpmnSubprocess) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNSubprocess.xml"));
@@ -1268,8 +1196,6 @@ public class BPMNProcessFragments {
      *
      * @param bpmnSubprocess the subprocess
      * @return created Node
-     * @throws IOException
-     * @throws SAXException
      */
     public Node createBPMNStartEventAsNode(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         final String template = createBPMNStartEvent(bpmnSubprocess);
@@ -1287,8 +1213,6 @@ public class BPMNProcessFragments {
      *
      * @param id id of the error event definition
      * @return created node
-     * @throws IOException
-     * @throws SAXException
      */
     public Node createBPMNErrorEventDefinitionAsNode(int id) throws IOException, SAXException {
         final String template = createBPMNErrorEventDefinition(id);
@@ -1303,8 +1227,6 @@ public class BPMNProcessFragments {
      *
      * @param id id of the error event definition
      * @return template String
-     * @throws IOException
-     * @throws SAXException
      */
     public String createBPMNErrorEventDefinition(int id) throws IOException, SAXException {
         final String idPrefix = BPMNSubprocessType.EVENT.toString();
@@ -1339,11 +1261,7 @@ public class BPMNProcessFragments {
     /**
      * create a error boundary event node from template String
      *
-     * @param bpmnSubprocess
-     * @param errorId
      * @return created node
-     * @throws IOException
-     * @throws SAXException
      */
     public Node createSubprocessErrorBoundaryEventAsNode(BPMNSubprocess bpmnSubprocess, int errorId) throws
         IOException, SAXException {
@@ -1360,11 +1278,7 @@ public class BPMNProcessFragments {
     /**
      * create a error boundary event template String
      *
-     * @param bpmnSubprocess
-     * @param errorId
      * @return template String
-     * @throws IOException
-     * @throws SAXException
      */
     public Node createTaskErrorBoundaryEventAsNode(BPMNSubprocess innerEvent, BPMNSubprocess bpmnSubprocess,
                                                    int errorId) throws IOException, SAXException {
@@ -1382,10 +1296,7 @@ public class BPMNProcessFragments {
     /**
      * create a subprocess error boundary event node from template String
      *
-     * @param bpmnSubprocess
-     * @param id
      * @return template String
-     * @throws IOException
      */
     public String createBPMNSubprocessErrorBoundaryEvent(BPMNSubprocess bpmnSubprocess, int id) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNSubprocessErrorBoundaryEvent.xml"));
@@ -1403,10 +1314,7 @@ public class BPMNProcessFragments {
     /**
      * create a error boundary event template String
      *
-     * @param bpmnSubprocess
-     * @param id
      * @return template String
-     * @throws IOException
      */
     public String createBPMNTaskErrorBoundaryEvent(BPMNSubprocess bpmnSubprocess, int id) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNTaskErrorBoundaryEvent.xml"));
@@ -1424,9 +1332,7 @@ public class BPMNProcessFragments {
     /**
      * create a bpmn start event template String
      *
-     * @param bpmnSubprocess
      * @return template String
-     * @throws IOException
      */
     public String createBPMNStartEvent(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         int id = bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement();
@@ -1588,10 +1494,7 @@ public class BPMNProcessFragments {
     /**
      * create a bpmn end event node from template String
      *
-     * @param bpmnSubprocess
      * @return created Node
-     * @throws IOException
-     * @throws SAXException
      */
     public Node createBPMNEndEventAsNode(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         final String endEvent = createBPMNEndEvent(bpmnSubprocess);
@@ -1604,9 +1507,7 @@ public class BPMNProcessFragments {
     /**
      * create a bpmn end event template String
      *
-     * @param bpmnSubprocess
      * @return template String
-     * @throws IOException
      */
     public String createBPMNEndEvent(BPMNSubprocess bpmnSubprocess) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNEndEvent.xml"));
@@ -1622,10 +1523,7 @@ public class BPMNProcessFragments {
     /**
      * create a bpmn error end event node from template String
      *
-     * @param bpmnSubprocess
      * @return created node
-     * @throws IOException
-     * @throws SAXException
      */
     public Node createBPMNErrorEndEventAsNode(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         final String template = createBPMNErrorEndEvent(bpmnSubprocess);
@@ -1640,9 +1538,7 @@ public class BPMNProcessFragments {
     /**
      * create a bpmn error end event template String
      *
-     * @param bpmnSubprocess
      * @return template String
-     * @throws IOException
      */
     public String createBPMNErrorEndEvent(BPMNSubprocess bpmnSubprocess) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNErrorEndEvent.xml"));
@@ -1667,10 +1563,7 @@ public class BPMNProcessFragments {
     /**
      * create a callNodeOperation node from template String
      *
-     * @param bpmnSubprocess
      * @return created Node
-     * @throws IOException
-     * @throws SAXException
      */
     private Node createCallNodeOperationTaskAsNode(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         String template = createNodeOperation(bpmnSubprocess);
@@ -1683,10 +1576,7 @@ public class BPMNProcessFragments {
     /**
      * create a NodeTemplateInstanceTask node from template String
      *
-     * @param bpmnSubprocess
      * @return template String
-     * @throws IOException
-     * @throws SAXException
      */
     private Node createCreateNodeTemplateInstanceTaskAsNode(BPMNSubprocess bpmnSubprocess) throws
         IOException, SAXException {
@@ -1700,10 +1590,7 @@ public class BPMNProcessFragments {
     /**
      * create a BpmnServiceInstance node from template String
      *
-     * @param bpmnSubprocess
      * @return created node
-     * @throws IOException
-     * @throws SAXException
      */
     private Node createBPMNCreateServiceInstanceAsNode(BPMNSubprocess bpmnSubprocess) throws
         IOException, SAXException {
@@ -1719,10 +1606,7 @@ public class BPMNProcessFragments {
     /**
      * create a SetServiceTempalte node from template String
      *
-     * @param bpmnSubprocess
      * @return created Node
-     * @throws IOException
-     * @throws SAXException
      */
     public Node createSetServiceTemplateStateAsNode(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         final String templateString = createSetServiceTemplateState(bpmnSubprocess);
@@ -1735,9 +1619,7 @@ public class BPMNProcessFragments {
     /**
      * create a SetServiceTemplate template String
      *
-     * @param bpmnSubprocess
      * @return template String
-     * @throws IOException
      */
     private String createSetServiceTemplateState(BPMNSubprocess bpmnSubprocess) throws IOException {
         String setState = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNSetStateTask.xml"));
@@ -1751,21 +1633,21 @@ public class BPMNProcessFragments {
 
         LOG.info("createSetStateTask12345");
         for (BPMNDataObject bpmnDataObject : bpmnSubprocess.getBuildPlan().getDataObjectsList()) {
-            if (bpmnDataObject.getDataObjectType() != BPMNSubprocessType.DATA_OBJECT_INOUT) {
-                LOG.info(bpmnDataObject.getId());
-                LOG.info(bpmnDataObject.getNodeTemplate());
-                LOG.info(bpmnDataObject.getRelationshipTemplate());
-                if (bpmnSubprocess.getNodeTemplate() != null) {
-                    if (bpmnDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_NODE && bpmnDataObject.getNodeTemplate().equals(bpmnSubprocess.getNodeTemplate().getId())) {
-                        setState = setState.replaceAll("InstanceURLToSet", "\\${" + bpmnDataObject.getNodeInstanceURL() + "}");
-                    }
-                } else if (bpmnSubprocess.getRelationshipTemplate() != null) {
-                    if (bpmnDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_REL && bpmnDataObject.getRelationshipTemplate().equals(bpmnSubprocess.getRelationshipTemplate().getId())) {
-                        setState = setState.replaceAll("InstanceURLToSet", "\\${" + bpmnDataObject.getRelationshipInstanceURL() + "}");
-                    }
-                } else {
-                    setState = setState.replaceAll("InstanceURLToSet", "\\${" + bpmnDataObject.getServiceInstanceURL() + "}");
+            LOG.info(bpmnDataObject.getId());
+            LOG.info(bpmnDataObject.getNodeTemplate());
+            LOG.info(bpmnDataObject.getRelationshipTemplate());
+            if (bpmnSubprocess.getNodeTemplate() != null) {
+                if (bpmnDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_NODE && bpmnDataObject.getNodeTemplate().equals(bpmnSubprocess.getNodeTemplate().getId())) {
+                    setState = setState.replaceAll("InstanceURLToSet", "\\${" + bpmnDataObject.getNodeInstanceURL() + "}");
                 }
+            } else if (bpmnSubprocess.getRelationshipTemplate() != null) {
+                if (bpmnDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_REL && bpmnDataObject.getRelationshipTemplate().equals(bpmnSubprocess.getRelationshipTemplate().getId())) {
+                    setState = setState.replaceAll("InstanceURLToSet", "\\${" + bpmnDataObject.getRelationshipInstanceURL() + "}");
+                }
+            } else if (bpmnDataObject.getServiceInstanceURL() != null) {
+                setState = setState.replaceAll("InstanceURLToSet", "\\${" + bpmnDataObject.getServiceInstanceURL() + "}");
+            } else {
+                setState = setState.replaceAll("InstanceURLToSet", "\\${" + bpmnDataObject.getProperties().stream().filter(s -> s.startsWith(ServiceInstanceURLVarKeyword)) + "}");
             }
         }
         bpmnSubprocess.setInflow("Flow_" + sourceId);
@@ -1778,8 +1660,6 @@ public class BPMNProcessFragments {
      *
      * @param bpmnSubprocess the subprocess
      * @return created Node
-     * @throws IOException
-     * @throws SAXException
      */
     public Node createOuterSetServiceTemplateStateAsNode(BPMNSubprocess bpmnSubprocess) throws
         IOException, SAXException {
@@ -1792,7 +1672,6 @@ public class BPMNProcessFragments {
      *
      * @param bpmnSubprocess the subprocess
      * @return created Node template String
-     * @throws IOException
      */
     private String createOuterSetServiceTemplateState(BPMNSubprocess bpmnSubprocess) throws IOException {
         String setState = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNSetStateTask.xml"));
@@ -1827,10 +1706,7 @@ public class BPMNProcessFragments {
     /**
      * create a RelationshipTempalteInstance node from template String
      *
-     * @param bpmnSubprocess
      * @return created Node
-     * @throws IOException
-     * @throws SAXException
      */
     private Node createRelationshipTemplateInstanceAsNode(BPMNSubprocess bpmnSubprocess) throws
         IOException, SAXException {
@@ -1848,8 +1724,6 @@ public class BPMNProcessFragments {
      *
      * @param bpmnSubprocess the subprocess
      * @return tempalte String
-     * @throws IOException
-     * @throws SAXException
      */
     public String createServiceInstance(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         LOG.info("Passiert hier was");
@@ -1891,12 +1765,6 @@ public class BPMNProcessFragments {
 
     /**
      * Creates a start Event and connects it to the first bpmnSubprocess.
-     *
-     * @param bpmnSubprocess
-     * @param name
-     * @return
-     * @throws IOException
-     * @throws SAXException
      */
     public Node createOuterBPMNStartEvent(BPMNSubprocess bpmnSubprocess, String name) throws
         IOException, SAXException {

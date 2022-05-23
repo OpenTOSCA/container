@@ -175,8 +175,7 @@ public class BPMNFinalizer {
 
         previousErrorSubprocess = setInstanceState;
 
-        // set error id, has to be 16?!!!!!
-        Node errorNode2 = processFragments.createSubprocessErrorBoundaryEventAsNode(errorSubprocess2, 16);
+        Node errorNode2 = processFragments.createSubprocessErrorBoundaryEventAsNode(errorSubprocess2, idError0);
         processElement.appendChild(errorNode2);
         //boundaryEvents.add(errorSubprocess2);
         //Node lastErrorflownode2 = processFragments.createBPMNOuterErrorSequenceFlow(previousErrorSubprocess, userTask);

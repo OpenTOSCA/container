@@ -13,8 +13,8 @@ import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocess;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocessType;
 
 /**
- * Handles all actions regarding service template url, service instance id/url. Also,
- * it takes care if the service instance id is part of the input.
+ * Handles all actions regarding service template url, service instance id/url. Also, it takes care if the service
+ * instance id is part of the input.
  */
 public class SimplePlanBuilderBPMNServiceInstanceHandler {
     protected static final String ServiceInstanceURLVarKeyword = "OpenTOSCAContainerAPIServiceInstanceURL";
@@ -62,7 +62,8 @@ public class SimplePlanBuilderBPMNServiceInstanceHandler {
     }
 
     /**
-     * If the service instance is given as input, the data object will contain it as input.
+     * If the service instance is given as input, the data object will contain it as input. In order that the scripts
+     * work correct the name of the parameter should match the ServiceInstanceURLVarKeyword
      */
     public BPMNSubprocess addServiceInstanceHandlingFromInput(final BPMNPlan bpmnPlan) {
         String idSubprocessPrefix = BPMNSubprocessType.SUBPROCESS.toString();
@@ -74,7 +75,6 @@ public class SimplePlanBuilderBPMNServiceInstanceHandler {
         bpmnPlan.addSubprocess(dataObjectSubprocess);
         return dataObjectSubprocess;
     }
-
 
     public String findServiceInstanceUrlVariableName(final BPMNPlan plan) {
         return getCorrespondingServiceInstanceVariable(plan, ServiceInstanceURLVarKeyword);
