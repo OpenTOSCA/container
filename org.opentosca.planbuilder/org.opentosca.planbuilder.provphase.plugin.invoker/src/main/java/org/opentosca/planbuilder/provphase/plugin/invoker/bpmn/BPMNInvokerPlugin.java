@@ -58,7 +58,7 @@ public class BPMNInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<B
      *
      * @return true iff adding logic for Invoker call was successful
      */
-    public boolean handle(final BPMNPlanContext context, final String templateId, final boolean isNodeTemplate,
+    public boolean handle(final BPMNPlanContext context, final TNodeTemplate templateId, final boolean isNodeTemplate,
                           final String operationName, final String interfaceName,
                           final Map<String, Variable> internalExternalPropsInput,
                           final Map<String, Variable> internalExternalPropsOutput, Element elementToAppendTo) {

@@ -130,7 +130,7 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
                 createDEInternalExternalPropsInput.put("DockerEngineURL", dockerEngineUrlVar);
                 createDEInternalExternalPropsInput.put("ContainerID", dockerContainerIds);
 
-                return this.invokerPlugin.handle(context, node.getId(), true,
+                return this.invokerPlugin.handle(context, node, true,
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER,
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
                     createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
@@ -152,53 +152,6 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
             return false;
         }
         LOG.info("inside BPMN docker container plugin handler method: handle create");
-
-        /*
-        try {
-            // add callOperation fragment
-            Node operationNode = planBuilderFragments.createNodeOperation(templateContext.getSubprocessElement());
-            planBuilderFragments.addNodeToBPMN(operationNode, templateContext.getSubprocessElement());
-            //templateContext.importNode(operationNode);
-            LOG.info("import operation node");
-            LOG.info("scope element: "+ templateContext.getSubprocessElement().getBpmnScopeElement());
-            //LOG.info(templateContext.getSubprocessElement().getParentProcess().getId());
-            //templateContext.getSubprocessElement().getBpmnScopeElement().appendChild(operationNode);
-            //templateContext.getSubprocessElement().getBpmnDocument().appendChild(operationNode);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        }
-*/
-
-        /*
-        BPMNSubprocess subprocess = templateContext.getSubprocessElement();
-        BPMNPlan buildPlan = ((BPMNSubprocess) subprocess).getBuildPlan();
-        final BPMNSubprocess createNodeOperationTask = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess((BPMNSubprocess) subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
-
-        try {
-            Node childCreateNodeOperation = this.planBuilderFragments.createNodeOperation(createNodeOperationTask);
-
-            NodeList subprocesses = templateContext.getTemplateBuildPlan().getBuildPlan().getBpmnDocument().getElementsByTagName("bpmn:subProcess");
-            for (int i = 0; i < subprocesses.getLength(); i++) {
-                Node element = subprocesses.item(i);
-                for (int j = 0; j < element.getAttributes().getLength(); j++) {
-                    String id = element.getAttributes().item(j).getTextContent();
-                    if (id.equals(subprocess.getId())) {
-                        LOG.info("ICH GEH HIER REIN IM DOCKER CONTAINER PLUGIN");
-                        Node parent2 = subprocesses.item(i);
-                        createNodeOperationTask.setParentProcess(templateContext.getSubprocessElement());
-                        planBuilderFragments.addNodeInsideSubprocess(childCreateNodeOperation, parent2, buildPlan);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        }
-*/
         final TNodeTemplate nodeTemplate = templateContext.getNodeTemplate();
 
         // fetch port binding variables (ContainerPort, Port)
@@ -213,23 +166,6 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
         //final Variable portMappingVar =
         //    templateContext.createGlobalStringVariable("dockerContainerPortMappings" + System.currentTimeMillis(), "");
         final Variable portMappingVar = new Variable("dockerContainerPortMappings" + System.currentTimeMillis());
-
-        /*
-        try {
-            Node assignContainerPortsNode =
-                this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignPortMapping",
-                    "concat($"
-                        + containerPortVar.getVariableName()
-                        + ",',',$"
-                        + portVar.getVariableName()
-                        + ")",
-                    portMappingVar.getVariableName());
-            assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
-            templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
-        } catch (final IOException | SAXException e) {
-            LOG.error("Error while assigning container ports.", e);
-        }
-        */
 
         // fetch (optional) SSHPort variable
         final Variable sshPortVar = templateContext.getPropertyVariable(nodeTemplate, "SSHPort");
@@ -494,26 +430,25 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
     }
 
     /**
-     *
-     * @param da deployment artifact
+     * @param da      deployment artifact
      * @param context contains subprocess for current task
      * @return String containing the DA for processing inside callNodeOperation groovy script
      */
-    public String createDAinput(TDeploymentArtifact da, BPMNPlanContext context){
+    public String createDAinput(TDeploymentArtifact da, BPMNPlanContext context) {
         final TArtifactTemplate artifactTemplate = ModelUtils.findArtifactTemplate(da.getArtifactRef(), context.getCsar());
         String reference = artifactTemplate.getArtifactReferences().get(0).getReference();
         // reference="artifacttemplates/http%253A%252F%252Fopentosca.org%252Fartifacttemplates/MyTinyToDo_DA/files/tinytodo.zip"/>
         String[] directories = reference.split("/");
         String fileName = null;
         //String id = artifactTemplate.getId();
-        String id = "{"+directories[1]+"}"+ artifactTemplate.getId();
+        String id = "{" + directories[1] + "}" + artifactTemplate.getId();
         for (int i = 0; i < directories.length; i += 1) {
             if (directories[i].equals("files")) {
                 fileName = directories[i + 1];
                 break;
             }
         }
-        return "DA!"+ id +"#"+fileName;
+        return "DA!" + id + "#" + fileName;
     }
 
     protected boolean handleWithDA(final BPMNPlanContext context, final TNodeTemplate dockerEngineNode,
@@ -534,7 +469,6 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
         // create and set input for Input_DA
         final String DAinputVariable = createDAinput(da, context);
         context.getSubprocessElement().setDAstring(DAinputVariable);
-
 
         final String artefactVarName = "dockerContainerFile" + System.currentTimeMillis();
 
@@ -576,12 +510,12 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
 
         addProperties(sshPortVar, containerIpVar, containerIdVar, envMappingVar, linksVar, deviceMappingVar, createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput);
 
-        return this.invokerPlugin.handle(context, dockerEngineNode.getId(), true,
+        return this.invokerPlugin.handle(context, dockerEngineNode, true,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
             createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
             context.getSubprocessElement().getBpmnSubprocessElement());
-            //&& this.handleTerminate(context, context.getSubprocessElement().getBpmnScopeElement());
+        //&& this.handleTerminate(context, context.getSubprocessElement().getBpmnScopeElement());
     }
 
     protected boolean handleWithImageId(final BPMNPlanContext context, final TNodeTemplate dockerEngineNode,
@@ -619,7 +553,7 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
 
         createPropertiesMapping(containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable, vmPrivateKeyVariable, createDEInternalExternalPropsInput);
 
-        boolean check = this.invokerPlugin.handle(context, dockerEngineNode.getId(), true,
+        boolean check = this.invokerPlugin.handle(context, dockerEngineNode, true,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
             createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,

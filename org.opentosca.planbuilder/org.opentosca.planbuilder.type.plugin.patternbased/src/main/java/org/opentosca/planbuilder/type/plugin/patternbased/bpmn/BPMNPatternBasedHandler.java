@@ -29,7 +29,7 @@ public abstract class BPMNPatternBasedHandler {
     protected boolean invokeOperation(final BPMNPlanContext context, final ConcreteOperationMatching matching,
                                       final TNodeTemplate hostingContainer, Element elementToAppendTo) {
 
-        return invoker.handle(context, hostingContainer.getId(), true, matching.operationName.getName(),
+        return invoker.handle(context, hostingContainer, true, matching.operationName.getName(),
             matching.interfaceName.getName(), transformForInvoker(matching.inputMatching),
             transformForInvoker(matching.outputMatching), elementToAppendTo);
     }
@@ -39,7 +39,6 @@ public abstract class BPMNPatternBasedHandler {
         map.forEach((x, y) -> newMap.put(x.getName(), y));
         return newMap;
     }
-
 
     protected boolean invokeArtifactReferenceUpload(BPMNPlanContext context, TArtifactReference ref, TNodeTemplate infraNode) {
         PropertyVariable ip = this.getIpProperty(context, infraNode);
@@ -54,7 +53,6 @@ public abstract class BPMNPatternBasedHandler {
         // @todo hier fehlt was
         return false;
     }
-
 
     protected PropertyVariable getIpProperty(BPMNPlanContext context, TNodeTemplate node) {
         for (String propName : Utils.getSupportedVirtualMachineIPPropertyNames()) {
@@ -152,7 +150,7 @@ public abstract class BPMNPatternBasedHandler {
             inputParamSize = operationToMatch.getInputParameters().size();
         }
 
-        System.out.println("hascompletematching return: "+ (matching.inputMatching.size() == inputParamSize));
+        System.out.println("hascompletematching return: " + (matching.inputMatching.size() == inputParamSize));
         return matching.inputMatching.size() == inputParamSize;
     }
 

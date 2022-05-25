@@ -34,25 +34,21 @@ public class BPMNSubprocessHandler {
     private final static Logger LOG = LoggerFactory.getLogger(BPMNSubprocessHandler.class);
 
     private final BPMNProcessFragments processFragments;
-    private final String RESULTVARIABLE = "ResultVariable";
 
     public BPMNSubprocessHandler() throws ParserConfigurationException {
         this.processFragments = new BPMNProcessFragments();
     }
 
     /**
-     * Generates an empty subprocess for the given activity and adds a data object to the buildPlan which
-     * can be used later to access properties faster.
-     *
-     * @param activity
-     * @param buildPlan
-     * @return
+     * Generates an empty subprocess for the given activity and adds a data object to the buildPlan which can be used
+     * later to access properties faster.
      */
     public BPMNSubprocess generateEmptySubprocess(final AbstractActivity activity, final BPMNPlan buildPlan) {
-        LOG.info("Create empty subprocess for abstract activity: {} of type: {}", activity.getId(), activity.getType());
+        LOG.debug("Create empty subprocess for abstract activity: {} of type: {}", activity.getId(), activity.getType());
         String idPrefix = "";
         String dataObjectPrefix = BPMNSubprocessType.DATA_OBJECT.toString();
         final BPMNSubprocess bpmnSubprocess;
+        final String RESULTVARIABLE = "ResultVariable";
         if (activity instanceof NodeTemplateActivity) {
             NodeTemplateActivity ntActivity = (NodeTemplateActivity) activity;
             idPrefix = BPMNSubprocessType.SUBPROCESS.toString();
@@ -79,14 +75,10 @@ public class BPMNSubprocessHandler {
             String source = relActivity.getRelationshipTemplate().getSourceElement().getRef().getId();
             String target = relActivity.getRelationshipTemplate().getTargetElement().getRef().getId();
 
-            String test = relActivity.getRelationshipTemplate().getSourceElement().getRef().getName();
-            LOG.info(test);
             // with each subprocess a node data object is associated to enable fast access to node instance url & maybe properties
             BPMNDataObject dataObject = new BPMNDataObject(BPMNSubprocessType.DATA_OBJECT_REL, dataObjectPrefix + "_" + activity.getId());
             dataObject.setRelationshipTemplate(((RelationshipTemplateActivity) activity).getRelationshipTemplate().getId());
             String resultVariable = RESULTVARIABLE + activity.getId();
-            String sourceInstanceURL = idPrefix + source;
-            String targetInstanceURL = idPrefix + target;
             dataObject.setSourceInstanceURL(RESULTVARIABLE + source + "_provisioning_activity");
             dataObject.setTargetInstanceURL(RESULTVARIABLE + target + "_provisioning_activity");
             dataObject.setRelationshipInstanceURL(resultVariable);
@@ -101,14 +93,8 @@ public class BPMNSubprocessHandler {
     }
 
     /**
-     * Creates a set state task inside a subprocess. But this method is only called if we didnt applied any patternbasedplugin.
-     * Per default we set then the nodetemplate to CREATED.
-     *
-     * @param buildPlan
-     * @param bpmnSubprocess
-     * @return
-     * @throws IOException
-     * @throws SAXException
+     * Creates a set state task inside a subprocess. But this method is only called if we didn't apply any
+     * patternbasedplugin. Per default, we set then the nodetemplate to CREATED.
      */
     public BPMNSubprocess createSetStateTaskInsideSubprocess(final BPMNPlan buildPlan, final BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         String idPrefix = BPMNSubprocessType.TASK.toString();
@@ -141,7 +127,7 @@ public class BPMNSubprocessHandler {
     }
 
     public BPMNSubprocess createBPMNSubprocessWithinSubprocess(BPMNSubprocess parentSubprocess, BPMNSubprocessType type) {
-        LOG.info("Create BPMN Scope with ScopeType {} within subprocess {}", type.name(), parentSubprocess.getId());
+        LOG.debug("Create BPMN Subprocess with SubprocessType {} within subprocess {}", type.name(), parentSubprocess.getId());
         BPMNPlan buildPlan = parentSubprocess.getBuildPlan();
         AbstractActivity activity = parentSubprocess.getActivity();
         String idPrefix = type.name();
@@ -155,10 +141,13 @@ public class BPMNSubprocessHandler {
                 createdScope.setParentProcess(parentSubprocess);
                 createdScope.setBuildPlan(buildPlan);
                 return createdScope;
-            } else if (type == BPMNSubprocessType.CALL_NODE_OPERATION_TASK || type == BPMNSubprocessType.ACTIVATE_DATA_OBJECT_TASK) {
+            } else if (type == BPMNSubprocessType.CALL_NODE_OPERATION_TASK) {
                 parentSubprocess.setSubProCallOperationTask(createdScope);
-                createdScope.setNodeTemplate(nodeTemplateActivity.getNodeTemplate());
-            } else if (type == BPMNSubprocessType.SET_NODE_PROPERTY_TASK) {
+                createdScope.setNodeTemplate(parentSubprocess.getNodeTemplate());
+                createdScope.setParentProcess(parentSubprocess);
+                createdScope.setBuildPlan(buildPlan);
+                return createdScope;
+            } else if (type == BPMNSubprocessType.SET_NODE_PROPERTY_TASK || type == BPMNSubprocessType.ACTIVATE_DATA_OBJECT_TASK) {
                 parentSubprocess.setSubProSetNodePropertyTask(createdScope);
                 createdScope.setNodeTemplate(nodeTemplateActivity.getNodeTemplate());
             } else if (type == BPMNSubprocessType.SET_ST_STATE) {
@@ -184,7 +173,6 @@ public class BPMNSubprocessHandler {
             } else if (type == BPMNSubprocessType.SET_ST_STATE) {
                 parentSubprocess.setSubProSetStateTask(createdScope);
             }
-            LOG.info("Created Scope {}", createdScope);
             return createdScope;
         }
         return null;
@@ -192,9 +180,6 @@ public class BPMNSubprocessHandler {
 
     /**
      * Computes the input parameters based on the topology, e.g. the properties value which starts with get_input.
-     *
-     * @param topologyTemplate
-     * @return
      */
     public ArrayList<String> computeInputParametersBasedTopology(TTopologyTemplate topologyTemplate) {
         ArrayList<String> inputParameters = new ArrayList<>();
@@ -219,9 +204,6 @@ public class BPMNSubprocessHandler {
 
     /**
      * Computes the properties of the given nodeTemplate.
-     *
-     * @param nodeTemplate
-     * @return
      */
     public ArrayList<String> computePropertiesOfNodeTemplate(TNodeTemplate nodeTemplate) {
         ArrayList<String> properties = new ArrayList<>();

@@ -26,8 +26,8 @@ import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
 /**
- * This class controls which plugin is applied. Note that we have similar to BPEL pre, type and postphase plugins.
- * Since we have only one plugin per phase priority is not a problem for now.
+ * This class controls which plugin is applied. Note that we have similar to BPEL pre, type and postphase plugins. Since
+ * we have only one plugin per phase priority is not a problem for now.
  */
 @Component
 public class BPMNPluginHandler {
@@ -138,7 +138,6 @@ public class BPMNPluginHandler {
                 BPMNSubprocess callNodeOperationTask = bpmnSubprocess.getSubProCreateNodeInstanceTask();
             } else {
                 // if it is empty we didnt applied the invoker plugin, so no operation is called -> State is STARTED
-                BPMNSubprocess setStateTask = bpmnSubprocess.getSubProSetStateTask();
                 subprocessHandler.createSetStateTaskInsideSubprocess(bpmnSubprocess.getBuildPlan(), bpmnSubprocess);
                 LOG.debug("Couldn't handle provisioning code generation of NodeTemplate {} with type plugin", nodeTemplate.getId());
             }
@@ -148,7 +147,6 @@ public class BPMNPluginHandler {
             if (postPhasePlugin.canHandleCreate(context, bpmnSubprocess.getNodeTemplate())) {
                 LOG.debug("Handling NodeTemplate {} with post plugin {}", nodeTemplate.getId(), postPhasePlugin.getID());
                 result &= postPhasePlugin.handleCreate(context, bpmnSubprocess.getNodeTemplate());
-                BPMNSubprocess setPropertiesTask = bpmnSubprocess.getSubProCreateNodeInstanceTask();
             }
         }
         return result;

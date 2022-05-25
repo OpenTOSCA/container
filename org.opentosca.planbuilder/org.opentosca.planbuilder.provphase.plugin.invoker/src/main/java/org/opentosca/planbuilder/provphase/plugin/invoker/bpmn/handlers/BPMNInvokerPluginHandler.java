@@ -6,6 +6,8 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNSubprocessHandler;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
@@ -42,20 +44,17 @@ public class BPMNInvokerPluginHandler {
     }
 
     /**
-     *
-     * @param context Plan context
-     * @param templateId template id
-     * @param isNodeTemplate Nodetemplate if true, Relationshiptemplate if false
-     * @param operationName operation
-     * @param interfaceName interface
-     * @param internalExternalPropsInput input params and values
+     * @param context                     Plan context
+     * @param templateId                  template id
+     * @param isNodeTemplate              Nodetemplate if true, Relationshiptemplate if false
+     * @param operationName               operation
+     * @param interfaceName               interface
+     * @param internalExternalPropsInput  input params and values
      * @param internalExternalPropsOutput ouput params and values
-     * @param elementToAppendTo not used
+     * @param elementToAppendTo           not used
      * @return true if successful
-     * @throws IOException
-     * @throws SAXException
      */
-    public boolean handle(final BPMNPlanContext context, final String templateId, final boolean isNodeTemplate,
+    public boolean handle(final BPMNPlanContext context, final TNodeTemplate templateId, final boolean isNodeTemplate,
                           final String operationName, final String interfaceName,
                           final Map<String, Variable> internalExternalPropsInput,
                           final Map<String, Variable> internalExternalPropsOutput,
@@ -75,10 +74,10 @@ public class BPMNInvokerPluginHandler {
 
             // set input param names and values
             for (Map.Entry<String, Variable> entry : internalExternalPropsInput.entrySet()) {
-                if(inputParamNames.equals("") && inputParamValues.equals("")){
+                if (inputParamNames.equals("") && inputParamValues.equals("")) {
                     inputParamNames = inputParamNames + entry.getKey();
                     inputParamValues = inputParamValues + entry.getValue().getVariableName();
-                }else{
+                } else {
                     inputParamNames = inputParamNames + "," + entry.getKey();
                     inputParamValues = inputParamValues + "," + entry.getValue().getVariableName();
                 }
@@ -86,10 +85,10 @@ public class BPMNInvokerPluginHandler {
 
             //set output param names and values
             for (Map.Entry<String, Variable> entry : internalExternalPropsOutput.entrySet()) {
-                if(outputParamNames.equals("") && outputParamValues.equals("")){
+                if (outputParamNames.equals("") && outputParamValues.equals("")) {
                     outputParamNames = outputParamNames + entry.getKey();
                     outputParamValues = outputParamValues + entry.getValue().getVariableName();
-                }else{
+                } else {
                     outputParamNames = outputParamNames + "," + entry.getKey();
                     outputParamValues = outputParamValues + "," + entry.getValue().getVariableName();
                 }
@@ -98,12 +97,16 @@ public class BPMNInvokerPluginHandler {
             LOG.info("kurz vor ersetzen im invoker");
 
             BPMNSubprocess subprocess = context.getSubprocessElement();
+            LOG.info("WASSTSS");
+            LOG.info(templateId.getId());
+            subprocess.setNodeTemplate(templateId);
             BPMNPlan buildPlan = ((BPMNSubprocess) subprocess).getBuildPlan();
             String preState = InstanceStates.getOperationPreState(operationName);
+            final BPMNSubprocess createNodeOperationTask = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess((BPMNSubprocess) subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
             final BPMNSubprocess setPreState = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.SET_ST_STATE);
             setPreState.setInstanceState(preState);
             subprocess.addTaskToSubproces(setPreState);
-            final BPMNSubprocess createNodeOperationTask = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess((BPMNSubprocess) subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
+            subprocess.addTaskToSubproces(createNodeOperationTask);
             //final BPMNSubprocess setStateToNodeOperationflow = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess((BPMNSubprocess) subprocess, BPMNSubprocessType.SEQUENCE_FLOW2);
             //setStateToNodeOperationflow.setSourceflow(setPreState);
             //setStateToNodeOperationflow.setTargetflow(createNodeOperationTask);
@@ -113,17 +116,17 @@ public class BPMNInvokerPluginHandler {
             for (BPMNSubprocess sub : context.getSubprocessElement().getSubprocessBPMNSubprocess()) {
                 LOG.info("in schleife");
                 LOG.info(sub.getId());
-                if(sub.getSubprocessType() == (BPMNSubprocessType.CALL_NODE_OPERATION_TASK)) {
+                if (sub.getSubprocessType() == (BPMNSubprocessType.CALL_NODE_OPERATION_TASK)) {
                     sub.setInterfaceVariable(interfaceName);
                     sub.setOperation(operationName);
                     sub.setInputparamnames(inputParamNames);
                     sub.setInputparamvalues(inputParamValues);
                     sub.setOutputparamnames(outputParamNames);
                     sub.setOutputparamvalues(outputParamValues);
-                    for(BPMNDataObject dataObject: buildPlan.getDataObjectsList()){
-                        if(dataObject.getDataObjectType()==BPMNSubprocessType.DATA_OBJECT_ST){
-                            for(String property : dataObject.getProperties()){
-                                if(property.contains(ServiceInstanceURLVarKeyword)){
+                    for (BPMNDataObject dataObject : buildPlan.getDataObjectsList()) {
+                        if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_ST) {
+                            for (String property : dataObject.getProperties()) {
+                                if (property.contains(ServiceInstanceURLVarKeyword)) {
                                     sub.setServiceInstanceURL(property);
                                 }
                             }
@@ -132,7 +135,7 @@ public class BPMNInvokerPluginHandler {
                     hasnodeoperation = true;
                 }
             }
-            if(!hasnodeoperation) {
+            if (!hasnodeoperation) {
                 //BPMNSubprocess subprocess = context.getSubprocessElement();
                 //BPMNPlan buildPlan = ((BPMNSubprocess) sub).getBuildPlan();
                 // eventuell unnötig
@@ -187,7 +190,7 @@ public class BPMNInvokerPluginHandler {
 
                  */
 
-        // handle relationship template
+            // handle relationship template
         } else {
 
         }
