@@ -51,14 +51,8 @@ public class BPMNPlanHandler {
     }
 
     /**
-     * Creates an "empty" xml document. The main reason why we called it empty because
-     * there are no elements in the process.
-     *
-     * @param processNamespace
-     * @param processName
-     * @param abstractPlan
-     * @param inputOperationName
-     * @return
+     * Creates an "empty" xml document. The main reason why we called it empty because there are no elements in the
+     * process.
      */
     public BPMNPlan createEmptyBPMNPlan(final String processNamespace, final String processName,
                                         final AbstractPlan abstractPlan, final String inputOperationName) {
@@ -76,14 +70,12 @@ public class BPMNPlanHandler {
 
     /**
      * Initialize the script Elements to export them later.
-     *
-     * @param newBuildPlan
      */
     public void initializeScriptDocuments(final BPMNPlan newBuildPlan) {
         ArrayList<String> scripts = new ArrayList<>();
         newBuildPlan.setBpmnScript(scripts);
         ArrayList<String> scriptNames = new ArrayList<>();
-        String[] nameOfScripts = {"CreateServiceInstance", "CreateNodeInstance", "CreateRelationshipInstance", "CallNodeOperation", "DataObject", "SetProperties", "SetState"};
+        String[] nameOfScripts = {"CreateServiceInstance", "CreateNodeInstance", "CreateRelationshipInstance", "CallNodeOperation", "DataObject", "SetProperties", "SetState", "SetOutputParameters"};
         String script = "";
         try {
             for (String name : nameOfScripts) {
@@ -99,10 +91,8 @@ public class BPMNPlanHandler {
     }
 
     /**
-     * Adds the necessary namespaces, definition and process element.
-     * The diagram components are added in the BPMNFinalizer.
-     *
-     * @param bpmnPlan
+     * Adds the necessary namespaces, definition and process element. The diagram components are added in the
+     * BPMNFinalizer.
      */
     public void initializeXMLElements(final BPMNPlan bpmnPlan) {
         bpmnPlan.getIdForNamesAndIncrement();
@@ -129,24 +119,23 @@ public class BPMNPlanHandler {
     }
 
     /**
-     * Creates for each activity a empty subprocess and add a data object of a specific type.
-     * For example for NodeTemplateActivity the data object type is DATA_OBJECT_NODE.
-     * The fault subprocess is added in the BPMNFinalizer.
-     *
-     * @param plan
-     * @param csar
+     * Creates for each activity an empty subprocess and add a data object of a specific type. For example for
+     * NodeTemplateActivity the data object type is DATA_OBJECT_NODE. For RelationshipActivity the data object type is
+     * DATA_OBJECT_REL. The fault subprocess is added in the BPMNFinalizer.
      */
     public void initializeBPMNSkeleton(final BPMNPlan plan, final Csar csar) {
         String[] sourceOfRelationship = new String[2];
+        ArrayList<String> visitedNodeIds = new ArrayList<>();
         for (final AbstractPlan.Link links : plan.getLinks()) {
             AbstractActivity source = links.getSrcActiv();
             AbstractActivity target = links.getTrgActiv();
             BPMNSubprocess subprocess = null;
-            if (source instanceof NodeTemplateActivity) {
+            if (source instanceof NodeTemplateActivity && !visitedNodeIds.contains(source.getId())) {
                 int visitedCounter = ((RelationshipTemplateActivity) target).getVisitedCounter();
                 sourceOfRelationship[visitedCounter] = "Activity_" + plan.getInternalCounterId();
                 ((RelationshipTemplateActivity) target).setVisitedCounter();
                 subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(source, plan);
+                visitedNodeIds.add(source.getId());
                 LOG.debug("Generate empty subprocess for {}", source);
                 plan.addSubprocess(subprocess);
 
@@ -157,10 +146,11 @@ public class BPMNPlanHandler {
                     plan.addSubprocess(subprocess);
                 }
             }
-            if (source instanceof RelationshipTemplateActivity) {
+            if (source instanceof RelationshipTemplateActivity && !visitedNodeIds.contains(target.getId())) {
                 int visitedCounter = ((RelationshipTemplateActivity) source).getVisitedCounter();
                 sourceOfRelationship[visitedCounter] = "Activity_" + plan.getInternalCounterId();
                 subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(target, plan);
+                visitedNodeIds.add(target.getId());
                 LOG.debug("Generate empty subprocess for target node {}", target);
                 plan.addSubprocess(subprocess);
                 subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(source, plan);
@@ -171,12 +161,8 @@ public class BPMNPlanHandler {
     }
 
     /**
-     * In the BPMNBuildProcessBuilder we already created a subprocess which is now filled with
-     * activate data object tasks to make use of the data objects.
-     * TODO: maybe rewrite method depending on dataobject type
-     *
-     * @param dataObjectSubprocess
-     * @param bpmnPlan
+     * In the BPMNBuildProcessBuilder we already created a subprocess which is now filled with activate data object
+     * tasks to make use of the data objects.
      */
     public void addActivateDataObjectTaskToSubprocess(BPMNSubprocess dataObjectSubprocess, BPMNPlan bpmnPlan) {
 
@@ -190,7 +176,7 @@ public class BPMNPlanHandler {
                     dataObjectNodeTemplate = nodeTemplate;
                 }
             }
-            // dataObjectNodeTemplate can be null if we have serviceInstance or relationship Data Objects
+            // dataObjectNodeTemplate can be null if we have serviceInstance, inout or relationship Data Objects
             if (dataObjectNodeTemplate != null) {
                 ArrayList<String> properties = this.bpmnSubprocessHandler.computePropertiesOfNodeTemplate(dataObjectNodeTemplate);
                 bpmnDataObject.setProperties(properties);

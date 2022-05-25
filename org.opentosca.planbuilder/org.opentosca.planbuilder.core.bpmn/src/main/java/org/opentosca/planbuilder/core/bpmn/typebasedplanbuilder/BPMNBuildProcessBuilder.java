@@ -1,6 +1,5 @@
 package org.opentosca.planbuilder.core.bpmn.typebasedplanbuilder;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,10 +7,6 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -26,7 +21,6 @@ import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNFinalizer;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNPlanHandler;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNPluginHandler;
-//import org.opentosca.planbuilder.core.bpmn.handlers.ServiceTemplateBoundaryPropertyMappingsToOutputHandler;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNPropertyVariableHandler;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNSubprocessHandler;
 import org.opentosca.planbuilder.core.bpmn.handlers.ServiceTemplateBoundaryPropertyMappingsToOutputHandler;
@@ -41,12 +35,14 @@ import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocess;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocessType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_BuildPlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_LifecycleInterface;
+
 /**
- * This class is responsible for generating the Build Plan Skeleton and assign plugins to handle the different templates inside a
- * TopologyTemplate.
+ * This class is responsible for generating the Build Plan Skeleton and assign plugins to handle the different templates
+ * inside a TopologyTemplate.
  *
  * <p>
  * Copyright 2022 IAAS University of Stuttgart <br>
@@ -68,6 +64,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
     private BPMNFinalizer bpmnFinalizer;
     private BPMNSubprocessHandler bpmnSubprocessHandler;
+    private final String CORRELATIONID = "CorrelationID";
 
     /**
      * Default Constructor
@@ -98,11 +95,25 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
     public List<AbstractPlan> buildPlans(Csar csar, TDefinitions definitions) {
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
-            final BPMNPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
-            plans.add(newBuildPlan);
-            return plans;
+            if (ModelUtils.findServiceTemplateOperation(definitions, OpenTOSCA_LifecycleInterface, OpenTOSCA_BuildPlanOperation) == null) {
+                LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan",
+                    serviceTemplate.getId());
+                final BPMNPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
+
+                if (newBuildPlan != null) {
+                    LOG.debug("Created BuildPlan "
+                        + newBuildPlan.getBpmnProcessElement().getAttribute("id"));
+                    plans.add(newBuildPlan);
+                }
+            } else {
+                LOG.debug("ServiceTemplate {} has BuildPlan, no generation needed",
+                    serviceTemplate.getId());
+            }
         }
-        return null;
+        if (!plans.isEmpty()) {
+            LOG.info("Created {} build plans for CSAR {}", plans.size(), csar.id().csarName());
+        }
+        return plans;
     }
 
     private BPMNPlan buildPlan(final Csar csar, final TDefinitions definitions,
@@ -132,40 +143,32 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
             ArrayList<String> inputParameters = this.bpmnSubprocessHandler.computeInputParametersBasedTopology(serviceTemplate.getTopologyTemplate());
             final BPMNPlan bpmnPlan =
-                this.planHandler.createEmptyBPMNPlan(processNamespace, processName, buildPlan, "initiate");
+                this.planHandler.createEmptyBPMNPlan(processNamespace, processName, buildPlan, OpenTOSCA_BuildPlanOperation);
 
             bpmnPlan.setCsarName(csar.id().csarName());
             bpmnPlan.setInputParameters(inputParameters);
-            //BPMNDataObject dataObjectInput = new BPMNDataObject(BPMNSubprocessType.DATA_OBJECT_INOUT, "InputOutput_DataObject");
-            //dataObjectInput.setProperties(inputParameters);
-            //bpmnPlan.getDataObjectsList().add(dataObjectInput);
 
             // this step can be skipped in management plans
             this.serviceInstanceInitializer.appendCreateServiceInstanceVarsAndInitializeWithInstanceDataAPI(bpmnPlan);
+
             BPMNSubprocess dataObjectSubprocess = this.serviceInstanceInitializer.addServiceInstanceHandlingFromInput(bpmnPlan);
-            bpmnPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
-            bpmnPlan.setTOSCAOperationname("initiate");
+            bpmnPlan.setTOSCAInterfaceName(OpenTOSCA_LifecycleInterface);
+            bpmnPlan.setTOSCAOperationname(OpenTOSCA_BuildPlanOperation);
             this.planHandler.initializeBPMNSkeleton(bpmnPlan, csar);
             this.planHandler.addActivateDataObjectTaskToSubprocess(dataObjectSubprocess, bpmnPlan);
             String serviceInstanceUrl = this.serviceInstanceInitializer.findServiceInstanceUrlVariableName(bpmnPlan);
             String serviceInstanceID = this.serviceInstanceInitializer.findServiceInstanceIdVarName(bpmnPlan);
             String serviceTemplateUrl = this.serviceInstanceInitializer.findServiceTemplateUrlVariableName(bpmnPlan);
-            LOG.info("Variablen fuer Plugin");
-            LOG.info(serviceInstanceUrl);
-            LOG.info(serviceInstanceID);
-            LOG.info(serviceTemplateUrl);
-
             Property2VariableMapping propMap;
             propMap = this.propertyInitializer.initializePropertiesAsVariables(bpmnPlan, serviceTemplate);
             // init output
             HashMap<String, String> propertyOutput = this.propertyOutputInitializer.initializeBuildPlanOutput(definitions, bpmnPlan, propMap,
                 serviceTemplate);
 
-            propertyOutput.put("CorrelationID", "CorrelationID");
+            propertyOutput.put(CORRELATIONID, CORRELATIONID);
             bpmnPlan.setOutputParameters(propertyOutput);
 
             this.runPlugins(bpmnPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csar);
-            //writeXML(bpmnPlan.getBpmnDocument());
             try {
                 bpmnFinalizer.finalize(bpmnPlan);
             } catch (IOException e) {
@@ -173,30 +176,12 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             } catch (SAXException e) {
                 e.printStackTrace();
             }
-            writeXML(bpmnPlan.getBpmnDocument());
-
             return bpmnPlan;
         }
 
         LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
             serviceTemplateQname, definitions.getId(), csar.id().csarName());
         return null;
-    }
-
-    public void writeXML(Document s) {
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = null;
-        try {
-            transformer = transformerFactory.newTransformer();
-            DOMSource source = new DOMSource(s);
-            StreamResult result = new StreamResult(new File("C://Users//livia//Downloads//result.xml"));
-            transformer.transform(source, result);
-            // Output to console for testing
-            StreamResult consoleResult = new StreamResult(System.out);
-            transformer.transform(source, consoleResult);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -212,10 +197,8 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
     private void runPlugins(final BPMNPlan buildPlan, final Property2VariableMapping map,
                             final String serviceInstanceUrl, final String serviceInstanceID,
                             final String serviceTemplateUrl, final Csar csar) {
-        LOG.info("Plugins laufen jetzt");
+        LOG.debug("The plugins will be executed now");
         for (final BPMNSubprocess bpmnSubprocess : buildPlan.getTemplateBuildPlans()) {
-            LOG.info("Plugins gestartet, templatebuildplan id:");
-            LOG.info(bpmnSubprocess.getId());
             final BPMNPlanContext context = new BPMNPlanContext(buildPlan, bpmnSubprocess, map, buildPlan.getServiceTemplate(),
                 serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csar);
             if (bpmnSubprocess.getNodeTemplate() != null) {
@@ -225,7 +208,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 // extended check for OperatingSystem node type
                 if (isRunning(nodeTemplate)
                     /*|| ModelUtils.findNodeType(nodeTemplate, csar).getName().equals(Types.abstractOperatingSystemNodeType.getLocalPart())*/) {
-                    LOG.info("Skipping the provisioning of NodeTemplate "
+                    LOG.debug("Skipping the provisioning of NodeTemplate "
                         + bpmnSubprocess.getNodeTemplate().getId() + "  because state=running is set.");
                     for (final IPlanBuilderBPMNPrePhasePlugin prePhasePlugin : this.pluginRegistry.getPreBPMNPlugins()) {
                         if (prePhasePlugin.canHandleCreate(context, bpmnSubprocess.getNodeTemplate())) {
@@ -234,7 +217,6 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
                     }
                     String prefix = BPMNSubprocessType.SET_ST_STATE.name();
                     BPMNSubprocess setStateTask = new BPMNSubprocess(BPMNSubprocessType.SET_ST_STATE, prefix + "_" + buildPlan.getIdForNamesAndIncrement());
-                    //BPMNSubprocess setStateTask = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(bpmnSubprocess, BPMNSubprocessType.SET_ST_STATE);
                     setStateTask.setNodeTemplate(nodeTemplate);
                     setStateTask.setInstanceState("STARTED");
                     setStateTask.setBuildPlan(buildPlan);
@@ -246,15 +228,14 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
                     }
                     continue;
                 }
-                // generate code for the activity
                 this.bpmnPluginHandler.handleActivity(context, bpmnSubprocess, nodeTemplate);
             } else if (bpmnSubprocess.getRelationshipTemplate() != null) {
-                // handling relationshiptemplate
-                LOG.info("Handling of relationshiptemplate");
                 final TRelationshipTemplate relationshipTemplate = bpmnSubprocess.getRelationshipTemplate();
                 this.bpmnPluginHandler.handleActivity(context, bpmnSubprocess, relationshipTemplate);
             } else if (bpmnSubprocess.getServiceInstanceURL() != null || bpmnSubprocess.getSubprocessBPMNSubprocess().get(0).getSubprocessType() == BPMNSubprocessType.ACTIVATE_DATA_OBJECT_TASK) {
-                // nothing happens
+                // no plugin is applied if the subprocess is responsible for the service instance creation
+                // the second case is to exclude the subprocess which contains the activateDataObject Task as first child
+                // (currently all activate data object tasks are in the same subprocess)
             } else {
                 this.bpmnPluginHandler.handleActivity(context, bpmnSubprocess);
             }

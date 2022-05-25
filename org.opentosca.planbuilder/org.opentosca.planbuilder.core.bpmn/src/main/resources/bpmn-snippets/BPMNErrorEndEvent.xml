@@ -1,4 +1,4 @@
 <bpmn:endEvent id="Event_IdToReplace">
     <bpmn:incoming>Flow_Input</bpmn:incoming>
-    <bpmn:errorEventDefinition id="ErrorEvenDefinitionIdToSet" errorRef="errorRefToSet" />
+    <bpmn:errorEventDefinition id="ErrorEventDefinitionIdToSet" errorRef="errorRefToSet" />
 </bpmn:endEvent>
