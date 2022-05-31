@@ -130,6 +130,7 @@ public class BPMNSubprocess {
     private String serviceInstanceURL;
 
     private TNodeTemplate nodeTemplate = null;
+    private TNodeTemplate hostingNodeTemplate = null;
     private TRelationshipTemplate relationshipTemplate = null;
 
     private String id;
@@ -272,6 +273,25 @@ public class BPMNSubprocess {
      */
     public void setNodeTemplate(final TNodeTemplate nodeTemplate) {
         this.nodeTemplate = nodeTemplate;
+    }
+
+    /**
+     * The usage is for the call node operation task because there is a difference between the nodetemplate and the
+     * nodetemplate from which we call the operation
+     *
+     * @return an TNodeTemplate, else null
+     */
+    public TNodeTemplate getHostingNodeTemplate() {
+        return this.hostingNodeTemplate;
+    }
+
+    /**
+     * Set the HostingNodeTemplate
+     *
+     * @param nodeTemplate an TNodeTemplate
+     */
+    public void setHostingNodeTemplate(final TNodeTemplate nodeTemplate) {
+        this.hostingNodeTemplate = nodeTemplate;
     }
 
     /**

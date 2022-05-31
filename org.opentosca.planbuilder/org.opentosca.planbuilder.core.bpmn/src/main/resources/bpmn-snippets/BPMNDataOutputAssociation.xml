@@ -1,0 +1,3 @@
+<bpmn:dataOutputAssociation id="DataOutputAssociation_IdToSet">
+    <bpmn:targetRef>DataObjectReference_IdToSet</bpmn:targetRef>
+</bpmn:dataOutputAssociation>

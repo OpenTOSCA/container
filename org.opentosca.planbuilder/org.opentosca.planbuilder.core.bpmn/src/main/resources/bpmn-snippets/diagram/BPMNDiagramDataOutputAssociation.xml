@@ -1,0 +1,4 @@
+<bpmndi:BPMNEdge id="DataOutputAssociation_IdToSet_di" bpmnElement="DataOutputAssociation_IdToSet">
+    <di:waypoint x="xToSet" y="yToSet" />
+    <di:waypoint x="xToSet" y="yToSetMinusDataObjectHeight" />
+</bpmndi:BPMNEdge>

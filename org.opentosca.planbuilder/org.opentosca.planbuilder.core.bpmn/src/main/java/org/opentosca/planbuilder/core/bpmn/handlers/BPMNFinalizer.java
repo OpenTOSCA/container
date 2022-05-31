@@ -76,7 +76,7 @@ public class BPMNFinalizer {
         BPMNSubprocess userTask = new BPMNSubprocess(BPMNSubprocessType.USER_TASK, "userTask");
         userTask.setBuildPlan(buildPlan);
         for (BPMNSubprocess bpmnSubprocess : bpmnSubprocessList) {
-            BPMNSubprocess outerFlow = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "TestOuterFlow_" + buildPlan.getIdForOuterFlowTestAndIncrement());
+            BPMNSubprocess outerFlow = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "OuterFlow_" + buildPlan.getIdForOuterFlowTestAndIncrement());
             outerFlow.setBuildPlan(bpmnSubprocess.getBuildPlan());
             outerFlow.setIncomingTestScope(previousIncoming);
             outerFlow.setOuterflow(bpmnSubprocess);
@@ -239,6 +239,9 @@ public class BPMNFinalizer {
             for (BPMNDataObject dataObject : buildPlan.getDataObjectsList()) {
                 processFragments.createDataObjectAsNode(buildPlan, d, dataObject);
             }
+            //for (BPMNSubprocess bpmnSubprocess : buildPlan.getSubprocess()) {
+              //  processFragments.addDataAssociations(buildPlan, d, bpmnSubprocess);
+            //}
         } catch (
             ParserConfigurationException e) {
             e.printStackTrace();
@@ -249,7 +252,7 @@ public class BPMNFinalizer {
 
     public void setBuildPlanAndSequenceFlows(BPMNPlan buildPlan, ArrayList<BPMNSubprocess> flowElements, BPMNSubprocess previousIncoming, BPMNSubprocess outputParamTask) {
         outputParamTask.setBuildPlan(buildPlan);
-        BPMNSubprocess subprocessToOutputParamTask = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "TestOuterFlow_" + buildPlan.getIdForOuterFlowTestAndIncrement());
+        BPMNSubprocess subprocessToOutputParamTask = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "OuterFlow_" + buildPlan.getIdForOuterFlowTestAndIncrement());
         subprocessToOutputParamTask.setBuildPlan(buildPlan);
         subprocessToOutputParamTask.setIncomingTestScope(previousIncoming);
         subprocessToOutputParamTask.setOuterflow(outputParamTask);

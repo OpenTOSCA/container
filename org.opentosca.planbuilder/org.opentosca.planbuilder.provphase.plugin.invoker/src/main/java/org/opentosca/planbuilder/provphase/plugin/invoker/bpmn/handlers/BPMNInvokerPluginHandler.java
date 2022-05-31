@@ -99,7 +99,7 @@ public class BPMNInvokerPluginHandler {
             BPMNSubprocess subprocess = context.getSubprocessElement();
             LOG.info("WASSTSS");
             LOG.info(templateId.getId());
-            subprocess.setNodeTemplate(templateId);
+            subprocess.setHostingNodeTemplate(templateId);
             BPMNPlan buildPlan = ((BPMNSubprocess) subprocess).getBuildPlan();
             String preState = InstanceStates.getOperationPreState(operationName);
             final BPMNSubprocess createNodeOperationTask = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess((BPMNSubprocess) subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);

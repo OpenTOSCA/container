@@ -65,6 +65,7 @@ public class BPMNSubprocessHandler {
             ArrayList<String> properties = computePropertiesOfNodeTemplate(((NodeTemplateActivity) activity).getNodeTemplate());
             dataObject.setProperties(properties);
             buildPlan.getDataObjectsList().add(dataObject);
+            bpmnSubprocess.setDataObject(dataObject);
         } else if (activity instanceof RelationshipTemplateActivity) {
             RelationshipTemplateActivity relActivity = (RelationshipTemplateActivity) activity;
             idPrefix = BPMNSubprocessType.SUBPROCESS.toString();
@@ -83,6 +84,7 @@ public class BPMNSubprocessHandler {
             dataObject.setTargetInstanceURL(RESULTVARIABLE + target + "_provisioning_activity");
             dataObject.setRelationshipInstanceURL(resultVariable);
             buildPlan.getDataObjectsList().add(dataObject);
+            bpmnSubprocess.setDataObject(dataObject);
             return bpmnSubprocess;
         } else {
             LOG.debug("No subprocess is generated");
@@ -144,6 +146,7 @@ public class BPMNSubprocessHandler {
             } else if (type == BPMNSubprocessType.CALL_NODE_OPERATION_TASK) {
                 parentSubprocess.setSubProCallOperationTask(createdScope);
                 createdScope.setNodeTemplate(parentSubprocess.getNodeTemplate());
+                createdScope.setHostingNodeTemplate(parentSubprocess.getHostingNodeTemplate());
                 createdScope.setParentProcess(parentSubprocess);
                 createdScope.setBuildPlan(buildPlan);
                 return createdScope;
