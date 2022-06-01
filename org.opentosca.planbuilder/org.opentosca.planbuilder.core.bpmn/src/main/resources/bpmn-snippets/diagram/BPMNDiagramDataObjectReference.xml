@@ -1,3 +1,6 @@
 <bpmndi:BPMNShape id="DataObjectReference_IdToSet_di" bpmnElement="DataObjectReference_IdToSet">
     <dc:Bounds x='xToSet' y='yToSet' width='36' height='50' />
+    <bpmndi:BPMNLabel>
+        <dc:Bounds x="xLabelToSet" y="yLabelToSet" width="85" height="40" />
+    </bpmndi:BPMNLabel>
 </bpmndi:BPMNShape>

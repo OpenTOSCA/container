@@ -442,7 +442,16 @@ public class BPMNProcessFragments {
         for (BPMNSubprocess outerSubprocess : bpmnPlan.getSubprocess()) {
             String dataObjectOuterSubprocessId = outerSubprocess.getId().replace("Subprocess", "DataObject");
             if (outerSubprocess.getId().contains(dataObject.getId()) || dataObjectOuterSubprocessId.contains(dataObject.getId())) {
-                dataObjectReference = dataObjectReference.replaceAll("<dc:Bounds x='xToSet' y='yToSet' width='36' height='50' />", "<dc:Bounds x=\"" + outerSubprocess.getX() + "\" y=\"" + outerSubprocess.getY() + "\" width=\"36\" height=\"50\" />");
+                // subprocess width: 100, data object reference width: 36 -> 32 is the center
+                double x = outerSubprocess.getX() + 32;
+                // to get the data objects above the subprocess
+                double y = outerSubprocess.getY() - 150;
+                double yLabel = y - 60;
+                dataObject.setX(x);
+                dataObject.setY(y);
+                dataObjectReference = dataObjectReference.replaceAll("<dc:Bounds x='xToSet' y='yToSet' width='36' height='50' />", "<dc:Bounds x=\"" + x + "\" y=\"" + y + "\" width=\"36\" height=\"50\" />");
+                dataObjectReference = dataObjectReference.replace("xLabelToSet", "" + x);
+                dataObjectReference = dataObjectReference.replace("yLabelToSet", "" + yLabel);
             }
         }
         dataObjectReference = dataObjectReference.replaceAll("IdToSet", dataObject.getId());
@@ -1699,8 +1708,8 @@ public class BPMNProcessFragments {
                 // if(subprocesses.item(i))
                 String subprocessId = subprocesses.item(i).getAttributes().getNamedItem("id").getNodeValue();
                 if (subprocessId.equals(bpmnSubprocess.getId())) {
-                    Node dataOutputAssociation = createBPMNDataOutputAssociationAsNode(bpmnSubprocess);
-                    Node importedNode = d.importNode(dataOutputAssociation, true);
+                    Node propertyNode = createBPMNPropertyAsNode(bpmnSubprocess);
+                    Node dataInputAssociationAsNode = createBPMNDataInputAssociationAsNode(bpmnSubprocess);
                     NodeList childNodes = subprocesses.item(i).getChildNodes();
                     for (int j = 0; j < childNodes.getLength(); j++) {
                         // outgoing and incoming child nodes have no attributes
@@ -1709,22 +1718,65 @@ public class BPMNProcessFragments {
                                 String childId = childNodes.item(j).getAttributes().getNamedItem("id").getNodeValue();
                                 if (childId.contains("StartEvent")) {
                                     Node startEventNode = childNodes.item(j);
-                                    subprocesses.item(i).insertBefore(importedNode, startEventNode);
+                                    Node dataOutputAssociationAsNode = createBPMNDataOutputAssociationAsNode(bpmnSubprocess);
+
+                                    Node importedDataOutputNode = d.importNode(dataOutputAssociationAsNode, true);
+                                    subprocesses.item(i).insertBefore(importedDataOutputNode, startEventNode);
+                                    if (bpmnSubprocess.getDataObject().getDataObjectType() != BPMNSubprocessType.DATA_OBJECT_INOUT &&
+                                        bpmnSubprocess.getDataObject().getDataObjectType() != BPMNSubprocessType.DATA_OBJECT_ST) {
+                                        Node importedPropertyNode = d.importNode(propertyNode, true);
+                                        subprocesses.item(i).insertBefore(importedPropertyNode, startEventNode);
+                                        Node importedDataInputNode = d.importNode(dataInputAssociationAsNode, true);
+                                        subprocesses.item(i).insertBefore(importedDataInputNode, startEventNode);
+                                        createBPMNDiagramDataOutputAssociationAsNode(bpmnSubprocess, d);
+                                    }
+                                    break;
                                 }
                             }
                         }
                     }
 
-                    Node diagramDataOutputAssociation = createBPMNDiagramDataOutputAssociationAsNode(bpmnSubprocess, d);
-                    //Node importedDiagramNode = d.importNode(dataOutputAssociation, true);
-                    //subprocesses.item(i).appendChild(importedNode);
+                    createBPMNDiagramDataInputAssociationAsNode(bpmnSubprocess, d);
                 }
-
-                //subprocesses.item(i).appendChild()
             }
-            LOG.info("IIIIIIIIIIIIIII");
-            //LOG.info(subprocess.getNodeName());
         }
+    }
+
+    public void addTaskDataAssociations(BPMNPlan buildPlan, Document d, BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
+        if (bpmnSubprocess.getDataObject() != null) {
+            Element subprocess = buildPlan.getBpmnDocument().getElementById(bpmnSubprocess.getId());
+            NodeList subprocesses = d.getElementsByTagName("bpmn:scriptTask");
+            for (int i = 0; i < subprocesses.getLength(); i++) {
+                // if(subprocesses.item(i))
+                String taskId = subprocesses.item(i).getAttributes().getNamedItem("id").getNodeValue();
+                if (taskId.equals(bpmnSubprocess.getId())) {
+                    Node propertyNode = createBPMNPropertyAsNode(bpmnSubprocess);
+                    Node dataInputAssociationAsNode = createBPMNDataInputAssociationAsNode(bpmnSubprocess);
+
+                    NodeList childNodes = subprocesses.item(i).getChildNodes();
+                    Node importedPropertyNode = d.importNode(propertyNode, true);
+                    subprocesses.item(i).appendChild(importedPropertyNode);
+                    Node importedDataInputNode = d.importNode(dataInputAssociationAsNode, true);
+                    subprocesses.item(i).appendChild(importedDataInputNode);
+                    break;
+                }
+            }
+
+            createBPMNDiagramDataInputAssociationAsNode(bpmnSubprocess, d);
+        }
+    }
+
+    private Node createBPMNPropertyAsNode(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
+        LOG.info("Create BPMN Property with id {}", "Property_" + bpmnSubprocess.getId());
+        String template = createBPMNProperty(bpmnSubprocess.getDataObject().getId());
+        return this.transformStringToNode(template);
+    }
+
+    private String createBPMNProperty(String bpmnSubprocessId) throws IOException {
+        String property = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNProperty.xml"));
+        property = property.replaceAll("IdToSet", bpmnSubprocessId);
+        property = property.replaceAll("targetRef", bpmnSubprocessId);
+        return property;
     }
 
     private Node createBPMNDataOutputAssociationAsNode(BPMNSubprocess bpmnScope) throws IOException, SAXException {
@@ -1757,12 +1809,53 @@ public class BPMNProcessFragments {
         IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/diagram/BPMNDiagramDataOutputAssociation.xml"));
         // each sequence flow is guaranteed to only two ends
-        double dataOutputAssociationTarget = bpmnSubprocess.getY() - 200;
-        double dataOutputAssociationSource = bpmnSubprocess.getX() + 18;
+        double dataOutputAssociationXSource = bpmnSubprocess.getX() + 50;
+        double dataOutputAssociationYTarget = bpmnSubprocess.getDataObject().getY() + 50;
         template = template.replaceAll("IdToSet", bpmnSubprocess.getDataObject().getId());
-        template = template.replaceAll("xToSet", "" + dataOutputAssociationSource);
-        template = template.replaceAll("yToSetMinusDataObjectHeight", "" + dataOutputAssociationTarget);
+        template = template.replaceAll("xToSet", "" + dataOutputAssociationXSource);
+        template = template.replaceAll("yToSetMinusDataObjectHeight", "" + dataOutputAssociationYTarget);
         template = template.replaceAll("yToSet", "" + bpmnSubprocess.getY());
+
+        return template;
+    }
+
+    private Node createBPMNDataInputAssociationAsNode(BPMNSubprocess bpmnScope) throws IOException, SAXException {
+        LOG.info("BPMNSCOPEID {} {}", bpmnScope.getId(), bpmnScope.getIncomingTestFlow().size());
+        String template = createBPMNDataInputAssociation(bpmnScope);
+
+        LOG.info("DATAINPUTASSOCIATION");
+        LOG.info(template);
+        return this.transformStringToNode(template);
+    }
+
+    public String createBPMNDataInputAssociation(BPMNSubprocess bpmnSubprocess) throws
+        IOException {
+        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNDataInputAssociation.xml"));
+        // each sequence flow is guaranteed to only two ends
+        template = template.replaceAll("DataObjectIdToSet", bpmnSubprocess.getDataObject().getId());
+        //template = template.replaceAll("IdToSet", bpmnSubprocess.getId());
+        return template;
+    }
+
+    private Node createBPMNDiagramDataInputAssociationAsNode(BPMNSubprocess bpmnScope, Document d) throws IOException, SAXException {
+        LOG.info("BPMNSCOPEID {} {}", bpmnScope.getId(), bpmnScope.getIncomingTestFlow().size());
+        String template = createBPMNDiagramDataInputAssociation(bpmnScope);
+
+        LOG.info("DATAInputSSOCIATION");
+        LOG.info(template);
+        return this.createImportNodeFromString(bpmnScope.getBuildPlan(), d, template, true);
+    }
+
+    public String createBPMNDiagramDataInputAssociation(BPMNSubprocess bpmnSubprocess) throws
+        IOException {
+        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/diagram/BPMNDiagramDataInputAssociation.xml"));
+        // each sequence flow is guaranteed to only two ends
+        double dataOutputAssociationYTarget = bpmnSubprocess.getDataObject().getY() + 50;
+        double dataOutputAssociationXSource = bpmnSubprocess.getX() + 50;
+        template = template.replaceAll("IdToSet", bpmnSubprocess.getDataObject().getId());
+        template = template.replaceAll("xToSet", "" + dataOutputAssociationXSource);
+        template = template.replaceAll("yToSetMinusDataObjectHeight", "" + bpmnSubprocess.getY());
+        template = template.replaceAll("yToSet", "" + dataOutputAssociationYTarget);
 
         return template;
     }

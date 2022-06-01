@@ -1,0 +1,4 @@
+<bpmn:dataInputAssociation id="DataInputAssociation_DataObjectIdToSet">
+    <bpmn:sourceRef>DataObjectReference_DataObjectIdToSet</bpmn:sourceRef>
+    <bpmn:targetRef>Property_DataObjectIdToSet</bpmn:targetRef>
+</bpmn:dataInputAssociation>

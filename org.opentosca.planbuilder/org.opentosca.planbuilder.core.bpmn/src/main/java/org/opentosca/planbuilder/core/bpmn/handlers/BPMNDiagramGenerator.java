@@ -6,10 +6,14 @@ import org.camunda.bpm.model.bpmn.instance.Process;
 import org.camunda.bpm.model.bpmn.instance.*;
 import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnDiagram;
 import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnPlane;
+import org.camunda.bpm.model.bpmn.instance.di.DiagramElement;
+import org.camunda.bpm.model.xml.impl.type.ModelElementTypeImpl;
+import org.camunda.bpm.model.xml.type.ModelElementType;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocess;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -186,6 +190,8 @@ public class BPMNDiagramGenerator {
             XPathExpression searchRequest = xpath.compile("//*[contains(name(),'startEvent')]");
             NodeList eventNodes = (NodeList) searchRequest.evaluate(doc, XPathConstants.NODESET);
 
+            //subprocess vielleicht schon hier
+
             int x = 0;
             // Begin diagram by drawing start events
             for (int i = 0; i < eventNodes.getLength(); i++) {
@@ -223,6 +229,8 @@ public class BPMNDiagramGenerator {
                             Element sElement = (Element) shapes.item(z);
                             if (!refPoints.containsKey(sElement.getAttribute("id"))) {
                                 System.out.println("WIRSTDUHIERÜBERHAUPTGEFUNDEN");
+                                Node sElementNode = bpmnPlan.getBpmnDocument().importNode(sElement, true);
+                                sElement.setIdAttribute("id", true);
                                 System.out.println(sElement.getAttribute("id"));
                                 nextSourceRefs.add(sElement.getAttribute("id"));
 
@@ -248,21 +256,33 @@ public class BPMNDiagramGenerator {
                                     case ("bpmn:callActivity"):
                                         BpmnModelElementInstance element = modelInstance.getModelElementById(sElement.getAttribute("id"));
                                         System.out.println("IIIIIIIIIIIIIIIIIIIIIIIIID");
-                                        System.out.println(element.getAttributeValue("id"));
+                                        System.out.println("PARENT ");
+                                        element.getParentElement().getAttributeValue("id");
+
+
                                         double xLane = getLaneXOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
                                         double yLane = getLaneYOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
+                                        String idSubprocess = element.getAttributeValue("id");
+                                        //if (!idSubprocess.startsWith("Subprocess")) {
+                                            plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, (yLane + 180 + yOffset) + y * 200, 80, 100, true);
+                                        //}
+                                        System.out.println("PREFPOINT2");
+                                        System.out.println(element.getAttributeValue("id"));
 
+                                        //for (BPMNSubprocess bpmnSubprocess : bpmnPlan.getSubprocess()) {
+                                          //  if (idSubprocess.contains(bpmnSubprocess.getId())) {
+                                            //    plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, (yLane + 180 + yOffset) + y * 200, 300, (bpmnSubprocess.getSubprocessBPMNSubprocess().size() + 5) * 100, true);
+                                            //}
+                                        //}
                                         //plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, (yLane + 180 + yOffset) + y * 200, 80, 100, true);
-                                        plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, (yLane + 180 + yOffset) + y * 200, 80, 100, true);
                                         //refPoints.put(sElement.getAttribute("id"), new SequenceReferencePoints(xLane + x, ((220 + yOffset + yLane) + y * 200), (xLane + x + 100), ((yLane + 220 + yOffset) + y * 200)));
                                         System.out.println("PREFPOINT");
                                         refPoints.put(sElement.getAttribute("id"), new SequenceReferencePoints(xLane + x, ((220 + yOffset + yLane) + y * 200), (xLane + x + 100), ((yLane + 220 + yOffset) + y * 200)));
 
-                                        String idSubprocess = element.getAttributeValue("id");
                                         for (BPMNSubprocess bpmnSubprocess : bpmnPlan.getSubprocess()) {
                                             if (idSubprocess.contains(bpmnSubprocess.getId())) {
-                                                bpmnSubprocess.setX(xLane + x + 50);
-                                                bpmnSubprocess.setY((yLane + 180 + yOffset) - 150);
+                                                bpmnSubprocess.setX(xLane + x);
+                                                bpmnSubprocess.setY((yLane + 180 + yOffset));
                                             }
                                         }
                                         // check for boundary events
@@ -379,6 +399,13 @@ public class BPMNDiagramGenerator {
             for (int i = 0; i < associationNodes.getLength(); i++) {
                 Element aElement = (Element) associationNodes.item(i);
                 plane = DrawFlow.drawFlow(plane, modelInstance, aElement, refPoints);
+            }
+            for (DiagramElement d : plane.getDiagramElements()) {
+                System.out.println("ID DIAGRAM");
+                System.out.println(d.getId());
+                if (d.getAttributeValue("bpmnElement").startsWith("Subprocess")) {
+                    // d.setAttributeValue("isExpanded", "true");
+                }
             }
             Bpmn.validateModel(modelInstance);
 

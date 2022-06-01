@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class represents a data object which is the bpmn eqivalent of a bpel variable.
- * In bowie there are three different types of data objects(service, node, relation).
+ * This class represents a data object which is the bpmn equivalent of a bpel variable. In bowie there are three
+ * different types of data objects(service, node, relation).
  */
 public class BPMNDataObject {
     private String id;
@@ -18,9 +18,11 @@ public class BPMNDataObject {
     private String nodeInstanceURL;
     private String relationshipInstanceURL;
 
-
     private String nodeTemplate;
     private String relationshipTemplate;
+
+    private double x;
+    private double y;
 
     public BPMNDataObject(BPMNSubprocessType dataObjectType, String id) {
         this.dataObjectType = dataObjectType;
@@ -105,5 +107,21 @@ public class BPMNDataObject {
 
     public void setRelationshipInstanceURL(String relationshipInstanceURL) {
         this.relationshipInstanceURL = relationshipInstanceURL;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public void setY(double y) {
+        this.y = y;
     }
 }
