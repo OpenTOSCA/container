@@ -1,6 +1,5 @@
 package org.opentosca.planbuilder.model.plan.bpmn;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -13,8 +12,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is the model for BPMN Subprocesses which contains all the necessary information
- * to replace later the required information for the fragments.
+ * This class is the model for BPMN Subprocesses which contains all the necessary information to replace later the
+ * required information for the fragments.
  */
 public class BPMNSubprocess {
 
@@ -25,18 +24,12 @@ public class BPMNSubprocess {
 
     private Collection<BPMNSubprocess> incomingScope = new HashSet<>();
     private BPMNDataObject dataObject;
-
-    private String inflow;
-    private String errorOutflow;
-    private String outflow;
-    private BPMNSubprocess sourceflow;
-    private BPMNSubprocess targetflow;
-
     private BPMNSubprocess subProServiceInstanceTask;
     private ArrayList<BPMNSubprocess> outerflow = new ArrayList<>();
     private ArrayList<BPMNSubprocess> incomingTestScope = new ArrayList<>();
     private ArrayList<BPMNSubprocess> flowElements = new ArrayList<>();
     private ArrayList<BPMNSubprocess> errorFlowElements = new ArrayList<>();
+    private String errorOutflow;
 
     public ArrayList<BPMNSubprocess> getFlowElements() {
         return flowElements;
@@ -61,11 +54,9 @@ public class BPMNSubprocess {
     public ArrayList<BPMNSubprocess> getOuterflow() {
         return outerflow;
     }
+
     public void setOuterflow(BPMNSubprocess outerflow) {
         this.outerflow.add(outerflow);
-    }
-    public void cleanOuterflow() {
-        this.outerflow.clear();
     }
 
     public ArrayList<BPMNSubprocess> getOuterFlow() {
@@ -76,39 +67,8 @@ public class BPMNSubprocess {
         this.incomingTestScope.add(incomingTestScopeflow);
     }
 
-    public void setId(String id){
+    public void setId(String id) {
         this.id = id;
-    }
-    public BPMNSubprocess getTargetflow() {
-        return targetflow;
-    }
-
-    public void setTargetflow(BPMNSubprocess targetflow) {
-        this.targetflow = targetflow;
-    }
-
-    public BPMNSubprocess getSourceflow() {
-        return sourceflow;
-    }
-
-    public void setSourceflow(BPMNSubprocess sourceflow) {
-        this.sourceflow = sourceflow;
-    }
-
-    public String getInflow() {
-        return inflow;
-    }
-
-    public void setInflow(String inflow) {
-        this.inflow = inflow;
-    }
-
-    public String getOutflow() {
-        return outflow;
-    }
-
-    public void setOutflow(String outflow) {
-        this.outflow = outflow;
     }
 
     public String getErrorOutflow() {
@@ -363,7 +323,6 @@ public class BPMNSubprocess {
     public void setSubProSetNodePropertyTask(BPMNSubprocess subProSetNodePropertyTask) {
         this.subProSetNodePropertyTask = subProSetNodePropertyTask;
     }
-
 
     public BPMNSubprocess getSubProCreateNodeInstanceTask() {
         return subProCreateNodeInstanceTask;

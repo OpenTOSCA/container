@@ -5,7 +5,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -62,22 +61,6 @@ public class BPMNProcessFragments {
     }
 
     /**
-     * create sequence flow node inside a bpmnSubprocess
-     *
-     * @param sourceBpmnSubprocess source for the sequence flow
-     * @param targetBpmnSubprocess target for the sequence flow
-     * @return sequenceFlow Node
-     */
-    public Node createBPMNSequenceFlow2(BPMNSubprocess sourceBpmnSubprocess, BPMNSubprocess targetBpmnSubprocess) throws IOException, SAXException {
-        String sequenceFlow = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNSequenceFlow.xml"));
-        sequenceFlow = sequenceFlow.replaceAll("Flow_IdToReplace", sourceBpmnSubprocess.getOutflow());
-        sequenceFlow = sequenceFlow.replaceAll("SourceToReplace", sourceBpmnSubprocess.getId());
-        sequenceFlow = sequenceFlow.replaceAll("TargetToReplace", targetBpmnSubprocess.getId());
-        Node sequenceFlowNode = this.createImportNodeFromString(sourceBpmnSubprocess, sequenceFlow);
-        return sequenceFlowNode;
-    }
-
-    /**
      * create sequence flow node for error events of the outside flow
      *
      * @param sourceBpmnSubprocess source for the sequence flow
@@ -126,8 +109,6 @@ public class BPMNProcessFragments {
      * @return createRelationshipTemplateInstance Node
      */
     public String createRelationshipTemplateInstance(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
-        int id = bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement();
-        int sourceId = id - 1;
         String idPrefix = BPMNSubprocessType.SUBPROCESS.toString();
         String relationshipTemplateId = bpmnSubprocess.getRelationshipTemplate().getId();
         String createRelationshipInstance = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateRelationshipTemplateInstanceScriptTask.xml"));
@@ -153,8 +134,6 @@ public class BPMNProcessFragments {
      * @return createNodeTemplateInstance Node
      */
     public String createNodeTemplateInstance(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
-        int id = bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement();
-        int sourceId = id - 1;
         String prefix = BPMNSubprocessType.SUBPROCESS.toString();
         String nodeTemplateId = bpmnSubprocess.getNodeTemplate().getId();
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateNodeTemplateInstanceScriptTask.xml"));
@@ -163,8 +142,6 @@ public class BPMNProcessFragments {
         String parentId = bpmnSubprocess.getParentProcess().getId().replace("Subprocess_", "ResultVariable");
         template = template.replaceAll("ResultVariableToSet", parentId);
         template = template.replaceAll("NodeTemplateToSet", nodeTemplateId);
-        template = template.replaceAll("Flow_Input", "Flow_" + sourceId);
-        template = template.replaceAll("Flow_Output", "Flow_" + id);
         template = template.replaceAll("StateToSet", "INITIAL");
         template = getServiceInstanceURLFromDataObject(bpmnSubprocess, template);
         return template;
@@ -181,8 +158,6 @@ public class BPMNProcessFragments {
         LOG.info(bpmnSubprocess.getParentProcess().getDataObject().getId());
         BPMNDataObject dataObject = bpmnSubprocess.getParentProcess().getDataObject();
         String callNodeOperation = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateNodeOperationScriptTask.xml"));
-        int id = bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement();
-        int sourceId = id - 1;
         callNodeOperation = callNodeOperation.replaceAll("CallNodeOperation_IdToReplace", bpmnSubprocess.getId());
         callNodeOperation = callNodeOperation.replaceAll("CsarToSet", bpmnSubprocess.getBuildPlan().getCsarName());
         callNodeOperation = callNodeOperation.replaceAll("NodeTemplateToSet", bpmnSubprocess.getHostingNodeTemplate().getId());
@@ -190,8 +165,6 @@ public class BPMNProcessFragments {
         String prefix = BPMNSubprocessType.DATA_OBJECT_REFERENCE.toString() + "_" + BPMNSubprocessType.DATA_OBJECT.toString();
         String dataObjectReferenceId = parentId.replace("Subprocess", prefix);
         callNodeOperation = callNodeOperation.replaceAll("DataObjectToSet", dataObjectReferenceId);
-        callNodeOperation = callNodeOperation.replaceAll("Flow_Input", "Flow_" + sourceId);
-        callNodeOperation = callNodeOperation.replaceAll("Flow_Output", "Flow_" + id);
         //Node callNodeOperationNode = this.transformStringToNode(template);
         callNodeOperation = getServiceInstanceURLFromDataObject(bpmnSubprocess, callNodeOperation);
         LOG.info("interface variable: " + bpmnSubprocess.getInterfaceVariable());
@@ -293,7 +266,6 @@ public class BPMNProcessFragments {
         LOG.info("OUTERENDEVENT");
         LOG.info(template);
         Node endEventNode = this.transformStringToNode(template);
-        bpmnSubprocess.setInflow("OuterFlow_" + sourceId);
         return endEventNode;
     }
 
@@ -530,6 +502,9 @@ public class BPMNProcessFragments {
                 case COMPUTE_OUTPUT_PARAMS_TASK:
                     node = this.createOutputParamsTaskAsNode(bpmnSubprocess);
                     break;
+                case USER_TASK:
+                    node = this.createBPMNUserTaskAsNode(bpmnSubprocess);
+                    break;
                 //case ERROR_INNER_FLOW:
                 //  node = this.createBPMNInnerErrorSequenceFlow(bpmnSubprocess, bpmnSubprocess);
                 // break;
@@ -564,9 +539,7 @@ public class BPMNProcessFragments {
      * @return template String
      */
     private String createActivateDataObjectString(BPMNSubprocess bpmnSubprocess) throws IOException {
-        int id = bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement();
         BPMNPlan bpmnPlan = bpmnSubprocess.getBuildPlan();
-        int sourceId = id - 1;
         String activateDataObjectTask = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNActivateDataObjectTask.xml"));
         //TNodeTemplate nodeTemplate = bpmnSubprocess.getNodeTemplate();
         activateDataObjectTask = activateDataObjectTask.replace("ActivateDataObject_IdToReplace", bpmnSubprocess.getId());
@@ -635,7 +608,6 @@ public class BPMNProcessFragments {
         }
 
         LOG.info("PROPERTIESNAMES10");
-        bpmnSubprocess.setErrorOutflow("OuterFlow_" + sourceId);
 
         return activateDataObjectTask;
     }
@@ -663,8 +635,6 @@ public class BPMNProcessFragments {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNSetPropertiesTask.xml"));
         template = template.replace("Activity_IdToSet", bpmnSubprocess.getId());
         template = template.replace("name_toSet", bpmnSubprocess.getId());
-        int id = bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement();
-        int sourceId = id - 1;
         String nodeTemplateId = bpmnSubprocess.getNodeTemplate().getId();
         String nodeInstanceURL = bpmnSubprocess.getParentProcess().getId().replace("Subprocess_", "ResultVariable");
 
@@ -749,7 +719,7 @@ public class BPMNProcessFragments {
         ArrayList<BPMNSubprocess> flowElements = new ArrayList<>();
         ArrayList<Node> flowNodes = new ArrayList<>();
         // add Start Event inside subprocess
-        BPMNSubprocess innerStartEvent = new BPMNSubprocess(BPMNSubprocessType.INNER_START_EVENT, "StartEvent_" + bpmnSubprocess.getBuildPlan().getInnerFlowTestCounterId());
+        BPMNSubprocess innerStartEvent = new BPMNSubprocess(BPMNSubprocessType.INNER_START_EVENT, "StartEvent_" + bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement());
         innerStartEvent.setBuildPlan(bpmnSubprocess.getBuildPlan());
         innerStartEvent.setParentProcess(bpmnSubprocess);
         BPMNSubprocess previousIncoming = innerStartEvent;
@@ -772,7 +742,7 @@ public class BPMNProcessFragments {
             //innerSequenceFlow = innerSequenceFlow2;
         }
         // add End Event inside subprocess
-        BPMNSubprocess innerEndEvent = new BPMNSubprocess(BPMNSubprocessType.END_EVENT, "EndEvent_" + bpmnSubprocess.getBuildPlan().getInnerFlowTestCounterId());
+        BPMNSubprocess innerEndEvent = new BPMNSubprocess(BPMNSubprocessType.END_EVENT, "EndEvent_" + bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement());
         innerEndEvent.setBuildPlan(bpmnSubprocess.getBuildPlan());
         innerEndEvent.setParentProcess(bpmnSubprocess);
 
@@ -800,7 +770,7 @@ public class BPMNProcessFragments {
         ArrayList<BPMNSubprocess> errorFlowElements = new ArrayList<>();
         innerEndEvent.setParentProcess(bpmnSubprocess);
         // add errorend event inside subprocess
-        BPMNSubprocess innerErrorEndEvent = new BPMNSubprocess(BPMNSubprocessType.ERROR_END_EVENT, "ErrorEndEvent_" + bpmnSubprocess.getBuildPlan().getInnerFlowTestCounterId());
+        BPMNSubprocess innerErrorEndEvent = new BPMNSubprocess(BPMNSubprocessType.ERROR_END_EVENT, "ErrorEndEvent_" + bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement());
         innerErrorEndEvent.setBuildPlan(bpmnSubprocess.getBuildPlan());
         innerErrorEndEvent.setParentProcess(bpmnSubprocess);
         for (BPMNSubprocess subSubprocess : bpmnSubprocess.getSubprocessBPMNSubprocess()) {
@@ -1245,10 +1215,8 @@ public class BPMNProcessFragments {
      * @return template String
      */
     public String createBPMNStartEvent(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
-        int id = bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement();
         String startEvent = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNStartEvent.xml"));
         startEvent = startEvent.replaceAll("Event_IdToReplace", bpmnSubprocess.getId());
-        // startEvent = startEvent.replaceAll("Flow_Output", "Flow_" + id);
         return startEvent;
     }
 
@@ -1420,12 +1388,7 @@ public class BPMNProcessFragments {
      */
     public String createBPMNEndEvent(BPMNSubprocess bpmnSubprocess) throws IOException {
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNEndEvent.xml"));
-        int id = bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement();
-        int sourceId = id - 1;
         template = template.replaceAll("Event_IdToReplace", bpmnSubprocess.getId());
-        template = template.replaceAll("Flow_Input", "Flow_" + sourceId);
-        //bpmnSubprocess.setInflow("Flow_" + sourceId);
-        //bpmnSubprocess.setErrorInnerflow("ErrorInnerFlow_" + sourceId);
         return template;
     }
 
@@ -1462,7 +1425,6 @@ public class BPMNProcessFragments {
         }
 
         template = template.replaceAll("<bpmn:incoming>Flow_Input</bpmn:incoming>", incomingBoundaryLinks);
-        bpmnSubprocess.setInflow("ErrorInnerFlow_" + id);
 
         final String idPrefix = BPMNSubprocessType.EVENT.toString();
         template = template.replaceAll("ErrorEventDefinitionIdToSet", "ErrorDefinition_" + idPrefix + id);
@@ -1533,12 +1495,8 @@ public class BPMNProcessFragments {
     private String createSetServiceTemplateState(BPMNSubprocess bpmnSubprocess) throws IOException {
         String setState = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNSetStateTask.xml"));
         setState = setState.replace("Activity_IdToSet", bpmnSubprocess.getId());
-        int id = bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement();
-        int sourceId = id - 1;
         LOG.info("createSetServiceTemplateState");
         setState = setState.replaceAll("StateToSet", bpmnSubprocess.getInstanceState());
-        setState = setState.replace("Flow_Input", "Flow_" + sourceId);
-        setState = setState.replace("Flow_Output", "Flow_" + id);
 
         LOG.info("createSetStateTask12345");
         for (BPMNDataObject bpmnDataObject : bpmnSubprocess.getBuildPlan().getDataObjectsList()) {
@@ -1632,13 +1590,9 @@ public class BPMNProcessFragments {
      */
     public String createServiceInstance(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         LOG.info("Passiert hier was");
-        int id = bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement();
-        int sourceId = id - 1;
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateServiceTemplateInstanceScriptTask.xml"));
         template = template.replaceAll("ResultVariableToSet", bpmnSubprocess.getResultVariableName());
         template = template.replaceAll("Subprocess_IdToSet", bpmnSubprocess.getId());
-        template = template.replaceAll("Flow_Input", "Flow_" + sourceId);
-        template = template.replaceAll("Flow_Output", "Flow_" + id);
         template = template.replaceAll("StateToSet", "CREATING");
         // we create for each output parameter a corresponding variable later in activate data object
         String outputParameterNames = "";
@@ -1668,7 +1622,6 @@ public class BPMNProcessFragments {
      */
     public Node createOuterBPMNStartEvent(BPMNSubprocess bpmnSubprocess, String name) throws
         IOException, SAXException {
-        int id = bpmnSubprocess.getBuildPlan().getIdForOuterFlowAndIncrement();
         String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNStartEvent.xml"));
         template = template.replaceAll("Event_IdToReplace", name);
         //template = template.replaceAll("Flow_Output", "OuterFlow_" + id);
@@ -1748,7 +1701,20 @@ public class BPMNProcessFragments {
                 if (subprocessId.equals(bpmnSubprocess.getId())) {
                     Node dataOutputAssociation = createBPMNDataOutputAssociationAsNode(bpmnSubprocess);
                     Node importedNode = d.importNode(dataOutputAssociation, true);
-                    subprocesses.item(i).appendChild(importedNode);
+                    NodeList childNodes = subprocesses.item(i).getChildNodes();
+                    for (int j = 0; j < childNodes.getLength(); j++) {
+                        // outgoing and incoming child nodes have no attributes
+                        if (childNodes.item(j).getAttributes() != null) {
+                            if (childNodes.item(j).getAttributes().getLength() > 0) {
+                                String childId = childNodes.item(j).getAttributes().getNamedItem("id").getNodeValue();
+                                if (childId.contains("StartEvent")) {
+                                    Node startEventNode = childNodes.item(j);
+                                    subprocesses.item(i).insertBefore(importedNode, startEventNode);
+                                }
+                            }
+                        }
+                    }
+
                     Node diagramDataOutputAssociation = createBPMNDiagramDataOutputAssociationAsNode(bpmnSubprocess, d);
                     //Node importedDiagramNode = d.importNode(dataOutputAssociation, true);
                     //subprocesses.item(i).appendChild(importedNode);

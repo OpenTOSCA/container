@@ -1,18 +1,14 @@
 package org.opentosca.planbuilder.core.bpmn.handlers;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.opentosca.planbuilder.core.bpmn.fragments.BPMNProcessFragments;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNDataObject;
@@ -32,13 +28,12 @@ import org.xml.sax.SAXException;
  */
 public class BPMNFinalizer {
     private final static Logger LOG = LoggerFactory.getLogger(BPMNFinalizer.class);
-    private DocumentBuilderFactory docFactory;
     private BPMNProcessFragments processFragments;
 
     public BPMNFinalizer() {
         try {
-            this.docFactory = DocumentBuilderFactory.newInstance();
-            this.docFactory.setNamespaceAware(true);
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            docFactory.setNamespaceAware(true);
             this.processFragments = new BPMNProcessFragments();
         } catch (ParserConfigurationException e) {
             LOG.error("Initializing factories and handlers failed", e);
@@ -46,233 +41,136 @@ public class BPMNFinalizer {
     }
 
     /**
-     * The method is responsible to add the xml code of the BPMN subprocess to the bpmnDocument. After adding the xml
-     * elements, the DiagramAutoGenerator is called (which makes use of the Camunda API). Since data objects are not
-     * supported by now, we added them manually to the document.
+     * The method is responsible to add the xml code of the BPMN subprocess to the bpmn document. First each sequence
+     * flow has to be computed (not added!) before the component is added to the xml document otherwise some flow elements are
+     * missing. After adding the xml elements, the DiagramAutoGenerator is called (which makes use of the Camunda API).
+     * Since data objects are not supported by now, we added them "manually" to the document. According to the bpmn
+     * standard, we added the corresponding data flow. Order:
      */
     public void finalize(final BPMNPlan buildPlan) throws IOException, SAXException {
         LOG.info("Finalizing BPMN build Plan {}", buildPlan.getId());
         final Document doc = buildPlan.getBpmnDocument();
         List<BPMNSubprocess> bpmnSubprocessList = buildPlan.getTemplateBuildPlans();
         ArrayList<BPMNSubprocess> flowElements = new ArrayList<>();
-        ArrayList<BPMNSubprocess> errorflowElements = new ArrayList<>();
+        ArrayList<BPMNSubprocess> errorFlowElements = new ArrayList<>();
 
-        // Create and import XML process element to document
-        final Element processElement = buildPlan.getBpmnProcessElement();
         final Element definitionsElement = buildPlan.getBpmnDefinitionElement();
         int idError0 = buildPlan.getIdForNamesAndIncrement();
 
         // error events are outside the bpmn:process element
-        // this is very simple for now but can be extended very easily
+        // currently only one error event since the only error that a script task can throw is the InvalidStatusCode but can be extended very easily
         Node errorEventDefinition = processFragments.createBPMNErrorEventDefinitionAsNode(idError0);
         definitionsElement.appendChild(doc.importNode(errorEventDefinition, true));
 
-        //create first Start Event
-        BPMNSubprocess startEvent = new BPMNSubprocess(BPMNSubprocessType.START_EVENT, "firstStartEvent");
+        BPMNSubprocess startEvent = new BPMNSubprocess(BPMNSubprocessType.START_EVENT, "StartEvent_" + buildPlan.getIdForOuterFlowTestAndIncrement());
         startEvent.setBuildPlan(buildPlan);
 
         BPMNSubprocess previousIncoming = startEvent;
-        ArrayList<BPMNSubprocess> boundaryEvents = new ArrayList<>();
         BPMNSubprocess userTask = new BPMNSubprocess(BPMNSubprocessType.USER_TASK, "userTask");
         userTask.setBuildPlan(buildPlan);
         for (BPMNSubprocess bpmnSubprocess : bpmnSubprocessList) {
-            BPMNSubprocess outerFlow = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "OuterFlow_" + buildPlan.getIdForOuterFlowTestAndIncrement());
-            outerFlow.setBuildPlan(bpmnSubprocess.getBuildPlan());
-            outerFlow.setIncomingTestScope(previousIncoming);
-            outerFlow.setOuterflow(bpmnSubprocess);
-            previousIncoming = bpmnSubprocess;
-            flowElements.add(outerFlow);
+            // compute sequence flows of subprocess first otherwise flowElements are not correct
+            setBuildPlanAndSequenceFlows(buildPlan, flowElements, previousIncoming, bpmnSubprocess, false);
             bpmnSubprocess.getErrorEventIds().add(idError0);
+            previousIncoming = bpmnSubprocess;
             for (Integer idError : bpmnSubprocess.getErrorEventIds()) {
-                BPMNSubprocess errorOuterFlow = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "ErrorOuterFlow_" + buildPlan.getIdForErrorOuterFlowAndIncrement());
                 BPMNSubprocess errorSubprocess = new BPMNSubprocess(BPMNSubprocessType.EVENT, "BoundaryEvent_ErrorEvent" + bpmnSubprocess.getId());
-                errorSubprocess.setBuildPlan(buildPlan);
-                errorOuterFlow.setBuildPlan(bpmnSubprocess.getBuildPlan());
-                errorOuterFlow.setIncomingTestScope(errorSubprocess);
-                errorOuterFlow.setOuterflow(userTask);
-                errorflowElements.add(errorOuterFlow);
-
-                buildPlan.setErrorFlowElements(errorflowElements);
-                Node errorNode = processFragments.createSubprocessErrorBoundaryEventAsNode(errorSubprocess, idError);
-                processElement.appendChild(errorNode);
-                //previousErrorSubprocess = bpmnSubprocess;
-                boundaryEvents.add(errorSubprocess);
+                setBuildPlanAndSequenceFlows(buildPlan, errorFlowElements, errorSubprocess, userTask, true);
+                computeErrorNodeAndAddToXML(errorSubprocess, idError);
             }
         }
 
-        for (int i = 0; i < flowElements.size(); i++) {
-            LOG.info("FLID: {}", flowElements.get(i).getId());
-        }
         buildPlan.setFlowElements(flowElements);
-        Node firstStartEvent = processFragments.createOuterBPMNStartEvent(startEvent, startEvent.getId());
-        processFragments.addNodeToBPMN(firstStartEvent, buildPlan);
+        computeNodeAndAddToXML(startEvent);
 
-        // create first and last error events
-        BPMNSubprocess previousErrorSubprocess = new BPMNSubprocess(BPMNSubprocessType.EVENT, "firstErrorEvent");
-        previousErrorSubprocess.setBuildPlan(buildPlan);
-
-        BPMNSubprocess lastErrorFlow = new BPMNSubprocess(BPMNSubprocessType.END_EVENT, "lastErrorEndEvent");
+        BPMNSubprocess lastErrorFlow = new BPMNSubprocess(BPMNSubprocessType.END_EVENT, "ErrorEndEvent_" + buildPlan.getIdForOuterFlowTestAndIncrement());
         lastErrorFlow.setBuildPlan(buildPlan);
-
-        for (BPMNSubprocess bpmnSubprocess : bpmnSubprocessList) {
-            // create subprocesses
-            Node node = processFragments.createBPMNSubprocessAsNode(bpmnSubprocess);
-            processElement.appendChild(node);
-            //create connections with sequence flows
-            //Node flownode = processFragments.createBPMNSequenceFlow2(startEvent, bpmnSubprocess);
-            //buildPlan.getBpmnProcessElement().appendChild(flownode);
-
-            //startEvent = bpmnSubprocess;
-
-            //connect boundary events to user task
-            //Node lastErrorflownode = processFragments.createBPMNOuterErrorSequenceFlow(previousErrorSubprocess, userTask);
-            //buildPlan.getBpmnProcessElement().appendChild(lastErrorflownode);
-            //userTask.setIncomingSubprocess(boundaryEvents);
-        }
-
         BPMNSubprocess outputParamTask = new BPMNSubprocess(BPMNSubprocessType.COMPUTE_OUTPUT_PARAMS_TASK, "Activity_outputParamTask");
-        setBuildPlanAndSequenceFlows(buildPlan, flowElements, previousIncoming, outputParamTask);
+        setBuildPlanAndSequenceFlows(buildPlan, flowElements, previousIncoming, outputParamTask, false);
         previousIncoming = outputParamTask;
+        for (BPMNSubprocess bpmnSubprocess : bpmnSubprocessList) {
+            computeNodeAndAddToXML(bpmnSubprocess);
+        }
 
-        // create setService instance state
         BPMNSubprocess setInstanceState = new BPMNSubprocess(BPMNSubprocessType.SET_ST_STATE, "Activity_ServiceInstanceState");
-        setBuildPlanAndSequenceFlows(buildPlan, flowElements, previousIncoming, setInstanceState);
-        //create last end event
-        BPMNSubprocess lastFlow = new BPMNSubprocess(BPMNSubprocessType.END_EVENT, "lastEndEvent");
-        setBuildPlanAndSequenceFlows(buildPlan, flowElements, setInstanceState, lastFlow);
-        BPMNSubprocess errorOuterFlow = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "ErrorOuterFlow_" + buildPlan.getIdForErrorOuterFlowAndIncrement());
         setInstanceState.setInstanceState("CREATED");
+        setBuildPlanAndSequenceFlows(buildPlan, flowElements, previousIncoming, setInstanceState, false);
+        BPMNSubprocess endEvent = new BPMNSubprocess(BPMNSubprocessType.END_EVENT, "EndEvent_" + buildPlan.getIdForOuterFlowTestAndIncrement());
+        setBuildPlanAndSequenceFlows(buildPlan, flowElements, setInstanceState, endEvent, false);
 
-        BPMNSubprocess outputParamTaskToSetInstanceStateErrorOuterFlow = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "ErrorOuterFlow_" + buildPlan.getIdForErrorOuterFlowAndIncrement());
+        BPMNSubprocess errorBoundaryOutputTask = new BPMNSubprocess(BPMNSubprocessType.EVENT, "BoundaryEvent_ErrorEvent" + outputParamTask.getId());
+        errorBoundaryOutputTask.setBuildPlan(buildPlan);
+        setBuildPlanAndSequenceFlows(buildPlan, errorFlowElements, errorBoundaryOutputTask, userTask, true);
+        computeNodeAndAddToXML(outputParamTask);
 
-        //create computeOutputParamsTask boundary error event
-        BPMNSubprocess errorSubprocess3 = new BPMNSubprocess(BPMNSubprocessType.EVENT, "BoundaryEvent_ErrorEvent" + outputParamTask.getId());
-        errorSubprocess3.setBuildPlan(buildPlan);
-        outputParamTaskToSetInstanceStateErrorOuterFlow.setBuildPlan(buildPlan);
-        outputParamTaskToSetInstanceStateErrorOuterFlow.setIncomingTestScope(errorSubprocess3);
-        outputParamTaskToSetInstanceStateErrorOuterFlow.setOuterflow(userTask);
-        errorflowElements.add(outputParamTaskToSetInstanceStateErrorOuterFlow);
-        buildPlan.setErrorFlowElements(errorflowElements);
+        BPMNSubprocess errorBoundarySetState = new BPMNSubprocess(BPMNSubprocessType.EVENT, "BoundaryEvent_ErrorEvent" + setInstanceState.getId());
+        setBuildPlanAndSequenceFlows(buildPlan, errorFlowElements, errorBoundarySetState, userTask, true);
+        computeNodeAndAddToXML(setInstanceState);
+        computeErrorNodeAndAddToXML(errorBoundaryOutputTask, idError0);
+        computeErrorNodeAndAddToXML(errorBoundarySetState, idError0);
+        computeNodeAndAddToXML(endEvent);
 
-        // add outputParam Task to bpmn document
-        Node outputParamTaskNode = processFragments.createBPMNSubprocessAndComponentsAsNode(outputParamTask);
-        processFragments.addNodeToBPMN(outputParamTaskNode, buildPlan);
+        //userTask.setIncomingSubprocess(boundaryEvents);
+        BPMNSubprocess errorEndEvent = new BPMNSubprocess(BPMNSubprocessType.END_EVENT, "ErrorEndEvent_" + buildPlan.getIdForErrorOuterFlowAndIncrement());
+        setBuildPlanAndSequenceFlows(buildPlan, errorFlowElements, userTask, errorEndEvent, true);
+        computeNodeAndAddToXML(userTask);
+        computeNodeAndAddToXML(errorEndEvent);
 
-        //create set Service instance state boundary error event
-        BPMNSubprocess errorSubprocess2 = new BPMNSubprocess(BPMNSubprocessType.EVENT, "BoundaryEvent_ErrorEvent" + setInstanceState.getId());
-        errorSubprocess2.setBuildPlan(buildPlan);
-        errorOuterFlow.setBuildPlan(buildPlan);
-        errorOuterFlow.setIncomingTestScope(errorSubprocess2);
-        errorOuterFlow.setOuterflow(userTask);
-        errorflowElements.add(errorOuterFlow);
-        buildPlan.setErrorFlowElements(errorflowElements);
-        //create user task
-        Node setInstancestatNode = processFragments.createBPMNSubprocessAndComponentsAsNode(setInstanceState);
-        processFragments.addNodeToBPMN(setInstancestatNode, buildPlan);
-
-        //create setService instance state outer flow
-        //Node setServiceInstanceStateflow = processFragments.createBPMNSequenceFlow2(startEvent, setInstanceState);
-        //buildPlan.getBpmnProcessElement().appendChild(setServiceInstanceStateflow);
-        //startEvent = setInstanceState;
-
-        previousErrorSubprocess = setInstanceState;
-
-        Node errorNode3 = processFragments.createSubprocessErrorBoundaryEventAsNode(errorSubprocess3, idError0);
-        processElement.appendChild(errorNode3);
-        Node errorNode2 = processFragments.createSubprocessErrorBoundaryEventAsNode(errorSubprocess2, idError0);
-        processElement.appendChild(errorNode2);
-        //boundaryEvents.add(errorSubprocess2);
-        //Node lastErrorflownode2 = processFragments.createBPMNOuterErrorSequenceFlow(previousErrorSubprocess, userTask);
-        //buildPlan.getBpmnProcessElement().appendChild(lastErrorflownode2);
-
-        //Node lastErrorEndEvent = processFragments.createBPMNSubprocessAndComponentsAsNode(lastErrorFlow);
-        LOG.info("LASTENDEVENT1234");
-        Node lastEndEvent = processFragments.createBPMNSubprocessAndComponentsAsNode(lastFlow);
-        processFragments.addNodeToBPMN(lastEndEvent, buildPlan);
-
-        //Node lastflownode = processFragments.createBPMNSequenceFlow2(startEvent, lastFlow);
-        //buildPlan.getBpmnProcessElement().appendChild(lastflownode);
-
-        // create user task Node and flow
-        userTask.setIncomingSubprocess(boundaryEvents);
-
-        LOG.info("ADDUSER123");
-        Node userTaskAsNode = processFragments.createBPMNUserTaskAsNode(userTask);
-
-        //processFragments.addNodeToBPMN(userTaskAsNode, buildPlan);
-        //Node lastErrorflownode = processFragments.createBPMNOuterErrorSequenceFlow(userTask, lastErrorFlow);
-        //buildPlan.getBpmnProcessElement().appendChild(lastErrorflownode);
-        BPMNSubprocess errorOuterFlowToEndEvent = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "ErrorOuterFlow_" + buildPlan.getIdForErrorOuterFlowAndIncrement());
-        setInstanceState.setInstanceState("CREATED");
-
-        //create set Service instance state boundary error event
-        BPMNSubprocess errorEndEvent = new BPMNSubprocess(BPMNSubprocessType.END_EVENT, "ErrorEndEvent" + buildPlan.getIdForErrorOuterFlowAndIncrement());
-        errorEndEvent.setBuildPlan(buildPlan);
-        errorOuterFlowToEndEvent.setBuildPlan(buildPlan);
-        errorOuterFlowToEndEvent.setIncomingTestScope(userTask);
-        errorOuterFlowToEndEvent.setOuterflow(errorEndEvent);
-        errorflowElements.add(errorOuterFlowToEndEvent);
-        buildPlan.setErrorFlowElements(errorflowElements);
-        Node userTaskNode = processFragments.createBPMNUserTaskAsNode(userTask);
-        processElement.appendChild(userTaskNode);
-        //create last error end event
-        Node lastErrorEndEvent = processFragments.createBPMNSubprocessAndComponentsAsNode(errorEndEvent);
-        processFragments.addNodeToBPMN(lastErrorEndEvent, buildPlan);
-
+        // add sequence flows in the end
         for (BPMNSubprocess flow : flowElements) {
-            Node sequenceNode = processFragments.createBPMNSubprocessAndComponentsAsNode(flow);
-            processElement.appendChild(sequenceNode);
+            computeNodeAndAddToXML(flow);
         }
 
-        for (BPMNSubprocess errorFlow : errorflowElements) {
-            Node sequenceNode = processFragments.createBPMNSubprocessAndComponentsAsNode(errorFlow);
-            processElement.appendChild(sequenceNode);
+        // add error sequence flows in the end
+        for (BPMNSubprocess errorFlow : errorFlowElements) {
+            computeNodeAndAddToXML(errorFlow);
         }
-        writeXML(buildPlan.getBpmnDocument());
         String diagram = BPMNDiagramGenerator.generateDiagram(buildPlan);
         Document d;
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder parser = null;
+        DocumentBuilder parser;
         try {
             parser = factory.newDocumentBuilder();
-            d = parser.parse(new InputSource(new StringReader(diagram)));
+            d = parser.parse(new InputSource(new StringReader(Objects.requireNonNull(diagram))));
             for (BPMNDataObject dataObject : buildPlan.getDataObjectsList()) {
                 processFragments.createDataObjectAsNode(buildPlan, d, dataObject);
             }
-            //for (BPMNSubprocess bpmnSubprocess : buildPlan.getSubprocess()) {
-              //  processFragments.addDataAssociations(buildPlan, d, bpmnSubprocess);
-            //}
-        } catch (
-            ParserConfigurationException e) {
+            for (BPMNSubprocess bpmnSubprocess : buildPlan.getSubprocess()) {
+                processFragments.addDataAssociations(buildPlan, d, bpmnSubprocess);
+            }
+        } catch (ParserConfigurationException e) {
             e.printStackTrace();
+        } catch (NullPointerException e) {
+            LOG.error("Diagram is null!");
         }
 
         LOG.info("BPMN build Plan is finalized");
     }
 
-    public void setBuildPlanAndSequenceFlows(BPMNPlan buildPlan, ArrayList<BPMNSubprocess> flowElements, BPMNSubprocess previousIncoming, BPMNSubprocess outputParamTask) {
+    private void computeNodeAndAddToXML(BPMNSubprocess outputParamTask) {
+        Node outputParamTaskNode = processFragments.createBPMNSubprocessAndComponentsAsNode(outputParamTask);
+        processFragments.addNodeToBPMN(outputParamTaskNode, outputParamTask.getBuildPlan());
+    }
+
+    private void computeErrorNodeAndAddToXML(BPMNSubprocess errorSubprocess, int errorId) throws IOException, SAXException {
+        Node outputParamTaskNode = processFragments.createSubprocessErrorBoundaryEventAsNode(errorSubprocess, errorId);
+        processFragments.addNodeToBPMN(outputParamTaskNode, errorSubprocess.getBuildPlan());
+    }
+
+    public void setBuildPlanAndSequenceFlows(BPMNPlan buildPlan, ArrayList<BPMNSubprocess> flowElements, BPMNSubprocess previousIncoming, BPMNSubprocess outputParamTask, boolean errorFlow) {
         outputParamTask.setBuildPlan(buildPlan);
-        BPMNSubprocess subprocessToOutputParamTask = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "OuterFlow_" + buildPlan.getIdForOuterFlowTestAndIncrement());
+        previousIncoming.setBuildPlan(buildPlan);
+        BPMNSubprocess subprocessToOutputParamTask = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "ErrorOuterFlow_" + buildPlan.getIdForOuterFlowTestAndIncrement());
         subprocessToOutputParamTask.setBuildPlan(buildPlan);
         subprocessToOutputParamTask.setIncomingTestScope(previousIncoming);
         subprocessToOutputParamTask.setOuterflow(outputParamTask);
-        flowElements.add(subprocessToOutputParamTask);
-        buildPlan.setFlowElements(flowElements);
-    }
-
-    public void writeXML(Document s) {
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = null;
-        try {
-            transformer = transformerFactory.newTransformer();
-            DOMSource source = new DOMSource(s);
-            StreamResult result = new StreamResult(new File("C://Users//livia//Downloads//zwischen.xml"));
-            transformer.transform(source, result);
-            // Output to console for testing
-            StreamResult consoleResult = new StreamResult(System.out);
-            transformer.transform(source, consoleResult);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (!errorFlow) {
+            subprocessToOutputParamTask.setId(subprocessToOutputParamTask.getId().replace("Error", ""));
+            flowElements.add(subprocessToOutputParamTask);
+            buildPlan.setFlowElements(flowElements);
+        } else {
+            flowElements.add(subprocessToOutputParamTask);
+            buildPlan.setErrorFlowElements(flowElements);
         }
     }
 }
