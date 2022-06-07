@@ -36,9 +36,8 @@ import org.xml.sax.SAXException;
 
 /**
  * <p>
- * This Class represents the high-level algorithm of the concept
- * It is responsible for generating the Build Plan Skeleton and assign plugins to handle the different templates inside a
- * TopologyTemplate.
+ * This Class represents the high-level algorithm of the concept It is responsible for generating the Build Plan
+ * Skeleton and assign plugins to handle the different templates inside a TopologyTemplate.
  * </p>
  * <p>
  * Copyright 2021 IAAS University of Stuttgart <br>
@@ -55,6 +54,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
     private BPMNFinalizer bpmnFinalizer;
     private BPMNPluginHandler bpmnPluginHandler;
     private SimplePlanBuilderServiceInstanceHandler serviceInstanceInitializer;
+
     /**
      * <p>
      * Default Constructor
@@ -67,7 +67,6 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             this.bpmnFinalizer = new BPMNFinalizer();
             this.bpmnPluginHandler = new BPMNPluginHandler(pluginRegistry);
             this.serviceInstanceInitializer = new SimplePlanBuilderServiceInstanceHandler();
-
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         }
@@ -76,7 +75,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
     @Override
     public List<AbstractPlan> buildPlans(Csar csar, TDefinitions definitions) {
         final List<AbstractPlan> plans = new ArrayList<>();
-        LOG.info(""+definitions);
+        LOG.info("" + definitions);
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
             LOG.info("Generating build plan for service template {}", serviceTemplate);
             final BPMNPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
@@ -127,11 +126,6 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
             this.planHandler.initializeBPMNSkeleton(newBuildPlan, csar);
 
-            // TODO: implement propertyInitializer
-            final Property2VariableMapping propMap = null;
-            //final Property2VariableMapping propMap =
-            //    this.propertyInitializer.initializePropertiesAsVariables(newBuildPlan, serviceTemplate);
-
             // instanceDataAPI handling is done solely trough this extension
 
             // initialize instanceData handling
@@ -144,11 +138,10 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 this.serviceInstanceInitializer.findServiceTemplateUrlVariableName(newBuildPlan);
             String planInstanceUrl = this.serviceInstanceInitializer.findPlanInstanceUrlVariableName(newBuildPlan);
 
-            this.runPlugins(newBuildPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csar);
+            this.runPlugins(newBuildPlan, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csar);
 
             // only generate diagram when all elements are instantiated
             this.planHandler.generateBPMNDiagram(newBuildPlan);
-            // newBuildPlan.setCsarName(csarName);
 
             try {
                 this.bpmnFinalizer.finalize(newBuildPlan);
@@ -185,25 +178,18 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
     /**
      * <P>
-     *     This method assigns plugins to the already initialized BuildPlan and its BPMN Activity (TemplateBuildPlans).
-     *     The assigned plugins fulfill the detail of each activity with mainly groovy script selection and corresponding input/output paramter
-     *     The method refers to the similar method in BPELBuildProcessBuilder.java
+     * This method assigns plugins to the already initialized BuildPlan and its BPMN Activity (TemplateBuildPlans). The
+     * assigned plugins fulfill the detail of each activity with mainly groovy script selection and corresponding
+     * input/output paramter The method refers to the similar method in BPELBuildProcessBuilder.java
      * </P>
-     * @param buildPlan
-     * @param map
-     * @param serviceInstanceUrl
-     * @param serviceInstanceID
-     * @param serviceTemplateUrl
-     * @param planInstanceUrl
-     * @param csar
      */
-    private void runPlugins(final BPMNPlan buildPlan, final Property2VariableMapping map,
+    private void runPlugins(final BPMNPlan buildPlan,
                             final String serviceInstanceUrl, final String serviceInstanceID,
                             final String serviceTemplateUrl, final String planInstanceUrl, final Csar csar) {
         LOG.debug("Running plugins for each bpmnScope");
         // iterating through all BPMNScope to find matching plugin
         for (final BPMNScope bpmnScope : buildPlan.getTemplateBuildPlans()) {
-            final BPMNPlanContext context = new BPMNPlanContext(buildPlan, bpmnScope, map, buildPlan.getServiceTemplate(),
+            final BPMNPlanContext context = new BPMNPlanContext(buildPlan, bpmnScope, buildPlan.getServiceTemplate(),
                 serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, planInstanceUrl, csar);
             LOG.debug("Running plugins for BPMN activity {}", bpmnScope.getActivity());
             if (bpmnScope.getNodeTemplate() != null) {
