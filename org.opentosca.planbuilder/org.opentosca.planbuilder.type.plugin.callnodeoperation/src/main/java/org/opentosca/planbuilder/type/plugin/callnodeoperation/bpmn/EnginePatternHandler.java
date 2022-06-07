@@ -163,7 +163,7 @@ public class EnginePatternHandler extends AbstractHandler {
         // "ContainerPorts">${ApplicationPort0}/${Protocol0},${ContainerPort0};
         inputPropList.add(DockerEngineConstants.START_CONTAINER_INPUT_CONTAINER_PORTS);
         String inputContainerPortsName = INPUT_PREFIX + DockerEngineConstants.START_CONTAINER_INPUT_CONTAINER_PORTS;
-        String inputContainerPortsValue = parsePropertyValueWithGetInput(portVar) + "," + parsePropertyValueWithGetInput(containerPortVar);
+        String inputContainerPortsValue = parsePropertyValueWithGetInput(containerPortVar) + "," + parsePropertyValueWithGetInput(portVar);
         callNodeOperationTask.addInputparameter(inputContainerPortsName, inputContainerPortsValue);
 
         // excluding IMAGE_ID, since it will be handled separately
