@@ -2,6 +2,8 @@ package org.opentosca.planbuilder.core.bpmn.typebasednodehandler;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNScopeHandler;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
@@ -80,7 +82,7 @@ public class BPMNPluginHandler {
         BPMNScope setNodePropertyTask = null;
 
         for (IPlanBuilderTypeCreateInstancePlugin nodeInstancePlugin : pluginRegistry.getCreateInstancePlugins()) {
-            if (nodeInstancePlugin.canHandleCreate(context.getCsar(), nodeTemplate)) {
+            if (nodeInstancePlugin.canHandleCreate(context.getCsar(), nodeTemplate, PlanLanguage.BPMN)) {
                 LOG.debug("Generating BPMN Script Task Creating Instance with Plugin {}", nodeInstancePlugin.getClass());
                 result &= nodeInstancePlugin.handleCreate(context, nodeTemplate);
                 createNodeInstanceTask = subprocess.getSubProCreateNodeInstanceTask();
@@ -89,7 +91,7 @@ public class BPMNPluginHandler {
         }
 
         for (IPlanBuilderTypeCallNodeOperationPlugin nodeOperationPlugin : pluginRegistry.getCallNodeOperationPlugins()) {
-            if (nodeOperationPlugin.canHandleCreate(context.getCsar(), nodeTemplate)) {
+            if (nodeOperationPlugin.canHandleCreate(context.getCsar(), nodeTemplate, PlanLanguage.BPMN)) {
                 LOG.debug("Generating BPMN Script Task for Call Node Operation Task with Plugin {}", nodeOperationPlugin.getClass());
                 result &= nodeOperationPlugin.handleCreate(context, nodeTemplate);
                 callNodeOperationTask = subprocess.getSubProCallOperationTask();
@@ -99,7 +101,7 @@ public class BPMNPluginHandler {
 
 
         for (IPlanBuilderTypeSetPropertyPlugin nodePropertyPlugin : pluginRegistry.getSetPropertyPlugins()) {
-            if (nodePropertyPlugin.canHandleCreate(context.getCsar(), nodeTemplate)) {
+            if (nodePropertyPlugin.canHandleCreate(context.getCsar(), nodeTemplate, PlanLanguage.BPMN)) {
                 LOG.debug("Generating BPMN Script Task for Set Property with Plugin {}", nodePropertyPlugin);
                 result &= nodePropertyPlugin.handleCreate(context, nodeTemplate);
                 setNodePropertyTask = subprocess.getSubProSetNodePropertyTask();

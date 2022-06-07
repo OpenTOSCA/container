@@ -10,6 +10,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 
@@ -39,13 +40,13 @@ public class PlatformPlugin implements IPlanBuilderTypePlugin<BPELPlanContext>,
 
     @Override
     public boolean handleCreate(final BPELPlanContext templateContext, TNodeTemplate nodeTemplate) {
-        return this.canHandleCreate(templateContext.getCsar(), nodeTemplate);
+        return this.canHandleCreate(templateContext.getCsar(), nodeTemplate, PlanLanguage.BPEL);
         // available platforms such as Clouds and Devices are not provisioned (as of yet), therefore do
         // nothing here
     }
 
     @Override
-    public boolean canHandleCreate(Csar csar, final TNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(Csar csar, final TNodeTemplate nodeTemplate, PlanLanguage language) {
         return this.isSupportedType(nodeTemplate);
     }
 

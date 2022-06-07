@@ -14,6 +14,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.model.ModelUtils;
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.choreography.IPlanBuilderChoreographyPlugin;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
@@ -199,7 +200,7 @@ public class BPELPluginHandler {
 
             // generate code for the provisioning, e.g., call install, start or create
             // methods
-            final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate, context.getCsar());
+            final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate, context.getCsar(), PlanLanguage.BPEL);
             if (plugin != null) {
                 LOG.debug("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
                 result &= plugin.handleCreate(context, nodeTemplate);

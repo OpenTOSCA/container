@@ -18,6 +18,7 @@ import com.google.common.collect.Sets;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
@@ -278,7 +279,9 @@ public abstract class AbstractTransformingPlanbuilder extends AbstractPlanBuilde
 
     private Collection<TNodeTemplate> getNeededNodes(TNodeTemplate nodeTemplate, Csar csar) {
         for (IPlanBuilderTypePlugin<?> typePlugin : this.pluginRegistry.getTypePlugins()) {
-            if (typePlugin.canHandleCreate(csar, nodeTemplate) && typePlugin instanceof IPlanBuilderTypePlugin.NodeDependencyInformationInterface) {
+            if ((typePlugin.canHandleCreate(csar, nodeTemplate, PlanLanguage.BPEL) ||
+                typePlugin.canHandleCreate(csar, nodeTemplate, PlanLanguage.BPMN))
+                && typePlugin instanceof IPlanBuilderTypePlugin.NodeDependencyInformationInterface) {
                 return ((IPlanBuilderTypePlugin.NodeDependencyInformationInterface) typePlugin).getCreateDependencies(nodeTemplate, csar);
             }
         }

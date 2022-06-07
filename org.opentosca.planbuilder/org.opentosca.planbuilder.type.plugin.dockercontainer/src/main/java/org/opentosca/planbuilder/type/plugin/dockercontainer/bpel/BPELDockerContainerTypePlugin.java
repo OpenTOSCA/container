@@ -8,6 +8,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.handler.BPELDockerContainerTypePluginHandler;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContainerTypePlugin;
@@ -30,7 +31,7 @@ public class BPELDockerContainerTypePlugin extends DockerContainerTypePlugin<BPE
     public boolean handleCreate(final BPELPlanContext templateContext, TNodeTemplate nodeTemplate) {
 
         boolean check = false;
-        if (this.canHandleCreate(templateContext.getCsar(), nodeTemplate)) {
+        if (this.canHandleCreate(templateContext.getCsar(), nodeTemplate, PlanLanguage.BPEL)) {
             check = this.handler.handleCreate(templateContext);
         }
 

@@ -10,6 +10,7 @@ import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPolicyAwareTypePlugin;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
@@ -44,7 +45,7 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
      * {@inheritDoc}
      */
     @Override
-    public boolean canHandleCreate(Csar csar, final TNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(Csar csar, final TNodeTemplate nodeTemplate, PlanLanguage language) {
         return allDependenciesAreMet(nodeTemplate, csar);
     }
 
@@ -113,7 +114,7 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
      */
     @Override
     public boolean canHandlePolicyAwareCreate(Csar csar, final TNodeTemplate nodeTemplate) {
-        boolean canHandle = this.canHandleCreate(csar, nodeTemplate);
+        boolean canHandle = this.canHandleCreate(csar, nodeTemplate, PlanLanguage.BPEL);
 
         for (final TPolicy policy : nodeTemplate.getPolicies()) {
             // ALL policies must be supported

@@ -24,6 +24,7 @@ import org.eclipse.winery.model.tosca.TTopologyTemplate;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.planbuilder.core.AbstractScaleOutPlanBuilder;
 import org.opentosca.planbuilder.core.ScalingPlanDefinition;
 import org.opentosca.planbuilder.core.ScalingPlanDefinition.AnnotatedTNodeTemplate;
@@ -653,7 +654,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             }
         }
 
-        final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate, context.getCsar());
+        final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate, context.getCsar(), PlanLanguage.BPEL);
         if (plugin != null) {
 
             LOG.debug("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(),

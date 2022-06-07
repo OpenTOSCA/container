@@ -6,6 +6,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 
@@ -28,7 +29,7 @@ public abstract class ConnectsToTypePlugin<T extends PlanContext> implements IPl
      * opentosca.planbuilder.model.tosca.TNodeTemplate)
      */
     @Override
-    public boolean canHandleCreate(Csar csar, final TNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(Csar csar, final TNodeTemplate nodeTemplate, PlanLanguage language) {
         // we can't handle nodeTemplates
         return false;
     }

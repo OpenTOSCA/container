@@ -4,12 +4,12 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNScopeHandler;
 import org.opentosca.planbuilder.core.bpmn.handlers.PropertyVariableHandler;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypeSetPropertyPlugin;
 import org.opentosca.planbuilder.model.plan.InstanceState;
-import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScope;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNScopeType;
 import org.slf4j.Logger;
@@ -81,9 +81,9 @@ public class BPMNSetNodePropertyPlugin implements IPlanBuilderTypeSetPropertyPlu
     }
 
     @Override
-    public boolean canHandleCreate(Csar csar, TNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(Csar csar, TNodeTemplate nodeTemplate, PlanLanguage language) {
         // TODO: may need nodeTemplate type check if multiple plugins are implemented
-        return true;
+        return language == PlanLanguage.BPMN;
     }
 
     @Override

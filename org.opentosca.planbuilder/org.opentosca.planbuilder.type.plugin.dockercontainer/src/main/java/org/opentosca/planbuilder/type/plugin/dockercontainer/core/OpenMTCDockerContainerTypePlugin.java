@@ -11,6 +11,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 
 /**
@@ -61,7 +62,7 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
     }
 
     @Override
-    public boolean canHandleCreate(Csar csar, final TNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(Csar csar, final TNodeTemplate nodeTemplate, PlanLanguage language) {
 
         if (!this.canHandleDockerContainerPropertiesAndDA(nodeTemplate, csar)) {
             return false;

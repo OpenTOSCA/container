@@ -23,6 +23,7 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
@@ -276,7 +277,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
                 }
 
                 if (nodeTemplate.getPolicies().isEmpty()) {
-                    final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate, csar);
+                    final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate, csar, PlanLanguage.BPEL);
                     if (plugin != null) {
                         LOG.info("Handling NodeTemplate {} with type plugin {}",
                             nodeTemplate.getId(), plugin.getID());

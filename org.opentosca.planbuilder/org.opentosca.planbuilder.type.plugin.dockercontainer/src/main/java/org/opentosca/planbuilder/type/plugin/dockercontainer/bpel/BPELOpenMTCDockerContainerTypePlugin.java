@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.type.plugin.dockercontainer.bpel;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.handler.BPELOpenMTCDockerContainerTypePluginHandler;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.OpenMTCDockerContainerTypePlugin;
@@ -13,7 +14,7 @@ public class BPELOpenMTCDockerContainerTypePlugin extends OpenMTCDockerContainer
 
     @Override
     public boolean handleCreate(final BPELPlanContext templateContext, TNodeTemplate nodeTemplate) {
-        if (templateContext.getNodeTemplate() != null && this.canHandleCreate(templateContext.getCsar(), nodeTemplate)) {
+        if (templateContext.getNodeTemplate() != null && this.canHandleCreate(templateContext.getCsar(), nodeTemplate, PlanLanguage.BPEL)) {
             if (this.canHandleGateway(templateContext.getNodeTemplate(), templateContext.getCsar())) {
                 return this.handler.handleOpenMTCGateway(templateContext, findConnectedBackend(nodeTemplate, templateContext.getCsar()));
             } else if (this.canHandleProtocolAdapter(templateContext.getNodeTemplate(), templateContext.getCsar())) {

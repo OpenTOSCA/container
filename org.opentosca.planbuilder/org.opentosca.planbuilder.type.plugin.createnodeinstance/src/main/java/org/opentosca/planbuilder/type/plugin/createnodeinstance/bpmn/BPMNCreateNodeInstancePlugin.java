@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.type.plugin.createnodeinstance.bpmn;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNScopeHandler;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypeCreateInstancePlugin;
@@ -77,9 +78,9 @@ public class BPMNCreateNodeInstancePlugin implements IPlanBuilderTypeCreateInsta
     }
 
     @Override
-    public boolean canHandleCreate(Csar csar, TNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(Csar csar, TNodeTemplate nodeTemplate, PlanLanguage language) {
         // TODO: may need nodeTemplate type check if multiple plugins are implemented
-        return true;
+        return language == PlanLanguage.BPMN;
     }
 
     @Override

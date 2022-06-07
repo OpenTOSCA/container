@@ -10,6 +10,7 @@ import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 import org.slf4j.Logger;
@@ -131,7 +132,7 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
     }
 
     @Override
-    public boolean canHandleCreate(Csar csar, final TNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(Csar csar, final TNodeTemplate nodeTemplate, PlanLanguage language) {
         LOG.debug("Checking if nodeTemplate {} can be handled by container or lifecycle pattern", nodeTemplate.getId());
         if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate, csar)) {
             LOG.debug("Can be handled by container pattern");

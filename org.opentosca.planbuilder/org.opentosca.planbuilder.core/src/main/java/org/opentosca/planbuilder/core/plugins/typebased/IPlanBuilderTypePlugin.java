@@ -6,6 +6,7 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 
 /**
@@ -60,9 +61,10 @@ public interface IPlanBuilderTypePlugin<T extends PlanContext> extends IPlanBuil
      * This method should return true if the plugin can handle creation of the given nodeTemplate
      *
      * @param nodeTemplate the NodeTemplate to be handled by this plugin
+     * @param language
      * @return true iff this plugin can handle the given nodeTemplate
      */
-    boolean canHandleCreate(Csar csar, TNodeTemplate nodeTemplate);
+    boolean canHandleCreate(Csar csar, TNodeTemplate nodeTemplate, PlanLanguage language);
 
     /**
      * This method should return true if the plugin can handle the termination of the given nodeTemplate
