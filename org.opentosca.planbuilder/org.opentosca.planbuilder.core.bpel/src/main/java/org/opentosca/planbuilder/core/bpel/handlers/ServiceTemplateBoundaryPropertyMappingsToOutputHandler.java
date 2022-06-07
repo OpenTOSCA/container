@@ -18,10 +18,10 @@ import org.eclipse.winery.model.tosca.TPropertyMapping;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -34,7 +34,7 @@ import org.w3c.dom.NodeList;
  * assigns to return property values to the BuildPlan caller
  * </p>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -99,9 +99,9 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
 
                 if (isConcatQuery(templatePropertyName)) {
                     processHandler.addCopyStringToOutputAssign(generateCopyFromQueryToOutputAsString(templatePropertyName,
-                        "//*[local-name()='"
-                            + serviceTemplatePropertyName
-                            + "']"),
+                            "//*[local-name()='"
+                                + serviceTemplatePropertyName
+                                + "']"),
                         buildPlan);
                 } else {
                     final String templateId = mapping.getTemplateId(serviceTemplatePropertyName);
@@ -162,8 +162,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
         final TBoundaryDefinitions boundaryDefinitions = buildPlanServiceTemplate.getBoundaryDefinitions();
         if (boundaryDefinitions == null) {
             ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.warn("No BoundaryDefinitions in ServiceTemplate {} found. Output of BuildPlan maybe empty.",
-                new QName(buildPlanServiceTemplate.getTargetNamespace(), buildPlanServiceTemplate.getId())
-                    .toString());
+                new QName(buildPlanServiceTemplate.getTargetNamespace(), buildPlanServiceTemplate.getId()));
             return null;
         }
 
@@ -213,13 +212,12 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
             // this will be a localName in the output
             final String serviceTemplatePropLocalName = getTemplatePropertyLocalName(propElement, propertyMapping.getServiceTemplatePropertyRef());
 
-            String templatePropLocalName = this.determinePropLocalName(targetPropertyRef,propertyMapping,buildPlanServiceTemplate, templateId,serviceTemplateQName,propMap,serviceTemplatePropLocalName);
+            String templatePropLocalName = this.determinePropLocalName(targetPropertyRef, propertyMapping, buildPlanServiceTemplate, templateId, serviceTemplateQName, propMap, serviceTemplatePropLocalName);
 
             if (templatePropLocalName == null) {
                 ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.warn("Referenced Template {} in ServiceTemplate {} has no Properties defined, continueing with other PropertyMapping",
                     templateId,
-                    serviceTemplateQName
-                        .toString());
+                    serviceTemplateQName);
                 continue;
             }
 
@@ -230,7 +228,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
     }
 
     private String determinePropLocalName(String targetPropertyRef, TPropertyMapping propertyMapping, TServiceTemplate buildPlanServiceTemplate,
-                                          String templateId, QName serviceTemplateQName, Property2VariableMapping propMap, String serviceTemplatePropLocalName){
+                                          String templateId, QName serviceTemplateQName, Property2VariableMapping propMap, String serviceTemplatePropLocalName) {
         String templatePropLocalName = null;
         boolean isConcatQuery = false;
         if (isConcatQuery(targetPropertyRef)) {
@@ -438,7 +436,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
      * <p>
      * This class is a wrapper, which holds a mapping from ServiceTemplate Property, Template and Template Property
      * </p>
-     * Copyright 2013 IAAS University of Stuttgart <br>
+     * Copyright 2013-2022 IAAS University of Stuttgart <br>
      * <br>
      *
      * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

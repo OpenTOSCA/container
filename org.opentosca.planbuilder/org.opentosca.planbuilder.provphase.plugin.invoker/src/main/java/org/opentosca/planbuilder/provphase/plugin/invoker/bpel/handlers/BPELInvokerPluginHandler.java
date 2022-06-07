@@ -26,6 +26,7 @@ import org.opentosca.container.core.common.file.ResourceAccess;
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Properties;
 import org.opentosca.container.core.convention.Utils;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
@@ -34,7 +35,6 @@ import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -52,17 +52,12 @@ public class BPELInvokerPluginHandler {
     private final BPELProcessFragments bpelFrags;
     private final DocumentBuilder docBuilder;
 
-    public BPELInvokerPluginHandler() {
-        try {
-            this.resHandler = new ResourceHandler();
-            this.bpelFrags = new BPELProcessFragments();
-            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-            docFactory.setNamespaceAware(true);
-            this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        } catch (final ParserConfigurationException e) {
-            LOG.error("Couldn't initialize ResourceHandler", e);
-            throw new RuntimeException(e);
-        }
+    public BPELInvokerPluginHandler() throws ParserConfigurationException {
+        this.resHandler = new ResourceHandler();
+        this.bpelFrags = new BPELProcessFragments();
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        docFactory.setNamespaceAware(true);
+        this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
     public void appendLOGMessageActivity(final BPELPlanContext context, final String message,

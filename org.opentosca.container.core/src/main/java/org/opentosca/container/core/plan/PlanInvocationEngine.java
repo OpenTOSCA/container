@@ -10,8 +10,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.persistence.NoResultException;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
@@ -38,7 +38,7 @@ import org.springframework.stereotype.Service;
 /**
  * The Implementation of the Engine. Also deals with OSGI events for communication with the mock-up Servicebus.
  * <p>
- * Copyright 2013 Christian Endres
+ * Copyright 2013-2022 Christian Endres
  *
  * @author endrescn@fachschaft.informatik.uni-stuttgart.de
  */
@@ -47,18 +47,19 @@ import org.springframework.stereotype.Service;
 public class PlanInvocationEngine implements IPlanInvocationEngine {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlanInvocationEngine.class);
-    private static final PlanInstanceRepository planRepo = new PlanInstanceRepository();
 
+    private final PlanInstanceRepository planRepo;
     private final IManagementBus managementBus;
     private final CsarStorageService csarStorage;
     private final RulesChecker rulesChecker;
     private final ChoreographyHandler choreographyHandler;
 
     @Inject
-    public PlanInvocationEngine(IManagementBus managementBus,
+    public PlanInvocationEngine(PlanInstanceRepository planRepo, IManagementBus managementBus,
                                 CsarStorageService csarStorage,
                                 RulesChecker rulesChecker,
                                 ChoreographyHandler choreographyHandler) {
+        this.planRepo = planRepo;
         this.managementBus = managementBus;
         this.csarStorage = csarStorage;
         this.rulesChecker = rulesChecker;
@@ -67,38 +68,24 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
 
     public String createChoreographyCorrelationId() {
         // generate CorrelationId for the plan execution
-        while (true) {
-            final String correlationId = String.valueOf(System.currentTimeMillis());
-
-            try {
-
-                PlanInstance instance = planRepo.findByChoreographyCorrelationId(correlationId);
-                if (instance == null) {
-                    return correlationId;
-                }
-                LOG.debug("CorrelationId {} already in use.", correlationId);
-            } catch (final NoResultException e) {
-                return correlationId;
-            }
-        }
+        PlanInstance instance;
+        String correlationId;
+        do {
+            correlationId = String.valueOf(System.currentTimeMillis()) + Math.random();
+            instance = planRepo.findByChoreographyCorrelationId(correlationId);
+        } while (instance != null);
+        return correlationId;
     }
 
     @Override
     public String createCorrelationId() {
-        // generate CorrelationId for the plan execution
-        while (true) {
-            final String correlationId = String.valueOf(System.currentTimeMillis());
-
-            try {
-                PlanInstance instance = planRepo.findByCorrelationId(correlationId);
-                if (instance == null) {
-                    return correlationId;
-                }
-                LOG.debug("CorrelationId {} already in use.", correlationId);
-            } catch (final NoResultException e) {
-                return correlationId;
-            }
-        }
+        PlanInstance instance;
+        String correlationId;
+        do {
+            correlationId = String.valueOf(System.currentTimeMillis()) + Math.random();
+            instance = planRepo.findByCorrelationId(correlationId);
+        } while (instance != null);
+        return correlationId;
     }
 
     @Override
@@ -123,11 +110,16 @@ public class PlanInvocationEngine implements IPlanInvocationEngine {
         final Csar csar = csarStorage.findById(csarID);
 
         if (rulesChecker.areRulesContained(csar)) {
-            if (rulesChecker.check(csar, serviceTemplate, givenPlan.getInputParameters())) {
-                LOG.debug("Deployment Rules are fulfilled. Continuing the provisioning.");
-            } else {
-                LOG.debug("Deployment Rules are not fulfilled. Aborting the provisioning.");
-                return;
+            try {
+                if (rulesChecker.check(csar, serviceTemplate, givenPlan.getInputParameters())) {
+                    LOG.debug("Deployment Rules are fulfilled. Continuing the provisioning.");
+                } else {
+                    LOG.debug("Deployment Rules are not fulfilled. Aborting the provisioning.");
+                    return;
+                }
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+                LOG.error("Couldn't create parser", e);
             }
         }
 

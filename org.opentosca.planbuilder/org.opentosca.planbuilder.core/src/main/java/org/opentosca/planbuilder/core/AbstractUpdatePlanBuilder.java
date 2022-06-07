@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
@@ -28,7 +30,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
-import org.opentosca.container.core.model.ModelUtils;
 
 public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilder {
 
@@ -76,7 +77,7 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
                     activities.add(activityStart);
                     mappingStart.put(nodeTemplate, activityStart);
                 } else {
-                    throw new RuntimeException("Policy expected, behavior not implemented");
+                    throw new IllegalArgumentException("Policy expected, behavior not implemented");
                 }
             } else if (isUpdatableComponent(nodeTemplate, csar)) {
                 // Bottommost updatable node.
@@ -176,6 +177,15 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
         return ModelUtils.hasInterface(nodeTemplate, "UpdateManagementInterface", csar);
     }
 
+    protected boolean isUpdatableService(final TServiceTemplate serviceTemplate, Csar csar) {
+        for (TNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+            if (this.isUpdatableComponent(nodeTemplate, csar)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected boolean hasUpdatableAncestor(final List<TRelationshipTemplate> relationshipTemplates, final TNodeTemplate nodeTemplate, Csar csar) {
         Queue<TNodeTemplate> ancestorQueue = new LinkedList<>();
         ancestorQueue.add(nodeTemplate);
@@ -202,7 +212,8 @@ public abstract class AbstractUpdatePlanBuilder extends AbstractSimplePlanBuilde
     }
 
     private boolean hasPolicy(final TNodeTemplate nodeTemplate, final QName policyType) {
-        return nodeTemplate.getPolicies().stream()
+        return Optional.ofNullable(nodeTemplate.getPolicies()).stream()
+            .flatMap(Collection::stream)
             .anyMatch(policy -> policy.getPolicyType().equals(policyType));
     }
 }

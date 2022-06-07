@@ -4,86 +4,104 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
+
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opentosca.container.api.service.CsarService;
-import org.opentosca.container.api.service.InstanceService;
-import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.control.OpenToscaControlService;
+import org.opentosca.container.control.plan.PlanGenerationService;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
-import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.services.instances.NodeTemplateInstanceService;
+import org.opentosca.container.core.next.services.instances.PlanInstanceService;
+import org.opentosca.container.core.next.services.instances.RelationshipTemplateInstanceService;
+import org.opentosca.container.core.next.services.instances.ServiceTemplateInstanceService;
 import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import static org.junit.Assert.assertEquals;
+
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = {Application.class})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = {Application.class}, properties = "spring.main.allow-bean-definition-overriding=true")
 @TestPropertySource(properties = "server.port=1337")
 public class MyTinyToDoBPMNIntegrationTest {
 
-    public QName csarId = new QName("http://opentosca.org/servicetemplates", "MyTinyToDo_Bare_Docker_BPMN");
+    public static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
 
+    public QName csarId = new QName("http://opentosca.org/test/applications/servicetemplates", "MyTinyToDo-DockerEngine-BPMN-Test_w1-wip1");
     @Inject
     public OpenToscaControlService control;
     @Inject
     public CsarStorageService storage;
     @Inject
-    public CsarService csarService;
+    public PlanGenerationService planGenerationService;
     @Inject
-    public PlanService planService;
+    public PlanInstanceService planInstanceService;
     @Inject
-    public InstanceService instanceService;
+    public PlanInvokerService planInvokerService;
+    @Inject
+    public ServiceTemplateInstanceService serviceTemplateInstanceService;
+    @Inject
+    public RelationshipTemplateInstanceService relationshipTemplateInstanceService;
+    @Inject
+    public NodeTemplateInstanceService nodeTemplateInstanceService;
+    @Inject
+    public ICoreEndpointService endpointService;
+    private TestUtils testUtils = new TestUtils();
 
     @Test
     public void test() throws Exception {
-        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage);
-        TestUtils.generatePlans(this.csarService, csar);
+        Csar csar = testUtils.setupCsarTestRepository(this.csarId, this.storage, TESTAPPLICATIONSREPOSITORY);
+        testUtils.generatePlans(this.planGenerationService, csar);
 
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
 
-        TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
+        testUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
 
-        TPlan buildPlan = null;
+        assertEquals(2, testUtils.getDeployedPlans(this.endpointService).size());
+
         List<TPlan> plans = serviceTemplate.getPlans();
+        Assert.assertNotNull(plans);
 
-        for (TPlan plan : plans) {
-            PlanType type = PlanType.fromString(plan.getPlanType());
-            switch (type) {
-                case BUILD:
-                    if (!plan.getId().toLowerCase().contains("defrost")) {
-                        buildPlan = plan;
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
+        TPlan buildPlan = testUtils.getBuildPlan(plans);
+        TPlan terminationPlan = testUtils.getTerminationPlan(plans);
 
         Assert.assertNotNull("BuildPlan not found", buildPlan);
-        ServiceTemplateInstance serviceTemplateInstance = TestUtils.runBuildPlanExecution(this.planService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
+        Assert.assertNotNull("TerminationPlan not found", terminationPlan);
+        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planInstanceService, this.planInvokerService, this.serviceTemplateInstanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
         this.checkStateAfterBuild(serviceTemplateInstance);
-        TestUtils.clearContainer(this.storage, this.control);
+
+        testUtils.runTerminationPlanExecution(this.planInstanceService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
+
+        testUtils.invokePlanUndeployment(this.control, csar.id(), serviceTemplate);
+
+        assertEquals(0, testUtils.getDeployedPlans(this.endpointService).size());
     }
 
     @After
     public void cleanUpContainer() {
-        TestUtils.clearContainer(this.storage, this.control);
+        testUtils.clearContainer(this.storage, this.control, this.planInstanceService,
+            this.relationshipTemplateInstanceService, this.nodeTemplateInstanceService,
+            this.serviceTemplateInstanceService);
     }
 
     private void checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance) throws IOException {
-        Collection<NodeTemplateInstance> nodeTemplateInstances = this.instanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false).getNodeTemplateInstances();
-        Collection<RelationshipTemplateInstance> relationshipTemplateInstances = this.instanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false).getRelationshipTemplateInstances();
+        Collection<NodeTemplateInstance> nodeTemplateInstances = this.serviceTemplateInstanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false).getNodeTemplateInstances();
+        Collection<RelationshipTemplateInstance> relationshipTemplateInstances = this.serviceTemplateInstanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false).getRelationshipTemplateInstances();
         Assert.assertTrue(nodeTemplateInstances.size() == 2);
         Assert.assertTrue(relationshipTemplateInstances.size() == 1);
 
@@ -101,7 +119,7 @@ public class MyTinyToDoBPMNIntegrationTest {
         Assert.assertTrue(foundDockerEngine);
         Assert.assertTrue(foundTinyToDo);
 
-        TestUtils.checkViaHTTPGET("http://localhost:9993", 200, "My Tiny Todolist");
+        testUtils.checkViaHTTPGET("http://localhost:9993", 200, "My Tiny Todolist");
     }
 
     private List<org.opentosca.container.core.extension.TParameter> getBuildPlanInputParameters() {
@@ -111,7 +129,7 @@ public class MyTinyToDoBPMNIntegrationTest {
         dockerEngineUrl.setName("DockerEngineURL");
         dockerEngineUrl.setRequired(true);
         dockerEngineUrl.setType("String");
-        dockerEngineUrl.setValue("tcp://172.17.0.1:2375");
+        dockerEngineUrl.setValue("tcp://" + testUtils.getDockerHost() + ":2375");
 
         org.opentosca.container.core.extension.TParameter applicationPort = new org.opentosca.container.core.extension.TParameter();
         applicationPort.setName("ApplicationPort");
@@ -122,7 +140,7 @@ public class MyTinyToDoBPMNIntegrationTest {
         inputParams.add(dockerEngineUrl);
         inputParams.add(applicationPort);
 
-        inputParams.addAll(TestUtils.getBaseInputParams());
+        inputParams.addAll(testUtils.getBaseInputParams());
 
         return inputParams;
     }

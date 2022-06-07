@@ -1,6 +1,8 @@
 package org.opentosca.bus.management.invocation.plugin.script;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -80,13 +82,17 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
     private final CsarStorageService storage;
     private final ContainerEngine containerEngine;
 
+    private final MBUtils mbUtils;
+
     private final CamelContext camelContext;
 
     @Inject
-    public ManagementBusInvocationPluginScript(ArtifactTypesHandler typesHandler, CsarStorageService storage, ContainerEngine containerEngine, @Named("fallback") CamelContext camelContext) {
+    public ManagementBusInvocationPluginScript(ArtifactTypesHandler typesHandler, CsarStorageService storage,
+                                               ContainerEngine containerEngine, MBUtils mbUtils, @Named("fallback") CamelContext camelContext) {
         this.typesHandler = typesHandler;
         this.storage = storage;
         this.containerEngine = containerEngine;
+        this.mbUtils = mbUtils;
         this.camelContext = camelContext;
     }
 
@@ -121,7 +127,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
 
             return handleExchangeInternal(exchange, message, csarID, serviceTemplateID, csar, serviceTemplate,
                 artifactTemplate, artifactType, nodeTemplate, nodeType, operation);
-        } catch (NotFoundException e) {
+        } catch (NotFoundException | UnsupportedEncodingException e) {
             LOG.warn("Failed to resolve a strongly typed CSAR content reference, invocation failed!", e);
             return exchange;
         }
@@ -130,7 +136,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
     private Exchange handleExchangeInternal(Exchange exchange, Message message, CsarId csarID, QName serviceTemplateID,
                                             Csar csar, TServiceTemplate serviceTemplate, TArtifactTemplate artifactTemplate,
                                             TArtifactType artifactType, TNodeTemplate nodeTemplate, TNodeType nodeType,
-                                            TOperation operation) throws NotFoundException {
+                                            TOperation operation) throws NotFoundException, UnsupportedEncodingException {
         if (artifactType == null || nodeTemplate == null) {
             LOG.warn("Could not determine ArtifactType of ArtifactTemplate: {}!", artifactTemplate.getId());
             return exchange;
@@ -140,7 +146,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
         LOG.debug("ServiceInstanceID: {}", serviceInstanceID);
         // search operating system IA to upload files and run scripts on target machine
         final long serviceTemplateInstanceId = Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/"));
-        TNodeTemplate osNodeTemplate = MBUtils.getOperatingSystemNodeTemplate(csar, serviceTemplate, nodeTemplate, true,
+        TNodeTemplate osNodeTemplate = mbUtils.getOperatingSystemNodeTemplate(csar, serviceTemplate, nodeTemplate, true,
             serviceTemplateInstanceId);
 
         if (osNodeTemplate == null) {
@@ -149,9 +155,9 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
         }
 
         if (osNodeTemplate.getType().equals(Types.abstractOperatingSystemNodeType)) {
-            final NodeTemplateInstance abstractOSInstance = MBUtils.getNodeTemplateInstance(serviceTemplateInstanceId, osNodeTemplate);
+            final NodeTemplateInstance abstractOSInstance = mbUtils.getNodeTemplateInstance(serviceTemplateInstanceId, osNodeTemplate);
             if (abstractOSInstance != null) {
-                final NodeTemplateInstance replacementInstance = MBUtils.getAbstractOSReplacementInstance(abstractOSInstance);
+                final NodeTemplateInstance replacementInstance = mbUtils.getAbstractOSReplacementInstance(abstractOSInstance);
                 if (replacementInstance != null) {
                     // overwrite computed intermediate result based on replacement
                     csar = storage.findById(replacementInstance.getServiceTemplateInstance().getCsarId());
@@ -162,7 +168,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
         }
         final TNodeType osNodeType = ToscaEngine.resolveNodeTypeReference(csar, osNodeTemplate.getType());
         LOG.debug("OperatingSystem-NodeType found: {}", osNodeType.getQName());
-        final TImplementationArtifact osIA = MBUtils.getOperatingSystemIA(csar, serviceTemplate, osNodeType);
+        final TImplementationArtifact osIA = mbUtils.getOperatingSystemIA(csar, serviceTemplate, osNodeType);
 
         if (osIA == null) {
             LOG.warn("No OperatingSystem-IA found!");
@@ -283,7 +289,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
      * @param result    The returned result of the run script operation
      * @param operation The script service operation to check
      */
-    private void addOutputParametersToResultMap(final Map<String, String> resultMap, final Object result, final TOperation operation) {
+    private void addOutputParametersToResultMap(final Map<String, String> resultMap, final Object result, final TOperation operation) throws UnsupportedEncodingException {
         final boolean hasOutputParams = operation.getOutputParameters() != null;
         if (!hasOutputParams) {
             return;
@@ -305,7 +311,7 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
             return;
         }
 
-        final String scriptResultString = scriptResult.toString();
+        final String scriptResultString = URLDecoder.decode(scriptResult.toString(), "UTF-8");
         LOG.debug("{}: {}", ManagementBusInvocationPluginScript.RUN_SCRIPT_OUTPUT_PARAMETER_NAME, scriptResultString);
 
         // split result in line breaks as every parameter is returned in a separate "echo" command
@@ -313,12 +319,14 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
 
         // add each parameter that is defined in the operation and passed back
         for (final TParameter outputParameter : operation.getOutputParameters()) {
+            // we expect the outputparameters at the end of the result in multiple lines
             for (int i = resultParameters.length - 1; i >= 0; i--) {
                 if (resultParameters[i].startsWith(outputParameter.getName())) {
                     final String value = resultParameters[i].substring(resultParameters[i].indexOf("=") + 1);
 
                     LOG.debug("Adding parameter {} with value: {}", outputParameter, value);
                     resultMap.put(outputParameter.getName(), value);
+                    break;
                 }
             }
         }

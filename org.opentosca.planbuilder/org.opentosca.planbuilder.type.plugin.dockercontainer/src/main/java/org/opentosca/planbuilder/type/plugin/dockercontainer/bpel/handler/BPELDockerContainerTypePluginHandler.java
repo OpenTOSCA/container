@@ -15,6 +15,7 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
@@ -22,7 +23,6 @@ import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.core.plugins.utils.PluginUtils;
-import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContainerTypePlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContainerTypePluginPluginConstants;
@@ -39,10 +39,11 @@ import static org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerC
  * <p>
  * This class contains all the logic to add BPEL Code which installs a PhpModule on an Apache HTTP Server
  * </p>
- * Copyright 2014 IAAS University of Stuttgart <br>
+ * Copyright 2014-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ * @author Miles Stoetzner
  */
 public class BPELDockerContainerTypePluginHandler implements DockerContainerTypePluginHandler<BPELPlanContext> {
     private static final Logger LOG = LoggerFactory.getLogger(BPELDockerContainerTypePluginHandler.class);
@@ -188,6 +189,9 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         // fetch (optional) ContainerID variable
         final Variable containerIdVar = templateContext.getPropertyVariable(nodeTemplate, "ContainerID");
 
+        // fetch (optional) PrivilegedMode variable
+        final PropertyVariable privilegedModeVar = templateContext.getPropertyVariable(nodeTemplate, "PrivilegedMode");
+
         // fetch DockerEngine
         final TNodeTemplate dockerEngineNode = DockerContainerTypePlugin.getDockerEngineNode(nodeTemplate, templateContext.getCsar());
 
@@ -231,7 +235,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             }
         }
 
-        if (containerImageVar == null || PluginUtils.isVariableValueEmpty(containerImageVar)) {
+        if ((containerImageVar == null || PluginUtils.isVariableValueEmpty(containerImageVar)) && (nodeTemplate.getDeploymentArtifacts() != null && !nodeTemplate.getDeploymentArtifacts().isEmpty())) {
             // handle with DA -> construct URL to the DockerImage .zip
 
             final TDeploymentArtifact da = fetchFirstDockerContainerDA(nodeTemplate, templateContext.getCsar());
@@ -239,14 +243,14 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
                 containerIpVar, containerIdVar,
                 fetchEnvironmentVariables(templateContext, nodeTemplate), null, null,
                 containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable,
-                vmPrivateKeyVariable);
+                vmPrivateKeyVariable, privilegedModeVar);
         } else {
             // handle with imageId
             return handleWithImageId(templateContext, dockerEngineNode, containerImageVar, portMappingVar,
                 dockerEngineUrlVar, sshPortVar, containerIpVar, containerIdVar,
                 fetchEnvironmentVariables(templateContext, nodeTemplate), containerMountPath,
                 remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable,
-                vmPrivateKeyVariable);
+                vmPrivateKeyVariable, privilegedModeVar);
         }
     }
 
@@ -434,7 +438,8 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
                                    final Variable envMappingVar, final Variable linksVar,
                                    final Variable deviceMappingVar, final Variable containerMountPath,
                                    final Variable remoteVolumeDataVariable, final Variable hostVolumeDataVariable,
-                                   final Variable vmIpVariable, final Variable vmPrivateKeyVariable) {
+                                   final Variable vmIpVariable, final Variable vmPrivateKeyVariable,
+                                   final Variable privilegedModeVar) {
         context.addStringValueToPlanRequest("containerApiAddress");
 
         final String artifactPathQuery =
@@ -463,6 +468,10 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         createDEInternalExternalPropsInput.put("DockerEngineURL", dockerEngineUrlVar);
         createDEInternalExternalPropsInput.put("ContainerPorts", portMappingVar);
 
+        if (privilegedModeVar != null) {
+            createDEInternalExternalPropsInput.put("PrivilegedMode", privilegedModeVar);
+        }
+
         createPropertiesMapping(containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable, vmPrivateKeyVariable, createDEInternalExternalPropsInput);
 
         addProperties(sshPortVar, containerIpVar, containerIdVar, envMappingVar, linksVar, deviceMappingVar, createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput);
@@ -481,7 +490,8 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
                                         final Variable containerIpVar, final Variable containerIdVar,
                                         final Variable envMappingVar, final Variable containerMountPath,
                                         final Variable remoteVolumeDataVariable, final Variable hostVolumeDataVariable,
-                                        final Variable vmIpVariable, final Variable vmPrivateKeyVariable) {
+                                        final Variable vmIpVariable, final Variable vmPrivateKeyVariable,
+                                        final Variable privilegedModeVar) {
 
         // map properties to input and output parameters
         final Map<String, Variable> createDEInternalExternalPropsInput = new HashMap<>();
@@ -493,6 +503,10 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
         if (envMappingVar != null) {
             createDEInternalExternalPropsInput.put("ContainerEnv", envMappingVar);
+        }
+
+        if (privilegedModeVar != null) {
+            createDEInternalExternalPropsInput.put("PrivilegedMode", privilegedModeVar);
         }
 
         if (sshPortVar != null) {

@@ -42,6 +42,9 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_BuildPlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_LifecycleInterface;
+
 /**
  * <p>
  * This Class represents the high-level algorithm of the concept in <a href= "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=BCLR-0043&mod=0&engl=1&inst=FAK"
@@ -50,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * TopologyTemplate.
  * </p>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -139,10 +142,10 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             LOG.debug(buildPlan.toString());
 
             final BPELPlan newBuildPlan =
-                this.planHandler.createEmptyBPELPlan(processNamespace, processName, buildPlan, "initiate");
+                this.planHandler.createEmptyBPELPlan(processNamespace, processName, buildPlan, OpenTOSCA_BuildPlanOperation);
 
-            newBuildPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
-            newBuildPlan.setTOSCAOperationname("initiate");
+            newBuildPlan.setTOSCAInterfaceName(OpenTOSCA_LifecycleInterface);
+            newBuildPlan.setTOSCAOperationname(OpenTOSCA_BuildPlanOperation);
 
             this.planHandler.initializeBPELSkeleton(newBuildPlan, csar);
 
@@ -196,7 +199,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 "RUNNING", planInstanceUrlVarName);
 
             this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
-                newBuildPlan.getBpelMainSequenceOutputAssignElement(),
+                newBuildPlan.getBpelMainSequenceCallbackInvokeElement(),
                 "FINISHED", planInstanceUrlVarName);
 
             this.sitRegistrationPlugin.handle(serviceTemplate, newBuildPlan);
@@ -207,7 +210,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
         }
 
         LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
-            serviceTemplateQname.toString(), definitions.getId(), csar.id().csarName());
+            serviceTemplateQname, definitions.getId(), csar.id().csarName());
         return null;
     }
 
@@ -237,7 +240,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
-            if (ModelUtils.doesNotHaveBuildPlan(serviceTemplate)) {
+            if (ModelUtils.findServiceTemplateOperation(definitions, OpenTOSCA_LifecycleInterface, OpenTOSCA_BuildPlanOperation) == null) {
                 LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan",
                     serviceTemplate.getId());
                 final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);

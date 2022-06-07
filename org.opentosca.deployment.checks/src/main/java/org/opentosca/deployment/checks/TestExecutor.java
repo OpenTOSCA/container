@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.eclipse.winery.model.ids.definitions.PolicyTemplateId;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -30,7 +31,9 @@ import org.opentosca.deployment.checks.test.TcpPingTest;
 import org.opentosca.deployment.checks.test.TestExecutionPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TestExecutor {
 
     private static final Logger logger = LoggerFactory.getLogger(TestExecutor.class);
@@ -42,7 +45,7 @@ public class TestExecutor {
 
     @Inject
     @Deprecated
-    public TestExecutor(CamelContext camelContext) {
+    public TestExecutor(@Named("deployment-checks-camel-context") CamelContext camelContext) {
         this(Lists.newArrayList(new HttpTest(), new ManagementOperationTest(camelContext), new TcpPingTest()
             // new PortBindingTest(),
             // new SqlConnectionTest()

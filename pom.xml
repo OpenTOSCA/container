@@ -11,19 +11,32 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <apache.cxf.version>3.1.18</apache.cxf.version>
-        <camel.version>3.8.0</camel.version>
+        <apache.cxf.version>3.5.1</apache.cxf.version>
+        <camel.version>3.15.0</camel.version>
         <commons-io.version>2.6</commons-io.version>
         <jacoco.reportPath>${project.build.directory}/jacoco.exec</jacoco.reportPath>
         <jacoco.append>false</jacoco.append>
-        <jaxb.version>2.2.11</jaxb.version>
+        <jaxb.version>2.3.0</jaxb.version>
         <junit.version>4.13.2</junit.version>
         <logback.version>1.1.11</logback.version>
         <!-- needs to match the jersey version used in winery to avoid conflicts -->
         <jersey.version>2.30.1</jersey.version>
-        <spring.version>4.3.25.RELEASE</spring.version>
+        <spring.version>5.3.20</spring.version>
+        <springdata.version>2.5.10</springdata.version>
+        <springboot.version>2.5.12</springboot.version>
         <swagger.version>1.5.24</swagger.version>
         <tomcat.version>9.0.43</tomcat.version>
+        <winery.version>ustutt-SNAPSHOT</winery.version>
+        <winery.groupid>com.github.opentosca.winery</winery.groupid>
+        <!--
+            If you need to debug/fix something in regards to winery you can debug your changes in the following way:
+            Change the properties to:
+            <winery.groupid>org.eclipse.winery</winery.groupid>
+            <winery.version>3.0.0-SNAPSHOT</winery.version>
+            Make you changes in you local winery code and run 'mvn install -DskipTests' and now you changes should be useable here
+            Why is this necessary:
+            The jitpack dependencies have a different group id than the actually pom files of winery
+        -->
     </properties>
 
     <repositories>
@@ -46,13 +59,9 @@
     <modules>
         <module>org.opentosca.broker.mqtt</module>
         <module>org.opentosca.bus</module>
-        <module>org.opentosca.container.connector.ode</module>
-        <module>org.opentosca.container.connector.winery</module>
         <module>org.opentosca.container.control</module>
         <module>org.opentosca.container.core</module>
-        <module>org.opentosca.container.engine.plan</module>
-        <module>org.opentosca.container.engine.plan.plugin.bpel</module>
-        <module>org.opentosca.container.engine.plan.plugin.camunda</module>
+        <module>org.opentosca.container.plan.deployment</module>
         <module>org.opentosca.container.integration.tests</module>
         <module>org.opentosca.container.reporting</module>
         <module>org.opentosca.container.war</module>
@@ -132,13 +141,19 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.11</version>
         </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.11</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.logback-extensions</groupId>
+            <artifactId>logback-ext-spring</artifactId>
+            <version>0.1.5</version>
         </dependency>
 
         <dependency>
@@ -157,8 +172,65 @@
 
         <dependency>
             <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>${springboot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
+            <version>${springdata.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${springboot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>${springboot.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -174,12 +246,12 @@
             <!-- pin jaxb-core and jaxb-impl version to avoid NoSuchFieldError: REFLECTION
                 as suggested in https://stackoverflow.com/a/30220824/ -->
             <dependency>
-                <groupId>com.sun.xml.bind</groupId>
+                <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-core</artifactId>
                 <version>${jaxb.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sun.xml.bind</groupId>
+                <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
                 <version>${jaxb.version}</version>
             </dependency>

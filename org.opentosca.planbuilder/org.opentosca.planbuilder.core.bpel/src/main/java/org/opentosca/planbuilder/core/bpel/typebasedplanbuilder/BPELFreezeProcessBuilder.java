@@ -20,6 +20,7 @@ import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.AbstractFreezePlanBuilder;
@@ -39,11 +40,13 @@ import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_FreezePlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_StatefulLifecycleInterface;
 
 /**
  * @author Jan Ruthardt - st107755@stud.uni-stuttgart.de
@@ -97,7 +100,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
      */
     private BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
                                final TServiceTemplate serviceTemplate) {
-        LOG.info("Creating Freeze Plan...");
+        LOG.debug("Creating Freeze Plan...");
 
         if (!this.isStateful(serviceTemplate, csar)) {
             LOG.warn("Couldn't create FreezePlan for ServiceTemplate {} in Definitions {} of CSAR {}",
@@ -115,12 +118,12 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
         newAbstractBackupPlan.setType(PlanType.TERMINATION);
         final BPELPlan newFreezePlan =
-            this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractBackupPlan, "freeze");
+            this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractBackupPlan, OpenTOSCA_FreezePlanOperation);
 
         this.planHandler.initializeBPELSkeleton(newFreezePlan, csar);
 
-        newFreezePlan.setTOSCAInterfaceName("OpenTOSCA-Stateful-Lifecycle-Interface");
-        newFreezePlan.setTOSCAOperationname("freeze");
+        newFreezePlan.setTOSCAInterfaceName(OpenTOSCA_StatefulLifecycleInterface);
+        newFreezePlan.setTOSCAOperationname(OpenTOSCA_FreezePlanOperation);
 
         this.instanceVarsHandler.addInstanceURLVarToTemplatePlans(newFreezePlan, serviceTemplate);
         this.instanceVarsHandler.addInstanceIDVarToTemplatePlans(newFreezePlan, serviceTemplate);
@@ -179,7 +182,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
             "RUNNING", planInstanceUrlVarName);
 
         this.serviceInstanceVarsHandler.appendSetServiceInstanceState(newFreezePlan,
-            newFreezePlan.getBpelMainSequenceOutputAssignElement(),
+            newFreezePlan.getBpelMainSequenceCallbackInvokeElement(),
             "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(newFreezePlan);
@@ -272,7 +275,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                     + Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT
                     + "']/text(),'/servicetemplates/"
                     + URLEncoder.encode(URLEncoder.encode(serviceTemplateId.getNamespaceURI(),
-                    StandardCharsets.UTF_8),
+                        StandardCharsets.UTF_8),
                     StandardCharsets.UTF_8)
                     + "','/" + serviceTemplateId.getLocalPart()
                     + "','/createnewstatefulversion')");
@@ -362,10 +365,7 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
                                 xpathQuery);
                         assignSaveStateURL = context.importNode(assignSaveStateURL);
                         context.getPrePhaseElement().appendChild(assignSaveStateURL);
-                    } catch (final IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (final SAXException e) {
+                    } catch (final IOException | SAXException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
@@ -376,8 +376,12 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
                     inputs.put(getSaveStateParameter(getSaveStateOperation(nodeTemplate, csar)), saveStateUrlVar);
 
-                    context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
+                    boolean addedOperationCall = context.executeOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE,
                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE, inputs);
+
+                    if (!addedOperationCall) {
+                        LOG.error("Couldn't generate freeze operation call, maybe you miss an IA or Parameters?");
+                    }
                 }
                 this.bpelPluginHandler.handleActivity(context, templatePlan, nodeTemplate);
             }

@@ -19,6 +19,7 @@ import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.AbstractManagementFeaturePlanBuilder;
@@ -38,11 +39,13 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_BackupPlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_ManagementFeatureInterface;
 
 /**
  * <p>
@@ -58,10 +61,10 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
     private final static Logger LOG = LoggerFactory.getLogger(BPELBackupManagementProcessBuilder.class);
     // class for initializing properties inside the build plan
     private final PropertyVariableHandler propertyInitializer;
-    // class for finalizing build plans (e.g when some template didn't receive
+    // class for finalizing build plans (e.g., when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
-    // handler for abstract buildplan operations
+    // handler for abstract buildPlan operations
     public BPELPlanHandler planHandler;
     // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
     private SimplePlanBuilderServiceInstanceHandler serviceInstanceVarsHandler;
@@ -118,12 +121,12 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
 
         abstractBackupPlan.setType(PlanType.MANAGEMENT);
         final BPELPlan newBackupPlan =
-            this.planHandler.createEmptyBPELPlan(processNamespace, processName, abstractBackupPlan, "backup");
+            this.planHandler.createEmptyBPELPlan(processNamespace, processName, abstractBackupPlan, OpenTOSCA_BackupPlanOperation);
 
         this.planHandler.initializeBPELSkeleton(newBackupPlan, csar);
 
-        newBackupPlan.setTOSCAInterfaceName("OpenTOSCA-Management-Feature-Interface");
-        newBackupPlan.setTOSCAOperationname("backup");
+        newBackupPlan.setTOSCAInterfaceName(OpenTOSCA_ManagementFeatureInterface);
+        newBackupPlan.setTOSCAOperationname(OpenTOSCA_BackupPlanOperation);
 
         this.instanceVarsHandler.addInstanceURLVarToTemplatePlans(newBackupPlan, serviceTemplate);
         this.instanceVarsHandler.addInstanceIDVarToTemplatePlans(newBackupPlan, serviceTemplate);
@@ -152,10 +155,8 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
 
         try {
             appendGenerateStatefulServiceTemplateLogic(newBackupPlan);
-        } catch (final IOException e) {
-            e.printStackTrace();
-        } catch (final SAXException e) {
-            e.printStackTrace();
+        } catch (final IOException | SAXException e) {
+            LOG.error("Error while generating stateful ServiceTemplate logic...", e);
         }
 
         runPlugins(newBackupPlan, propMap, csar);
@@ -177,7 +178,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
             "RUNNING", planInstanceUrlVarName);
 
         this.serviceInstanceVarsHandler.appendSetServiceInstanceState(newBackupPlan,
-            newBackupPlan.getBpelMainSequenceOutputAssignElement(),
+            newBackupPlan.getBpelMainSequenceCallbackInvokeElement(),
             "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(newBackupPlan);
@@ -221,10 +222,8 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
                             saveStateUrlVarName, xpathQuery);
                     assignSaveStateURL = context.importNode(assignSaveStateURL);
                     context.getPrePhaseElement().appendChild(assignSaveStateURL);
-                } catch (final IOException e) {
-                    e.printStackTrace();
-                } catch (final SAXException e) {
-                    e.printStackTrace();
+                } catch (final IOException | SAXException e) {
+                    LOG.error("");
                 }
 
                 final TOperation freezeOp =
@@ -311,7 +310,7 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
                     + Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_FREEZE_MANDATORY_PARAM_ENDPOINT
                     + "']/text(),'/servicetemplates/"
                     + URLEncoder.encode(URLEncoder.encode(serviceTemplateId.getNamespaceURI(),
-                    StandardCharsets.UTF_8),
+                        StandardCharsets.UTF_8),
                     StandardCharsets.UTF_8)
                     + "','/" + serviceTemplateId.getLocalPart()
                     + "','/createnewstatefulversion')");

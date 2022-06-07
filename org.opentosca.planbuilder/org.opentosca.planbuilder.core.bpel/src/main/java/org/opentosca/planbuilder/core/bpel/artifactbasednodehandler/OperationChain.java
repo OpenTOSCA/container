@@ -26,7 +26,7 @@ import org.w3c.dom.Element;
  * This Class is a wrapper class for the other wrapper classes (IACandidateWrapper,DACandidateWrapper,..). The class
  * also represents if there are complete provisioning possible with the available template implementations.
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -113,6 +113,19 @@ public class OperationChain {
             }
         }
         return check;
+    }
+
+    /**
+     * Checks whether this operation chain is valid, in the sense code generation is possible and there is an IA which
+     * implements the operations in the chain
+     *
+     * @return true if there is a plugin which can generate code for the operations and there are IA implementing them
+     */
+    public boolean isValid() {
+        if (this.provCandidates.isEmpty()) {
+            return false;
+        }
+        return this.provCandidates.size() == this.iaCandidates.size();
     }
 
     /**

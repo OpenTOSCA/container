@@ -8,9 +8,10 @@ import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.extension.TPlanDTO;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.deployment.process.DeploymentProcessOperation;
-import org.opentosca.container.core.model.deployment.process.DeploymentProcessState;
+import org.opentosca.container.core.next.model.DeploymentProcessOperation;
+import org.opentosca.container.core.next.model.DeploymentProcessState;
 
 /**
  * Interface of the control of the OpenTosca Container.
@@ -53,4 +54,8 @@ public interface OpenToscaControlService {
     boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate, List<TPlan> plans, TPlan plan);
 
     boolean invokePlanDeployment(CsarId csar, TServiceTemplate serviceTemplate);
+
+    boolean undeployAllPlans(CsarId csarId, TServiceTemplate serviceTemplate);
+
+    boolean undeployAllPlans(Csar csar);
 }

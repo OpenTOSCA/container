@@ -12,7 +12,7 @@ import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPlugin;
  * This interface should be implemented by Plugins which are responsible for deploying DA's inside a PrePhase of a
  * TemplateBuildPlan. The deployment should be handle on an appropiate InfrastructureNode
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

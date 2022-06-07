@@ -1,7 +1,11 @@
 version: '3'
 services:
-  engine-ia:
-    image: opentosca/engine-ia:latest
+  engine-ia-java8:
+    image: opentosca/engine-ia:latest-jdk8
+    ports:
+      - '8098:8080'
+  engine-ia-java17:
+    image: opentosca/engine-ia:latest-jdk17
     ports:
       - '8099:8080'
   engine-plan:
@@ -14,3 +18,12 @@ services:
     image: opentosca/camunda-bpmn:latest
     ports:
       - '8092:8080'
+  container-repository:
+    image: opentosca/winery:latest
+    environment:
+      WINERY_PORT: 8091
+      WORKFLOWMODELER_PORT: 8091
+      TOPOLOGYMODELER_PORT: 8091
+      WINERY_REPOSITORY_URL: https://github.com/OpenTOSCA/tosca-definitions-management-features
+    ports:
+      - '8091:8080'

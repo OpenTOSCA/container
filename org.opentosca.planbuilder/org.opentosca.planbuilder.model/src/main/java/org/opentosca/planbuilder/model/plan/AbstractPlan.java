@@ -27,6 +27,8 @@ public abstract class AbstractPlan {
     private PlanType type;
     private PlanLanguage language;
     private int internalCounterId = 0;
+    private String toscaInterfaceName = null;
+    private String toscaOperationName = null;
 
     public AbstractPlan(final String id, final PlanType type, final TDefinitions definitions,
                         final TServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
@@ -134,10 +136,8 @@ public abstract class AbstractPlan {
         final Collection<AbstractActivity> foundActivities = new HashSet<>();
         for (final AbstractActivity activity : this.activites) {
 
-            if (activity instanceof NodeTemplateActivity) {
-                if (((NodeTemplateActivity) activity).getNodeTemplate().equals(nodeTemplate)) {
-                    foundActivities.add(activity);
-                }
+            if (activity instanceof NodeTemplateActivity && ((NodeTemplateActivity) activity).getNodeTemplate().equals(nodeTemplate)) {
+                foundActivities.add(activity);
             }
         }
         return foundActivities;
@@ -147,10 +147,8 @@ public abstract class AbstractPlan {
         final Collection<AbstractActivity> foundActivities = new HashSet<>();
         for (final AbstractActivity activity : this.activites) {
 
-            if (activity instanceof RelationshipTemplateActivity) {
-                if (((RelationshipTemplateActivity) activity).getRelationshipTemplate().equals(relationshipTemplate)) {
-                    foundActivities.add(activity);
-                }
+            if (activity instanceof RelationshipTemplateActivity && ((RelationshipTemplateActivity) activity).getRelationshipTemplate().equals(relationshipTemplate)) {
+                foundActivities.add(activity);
             }
         }
         return foundActivities;
@@ -198,6 +196,22 @@ public abstract class AbstractPlan {
         }
 
         return toString;
+    }
+
+    public void setTOSCAOperationname(final String name) {
+        this.toscaOperationName = name;
+    }
+
+    public String getTOSCAInterfaceName() {
+        return this.toscaInterfaceName;
+    }
+
+    public void setTOSCAInterfaceName(final String name) {
+        this.toscaInterfaceName = name;
+    }
+
+    public String getTOSCAOperationName() {
+        return this.toscaOperationName;
     }
 
     public PlanLanguage getLanguage() {

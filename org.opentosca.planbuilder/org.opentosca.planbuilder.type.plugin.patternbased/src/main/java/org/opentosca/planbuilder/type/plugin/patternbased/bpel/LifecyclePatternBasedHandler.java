@@ -14,9 +14,9 @@ import org.eclipse.winery.model.tosca.TOperation;
 
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.container.core.model.ModelUtils;
 import org.w3c.dom.Element;
 
 public class LifecyclePatternBasedHandler extends PatternBasedHandler {
@@ -94,10 +94,8 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         for (TNodeTypeImplementation impl : ModelUtils.findNodeTypeImplementation(nodeTemplate, csar)) {
             if (impl.getImplementationArtifacts() != null) {
                 for (TImplementationArtifact implArtifact : impl.getImplementationArtifacts()) {
-                    if (implArtifact.getInterfaceName().equals(iface.getName())) {
-                        if (implArtifact.getArtifactType().equals(Types.scriptArtifactType)) {
-                            return true;
-                        }
+                    if (implArtifact.getInterfaceName().equals(iface.getName()) && implArtifact.getArtifactType().equals(Types.scriptArtifactType)) {
+                        return true;
                     }
                 }
             }

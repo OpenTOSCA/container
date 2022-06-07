@@ -1,6 +1,7 @@
 package org.opentosca.container.api.controller;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -29,7 +30,8 @@ import org.opentosca.container.api.dto.plan.PlanInstanceEventListDTO;
 import org.opentosca.container.api.dto.plan.PlanInstanceListDTO;
 import org.opentosca.container.api.dto.plan.PlanListDTO;
 import org.opentosca.container.api.dto.request.CreatePlanInstanceLogEntryRequest;
-import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.PlanInvokerService;
+import org.opentosca.container.api.util.Utils;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.model.csar.Csar;
@@ -37,6 +39,7 @@ import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanType;
+import org.opentosca.container.core.next.services.instances.PlanInstanceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,12 +53,15 @@ public class BuildPlanController {
     private static final PlanType PLAN_TYPE = PlanType.BUILD;
     private static final PlanType[] ALL_PLAN_TYPES = PlanType.values();
 
-    private final PlanService planService;
+    private final PlanInstanceService planInstanceService;
+    private final PlanInvokerService planInvokerService;
     private final Csar csar;
     private final TServiceTemplate serviceTemplate;
 
-    public BuildPlanController(final Csar csar, final TServiceTemplate serviceTemplate, final PlanService planService) {
-        this.planService = planService;
+    public BuildPlanController(final Csar csar, final TServiceTemplate serviceTemplate, final PlanInstanceService planInstanceService,
+                               final PlanInvokerService planInvokerService) {
+        this.planInstanceService = planInstanceService;
+        this.planInvokerService = planInvokerService;
         this.csar = csar;
         this.serviceTemplate = serviceTemplate;
     }
@@ -72,7 +78,7 @@ public class BuildPlanController {
                 final PlanDTO plan = new PlanDTO(p);
 
                 plan.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(plan.getId()).path("instances")
-                    .build()))
+                        .build()))
                     .rel("instances").build());
                 plan.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(plan.getId()).build()))
                     .rel("self").build());
@@ -90,7 +96,7 @@ public class BuildPlanController {
     @ApiOperation(value = "Get a build plan", response = PlanDTO.class)
     public Response getBuildPlan(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
                                  @Context final UriInfo uriInfo) {
-        PlanDTO dto = planService.getPlanDto(csar, ALL_PLAN_TYPES, plan);
+        PlanDTO dto = Utils.getPlanDto(csar, ALL_PLAN_TYPES, plan);
 
         dto.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path("instances").build()))
             .rel("instances").build());
@@ -105,19 +111,22 @@ public class BuildPlanController {
     public Response getBuildPlanInstances(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
                                           @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstances");
-        List<PlanInstance> planInstances = planService.getPlanInstances(csar, PLAN_TYPE);
+        Collection<PlanInstance> planInstances = planInstanceService.getPlanInstances(csar, PLAN_TYPE);
 
         final PlanInstanceListDTO list = new PlanInstanceListDTO();
         planInstances.stream()
             .map(pi -> {
-                PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
-                if (pi.getServiceTemplateInstance() != null) {
+                // load plan instance with related entities for DTO conversion
+                PlanInstance planInstanceWithEntities = planInstanceService.getPlanInstanceByIdWithConnectedEntities(pi.getId());
+
+                PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(planInstanceWithEntities);
+                if (planInstanceWithEntities.getServiceTemplateInstance() != null) {
                     final URI uri = uriInfo.getBaseUriBuilder()
                         .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
-                        .build(csar.id().csarName(), serviceTemplate.getId(), pi.getServiceTemplateInstance().getId());
+                        .build(csar.id().csarName(), serviceTemplate.getId(), planInstanceWithEntities.getServiceTemplateInstance().getId());
                     dto.add(Link.fromUri(UriUtil.encode(uri)).rel("service_template_instance").build());
                 }
-                dto.add(UriUtil.generateSubResourceLink(uriInfo, pi.getCorrelationId(), false, "self"));
+                dto.add(UriUtil.generateSubResourceLink(uriInfo, planInstanceWithEntities.getCorrelationId(), false, "self"));
                 return dto;
             })
             .forEach(list::add);
@@ -137,7 +146,7 @@ public class BuildPlanController {
                                         value = "plan input parameters") final List<TParameter> parameters) {
         LOGGER.debug("Invoking invokeBuildPlan");
         // We pass -1L because "PlanInvocationEngine.invokePlan()" expects it for build plans
-        String correlationId = planService.invokePlan(csar, serviceTemplate, -1L, plan, parameters, PLAN_TYPE);
+        String correlationId = planInvokerService.invokePlan(csar, serviceTemplate, -1L, plan, parameters, PLAN_TYPE);
         return Response.ok(correlationId).build();
     }
 
@@ -149,7 +158,7 @@ public class BuildPlanController {
                                          @ApiParam("correlation ID") @PathParam("instance") final String instance,
                                          @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstance");
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
+        PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);
 
         final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
         // Add service template instance link
@@ -178,7 +187,7 @@ public class BuildPlanController {
                                               @ApiParam("correlation ID") @PathParam("instance") final String instance,
                                               @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstanceState");
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
+        PlanInstance pi = planInstanceService.resolvePlanInstance(null, instance);
         return Response.ok(pi.getState().toString()).build();
     }
 
@@ -190,8 +199,8 @@ public class BuildPlanController {
                                                  @PathParam("instance") final String instance,
                                                  @Context final UriInfo uriInfo, final String request) {
         LOGGER.debug("Invoking changeBuildPlanInstanceState");
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
-        return planService.updatePlanInstanceState(pi, PlanInstanceState.valueOf(request))
+        PlanInstance pi = planInstanceService.resolvePlanInstance(null, instance);
+        return planInstanceService.updatePlanInstanceState(pi, PlanInstanceState.valueOf(request))
             ? Response.ok().build()
             : Response.status(Status.BAD_REQUEST).build();
     }
@@ -205,7 +214,7 @@ public class BuildPlanController {
                                              @ApiParam("Correlation ID") @PathParam("instance") final String instance,
                                              @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstanceLogs");
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
+        PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);
 
         final PlanInstanceDTO piDto = PlanInstanceDTO.Converter.convert(pi);
         final PlanInstanceEventListDTO dto = new PlanInstanceEventListDTO(piDto.getLogs());
@@ -228,9 +237,9 @@ public class BuildPlanController {
             LOGGER.info("Log entry is empty!");
             return Response.status(Status.BAD_REQUEST).build();
         }
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
+        PlanInstance pi = planInstanceService.resolvePlanInstanceWithLogs(null, instance);
         final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_LOG", entry);
-        planService.addLogToPlanInstance(pi, event);
+        planInstanceService.addLogToPlanInstance(pi, event);
 
         final URI resourceUri = uriInfo.getAbsolutePath();
         return Response.ok(resourceUri).build();

@@ -1,7 +1,10 @@
 package org.opentosca.planbuilder.core.plugins.context;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
@@ -23,13 +26,15 @@ public abstract class PlanContext {
     protected final String planInstanceUrlVarName;
     protected final Csar csar;
     protected final Property2VariableMapping propertyMap;
+    protected final DeployTechDescriptorMapping descriptorMapping;
 
     public PlanContext(final AbstractPlan plan, final TServiceTemplate serviceTemplate,
-                       final Property2VariableMapping map, final String serviceInstanceURLVarName,
+                       final Property2VariableMapping map, DeployTechDescriptorMapping descriptorMapping, final String serviceInstanceURLVarName,
                        final String serviceInstanceIDVarName, final String serviceTemplateURLVarName, final String planInstanceUrlVarName,
                        final Csar csar) {
         this.plan = plan;
         this.serviceTemplate = serviceTemplate;
+        this.descriptorMapping = descriptorMapping;
         this.serviceInstanceIDVarName = serviceInstanceIDVarName;
         this.serviceTemplateURLVarName = serviceTemplateURLVarName;
         this.serviceInstanceURLVarName = serviceInstanceURLVarName;
@@ -39,7 +44,15 @@ public abstract class PlanContext {
     }
 
     public Collection<PropertyVariable> getPropertyVariables(final TNodeTemplate nodeTemplate) {
-        return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, nodeTemplate);
+        return new HashSet<>(this.propertyMap.getNodePropertyVariables(this.serviceTemplate, nodeTemplate));
+    }
+
+    public Collection<PropertyVariable> getDeployTechDescriptorVariables(final TNodeTemplate nodeTemplate) {
+        Set<PropertyVariable> vars = new HashSet<>();
+        if (this.descriptorMapping != null) {
+            vars.addAll(this.descriptorMapping.getVariablesByNode(nodeTemplate));
+        }
+        return vars;
     }
 
     public TServiceTemplate getServiceTemplate() {
@@ -79,8 +92,24 @@ public abstract class PlanContext {
      * @return a Variable object representing the property
      */
     public PropertyVariable getPropertyVariable(final TNodeTemplate nodeTemplate, final String propertyName) {
-        return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, nodeTemplate).stream()
-            .filter(var -> var.getPropertyName().equals(propertyName)).findFirst().orElse(null);
+        return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, nodeTemplate)
+            .stream()
+            .filter(var -> var.getPropertyName().equals(propertyName))
+            .findFirst()
+            .orElse(null);
+    }
+
+    /**
+     * Returns a Variable object that represents a property with the given name inside the deployment technology
+     * descriptor that is associated with the given node template.
+     *
+     * @param nodeTemplate a nodeTemplate specifying the deployment descriptor to look in
+     * @param propertyName the name of the searched property
+     * @return a Variable object representing the property
+     */
+    public PropertyVariable getDeployTechDescriptorVariable(final TNodeTemplate nodeTemplate, final String propertyName) {
+        return Optional.ofNullable(this.descriptorMapping).flatMap(map -> map.getVariableByNodeAndProp(nodeTemplate, propertyName))
+            .orElse(null);
     }
 
     public PropertyVariable getPropertyVariable(final TRelationshipTemplate relationshipTemplate,
@@ -171,15 +200,21 @@ public abstract class PlanContext {
      * @return a String containing the variable name, else null
      */
     public String getVariableNameOfProperty(final TNodeTemplate templateId, final String propertyName) {
-        return this.propertyMap.getNodePropertyVariables(this.serviceTemplate, templateId).stream()
-            .filter(var -> var.getPropertyName().equals(propertyName)).findFirst()
-            .map(var -> var.getVariableName()).orElse(null);
+        PropertyVariable propVar = getPropertyVariable(templateId, propertyName);
+        if (propVar != null) {
+            return propVar.getVariableName();
+        } else {
+            return null;
+        }
     }
 
     public String getVariableNameOfProperty(final TRelationshipTemplate templateId, final String propertyName) {
-        return this.propertyMap.getRelationPropertyVariables(this.serviceTemplate, templateId).stream()
-            .filter(var -> var.getPropertyName().equals(propertyName)).findFirst()
-            .map(var -> var.getVariableName()).orElse(null);
+        PropertyVariable propVar = getPropertyVariable(templateId, propertyName);
+        if (propVar != null) {
+            return propVar.getVariableName();
+        } else {
+            return null;
+        }
     }
 
     public enum Phase {

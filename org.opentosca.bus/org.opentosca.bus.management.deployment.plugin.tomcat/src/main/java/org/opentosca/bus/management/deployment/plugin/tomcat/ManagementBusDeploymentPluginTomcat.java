@@ -6,24 +6,24 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
+import com.google.common.collect.Lists;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.container.core.common.Settings;
@@ -31,6 +31,7 @@ import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.service.IHTTPService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 /**
@@ -61,7 +62,7 @@ import org.springframework.stereotype.Component;
  * the Tomcat.<br>
  * <br>
  * <p>
- * Copyright 2018 IAAS University of Stuttgart <br>
+ * Copyright 2018-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
@@ -69,9 +70,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploymentPluginService {
 
-    // In messages.properties defined plugin types and capabilities
-    private static final String TYPES = "{http://www.example.com/ToscaTypes}WAR,{http://opentosca.org/artifacttypes}WAR";
-    private static final String CAPABILITIES = "http://tomcat.apache.org/tomcat7.0, http://www.jcp.org/javaserverpages2.2 , http://www.jcp.org/servlet3.0";
+    // TODO: refactor management bus to select plugins using the type hierarchy of the ArtifactTypes?
+    static final private String[] TYPES = {"{http://www.example.com/ToscaTypes}WAR",
+        "{http://opentosca.org/artifacttypes}WAR",
+        "{http://opentosca.org/artifacttypes}WAR-Java8",
+        "{http://opentosca.org/artifacttypes}WAR-Java17"};
+    private static final String[] CAPABILITIES = {"http://tomcat.apache.org/tomcat7.0",
+        "http://www.jcp.org/javaserverpages2.2",
+        "http://www.jcp.org/servlet3.0"};
 
     private static final Logger LOG = LoggerFactory.getLogger(ManagementBusDeploymentPluginTomcat.class);
 
@@ -122,7 +128,7 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
         // if placeholder is defined the deployment is done in the topology
         final String placeholderBegin = "/PLACEHOLDER_";
         final String placeholderEnd = "_PLACEHOLDER/";
-        String endpoint = null;
+        String endpoint;
         if (endpointSuffix.contains(placeholderBegin)
             && endpointSuffix.contains(placeholderEnd)) {
 
@@ -144,8 +150,13 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
             endpoint = endpointBegin + placeholder + ":8080/" + fileName + "/" + endpointEnd;
         } else {
 
+            // determine Tomcat to use for the deployment
+            QName artifactType = message.getHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), QName.class);
+            String tomcatEndpoint = getTomcatEndpoint(artifactType);
+            LOG.debug("Retrieved Tomcat endpoint {} for deployment of ArtifactType: {}", tomcatEndpoint, artifactType);
+
             // check if Tomcat is running to continue deployment
-            if (!isRunning()) {
+            if (!isRunning(tomcatEndpoint)) {
                 LOG.error("Deployment failed: Tomcat is not running or can´t be accessed");
                 message.setHeader(MBHeader.ENDPOINT_URI.toString(), null);
                 return exchange;
@@ -159,7 +170,7 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
                 message.getHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), String.class);
 
             // perform deployment on management infrastructure
-            endpoint = deployWAROnTomcat(csarId, warFile, triggeringContainer, typeImplementation, fileName);
+            endpoint = deployWAROnTomcat(csarId, warFile, triggeringContainer, typeImplementation, fileName, tomcatEndpoint);
 
             if (endpoint != null) {
                 // add endpoint suffix to endpoint of deployed WAR
@@ -191,33 +202,35 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
             return exchange;
         }
 
+        QName artifactType = message.getHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), QName.class);
+        String tomcatEndpoint = getTomcatEndpoint(artifactType);
+
         final String endpoint = endpointURI.toString();
         LOG.debug("Endpoint for undeployment: {}", endpoint);
         // delete Tomcat URL prefix from endpoint
-        String deployPath = endpoint.replace(Settings.ENGINE_IA_TOMCAT_URL, "");
+        String deployPath = endpoint.replace(tomcatEndpoint, "");
         // delete ServiceEndpoint suffix from endpoints
         deployPath = deployPath.substring(0, StringUtils.ordinalIndexOf(deployPath, "/", 4));
 
         // command to perform deployment on Tomcat from local file
-        final String undeploymentURL = Settings.ENGINE_IA_TOMCAT_URL + "/manager/text/undeploy?path=" + deployPath;
+        final String undeploymentURL = tomcatEndpoint + "/manager/text/undeploy?path=" + deployPath;
         LOG.debug("Undeployment command: {}", undeploymentURL);
 
         try {
             // perform undeployment request on Tomcat
             final HttpResponse httpResponse = this.httpService.Get(undeploymentURL, Settings.ENGINE_IA_TOMCAT_USERNAME, Settings.ENGINE_IA_TOMCAT_PASSWORD);
             final String response = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
-
             LOG.debug("Tomcat response: {}", response);
 
             // check if WAR-File was undeployed successfully
-            if (response.contains("OK - Undeployed application at context path [" + deployPath + "]")) {
+            if (HttpStatus.valueOf(httpResponse.getStatusLine().getStatusCode()).is2xxSuccessful()) {
                 LOG.debug("IA successfully undeployed from Tomcat!");
                 message.setHeader(MBHeader.OPERATIONSTATE_BOOLEAN.toString(), true);
             } else {
                 LOG.error("Undeployment not successfully!");
             }
         } catch (final IOException e) {
-            LOG.error("IOException occured while undeploying the WAR-File: {}!", e);
+            LOG.error("IOException occurred while undeploying the WAR-File:", e);
         }
         return exchange;
     }
@@ -228,12 +241,7 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
      */
     public List<String> getSupportedTypes() {
         LOG.debug("Getting Types: {}.", TYPES);
-        final List<String> types = new ArrayList<>();
-
-        for (final String type : TYPES.split("[,;]")) {
-            types.add(type.trim());
-        }
-        return types;
+        return Lists.newArrayList(TYPES);
     }
 
     @Override
@@ -242,35 +250,25 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
      */
     public List<String> getCapabilties() {
         LOG.debug("Getting Plugin-Capabilities: {}.", CAPABILITIES);
-        final List<String> capabilities = new ArrayList<>();
-
-        for (final String capability : CAPABILITIES.split("[,;]")) {
-            capabilities.add(capability.trim());
-        }
-        return capabilities;
+        return Lists.newArrayList(CAPABILITIES);
     }
 
     /**
-     * Check if the Tomcat which is references as the IA-engine in the container config.ini is running.
+     * Check if the Tomcat is accessible at the given endpoint
      *
+     * @param tomcatEndpoint the endpoint check for availability of a Tomcat
      * @return true if Tomcat is running and can be accessed, false otherwise
      */
-    private boolean isRunning() {
-        LOG.info("Checking if Tomcat is running on {} and can be accessed...",
-            Settings.ENGINE_IA_TOMCAT_URL);
+    private boolean isRunning(String tomcatEndpoint) {
+        LOG.info("Checking if Tomcat is running on {} and can be accessed...", tomcatEndpoint);
 
         // URL to get serverinfo from Tomcat
-        final String url = Settings.ENGINE_IA_TOMCAT_URL + "/manager/text/serverinfo";
+        final String url = tomcatEndpoint + "/manager/text/serverinfo";
 
         // execute HTPP GET on URL and check the response
         try {
             final HttpResponse httpResponse = this.httpService.Get(url, Settings.ENGINE_IA_TOMCAT_USERNAME, Settings.ENGINE_IA_TOMCAT_PASSWORD);
-            final String response = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
-
-            LOG.debug(response);
-            if (response.contains("OK - Server info")) {
-                return true;
-            }
+            return HttpStatus.valueOf(httpResponse.getStatusLine().getStatusCode()).is2xxSuccessful();
         } catch (final Exception e) {
             LOG.error("Error while checking for availability of the Tomcat: {}",
                 e.getMessage());
@@ -341,9 +339,10 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
      * @param typeImplementation  the NodeTypeImplementation or RelationshipTypeImplementation which is used to create a
      *                            unique path where the WAR is deployed
      * @param fileName            the file name which is part of the deployment path
+     * @param tomcatEndpoint      the endpoint of the Tomcat to deploy the WAR to
      */
     private String deployWAROnTomcat(final CsarId csarId, final File warFile, final String triggeringContainer,
-                                     final QName typeImplementation, final String fileName) {
+                                     final QName typeImplementation, final String fileName, String tomcatEndpoint) {
 
         if (triggeringContainer == null) {
             LOG.warn("Triggering Container host name is null. Deployment aborted because it is part of the deployment path on Tomcat");
@@ -358,41 +357,35 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
             + getConvertedString(typeImplementation.toString()) + "/" + fileName;
 
         // command to perform deployment on Tomcat from local file
-        final String deploymentURL =
-            Settings.ENGINE_IA_TOMCAT_URL + "/manager/text/deploy?update=true&path=" + deployPath;
-
-        // create HttpEntity which contains the WAR-File
-        final MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-        final FileBody fileBody = new FileBody(warFile);
-        builder.addPart(fileName + ".war", fileBody);
-        final HttpEntity entity = builder.build();
+        final String deploymentURL = tomcatEndpoint + "/manager/text/deploy?update=true&path=" + deployPath;
 
         try {
             // perform deployment request on Tomcat
-            final HttpResponse httpResponse =
-                this.httpService.Put(deploymentURL, entity, Settings.ENGINE_IA_TOMCAT_USERNAME,
-                    Settings.ENGINE_IA_TOMCAT_PASSWORD);
+            String authentication = Settings.ENGINE_IA_TOMCAT_USERNAME + ":" + Settings.ENGINE_IA_TOMCAT_PASSWORD;
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(deploymentURL))
+                .setHeader(HttpHeaders.AUTHORIZATION, "Basic " + new Base64().encodeAsString(authentication.getBytes()))
+                .PUT(HttpRequest.BodyPublishers.ofFile(warFile.toPath()))
+                .build();
 
-            final String response = IOUtils.toString(httpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
+            HttpClient client = HttpClient.newBuilder().build();
+            java.net.http.HttpResponse<String> httpResponse = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
 
-            LOG.info("Tomcat response to deployment request: {}", response);
+            LOG.info("Tomcat response to deployment request: {}", httpResponse.body());
 
             // check if WAR-File was deployed successfully.
-            if (response.contains("OK - Deployed application at context path " + deployPath)
-                || response.contains("OK - Deployed application at context path [" + deployPath + "]")) {
+            if (HttpStatus.valueOf(httpResponse.statusCode()).is2xxSuccessful()) {
                 LOG.info("Deployment was successful.");
 
                 // concatenate service endpoint
-                String endpoint = Settings.ENGINE_IA_TOMCAT_URL + deployPath;
+                String endpoint = tomcatEndpoint + deployPath;
                 LOG.info("Endpoint of deployed service: {}", endpoint);
                 return endpoint;
             } else {
                 LOG.error("Deployment was not successful.");
             }
-        } catch (final IOException e) {
-            LOG.error("IOException occured while deploying the WAR-File: {}!",
-                e);
+        } catch (final IOException | InterruptedException e) {
+            LOG.error("IOException occurred while deploying the WAR-File: {}!", fileName, e);
         }
         return null;
     }
@@ -429,5 +422,22 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
             }
         }
         return null;
+    }
+
+    /**
+     * Get the endpoint of a Tomcat to deploy an artifact of the given ArtifactType
+     *
+     * @param artifactType the type of the artifact to deploy
+     * @return the endpoint of the Tomcat
+     */
+    private String getTomcatEndpoint(QName artifactType) {
+
+        // for WARs relying on Java 17 the corresponding Tomcat must be selected
+        if (artifactType.equals(QName.valueOf("{http://opentosca.org/artifacttypes}WAR-Java17"))) {
+            return Settings.ENGINE_IA_TOMCAT_JAVA17_URL;
+        }
+
+        // all other supported ArtifactTypes should be deployed to the default Java 8 Tomcat
+        return Settings.ENGINE_IA_TOMCAT_URL;
     }
 }

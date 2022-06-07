@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * /ns/2011/12/ToscaBaseTypes}ScriptArtifact,{http ://www.example.com/ToscaTypes}WAR and DAs of type
  * {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}ArchiveArtifact
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -68,6 +68,8 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
     private static final QName dockerContainerArtefactType =
         new QName("http://opentosca.org/artifacttypes", "DockerContainerArtifact");
     private static final QName stateArtifactType = new QName("http://opentosca.org/artifacttypes", "State");
+
+    private static final QName imageArtifactType = new QName("http://docs.oasis-open.org/tosca/ToscaNormativeTypes/artifacttypes", "Image");
 
     private final BPELPrePhasePluginHandler handler = new BPELPrePhasePluginHandler();
 
@@ -170,9 +172,13 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
             return true;
         }
 
-        if (!org.opentosca.container.core.convention.Utils
-            .isSupportedInfrastructureNodeType(infrastructureNodeType)) {
-            return false;
+        if (!Utils.isSupportedInfrastructureNodeType(infrastructureNodeType)) {
+            return Utils.isCloudProvider(infrastructureNodeType)
+                && ModelUtilities.isOfType(imageArtifactType, artifactType, artifactTypes);
+        }
+        // else if we have a supported infrastructure node, and we are handling a DA, upload it...
+        if (isDA) {
+            return true;
         }
 
         // we can deploy on debian nodes (ubuntu, raspbian, docker containers based on

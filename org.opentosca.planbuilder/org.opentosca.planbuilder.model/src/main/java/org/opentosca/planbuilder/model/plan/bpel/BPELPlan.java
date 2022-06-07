@@ -27,7 +27,7 @@ import org.w3c.dom.Element;
  * methods on this class mostly consist of setters/getters, all logic should be made through the facade under
  * org.opentosca.planbuilder.handlers
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -36,6 +36,7 @@ public class BPELPlan extends AbstractPlan {
 
     public static final String bpelNamespace = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
     public static final String xpath2Namespace = "urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0";
+    private final List<BPELScope> templateBuildPlans = new ArrayList<>();
     public Map<String, String> namespaceMap = new HashMap<>();
     // xml document
     private Document bpelProcessDocument;
@@ -50,7 +51,6 @@ public class BPELPlan extends AbstractPlan {
     private Element bpelMainSequenceElement;
     // assign element for property assigns
     private Element bpelMainSequencePropertyAssignElement;
-
     // variables associated with the bpel orchestration
     // the main sequence element of this process
     // assign element for output
@@ -63,7 +63,6 @@ public class BPELPlan extends AbstractPlan {
     // will work on
     private Element bpelMainFlowElement;
     private Element bpelMainFlowLinksElement;
-    private List<BPELScope> templateBuildPlans = new ArrayList<>();
     // imported files of the whole buildplan, to keep track for export
     private Set<Path> importedFiles;
     // variable for TemplateBuildPlans, makes it easier or handlers and
@@ -75,9 +74,6 @@ public class BPELPlan extends AbstractPlan {
     // the file name of the csar the serviceTemplate and this buildPlan belongs
     // to
     private Map<AbstractActivity, BPELScope> abstract2bpelMap;
-    // wsdl related stuff
-    private String toscaInterfaceName = null;
-    private String toscaOperationName = null;
 
     public BPELPlan(final String id, final PlanType type, final TDefinitions definitions,
                     final TServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities,
@@ -85,32 +81,8 @@ public class BPELPlan extends AbstractPlan {
         super(id, type, definitions, serviceTemplate, activities, links);
     }
 
-    public void setTOSCAOperationname(final String name) {
-        this.toscaOperationName = name;
-    }
-
-    public String getTOSCAInterfaceName() {
-        if (this.toscaInterfaceName != null) {
-            return this.toscaInterfaceName;
-        } else {
-            return this.bpelProcessElement.getAttribute("name");
-        }
-    }
-
-    public void setTOSCAInterfaceName(final String name) {
-        this.toscaInterfaceName = name;
-    }
-
     public String getProcessNamespace() {
         return this.bpelProcessElement.getAttribute("targetNamespace");
-    }
-
-    public String getTOSCAOperationName() {
-        if (this.toscaOperationName != null) {
-            return this.toscaOperationName;
-        } else {
-            return getBpelMainSequenceReceiveElement().getAttribute("operation");
-        }
     }
 
     /**
@@ -505,7 +477,7 @@ public class BPELPlan extends AbstractPlan {
      * <p>
      * Defines which variables the model allows to define
      * <p>
-     * Copyright 2013 IAAS University of Stuttgart <br>
+     * Copyright 2013-2022 IAAS University of Stuttgart <br>
      * <br>
      *
      * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -518,7 +490,7 @@ public class BPELPlan extends AbstractPlan {
      * <p>
      * Defines which imports the model allows to define
      * <p>
-     * Copyright 2013 IAAS University of Stuttgart <br>
+     * Copyright 2013-2022 IAAS University of Stuttgart <br>
      * <br>
      *
      * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de

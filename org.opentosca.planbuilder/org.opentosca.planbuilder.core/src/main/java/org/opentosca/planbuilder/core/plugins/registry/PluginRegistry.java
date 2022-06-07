@@ -37,7 +37,7 @@ import org.springframework.stereotype.Service;
  * <p>
  * This class is the registry for all plugins of the PlanBuilder
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepes@iaas.uni-stuttgart.de

@@ -15,10 +15,10 @@ import javax.xml.xpath.XPathFactory;
 
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
-import org.opentosca.container.core.model.ModelUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -67,9 +67,8 @@ public class SituationTriggerRegistration {
                         appendAssignSituationIdFromInputToSituationIdVar(plan, inputName, i, situationIdVarName,
                             plan.getBpelMainFlowElement());
                         situationIdVarNames.add(situationIdVarName);
-                    } else {
-                        // TODO Add Selection of SituationId
                     }
+                    // TODO Add Selection of SituationId
                 }
 
                 // TODO set serviceInstanceId
@@ -321,12 +320,8 @@ public class SituationTriggerRegistration {
     }
 
     private Map<String, String> getPropertiesSafely(final TServiceTemplate serviceTemplate) {
-        if (serviceTemplate.getBoundaryDefinitions() != null) {
-            if (serviceTemplate.getBoundaryDefinitions().getProperties() != null) {
-                if (serviceTemplate.getBoundaryDefinitions().getProperties() != null && !ModelUtils.asMap(serviceTemplate.getBoundaryDefinitions().getProperties()).isEmpty()) {
-                    return ModelUtils.asMap(serviceTemplate.getBoundaryDefinitions().getProperties());
-                }
-            }
+        if (serviceTemplate.getBoundaryDefinitions() != null && serviceTemplate.getBoundaryDefinitions().getProperties() != null && !ModelUtils.asMap(serviceTemplate.getBoundaryDefinitions().getProperties()).isEmpty()) {
+            return ModelUtils.asMap(serviceTemplate.getBoundaryDefinitions().getProperties());
         }
         return null;
     }

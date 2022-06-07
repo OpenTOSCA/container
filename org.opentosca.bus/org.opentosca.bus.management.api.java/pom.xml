@@ -14,23 +14,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-core</artifactId>
-			<version>${camel.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-stream</artifactId>
-			<version>${camel.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-support</artifactId>
-			<version>${camel.version}</version>
-		</dependency>
-
-
-		<dependency>
 			<groupId>org.opentosca</groupId>
 			<artifactId>org.opentosca.bus.management</artifactId>
 			<version>${project.version}</version>
@@ -59,7 +42,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.opentosca</groupId>
-			<artifactId>org.opentosca.container.engine.plan.plugin.bpel</artifactId>
+			<artifactId>org.opentosca.container.plan.deployment.plugin.bpel</artifactId>
 			<version>3.0.0-SNAPSHOT</version>
 			<scope>compile</scope>
 			<exclusions>

@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.Lob;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -24,7 +25,8 @@ public class Property extends PersistenceObject {
     @Column(nullable = false)
     private String name;
 
-    @Column(columnDefinition = "varchar(max)")
+    @Lob
+    @Column
     private String value;
 
     private String type;

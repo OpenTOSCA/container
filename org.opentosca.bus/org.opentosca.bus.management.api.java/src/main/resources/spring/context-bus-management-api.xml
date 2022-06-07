@@ -16,11 +16,15 @@
       <camel:package>org.opentosca.bus.management.api.java.route</camel:package>
     </camel:packageScan>
   </camel:camelContext>
-  
+
   <bean class="org.opentosca.bus.management.api.java.MBJavaApi">
     <constructor-arg type="org.apache.camel.CamelContext" ref="mb-api-java-camel-context"/>
   </bean>
-  <!-- We're manually adding the routes needed in the MBJavaApi ctor -->
-  <!--<context:component-scan base-package="org.opentosca.bus.management.api.java.route"/>-->
 
+  <context:component-scan base-package="org.opentosca.container.core.impl.service"/>
+  <context:component-scan base-package="org.opentosca.container.core.next.repository"/>
+  <context:component-scan base-package="org.opentosca.planbuilder.importer"/>
+  <context:component-scan base-package="org.opentosca.planbuilder.export"/>
+  <context:component-scan base-package="org.opentosca.container.plan.deployment.plugin.bpel"/>
+  <context:component-scan base-package="org.opentosca.bus.management.api.java.route"/>
 </beans>

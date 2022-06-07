@@ -21,6 +21,7 @@ import org.eclipse.winery.model.tosca.TPolicy;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
@@ -44,9 +45,11 @@ import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_BuildPlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_LifecycleInterface;
 
 /**
  * <p>
@@ -56,7 +59,7 @@ import org.slf4j.LoggerFactory;
  * TopologyTemplate.
  * </p>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -129,10 +132,10 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
         LOG.debug(buildPlan.toString());
 
         final BPELPlan newBuildPlan =
-            this.planHandler.createEmptyBPELPlan(processNamespace, processName, buildPlan, "initiate");
+            this.planHandler.createEmptyBPELPlan(processNamespace, processName, buildPlan, OpenTOSCA_BuildPlanOperation);
 
-        newBuildPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
-        newBuildPlan.setTOSCAOperationname("initiate");
+        newBuildPlan.setTOSCAInterfaceName(OpenTOSCA_LifecycleInterface);
+        newBuildPlan.setTOSCAOperationname(OpenTOSCA_BuildPlanOperation);
 
         this.planHandler.initializeBPELSkeleton(newBuildPlan, csar);
         // newBuildPlan.setCsarName(csarName);
@@ -200,7 +203,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
             "RUNNING", planInstanceUrlVarName);
 
         this.serviceInstanceHandler.appendSetServiceInstanceState(newBuildPlan,
-            newBuildPlan.getBpelMainSequenceOutputAssignElement(),
+            newBuildPlan.getBpelMainSequenceCallbackInvokeElement(),
             "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(newBuildPlan);

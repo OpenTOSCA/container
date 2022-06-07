@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -43,11 +44,12 @@ import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.bus.management.service.impl.Constants;
 import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.common.Settings;
-import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.engine.ResolvedArtifacts;
 import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedDeploymentArtifact;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.next.ContainerEngine;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.PlanInstance;
@@ -59,11 +61,14 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_BuildPlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_LifecycleInterface;
+
 /**
  * Request-Processor of the Management Bus-SOAP/HTTP-API.<br>
  * <br>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * This processor processes the incoming requests of the Management Bus-SOAP/HTTP-API. It transforms the incoming
@@ -80,16 +85,18 @@ public class RequestProcessor implements Processor {
     private final CsarStorageService csarStorage;
     private final ContainerEngine containerEngine;
     private final IManagementBusService managementBusService;
-    private final ChoreographyHandler choreoHandler;
+    private final ChoreographyHandler choreographyHandler;
+    private final PlanInstanceRepository planInstanceRepository;
 
-    // manually instantiated from within the Route definition. Therefore no @Inject
-    // annotation
+    // manually instantiated from within the Route definition. Therefore, no @Inject annotation
     public RequestProcessor(CsarStorageService csarStorage, ContainerEngine containerEngine,
-                            IManagementBusService managementBusService, ChoreographyHandler choreoHandler) {
+                            IManagementBusService managementBusService, ChoreographyHandler choreographyHandler,
+                            PlanInstanceRepository planInstanceRepository) {
         this.csarStorage = csarStorage;
         this.containerEngine = containerEngine;
         this.managementBusService = managementBusService;
-        this.choreoHandler = choreoHandler;
+        this.choreographyHandler = choreographyHandler;
+        this.planInstanceRepository = planInstanceRepository;
     }
 
     @Override
@@ -98,22 +105,22 @@ public class RequestProcessor implements Processor {
         // copy SOAP headers in camel exchange object
         LOG.debug("copy SOAP headers in camel exchange object");
         @SuppressWarnings("unchecked") final List<SoapHeader> soapHeaders = (List<SoapHeader>) exchange.getIn().getHeader(Header.HEADER_LIST);
-        Element elementx;
+        Element elementX;
         if (soapHeaders != null) {
             for (final SoapHeader header : soapHeaders) {
-                elementx = (Element) header.getObject();
-                exchange.getIn().setHeader(elementx.getLocalName(), elementx.getTextContent());
+                elementX = (Element) header.getObject();
+                exchange.getIn().setHeader(elementX.getLocalName(), elementX.getTextContent());
             }
         }
 
         ParamsMap paramsMap = null;
         Doc doc = null;
-        String planCorrelationID = null;
+        String planCorrelationID;
         String csarIDString = null;
-        String serviceInstanceID = null;
-        String callbackAddress = null;
-        String messageID = null;
-        String interfaceName = null;
+        String serviceInstanceID;
+        String callbackAddress;
+        String messageID;
+        String interfaceName;
         String operationName = null;
         if (exchange.getIn().getBody() instanceof InvokeOperationAsync) {
 
@@ -146,34 +153,32 @@ public class RequestProcessor implements Processor {
             final List<ResolvedDeploymentArtifact> resolvedDAs = new ArrayList<>();
             if (nodeTemplateID != null) {
                 final Csar csar = this.csarStorage.findById(new CsarId(csarIDString));
-                final TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
 
                 final TNodeTemplate nodeTemplate = ToscaEngine.resolveNodeTemplate(csar, serviceTemplateID,
                     nodeTemplateID);
 
-                if (Types.openStackTrainNodeType.getLocalPart().equals(nodeTemplate.getType().getLocalPart())
-                    || Types.openStackTrainNodeType_legacy.getLocalPart()
-                    .equals(nodeTemplate.getType().getLocalPart())) {
-                    final List<TNodeTemplate> relatedSourceNodeTemplate = ToscaEngine.getRelatedSourceNodeTemplate(
-                        serviceTemplate, nodeTemplate, Types.hostedOnRelationType, Types.deployedOnRelationType,
-                        Types.dependsOnRelationType);
-                    for (final TNodeTemplate nodeTemplate1 : relatedSourceNodeTemplate) {
-                        // FIXME? TODO? Is the DA header only good for ubuntu DAs ? How about for future IAs this may come in handy right ?
-                        if (nodeTemplate1.getName().startsWith("Ubuntu")) {
-                            final TNodeType nodeType = ToscaEngine.resolveNodeTypeReference(csar,
-                                nodeTemplate1.getType());
-
-                            List<TNodeTypeImplementation> nodeTypeImpls = csar.nodeTypeImplementations();
-                            for (TNodeTypeImplementation nodeTypeImpl : nodeTypeImpls) {
-                                if (nodeTypeImpl.getNodeType().equals(nodeType.getQName())
-                                    && nodeTypeImpl.getDeploymentArtifacts() != null) {
-                                    final ResolvedArtifacts resolvedArtifacts = this.containerEngine
-                                        .resolvedDeploymentArtifactsOfNodeTypeImpl(csar, nodeTypeImpl);
-                                    resolvedDAs.addAll(resolvedArtifacts.getDeploymentArtifacts());
+                if (Utils.isCloudProvider(nodeTemplate.getType())) {
+                    ModelUtils.getIngoingRelations(nodeTemplate, csar).forEach(ingoingRelation -> {
+                        TNodeTemplate source = ModelUtils.getSource(ingoingRelation, csar);
+                        if (Utils.isSupportedVMNodeType(source.getType())) {
+                            Optional<TNodeType> nodeTypeOptional = csar.nodeTypes().stream()
+                                .filter(type -> type.getQName().equals(source.getType()))
+                                .findFirst();
+                            if (nodeTypeOptional.isPresent()) {
+                                TNodeType nodeType = nodeTypeOptional.get();
+                                for (TNodeTypeImplementation nodeTypeImpl : ToscaEngine.getNodeTypeImplementations(csar, nodeType)) {
+                                    if (nodeTypeImpl.getDeploymentArtifacts() != null) {
+                                        final ResolvedArtifacts resolvedArtifacts = this.containerEngine
+                                            .resolvedDeploymentArtifactsOfNodeTypeImpl(csar, nodeTypeImpl);
+                                        resolvedDAs.addAll(resolvedArtifacts.getDeploymentArtifacts());
+                                    }
                                 }
+                            } else {
+                                LOG.error("Something went terribly wrong! Could not find Node Type '{}' in CSAR '{}'",
+                                    source.getType(), csar.id().csarName());
                             }
                         }
-                    }
+                    });
                 }
 
                 final ResolvedArtifacts resolvedArtifacts = this.containerEngine.resolvedDeploymentArtifacts(csar,
@@ -185,9 +190,9 @@ public class RequestProcessor implements Processor {
             final HashMap<QName, HashMap<String, String>> DAs = new HashMap<>();
             for (final ResolvedDeploymentArtifact resolvedDeploymentArtifact : resolvedDAs) {
                 LOG.info("DA name:" + resolvedDeploymentArtifact.getName());
-                final QName DAname = resolvedDeploymentArtifact.getType();
-                final HashMap<String, String> DAfiles = new HashMap<>();
-                DAs.put(DAname, DAfiles);
+                final QName DAName = resolvedDeploymentArtifact.getType();
+                final HashMap<String, String> DAFiles = new HashMap<>();
+                DAs.put(DAName, DAFiles);
                 for (final String s : resolvedDeploymentArtifact.getReferences()) {
                     LOG.info("DA getReferences:" + s);
                     final String url = serviceInstanceIDUrl.getProtocol() + "://" + serviceInstanceIDUrl.getHost() + ":"
@@ -195,7 +200,7 @@ public class RequestProcessor implements Processor {
                     final String urlWithDa = url + s;
 
                     LOG.info(urlWithDa);
-                    DAfiles.put(FilenameUtils.getName(urlWithDa), urlWithDa);
+                    DAFiles.put(FilenameUtils.getName(urlWithDa), urlWithDa);
                 }
             }
             final Gson gson = new Gson();
@@ -333,7 +338,7 @@ public class RequestProcessor implements Processor {
             final NotifyPartner notifyPartnerRequest = (NotifyPartner) exchange.getIn().getBody();
 
             // set choreography headers
-            final PlanInstance planInstance = new PlanInstanceRepository()
+            final PlanInstance planInstance = planInstanceRepository
                 .findByCorrelationId(notifyPartnerRequest.getPlanCorrelationID());
             exchange.getIn().setHeader(MBHeader.CHOREOGRAPHY_PARTNERS.toString(),
                 planInstance.getChoreographyPartners());
@@ -361,7 +366,7 @@ public class RequestProcessor implements Processor {
                     receiveNotifyRequest);
                 return;
             }
-            final Csar choreoCsar = this.choreoHandler.getChoreographyCsar(appChoreoId, this.csarStorage.findAll(),
+            final Csar choreoCsar = this.choreographyHandler.getChoreographyCsar(appChoreoId, this.csarStorage.findAll(),
                 receivingPartner);
             if (choreoCsar == null) {
                 LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}",
@@ -372,10 +377,10 @@ public class RequestProcessor implements Processor {
 
             // get plan ID from the boundary definitions
 
-            final QName planID = MBUtils.findPlanByOperation(choreoCsar, "OpenTOSCA-Lifecycle-Interface", "initiate");
+            final QName planID = MBUtils.findPlanByOperation(choreoCsar, OpenTOSCA_LifecycleInterface, OpenTOSCA_BuildPlanOperation);
 
-            final String planCorrelationId = new PlanInstanceRepository()
-                .findByChoreographyCorrelationId(receiveNotifyRequest.getPlanChorCorrelation(), planID)
+            final String planCorrelationId = planInstanceRepository
+                .findByChoreographyCorrelationIdAndTemplateId(receiveNotifyRequest.getPlanChorCorrelation(), planID)
                 .getCorrelationId();
             receiveNotifyRequest.setPlanCorrelationID(planCorrelationId);
             // create the body for the receiveNotify request that must be send to the plan
@@ -417,7 +422,7 @@ public class RequestProcessor implements Processor {
                     receiveNotifyRequest);
                 return;
             }
-            final Csar choreoCsar = this.choreoHandler.getChoreographyCsar(appChoreoId, this.csarStorage.findAll(),
+            final Csar choreoCsar = this.choreographyHandler.getChoreographyCsar(appChoreoId, this.csarStorage.findAll(),
                 receivingPartner);
             if (choreoCsar == null) {
                 LOG.warn("Received NotifyPartners message but found no participating CSAR, message:  {}",
@@ -430,7 +435,7 @@ public class RequestProcessor implements Processor {
                 choreoServiceTemplate.getId());
 
             // get plan ID from the boundary definitions
-            final QName planID = MBUtils.findPlanByOperation(choreoCsar, "OpenTOSCA-Lifecycle-Interface", "initiate");
+            final QName planID = MBUtils.findPlanByOperation(choreoCsar, OpenTOSCA_LifecycleInterface, OpenTOSCA_BuildPlanOperation);
 
             // create plan invocation request from given parameters
             exchange.getIn().setBody(createRequestBody(choreoCsar.id().csarName(), serviceTemplateID,
@@ -444,11 +449,12 @@ public class RequestProcessor implements Processor {
             exchange.getIn().setHeader(MBHeader.PLANID_QNAME.toString(), planID);
             // exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(),
             // Activator.apiID);
-            exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), "initiate");
+            exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), OpenTOSCA_BuildPlanOperation);
             exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokePlan");
 
             final String partner = receiveNotifyRequest.getParams().getParam().stream()
-                .filter(param -> param.getKey().equals("SendingPartner")).findFirst().map(param -> param.getValue())
+                .filter(param -> param.getKey().equals("SendingPartner"))
+                .findFirst().map(ParamsMapItemType::getValue)
                 .orElse(null);
             LOG.debug("Adding partner: {}", partner);
             this.managementBusService.addPartnerToReadyList(receiveNotifyRequest.getPlanChorCorrelation(), partner);

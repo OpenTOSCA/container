@@ -22,6 +22,7 @@ import org.eclipse.winery.model.tosca.TTag;
 import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractScaleOutPlanBuilder;
 import org.opentosca.planbuilder.core.ScalingPlanDefinition;
@@ -48,7 +49,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -261,7 +261,6 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
         final Collection<TTag> tags = serviceTemplate.getTags();
 
-
         if (tags == null || tags.stream().filter(x -> x.getName().equals("scalingplans")).findFirst().orElse(null) == null) {
             return scalingPlans;
         }
@@ -274,7 +273,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
         for (final ScalingPlanDefinition scalingPlanDefinition : scalingPlanDefinitions) {
 
-            final BPELPlan bpelScaleOutProcess = this.createScalingPlan(csar,definitions,serviceTemplate,scalingPlanDefinition);
+            final BPELPlan bpelScaleOutProcess = this.createScalingPlan(csar, definitions, serviceTemplate, scalingPlanDefinition);
 
             scalingPlans.add(bpelScaleOutProcess);
         }
@@ -282,7 +281,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         return scalingPlans;
     }
 
-    private BPELPlan createScalingPlan(Csar csar, TDefinitions definitions, TServiceTemplate serviceTemplate, ScalingPlanDefinition scalingPlanDefinition){
+    private BPELPlan createScalingPlan(Csar csar, TDefinitions definitions, TServiceTemplate serviceTemplate, ScalingPlanDefinition scalingPlanDefinition) {
         final String processName =
             ModelUtils.makeValidNCName(serviceTemplate.getId() + "_scalingPlan_" + scalingPlanDefinition.name);
         final String processNamespace = serviceTemplate.getTargetNamespace() + "_scalingPlan";
@@ -382,7 +381,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             "RUNNING", planInstanceUrlVarName);
 
         this.serviceInstanceHandler.appendSetServiceInstanceState(bpelScaleOutProcess,
-            bpelScaleOutProcess.getBpelMainSequenceOutputAssignElement(),
+            bpelScaleOutProcess.getBpelMainSequenceCallbackInvokeElement(),
             "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(bpelScaleOutProcess);
@@ -657,7 +656,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate, context.getCsar());
         if (plugin != null) {
 
-            LOG.info("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(),
+            LOG.debug("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(),
                 plugin.getID());
             plugin.handleCreate(context, nodeTemplate);
         } else {
@@ -683,7 +682,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         // TemplateBuildPlan is broken here!
         // TODO implement fallback
         if (this.pluginRegistry.findTypePluginForCreation(relationshipTemplate, context.getCsar()) != null) {
-            LOG.info("Handling RelationshipTemplate {} with type plugin",
+            LOG.debug("Handling RelationshipTemplate {} with type plugin",
                 relationshipTemplate.getId());
             IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(relationshipTemplate, context.getCsar());
             this.pluginRegistry.handleCreateWithTypePlugin(context, relationshipTemplate, plugin);

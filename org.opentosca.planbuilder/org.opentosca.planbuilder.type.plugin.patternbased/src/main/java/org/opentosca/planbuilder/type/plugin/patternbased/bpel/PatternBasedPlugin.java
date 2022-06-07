@@ -111,7 +111,7 @@ public class PatternBasedPlugin implements IPlanBuilderTypePlugin<BPELPlanContex
             LOG.debug("Handling by remote manager pattern");
             check &= remoteMgrHandler.handleCreate(templateContext, nodeTemplate, templateContext.getProvisioningPhaseElement());
 
-            if (check == true) {
+            if (check) {
                 TOperation installOp = remoteMgrHandler.getRemoteManagerPatternInstallMethod(nodeTemplate, templateContext.getCsar());
                 TOperation resetOp = remoteMgrHandler.getRemoteManagerPatternResetMethod(nodeTemplate, templateContext.getCsar());
 

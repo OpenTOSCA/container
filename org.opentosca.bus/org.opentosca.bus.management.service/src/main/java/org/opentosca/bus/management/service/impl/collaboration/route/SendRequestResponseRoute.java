@@ -47,14 +47,14 @@ public class SendRequestResponseRoute extends RouteBuilder {
     public void configure() throws Exception {
 
         // MQTT endpoint where this route publishes messages
-        final String producerEndpoint = "mqtt:send?host=${header." + MBHeader.MQTTBROKERHOSTNAME_STRING.toString()
+        final String producerEndpoint = "mqtt:send?host=${header." + MBHeader.MQTTBROKERHOSTNAME_STRING
             + "}&userName=" + this.username + "&password=" + this.password + "&publishTopicName=${header."
-            + MBHeader.MQTTTOPIC_STRING.toString() + "}&qualityOfService=ExactlyOnce";
+            + MBHeader.MQTTTOPIC_STRING + "}&qualityOfService=ExactlyOnce";
 
         // print broker host name and topic for incoming messages
         final String loggerMessage =
-            "Sending Exchange to MQTT topic. Host: ${header." + MBHeader.MQTTBROKERHOSTNAME_STRING.toString()
-                + "} Topic: ${header." + MBHeader.MQTTTOPIC_STRING.toString() + "}";
+            "Sending Exchange to MQTT topic. Host: ${header." + MBHeader.MQTTBROKERHOSTNAME_STRING
+                + "} Topic: ${header." + MBHeader.MQTTTOPIC_STRING + "}";
 
         // print broker host name and topic for incoming messages
         final String exception = "Unable to marshal given object. Exchange will not be send!";

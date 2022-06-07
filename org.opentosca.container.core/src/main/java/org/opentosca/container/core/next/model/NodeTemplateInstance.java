@@ -1,9 +1,7 @@
 package org.opentosca.container.core.next.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,6 +15,9 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedEntityGraphs;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
@@ -29,6 +30,13 @@ import org.opentosca.container.core.next.xml.PropertyParser;
 
 @Entity
 @Table(name = NodeTemplateInstance.TABLE_NAME)
+@NamedEntityGraphs( {
+    @NamedEntityGraph(name = "propertiesAndOutgoing", includeAllAttributes = true, attributeNodes = {
+        @NamedAttributeNode("properties"),
+        @NamedAttributeNode("outgoingRelations"),
+        @NamedAttributeNode("incomingRelations")
+    })
+})
 public class NodeTemplateInstance extends PersistenceObject {
 
     public static final String TABLE_NAME = "NODE_TEMPLATE_INSTANCE";
@@ -40,7 +48,7 @@ public class NodeTemplateInstance extends PersistenceObject {
     private NodeTemplateInstanceState state;
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "nodeTemplateInstance", cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "nodeTemplateInstance", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<NodeTemplateInstanceProperty> properties = new HashSet<>();
 
@@ -49,10 +57,10 @@ public class NodeTemplateInstance extends PersistenceObject {
     private ServiceTemplateInstance serviceTemplateInstance;
 
     @OneToMany(mappedBy = "target")
-    private Collection<RelationshipTemplateInstance> incomingRelations = new ArrayList<>();
+    private Set<RelationshipTemplateInstance> incomingRelations = new HashSet<>();
 
     @OneToMany(mappedBy = "source")
-    private Collection<RelationshipTemplateInstance> outgoingRelations = new ArrayList<>();
+    private Set<RelationshipTemplateInstance> outgoingRelations = new HashSet<>();
 
     @Column(name = "TEMPLATE_ID", nullable = false)
     private String templateId;
@@ -62,9 +70,9 @@ public class NodeTemplateInstance extends PersistenceObject {
     private QName templateType;
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "nodeTemplateInstance", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "nodeTemplateInstance")
     @JsonIgnore
-    private List<DeploymentTestResult> deploymentTestResults = new ArrayList<>();
+    private Set<DeploymentTestResult> deploymentTestResults = new HashSet<>();
 
     @Column(name = "managingContainer")
     private String managingContainer;
@@ -134,7 +142,7 @@ public class NodeTemplateInstance extends PersistenceObject {
         return this.incomingRelations;
     }
 
-    public void setIncomingRelations(final Collection<RelationshipTemplateInstance> incomingRelations) {
+    public void setIncomingRelations(final Set<RelationshipTemplateInstance> incomingRelations) {
         this.incomingRelations = incomingRelations;
     }
 
@@ -149,7 +157,7 @@ public class NodeTemplateInstance extends PersistenceObject {
         return this.outgoingRelations;
     }
 
-    public void setOutgoingRelations(final Collection<RelationshipTemplateInstance> outgoingRelations) {
+    public void setOutgoingRelations(final Set<RelationshipTemplateInstance> outgoingRelations) {
         this.outgoingRelations = outgoingRelations;
     }
 
@@ -176,11 +184,11 @@ public class NodeTemplateInstance extends PersistenceObject {
         this.templateType = templateType;
     }
 
-    public List<DeploymentTestResult> getDeploymentTestResults() {
+    public Set<DeploymentTestResult> getDeploymentTestResults() {
         return this.deploymentTestResults;
     }
 
-    public void setDeploymentTestResults(final List<DeploymentTestResult> deploymentTestResult) {
+    public void setDeploymentTestResults(final Set<DeploymentTestResult> deploymentTestResult) {
         this.deploymentTestResults = deploymentTestResult;
     }
 

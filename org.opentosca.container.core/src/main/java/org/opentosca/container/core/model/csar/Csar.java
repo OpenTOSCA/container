@@ -22,7 +22,6 @@ import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 public interface Csar {
@@ -36,6 +35,8 @@ public interface Csar {
     List<TPolicyTemplate> policyTemplates();
 
     @Nullable TServiceTemplate entryServiceTemplate();
+
+    TDefinitions entryDefinitions();
 
     List<TDefinitions> definitions();
 
@@ -65,6 +66,8 @@ public interface Csar {
 
     @Deprecated
     Path getSaveLocation();
+
+    void reload();
 
     String toString();
 

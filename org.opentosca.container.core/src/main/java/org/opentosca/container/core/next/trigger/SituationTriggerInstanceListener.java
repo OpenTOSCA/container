@@ -38,8 +38,10 @@ import org.opentosca.container.core.service.IPlanInvocationEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
+@Component
 public class SituationTriggerInstanceListener {
 
     private static final List<SituationTriggerInstanceObserver> obs = Lists.newArrayList();
@@ -80,7 +82,7 @@ public class SituationTriggerInstanceListener {
      * calculate the WCET for the given Plan by summing up operation times in plan. Does not regard parallel
      * executions.
      */
-    public long calculateWCETForPlan(final TPlan plan) {
+    public long calculateWCETForPlan(final TPlan plan, final Collection<PlanInstance> allOccurences) {
         long calculatedTimeFromPreviousExecutions = 0;
 
         // contains mapping of PlanName to its contained operations
@@ -89,10 +91,6 @@ public class SituationTriggerInstanceListener {
         final Map<String, Long> longestDurationMap = new HashMap<>();
         // find all operations contained in current plan
         final List<String> allOperationsInPlan = planNameToOperationsMap.get(plan.getId());
-
-        // get all previously completed PlanInstances from DB
-        final PlanInstanceRepository planRepo = new PlanInstanceRepository();
-        final Collection<PlanInstance> allOccurences = planRepo.findAll();
 
         // iterate all instances until match is found
         if (allOperationsInPlan != null) {
@@ -119,10 +117,8 @@ public class SituationTriggerInstanceListener {
             // iterate all events from current PlanInstance
             for (final PlanInstanceEvent aEvent : currInstance.getEvents()) {
                 if (Objects.nonNull(aEvent.getOperationName()) && Objects.nonNull(aEvent.getExecutionDuration())
-                    && Objects.nonNull(aEvent.getNodeTemplateID())) {
-                    if (oneOperationFromPlan.equals(aEvent.getNodeTemplateID() + aEvent.getOperationName())) {
-                        checkIfCurrentOperationExecutionTimeIsLonger(longestDurationMap, aEvent);
-                    }
+                    && Objects.nonNull(aEvent.getNodeTemplateID()) && oneOperationFromPlan.equals(aEvent.getNodeTemplateID() + aEvent.getOperationName())) {
+                    checkIfCurrentOperationExecutionTimeIsLonger(longestDurationMap, aEvent);
                 }
             }
         }
@@ -150,10 +146,11 @@ public class SituationTriggerInstanceListener {
     private class SituationTriggerInstanceObserver implements Runnable {
 
         final private Logger LOG = LoggerFactory.getLogger(SituationTriggerInstanceObserver.class);
-
-        private final SituationTriggerInstanceRepository repo = new SituationTriggerInstanceRepository();
-        private final PlanInstanceRepository planRepository = new PlanInstanceRepository();
         private final SituationTriggerInstance instance;
+        @Autowired
+        private PlanInstanceRepository planRepository;
+        @Autowired
+        private SituationTriggerInstanceRepository repo;
         @Autowired
         private IPlanInvocationEngine planInvocEngine;
         @Autowired
@@ -166,7 +163,7 @@ public class SituationTriggerInstanceListener {
         @Override
         public void run() {
             this.instance.setStarted(true);
-            this.repo.update(this.instance);
+            this.repo.save(this.instance);
             this.LOG.debug("Started SituationTriggerInstance " + this.instance.getId());
 
             final String interfaceName = this.instance.getSituationTrigger().getInterfaceName();
@@ -257,7 +254,7 @@ public class SituationTriggerInstanceListener {
 
                     // now wait for finished execution
                     PlanInstance planInstance = planRepository.findByCorrelationId(correlationId);
-                    while (!(planInstance.getState() == PlanInstanceState.FINISHED)
+                    while ((planInstance.getState() != PlanInstanceState.FINISHED)
                         || planInstance.getState() == PlanInstanceState.FAILED) {
                         Thread.sleep(10000);
                         planInstance = planRepository.findByCorrelationId(correlationId);
@@ -268,9 +265,9 @@ public class SituationTriggerInstanceListener {
                         .add(new SituationTriggerInstanceProperty(x.getName(), x.getValue(), x.getType())));
 
                     instance.setFinished(true);
-                    repo.update(instance);
+                    repo.save(instance);
                 } catch (final InterruptedException e) {
-                    throw new RuntimeException(e);
+                    LOG.error("Thread was interrupted", e);
                 }
             }
         }

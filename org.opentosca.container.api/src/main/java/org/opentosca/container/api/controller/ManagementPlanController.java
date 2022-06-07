@@ -30,7 +30,9 @@ import org.opentosca.container.api.dto.plan.PlanInstanceEventListDTO;
 import org.opentosca.container.api.dto.plan.PlanInstanceListDTO;
 import org.opentosca.container.api.dto.plan.PlanListDTO;
 import org.opentosca.container.api.dto.request.CreatePlanInstanceLogEntryRequest;
-import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.PlanInvokerService;
+import org.opentosca.container.api.util.Utils;
+import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.model.csar.Csar;
@@ -38,6 +40,7 @@ import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanType;
+import org.opentosca.container.core.next.services.instances.PlanInstanceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +51,8 @@ public class ManagementPlanController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagementPlanController.class);
 
-    private final PlanService planService;
+    private final PlanInstanceService planInstanceService;
+    private final PlanInvokerService planInvokerService;
 
     private final Csar csar;
     private final TServiceTemplate serviceTemplate;
@@ -57,12 +61,13 @@ public class ManagementPlanController {
     private final PlanType[] planTypes;
 
     public ManagementPlanController(final Csar csar, final TServiceTemplate serviceTemplate,
-                                    final Long serviceTemplateInstanceId, final PlanService planService,
-                                    final PlanType... types) {
+                                    final Long serviceTemplateInstanceId, final PlanInstanceService planInstanceService,
+                                    final PlanInvokerService planInvokerService, final PlanType... types) {
         this.csar = csar;
         this.serviceTemplate = serviceTemplate;
         this.serviceTemplateInstanceId = serviceTemplateInstanceId;
-        this.planService = planService;
+        this.planInstanceService = planInstanceService;
+        this.planInvokerService = planInvokerService;
         this.planTypes = types;
     }
 
@@ -77,7 +82,7 @@ public class ManagementPlanController {
                 final PlanDTO plan = new PlanDTO(p);
 
                 plan.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(plan.getId()).path("instances")
-                    .build()))
+                        .build()))
                     .rel("instances").build());
                 plan.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(plan.getId()).build()))
                     .rel("self").build());
@@ -95,7 +100,7 @@ public class ManagementPlanController {
     @ApiOperation(value = "Get a management plan", response = PlanDTO.class)
     public Response getManagementPlan(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
                                       @Context final UriInfo uriInfo) {
-        PlanDTO dto = planService.getPlanDto(csar, planTypes, plan);
+        PlanDTO dto = Utils.getPlanDto(csar, planTypes, plan);
 
         dto.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path("instances").build()))
             .rel("instances").build());
@@ -109,20 +114,23 @@ public class ManagementPlanController {
     @ApiOperation(value = "Get instances of a management plan", response = PlanInstanceListDTO.class)
     public Response getManagementPlanInstances(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
                                                @Context final UriInfo uriInfo) {
-        List<PlanInstance> planInstances = planService.getPlanInstances(csar, planTypes);
+        List<PlanInstance> planInstances = planInstanceService.getPlanInstance(serviceTemplateInstanceId, planTypes);
 
         final PlanInstanceListDTO list = new PlanInstanceListDTO();
         planInstances.stream()
             .filter(planInstance -> planInstance.getTemplateId().getLocalPart().equals(plan) && planInstance.getServiceTemplateInstance().getId().equals(this.serviceTemplateInstanceId))
             .map(pi -> {
-                PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
-                if (pi.getServiceTemplateInstance() != null) {
+                // load plan instance with related entities for DTO conversion
+                PlanInstance planInstanceWithEntities = planInstanceService.getPlanInstanceByIdWithConnectedEntities(pi.getId());
+
+                PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(planInstanceWithEntities);
+                if (planInstanceWithEntities.getServiceTemplateInstance() != null) {
                     final URI uri = uriInfo.getBaseUriBuilder()
                         .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
-                        .build(csar.id().csarName(), serviceTemplate.toString(), pi.getServiceTemplateInstance().getId());
+                        .build(csar.id().csarName(), serviceTemplate.toString(), planInstanceWithEntities.getServiceTemplateInstance().getId());
                     dto.add(Link.fromUri(UriUtil.encode(uri)).rel("service_template_instance").build());
                 }
-                dto.add(UriUtil.generateSubResourceLink(uriInfo, pi.getCorrelationId(), false, "self"));
+                dto.add(UriUtil.generateSubResourceLink(uriInfo, planInstanceWithEntities.getCorrelationId(), false, "self"));
                 return dto;
             })
             .forEach(list::add);
@@ -140,7 +148,7 @@ public class ManagementPlanController {
                                          @Context final UriInfo uriInfo,
                                          @ApiParam(required = true,
                                              value = "plan input parameters") final List<TParameter> parameters) {
-        String correlationId = planService.invokePlan(csar, serviceTemplate, serviceTemplateInstanceId, plan, parameters, this.planTypes);
+        String correlationId = planInvokerService.invokePlan(csar, serviceTemplate, serviceTemplateInstanceId, plan, parameters, this.planTypes);
         return Response.ok(correlationId).build();
     }
 
@@ -151,7 +159,7 @@ public class ManagementPlanController {
     public Response getManagementPlanInstance(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
                                               @ApiParam("correlation ID") @PathParam("instance") final String instance,
                                               @Context final UriInfo uriInfo) {
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, planTypes);
+        PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);
 
         final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
         // Add service template instance link
@@ -179,7 +187,7 @@ public class ManagementPlanController {
     public Response getManagementPlanInstanceState(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
                                                    @ApiParam("correlation ID") @PathParam("instance") final String instance,
                                                    @Context final UriInfo uriInfo) {
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, planTypes);
+        PlanInstance pi = planInstanceService.resolvePlanInstance(null, instance);
         return Response.ok(pi.getState().toString()).build();
     }
 
@@ -190,8 +198,8 @@ public class ManagementPlanController {
     public Response changeManagementPlanInstanceState(@PathParam("plan") final String plan,
                                                       @PathParam("instance") final String instance,
                                                       @Context final UriInfo uriInfo, final String request) {
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, planTypes);
-        return planService.updatePlanInstanceState(pi, PlanInstanceState.valueOf(request))
+        PlanInstance pi = planInstanceService.resolvePlanInstance(null, instance);
+        return planInstanceService.updatePlanInstanceState(pi, PlanInstanceState.valueOf(request))
             ? Response.ok().build()
             : Response.status(Status.BAD_REQUEST).build();
     }
@@ -204,7 +212,7 @@ public class ManagementPlanController {
     public Response getManagementPlanInstanceLogs(@ApiParam("management plan id") @PathParam("plan") final String plan,
                                                   @ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
                                                   @Context final UriInfo uriInfo) {
-        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, planTypes);
+        PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);
 
         final PlanInstanceDTO piDto = PlanInstanceDTO.Converter.convert(pi);
         final PlanInstanceEventListDTO dto = new PlanInstanceEventListDTO(piDto.getLogs());
@@ -221,16 +229,21 @@ public class ManagementPlanController {
     public Response addManagementPlanLogEntry(@PathParam("plan") final String plan,
                                               @PathParam("instance") final String instance,
                                               @Context final UriInfo uriInfo,
-                                              final CreatePlanInstanceLogEntryRequest logEntry) {
+                                              final CreatePlanInstanceLogEntryRequest logEntry) throws NotFoundException {
         final String entry = logEntry.getLogEntry();
         if (entry == null || entry.length() <= 0) {
-            LOGGER.info("Log entry is empty!");
+            LOGGER.error("Log entry is empty!");
             return Response.status(Status.BAD_REQUEST).build();
         }
 
-        PlanInstance pi = planService.getPlanInstanceByCorrelationId(instance);
+        PlanInstance pi = planInstanceService.getPlanInstanceWithLogsByCorrelationId(instance);
+
+        if (pi == null) {
+            LOGGER.error("No plan instance found");
+            throw new NotFoundException("No plan instance found");
+        }
         final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_LOG", entry);
-        planService.addLogToPlanInstance(pi, event);
+        planInstanceService.addLogToPlanInstance(pi, event);
 
         final URI resourceUri = uriInfo.getAbsolutePath();
         return Response.ok(resourceUri).build();

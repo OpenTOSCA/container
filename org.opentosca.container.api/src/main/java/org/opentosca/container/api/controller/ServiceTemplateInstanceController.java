@@ -42,8 +42,7 @@ import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.api.dto.request.CreateServiceTemplateInstanceRequest;
 import org.opentosca.container.api.dto.situations.SituationsMonitorDTO;
 import org.opentosca.container.api.dto.situations.SituationsMonitorListDTO;
-import org.opentosca.container.api.service.InstanceService;
-import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.DeploymentTest;
@@ -52,8 +51,10 @@ import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.next.model.SituationsMonitor;
-import org.opentosca.container.core.next.repository.DeploymentTestRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
+import org.opentosca.container.core.next.services.instances.PlanInstanceService;
+import org.opentosca.container.core.next.services.instances.ServiceTemplateInstanceService;
+import org.opentosca.container.core.next.services.instances.SituationInstanceService;
 import org.opentosca.deployment.checks.DeploymentTestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,20 +67,30 @@ public class ServiceTemplateInstanceController {
     private static final Logger logger = LoggerFactory.getLogger(ServiceTemplateInstanceController.class);
     private final Csar csar;
     private final TServiceTemplate serviceTemplate;
-    private final InstanceService instanceService;
-    private final PlanService planService;
+    private final SituationInstanceService situationInstanceService;
+    private final PlanInstanceService planInstanceService;
+    private final PlanInvokerService planInvokerService;
     private final DeploymentTestService deploymentTestService;
+    private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
+    private final ServiceTemplateInstanceService serviceTemplateInstanceService;
     @Context
     private UriInfo uriInfo;
 
     public ServiceTemplateInstanceController(final Csar csar, final TServiceTemplate serviceTemplate,
-                                             final InstanceService instanceService, final PlanService planService,
-                                             final DeploymentTestService deploymentTestService) {
+                                             final PlanInstanceService planInstanceService,
+                                             final PlanInvokerService planInvokerService,
+                                             final DeploymentTestService deploymentTestService,
+                                             final SituationInstanceService situationInstanceService,
+                                             final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository,
+                                             final ServiceTemplateInstanceService serviceTemplateInstanceService) {
         this.csar = csar;
         this.serviceTemplate = serviceTemplate;
-        this.instanceService = instanceService;
-        this.planService = planService;
+        this.planInstanceService = planInstanceService;
+        this.planInvokerService = planInvokerService;
         this.deploymentTestService = deploymentTestService;
+        this.situationInstanceService = situationInstanceService;
+        this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
+        this.serviceTemplateInstanceService = serviceTemplateInstanceService;
     }
 
     @GET
@@ -88,7 +99,7 @@ public class ServiceTemplateInstanceController {
     public Response getServiceTemplateInstances() {
         logger.debug("Invoking getServiceTemplateInstances");
         final Collection<ServiceTemplateInstance> serviceInstances =
-            this.instanceService.getServiceTemplateInstances(serviceTemplate.getId());
+            this.serviceTemplateInstanceService.getServiceTemplateInstances(serviceTemplate.getId());
         logger.debug("Found <{}> instances of ServiceTemplate \"{}\" ", serviceInstances.size(), serviceTemplate.getId());
 
         final ServiceTemplateInstanceListDTO list = new ServiceTemplateInstanceListDTO();
@@ -117,19 +128,19 @@ public class ServiceTemplateInstanceController {
 
         try {
             final ServiceTemplateInstance createdInstance =
-                this.instanceService.createServiceTemplateInstance(csar.id().csarName(), serviceTemplate.getId(), request.getCorrelationId().trim());
+                this.serviceTemplateInstanceService.createServiceTemplateInstance(csar.id().csarName(), serviceTemplate.getId(), request.getCorrelationId().trim());
 
             final URI uri = UriUtil.generateSubResourceURI(this.uriInfo, createdInstance.getId().toString(), false);
 
             return Response.ok(uri).build();
         } catch (final IllegalArgumentException e) {
-            logger.debug("Illegal Argument when creating serviceTemplateInstance", e);
+            logger.error("Illegal Argument when creating serviceTemplateInstance", e);
             return Response.status(Status.CONFLICT).build();
         } catch (InstantiationException | IllegalAccessException e) {
-            logger.debug("Internal error occurred: {}", e.getMessage());
+            logger.error("Internal error occurred: {}", e.getMessage());
             return Response.serverError().build();
         } catch (final NotFoundException e) {
-            logger.debug("Didn't find PlanInstances with given correlationId: {}", e.getMessage());
+            logger.error("Didn't find PlanInstances with given correlationId: {}", e.getMessage());
             return Response.status(Status.BAD_REQUEST).entity("Didn't find PlanInstances with given correlationId")
                 .build();
         }
@@ -177,7 +188,7 @@ public class ServiceTemplateInstanceController {
     }
 
     private PlanInstance findPlanInstance(ServiceTemplateInstance instance) {
-        return planService.getPlanInstanceByCorrelationId(instance.getCreationCorrelationId());
+        return planInstanceService.getPlanInstanceByCorrelationId(instance.getCreationCorrelationId());
     }
 
     @DELETE
@@ -186,14 +197,15 @@ public class ServiceTemplateInstanceController {
     @ApiOperation(hidden = true, value = "")
     public Response deleteServiceTemplateInstance(@PathParam("id") final Long id) {
         logger.debug("Invoking deleteServiceTemplateInstance");
-        this.instanceService.deleteServiceTemplateInstance(id);
+        this.serviceTemplateInstanceService.deleteServiceTemplateInstance(id);
         return Response.noContent().build();
     }
 
     @Path("/{id}/managementplans")
     public ManagementPlanController getManagementPlans(@ApiParam("ID of service template instance") @PathParam("id") final Long id) {
         logger.debug("Invoking getManagementPlans");
-        return new ManagementPlanController(csar, serviceTemplate, id, this.planService, PlanType.TERMINATION, PlanType.MANAGEMENT, PlanType.TRANSFORMATION);
+        return new ManagementPlanController(csar, serviceTemplate, id, this.planInstanceService, this.planInvokerService,
+            PlanType.TERMINATION, PlanType.MANAGEMENT, PlanType.TRANSFORMATION);
     }
 
     @GET
@@ -202,7 +214,7 @@ public class ServiceTemplateInstanceController {
     @ApiOperation(value = "Get state of a service template instance", response = String.class)
     public Response getServiceTemplateInstanceState(@ApiParam("ID of service template instance") @PathParam("id") final Long id) {
         logger.debug("Invoking getServiceTemplateInstanceState");
-        final ServiceTemplateInstanceState state = this.instanceService.getServiceTemplateInstanceState(id);
+        final ServiceTemplateInstanceState state = this.serviceTemplateInstanceService.getServiceTemplateInstanceState(id);
         return Response.ok(state.toString()).build();
     }
 
@@ -213,7 +225,7 @@ public class ServiceTemplateInstanceController {
     public Response updateServiceTemplateInstanceState(@PathParam("id") final Long id, final String request) {
         logger.debug("Invoking updateServiceTemplateInstanceState");
         try {
-            this.instanceService.setServiceTemplateInstanceState(id, request);
+            this.serviceTemplateInstanceService.setServiceTemplateInstanceState(id, request);
         } catch (final IllegalArgumentException e) { // this handles a null request too
             return Response.status(Status.BAD_REQUEST).build();
         }
@@ -226,7 +238,7 @@ public class ServiceTemplateInstanceController {
     @ApiOperation(hidden = true, value = "")
     public Response getServiceTemplateInstanceProperties(@PathParam("id") final Long id) {
         logger.debug("Invoking getServiceTemplateInstanceProperties");
-        final ServiceTemplateInstance instance = this.instanceService.getServiceTemplateInstance(id, true);
+        final ServiceTemplateInstance instance = this.serviceTemplateInstanceService.getServiceTemplateInstance(id, true);
         final Document properties = instance.getPropertiesAsDocument();
 
         if (properties == null) {
@@ -242,7 +254,7 @@ public class ServiceTemplateInstanceController {
     @ApiOperation(value = "Gets the properties of a service template instance", response = Map.class)
     public Map<String, String> getServiceTemplateInstancePropertiesAsJSON(@PathParam("id") final Long id) {
         logger.debug("Invoking getServiceTemplateInstancePropertiesAsJSON");
-        final ServiceTemplateInstance serviceTemplateInstance = this.instanceService.getServiceTemplateInstance(id, true);
+        final ServiceTemplateInstance serviceTemplateInstance = this.serviceTemplateInstanceService.getServiceTemplateInstance(id, true);
         return serviceTemplateInstance.getPropertiesAsMap();
     }
 
@@ -254,7 +266,7 @@ public class ServiceTemplateInstanceController {
     public Response updateServiceTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
         logger.debug("Invoking updateServiceTemplateInstanceProperties");
         try {
-            this.instanceService.setServiceTemplateInstanceProperties(id, request);
+            this.serviceTemplateInstanceService.setServiceTemplateInstanceProperties(id, request);
         } catch (final IllegalArgumentException e) { // this handles a null request too
             return Response.status(Status.BAD_REQUEST).build();
         } catch (final ReflectiveOperationException e) {
@@ -268,7 +280,7 @@ public class ServiceTemplateInstanceController {
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getSituationMonitors(@PathParam("id") final Long id) {
         logger.debug("Invoking getSituationMonitors");
-        Collection<SituationsMonitor> monitors = this.instanceService.getSituationsMonitors(id);
+        Collection<SituationsMonitor> monitors = this.situationInstanceService.getSituationsMonitors(id);
         final SituationsMonitorListDTO dto = new SituationsMonitorListDTO();
 
         monitors.forEach(x -> dto.add(SituationsMonitorDTO.Converter.convert(x)));
@@ -284,7 +296,7 @@ public class ServiceTemplateInstanceController {
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response createSituationMonitor(@PathParam("id") final Long id, SituationsMonitorDTO monitor) {
         logger.debug("Invoking createSituationMonitor");
-        ServiceTemplateInstance servInstance = this.instanceService.getServiceTemplateInstance(id, false);
+        ServiceTemplateInstance servInstance = this.serviceTemplateInstanceService.getServiceTemplateInstance(id, false);
 
         Map<String, Collection<Long>> mapping = new HashMap<>();
 
@@ -292,7 +304,7 @@ public class ServiceTemplateInstanceController {
             mapping.put(nodeId, monitor.getNodeId2SituationIds().get(nodeId).getSituationId());
         }
 
-        SituationsMonitor createdInstance = this.instanceService.createNewSituationsMonitor(servInstance, mapping);
+        SituationsMonitor createdInstance = this.situationInstanceService.createNewSituationsMonitor(servInstance, mapping);
         final URI uri = UriUtil.generateSubResourceURI(this.uriInfo, createdInstance.getId().toString(), false);
         return Response.ok(uri).build();
     }
@@ -306,7 +318,7 @@ public class ServiceTemplateInstanceController {
     private ServiceTemplateInstance resolveInstance(final Long instanceId, final String templateId) throws NotFoundException {
         // We only need to check that the instance belongs to the template, the rest is
         // guaranteed while this is a sub-resource
-        final ServiceTemplateInstance instance = this.instanceService.getServiceTemplateInstance(instanceId, false);
+        final ServiceTemplateInstance instance = this.serviceTemplateInstanceService.getServiceTemplateInstance(instanceId, false);
 
         if (!instance.getTemplateId().equals(templateId)) {
             logger.info("Service template instance <{}> could not be found", instanceId);
@@ -390,7 +402,7 @@ public class ServiceTemplateInstanceController {
     public Response getDeploymentTests(@PathParam("id") final Integer id) {
         logger.debug("Invoking getDeploymentTests");
         // TODO: Check if instance belongs to CSAR and Service Template
-        final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
+        final ServiceTemplateInstance sti = serviceTemplateInstanceRepository.findById(Long.valueOf(id)).orElse(null);
         if (sti == null) {
             logger.info("Service template instance \"" + id + "\" of template \"" + serviceTemplate.getId()
                 + "\" could not be found");
@@ -402,7 +414,7 @@ public class ServiceTemplateInstanceController {
             final ResourceDecorator decorator = new ResourceDecorator();
             decorator.setObject(v);
             decorator.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePathBuilder()
-                .path(String.valueOf(v.getId())).build()))
+                    .path(String.valueOf(v.getId())).build()))
                 .rel("self").build());
             return decorator;
         }).collect(Collectors.toList());
@@ -422,7 +434,7 @@ public class ServiceTemplateInstanceController {
                                       @PathParam("deploymenttest") final Integer deploymenttest) {
         logger.debug("Invoking getDeploymentTest");
         // TODO: Check if instance belongs to CSAR and Service Template
-        final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
+        final ServiceTemplateInstance sti = serviceTemplateInstanceRepository.findById(Long.valueOf(id)).orElse(null);
         if (sti == null) {
             logger.info("Service template instance \"" + id + "\" of template \"" + serviceTemplate.getId()
                 + "\" could not be found");
@@ -431,7 +443,7 @@ public class ServiceTemplateInstanceController {
         }
 
         // TODO: Check if deployment test belongs the current instance
-        final DeploymentTest object = new DeploymentTestRepository().find(Long.valueOf(deploymenttest)).orElse(null);
+        final DeploymentTest object = deploymentTestService.find(Long.valueOf(deploymenttest)).orElse(null);
         if (object == null) {
             throw new NotFoundException();
         }
@@ -450,7 +462,7 @@ public class ServiceTemplateInstanceController {
     public Response createDeploymentTest(@PathParam("id") final Integer id) {
         logger.debug("Invoking createDeploymentTest");
         // TODO: Check if instance belongs to CSAR and Service Template
-        final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
+        final ServiceTemplateInstance sti = serviceTemplateInstanceRepository.findById(Long.valueOf(id)).orElse(null);
         if (sti == null) {
             logger.info("Service template instance \"" + id + "\" of template \"" + serviceTemplate.getId()
                 + "\" could not be found");

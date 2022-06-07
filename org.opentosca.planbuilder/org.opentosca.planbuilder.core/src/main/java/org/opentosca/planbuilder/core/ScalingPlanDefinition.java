@@ -20,8 +20,8 @@ import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
 import com.google.common.collect.Sets;
 import org.opentosca.container.core.convention.Types;
-import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.ModelUtils;
+import org.opentosca.container.core.model.csar.Csar;
 
 public class ScalingPlanDefinition {
 
@@ -153,13 +153,11 @@ public class ScalingPlanDefinition {
             } else if (!nodesToScale.contains(target)) {
                 return target;
             }
-        } else if (baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
-            | baseType.equals(Types.deployedOnRelationType)) {
+        } else if ((baseType.equals(Types.dependsOnRelationType) | baseType.equals(Types.hostedOnRelationType)
+            | baseType.equals(Types.deployedOnRelationType)) && !nodesToScale.contains(target)) {
             // if target is not in the nodesToScale list => relation crosses
             // border
-            if (!nodesToScale.contains(target)) {
-                return target;
-            }
+            return target;
         }
 
         return null;

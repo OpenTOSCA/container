@@ -47,11 +47,10 @@ import org.opentosca.container.api.dto.CsarDTO;
 import org.opentosca.container.api.dto.CsarListDTO;
 import org.opentosca.container.api.dto.request.CsarTransformRequest;
 import org.opentosca.container.api.dto.request.CsarUploadRequest;
-import org.opentosca.container.api.service.CsarService;
-import org.opentosca.container.api.service.PlanService;
-import org.opentosca.container.api.util.ModelUtil;
-import org.opentosca.container.connector.winery.WineryConnector;
+import org.opentosca.container.api.util.Utils;
+import org.opentosca.container.control.winery.WineryConnector;
 import org.opentosca.container.control.OpenToscaControlService;
+import org.opentosca.container.control.plan.PlanGenerationService;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.common.uri.UriUtil;
@@ -75,16 +74,13 @@ public class CsarController {
     private UriInfo uriInfo;
 
     @Inject
-    private CsarService csarService;
+    private PlanGenerationService planGenerationService;
 
     @Inject
     private CsarStorageService storage;
 
     @Inject
     private OpenToscaControlService controlService;
-
-    @Inject
-    private PlanService planService;
 
     @GET
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -276,7 +272,7 @@ public class CsarController {
             FileUtils.forceDelete(tempFile);
         }
 
-        if (ModelUtil.hasOpenRequirements(storedCsar)) {
+        if (Utils.hasOpenRequirements(storedCsar)) {
             if (repoAvailable) {
                 try {
                     // wait till the upload is finished
@@ -301,7 +297,7 @@ public class CsarController {
         }
 
         try {
-            if (!this.csarService.generatePlans(storedCsar)) {
+            if (!this.planGenerationService.generatePlans(storedCsar)) {
                 logger.info("Planning the CSAR failed. Deleting the failed import");
                 this.storage.deleteCSAR(csarId);
                 return Response.serverError().build();
@@ -385,7 +381,7 @@ public class CsarController {
         final CsarId targetCsarId = new CsarId(request.getTargetCsarName());
         Csar targetCsar = this.storage.findById(targetCsarId);
 
-        Collection<AbstractPlan> plansGenerated = this.csarService.generateTransformationPlans(sourceCsar, targetCsar);
+        Collection<AbstractPlan> plansGenerated = this.planGenerationService.generateTransformationPlans(sourceCsar, targetCsar);
         AbstractPlan planGenerated;
         if (plansGenerated.isEmpty()) {
             return Response.serverError().entity("Couldn't generate transformation plan").build();
@@ -413,6 +409,6 @@ public class CsarController {
         this.controlService.invokePlanDeployment(sourceCsarId, storedCsar.entryServiceTemplate(), plans, plan);
 
         PlanType[] planTypes = {PlanType.TRANSFORMATION};
-        return Response.ok(this.planService.getPlanDto(storedCsar, planTypes, plan.getId())).build();
+        return Response.ok(Utils.getPlanDto(storedCsar, planTypes, plan.getId())).build();
     }
 }

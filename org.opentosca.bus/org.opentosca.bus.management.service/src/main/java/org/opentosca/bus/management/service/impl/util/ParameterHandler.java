@@ -39,8 +39,11 @@ public class ParameterHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(ParameterHandler.class);
 
+    private final MBUtils mbUtils;
+
     @Inject
-    public ParameterHandler() {
+    public ParameterHandler(MBUtils mbUtils) {
+        this.mbUtils = mbUtils;
     }
 
     /**
@@ -108,13 +111,13 @@ public class ParameterHandler {
      */
     private Map<String, String> updateInputParamsForNodeTemplate(final Map<String, String> inputParams,
                                                                  final Csar csar,
-                                                                 NodeTemplateInstance nodeTemplateInstance,
+                                                                 final NodeTemplateInstance nodeTemplateInstance,
                                                                  final String neededInterface,
                                                                  final String neededOperation) {
         Objects.requireNonNull(nodeTemplateInstance);
 
         LOG.debug("Updating input params for NodeTemplateInstance ID: {}", nodeTemplateInstance.getId());
-        LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(), neededOperation, inputParams.toString());
+        LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(), neededOperation, inputParams);
 
         // check if operation has input params at all
         final Set<String> unsetParameters = getExpectedInputParams(csar, nodeTemplateInstance.getTemplateType(), neededInterface, neededOperation);
@@ -123,7 +126,7 @@ public class ParameterHandler {
             return inputParams;
         }
 
-        LOG.debug("Operation: {} expects {} parameters: {}", neededOperation, unsetParameters.size(), unsetParameters.toString());
+        LOG.debug("Operation: {} expects {} parameters: {}", neededOperation, unsetParameters.size(), unsetParameters);
 
         // use convention names for properties
         final List<String> supportedIPPropertyNames = Utils.getSupportedVirtualMachineIPPropertyNames();
@@ -135,13 +138,14 @@ public class ParameterHandler {
         unsetParameters.removeAll(inputParams.keySet());
 
         // search for parameters downwards in the topology until all are set
+        NodeTemplateInstance currentNodeTemplateInstance = nodeTemplateInstance;
         while (!unsetParameters.isEmpty()) {
-            if (nodeTemplateInstance.getTemplateType().equals(Types.abstractOperatingSystemNodeType)) {
-                nodeTemplateInstance = MBUtils.getAbstractOSReplacementInstance(nodeTemplateInstance);
+            if (currentNodeTemplateInstance.getTemplateType().equals(Types.abstractOperatingSystemNodeType)) {
+                currentNodeTemplateInstance = mbUtils.getAbstractOSReplacementInstance(currentNodeTemplateInstance);
             }
 
             // retrieve stored instance data for current node
-            final Map<String, String> propertiesMap = nodeTemplateInstance.getPropertiesAsMap();
+            final Map<String, String> propertiesMap = currentNodeTemplateInstance.getPropertiesAsMap();
             if (Objects.nonNull(propertiesMap)) {
 
                 LOG.debug("Found following properties in the instance data:");
@@ -177,14 +181,14 @@ public class ParameterHandler {
                 // remove found properties
                 unsetParameters.removeAll(inputParams.keySet());
             } else {
-                LOG.debug("No stored instance data found for current node: {}", nodeTemplateInstance.getId());
+                LOG.debug("No stored instance data found for current node: {}", currentNodeTemplateInstance.getId());
             }
 
             // get next node downwards in the topology
-            final Optional<NodeTemplateInstance> nextNode = MBUtils.getNextNodeTemplateInstance(nodeTemplateInstance);
+            final Optional<NodeTemplateInstance> nextNode = mbUtils.getNextNodeTemplateInstance(currentNodeTemplateInstance);
             if (nextNode.isPresent()) {
-                nodeTemplateInstance = nextNode.get();
-                LOG.debug("Next node for parameter search: {}", nodeTemplateInstance.getId());
+                currentNodeTemplateInstance = nextNode.get();
+                LOG.debug("Next node for parameter search: {}", currentNodeTemplateInstance.getId());
             } else {
                 LOG.warn("No next node found for parameter search. Terminating with {} unsatisfied expected parameters",
                     unsetParameters.size());
@@ -192,7 +196,7 @@ public class ParameterHandler {
             }
         }
 
-        LOG.debug("Final {} input parameters for operation {} : {}", inputParams.size(), neededOperation, inputParams.toString());
+        LOG.debug("Final {} input parameters for operation {} : {}", inputParams.size(), neededOperation, inputParams);
 
         return inputParams;
     }
@@ -225,7 +229,7 @@ public class ParameterHandler {
         Objects.requireNonNull(relationshipTemplateInstance);
 
         LOG.debug("Updating input params for RelationshipTemplate ID: {}", relationshipTemplateInstance.getId());
-        LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(), neededOperation, inputParams.toString());
+        LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(), neededOperation, inputParams);
 
         // check if operation has input params at all
         final Set<String> expectedParams = getExpectedInputParams(csar, relationshipTemplateInstance.getTemplateType(), neededInterface, neededOperation);
@@ -234,7 +238,7 @@ public class ParameterHandler {
             return inputParams;
         }
 
-        LOG.debug("Operation: {} expects {} parameters: {}", neededOperation, expectedParams.size(), expectedParams.toString());
+        LOG.debug("Operation: {} expects {} parameters: {}", neededOperation, expectedParams.size(), expectedParams);
 
         // update params with instance data
         for (final String expectedParam : expectedParams) {

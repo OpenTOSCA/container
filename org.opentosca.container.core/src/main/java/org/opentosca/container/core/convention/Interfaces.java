@@ -23,8 +23,6 @@ public class Interfaces {
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_Backup = "http://opentosca.org/interfaces/backup";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT = "runScript";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE = "transferFile";
-    public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_Freeze = "freeze";
-    public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_Defreeze = "defreeze";
 
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE = "UpdateManagementInterface";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE_RUNUPDATE = "update";

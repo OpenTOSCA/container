@@ -1,5 +1,7 @@
 package org.opentosca.bus.application.api.jsonhttp.route;
 
+import javax.inject.Named;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.opentosca.bus.application.api.jsonhttp.processor.ExceptionProcessor;
@@ -10,6 +12,7 @@ import org.opentosca.bus.application.api.jsonhttp.processor.InvocationResponsePr
 import org.opentosca.bus.application.api.jsonhttp.processor.IsFinishedRequestProcessor;
 import org.opentosca.bus.application.api.jsonhttp.processor.IsFinishedResponseProcessor;
 import org.opentosca.bus.application.model.exception.ApplicationBusInternalException;
+import org.springframework.stereotype.Component;
 
 /**
  * Route of the Application Bus-JSON/HTTP-API.<br>
@@ -20,16 +23,18 @@ import org.opentosca.bus.application.model.exception.ApplicationBusInternalExcep
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
+@Component
+@Named("application-bus-jsonhttp-route")
 public class Route extends RouteBuilder {
 
     public static final String ID = "id";
     public static final String ID_PLACEHODLER = "{" + Route.ID + "}";
-    public static final String GET_RESULT_ENDPOINT = Route.POLL_ENDPOINT + "/response";
     private static final String HOST = "http://localhost";
     private static final String PORT = "8083";
     private static final String BASE_ENDPOINT = Route.HOST + ":" + Route.PORT;
     private static final String INVOKE_ENDPOINT = "/OTABService/v1/appInvoker";
     public static final String POLL_ENDPOINT = Route.INVOKE_ENDPOINT + "/activeRequests/" + Route.ID_PLACEHODLER;
+    public static final String GET_RESULT_ENDPOINT = Route.POLL_ENDPOINT + "/response";
     private static final String TO_APP_BUS_ENDPOINT = "direct:toAppBus";
 
     @Override

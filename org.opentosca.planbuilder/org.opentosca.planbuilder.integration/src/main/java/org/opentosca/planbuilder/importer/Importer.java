@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
  * <p>
  * This class is a PlanBuilder Importer for openTOSCA. Importing of CSARs is handled by passing a CSARID
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -51,8 +51,8 @@ public class Importer extends AbstractImporter {
      * @return a List of BuildPlan
      */
     public List<AbstractPlan> generatePlans(final Csar csar) {
-        final TDefinitions defs = this.createContext(csar);
-        final List<AbstractPlan> plans = this.buildPlans(defs, csar);
+        final TDefinitions defs = csar.entryDefinitions();
+        final List<AbstractPlan> plans = this.generatePlans(defs, csar);
         return plans;
     }
 
@@ -62,7 +62,7 @@ public class Importer extends AbstractImporter {
                                                Collection<String> targetNodeTemplateId,
                                                Collection<String> targetRelationshipTemplateId) throws SystemException {
 
-        TDefinitions defs = this.createContext(csar);
+        TDefinitions defs = csar.entryDefinitions();
         TTopologyTemplate topology = Lists.newArrayList(defs.getServiceTemplates()).get(0).getTopologyTemplate();
 
         return this.buildAdaptationPlan(csar, defs, serviceTemplateId,
@@ -99,54 +99,11 @@ public class Importer extends AbstractImporter {
 
     public List<AbstractPlan> generateTransformationPlans(final Csar sourceCsarId, final Csar targetCsarId) {
         final List<AbstractPlan> plans = new ArrayList<>();
-        final TDefinitions sourceDefs = this.createContext(sourceCsarId);
-        final TDefinitions targetDefs = this.createContext(targetCsarId);
+        final TDefinitions sourceDefs = sourceCsarId.entryDefinitions();
+        final TDefinitions targetDefs = targetCsarId.entryDefinitions();
 
         plans.addAll(this.buildTransformationPlans(sourceCsarId, sourceDefs,
             targetCsarId, targetDefs));
         return plans;
-    }
-
-    /**
-     * Returns a TOSCA Definitions object which contains the Entry-ServiceTemplate
-     *
-     * @param csarId an ID of a CSAR
-     * @return an TDefinitions object
-     */
-    public TDefinitions getMainDefinitions(final Csar csarId) {
-        return this.createContext(csarId);
-    }
-
-    /**
-     * Creates an TDefinitions Object of the given CSARContent
-     *
-     * @param csarContent the CSARContent to generate an TDefinitions for
-     * @return an TDefinitions which is the Entry-Definitions of the given CSAR
-     * @throws SystemException is thrown if accessing data inside the OpenTOSCA Core fails
-     */
-    /**
-     * public TDefinitions createContext(final CSARContent csarContent) throws SystemException { final AbstractFile
-     * rootTosca = csarContent.getRootTOSCA(); final Set<AbstractFile> referencedFilesInCsar =
-     * csarContent.getFilesRecursively(); return new DefinitionsImpl(rootTosca, referencedFilesInCsar, true); }
-     */
-
-    public TDefinitions createContext(final Csar csar) {
-        IRepository repo = RepositoryFactory.getRepository(csar.getSaveLocation());
-        Collection<RepositoryFileReference> entryDefRefs = new HashSet<RepositoryFileReference>();
-
-        entryDefRefs.addAll(repo.getContainedFiles(new ServiceTemplateId(new QName(csar.entryServiceTemplate().getTargetNamespace(), csar.entryServiceTemplate().getId()))));
-        TDefinitions entryDef = null;
-        for (RepositoryFileReference ref : entryDefRefs) {
-            if (ref.getFileName().endsWith(".tosca")) {
-                try {
-                    entryDef = repo.definitionsFromRef(ref);
-                    break;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return entryDef;
     }
 }

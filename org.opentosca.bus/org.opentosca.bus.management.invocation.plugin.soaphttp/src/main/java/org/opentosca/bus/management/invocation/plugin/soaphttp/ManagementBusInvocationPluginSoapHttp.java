@@ -1,12 +1,12 @@
 package org.opentosca.bus.management.invocation.plugin.soaphttp;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.wsdl.Binding;
@@ -17,6 +17,7 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
+import com.google.common.collect.Lists;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.Exchange;
@@ -38,7 +39,7 @@ import org.w3c.dom.Document;
  * Management Bus-Plug-in for invoking a service with a SOAP message over HTTP. <br>
  * <br>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * The Plug-in gets needed information (like endpoint of the service or operation to invoke) from the Management Bus and
@@ -52,10 +53,9 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
 
     private static final Logger LOG = LoggerFactory.getLogger(ManagementBusInvocationPluginSoapHttp.class);
 
-    // Supported types defined in messages.properties.
-    private static final String TYPES = "SOAP/HTTP";
-    private static final Map<String, Exchange> EXCHANGE_MAP =
-        Collections.synchronizedMap(new HashMap<String, Exchange>());
+    static final private String[] TYPES = {"SOAP/HTTP"};
+
+    private static final Map<String, Exchange> EXCHANGE_MAP = Collections.synchronizedMap(new HashMap<>());
     private final CamelContext camelContext;
     private final CsarStorageService storage;
 
@@ -123,6 +123,7 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
             // add the operation header for the cxf endpoint explicitly if invoking an IA
             if (Objects.nonNull(message.getHeader(MBHeader.IMPLEMENTATION_ARTIFACT_NAME_STRING.toString(),
                 String.class))) {
+                headers.put("operationNamespace", wsdl.getTargetNamespace());
                 headers.put("operationName", operationName);
             }
 
@@ -178,7 +179,11 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
             return null;
         }
 
-        LOG.debug("Invoking the web service.");
+        LOG.info("Invoking the web service with headers:\n{}\nand content:\n{}",
+            headers.keySet().stream()
+                .map(key -> key + "=" + headers.get(key))
+                .collect(Collectors.joining(", ", "{", "}")),
+            document != null ? MBUtils.docToString(document) : "");
 
         final ProducerTemplate template = this.camelContext.createProducerTemplate();
         final ConsumerTemplate consumer = this.camelContext.createConsumerTemplate();
@@ -214,7 +219,7 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
 
                     final Message mes = ex.getIn();
                     LOG.debug("Got Message with ID: {}", messageID);
-                    LOG.debug("Stored MessageIDs: {}", EXCHANGE_MAP.keySet().toString());
+                    LOG.debug("Stored MessageIDs: {}", EXCHANGE_MAP.keySet());
                     if (EXCHANGE_MAP.containsKey(messageID)) {
                         LOG.debug("MessageID found");
                         exchange = EXCHANGE_MAP.get(messageID);
@@ -248,11 +253,13 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
         if (!endpoint.endsWith("?wsdl")) {
             endpoint = endpoint + "?wsdl";
         }
-        LOG.info("Parsing WSDL at: {}.", endpoint);
+        LOG.debug("Parsing WSDL at: {}.", endpoint);
         WSDLFactory wsdlFactory = null;
         try {
             wsdlFactory = WSDLFactory.newInstance();
             final WSDLReader wsdlDefinitionReader = wsdlFactory.newWSDLReader();
+            // deactivates logging of 'Retrieving document at...'
+            wsdlDefinitionReader.setFeature("javax.wsdl.verbose", false);
             return wsdlDefinitionReader.readWSDL(endpoint);
         } catch (final WSDLException e) {
             LOG.warn("Could not read WSDL definitions from endpoint {} due to WSDLException", endpoint, e);
@@ -337,13 +344,8 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
 
     @Override
     public List<String> getSupportedTypes() {
-        LOG.debug("Getting Types: {}.", ManagementBusInvocationPluginSoapHttp.TYPES);
-        final List<String> types = new ArrayList<>();
-
-        for (final String type : ManagementBusInvocationPluginSoapHttp.TYPES.split("[,;]")) {
-            types.add(type.trim());
-        }
-        return types;
+        LOG.debug("Getting Types: {}.", TYPES);
+        return Lists.newArrayList(TYPES);
     }
 
     private enum MessagingPattern {

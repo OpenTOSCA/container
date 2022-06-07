@@ -15,6 +15,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.AbstractDefrostPlanBuilder;
@@ -35,9 +36,11 @@ import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlu
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_DefrostPlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_StatefulLifecycleInterface;
 
 public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
@@ -76,7 +79,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
     private BPELPlan buildPlan(final Csar csar, final TDefinitions definitions,
                                final TServiceTemplate serviceTemplate) {
-        BPELDefrostProcessBuilder.LOG.info("Making Concrete Plans");
+        BPELDefrostProcessBuilder.LOG.debug("Making Concrete Plans");
 
         if (!this.isDefrostable(serviceTemplate, csar)) {
             BPELDefrostProcessBuilder.LOG.warn("Couldn't create DeFreezePlan for ServiceTemplate {} in Definitions {} of CSAR {}",
@@ -91,10 +94,10 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
             generateDOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate, csar);
 
         final BPELPlan newDefreezePlan =
-            this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractBackupPlan, "defrost");
+            this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractBackupPlan, OpenTOSCA_DefrostPlanOperation);
 
-        newDefreezePlan.setTOSCAInterfaceName("OpenTOSCA-Stateful-Lifecycle-Interface");
-        newDefreezePlan.setTOSCAOperationname("defrost");
+        newDefreezePlan.setTOSCAInterfaceName(OpenTOSCA_StatefulLifecycleInterface);
+        newDefreezePlan.setTOSCAOperationname(OpenTOSCA_DefrostPlanOperation);
         newDefreezePlan.setType(PlanType.BUILD);
 
         this.planHandler.initializeBPELSkeleton(newDefreezePlan, csar);
@@ -147,7 +150,7 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
             "RUNNING", planInstanceUrlVarName);
 
         this.serviceInstanceInitializer.appendSetServiceInstanceState(newDefreezePlan,
-            newDefreezePlan.getBpelMainSequenceOutputAssignElement(),
+            newDefreezePlan.getBpelMainSequenceCallbackInvokeElement(),
             "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(newDefreezePlan);
@@ -175,16 +178,18 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
     private TOperation getLoadStateOperation(final TNodeTemplate nodeTemplate, Csar csar) {
         final TInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE, csar);
+        TOperation operation = null;
         if (iface != null) {
             for (final TOperation op : iface.getOperations()) {
                 if (!op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE)) {
                     continue;
+                } else {
+                    operation = op;
+                    break;
                 }
-
-                return op;
             }
         }
-        return null;
+        return operation;
     }
 
     private void runPlugins(final BPELPlan buildPlan, final Property2VariableMapping map,

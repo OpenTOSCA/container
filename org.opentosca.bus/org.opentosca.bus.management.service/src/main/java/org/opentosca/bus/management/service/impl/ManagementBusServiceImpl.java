@@ -60,7 +60,7 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.engine.next.ContainerEngine;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
+import org.opentosca.container.core.next.model.Endpoint;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
@@ -129,18 +129,23 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     private final PluginHandler pluginHandler;
     private final PluginRegistry pluginRegistry;
     private final DeploymentPluginCapabilityChecker capabilityChecker;
-    private final ContainerEngine containerEngine;
     private final CsarStorageService storage;
     private final ChoreographyHandler choreographyHandler;
+    private final MBUtils mbUtils;
+    private final PlanInstanceHandler planInstanceHandler;
+    private final PlanInstanceRepository planInstanceRepository;
 
     @Inject
     public ManagementBusServiceImpl(DeploymentDistributionDecisionMaker decisionMaker,
                                     CollaborationContext collaborationContext, ICoreEndpointService endpointService,
                                     ParameterHandler parameterHandler, PluginHandler pluginHandler,
                                     PluginRegistry pluginRegistry, DeploymentPluginCapabilityChecker capabilityChecker,
-                                    ContainerEngine containerEngine, CsarStorageService storage,
-                                    ChoreographyHandler choreographyHandler) {
+                                    CsarStorageService storage, ChoreographyHandler choreographyHandler, MBUtils mbUtils,
+                                    PlanInstanceHandler planInstanceHandler, PlanInstanceRepository planInstanceRepository) {
         LOG.info("Instantiating ManagementBus Service");
+        this.planInstanceRepository = planInstanceRepository;
+        this.planInstanceHandler = planInstanceHandler;
+        this.mbUtils = mbUtils;
         this.decisionMaker = decisionMaker;
         this.collaborationContext = collaborationContext;
         this.endpointService = endpointService;
@@ -149,7 +154,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         this.pluginRegistry = pluginRegistry;
         this.capabilityChecker = capabilityChecker;
         this.storage = storage;
-        this.containerEngine = containerEngine;
         this.choreographyHandler = choreographyHandler;
     }
 
@@ -217,55 +221,42 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.debug("Operation: {}", neededOperation);
 
         // log event to monitor the IA execution time
-        final PlanInstanceEvent event;
         // operation invocation is only possible with retrieved ServiceTemplateInstance ID
         if (!serviceTemplateInstanceID.equals(Long.MIN_VALUE)) {
 
             final IAInvocationArguments arguments =
                 new IAInvocationArguments(csarID, serviceInstanceID, serviceTemplateID, serviceTemplateInstanceID,
                     nodeTemplateID, relationship, neededInterface, neededOperation);
-            event = internalInvokeIA(arguments, exchange);
+            final PlanInstanceEvent event = internalInvokeIA(arguments, exchange);
             LOG.info("IA execution duration: {}", event.getDuration());
         } else {
             LOG.error("Unable to invoke operation without ServiceTemplateInstance ID!");
             handleResponse(exchange);
-            event = new PlanInstanceEvent("WARN", "IA_DURATION_LOG",
-                "Unable to invoke operation without ServiceTemplateInstance ID!");
         }
 
+        // this block of code is never entered
+        /*
         final String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
         LOG.debug("Correlation ID: {}", correlationID);
         if (Objects.nonNull(correlationID)) {
             // update plan in repository with new log event
-            final PlanInstanceRepository repo = new PlanInstanceRepository();
-            final PlanInstance plan = repo.findByCorrelationId(correlationID);
+            final PlanInstance plan = planInstanceRepository.findByCorrelationId(correlationID);
             if (Objects.nonNull(plan)) {
+                // add end timestamp and log message with duration
+                event.setEndTimestamp(new Date());
+                final long duration = event.getEndTimestamp().getTime() - event.getStartTimestamp().getTime();
+                event.setMessage("Finished execution of IA for NodeTemplate '" + nodeTemplateID + "' interface '"
+                    + neededInterface + "' and operation '" + neededOperation + "' after " + duration + "ms");
+                LOG.info("IA execution duration: {}ms", duration);
+                event.setNodeTemplateID(nodeTemplateID);
+                event.setInterfaceName(neededInterface);
+                event.setOperationName(neededOperation);
+                event.setExecutionDuration(duration);
+
                 plan.addEvent(event);
-                repo.update(plan);
+                planInstanceRepository.save(plan);
             }
-        }
-
-        if (Objects.nonNull(correlationID)) {
-            // add end timestamp and log message with duration
-            event.setEndTimestamp(new Date());
-            final long duration = event.getEndTimestamp().getTime() - event.getStartTimestamp().getTime();
-            event.setMessage("Finished execution of IA for NodeTemplate '" + nodeTemplateID + "' interface '"
-                + neededInterface + "' and operation '" + neededOperation + "' after " + duration + "ms");
-            LOG.info("IA execution duration: {}ms", duration);
-            event.setNodeTemplateID(nodeTemplateID);
-            event.setInterfaceName(neededInterface);
-            event.setOperationName(neededOperation);
-            event.setExecutionDuration(duration);
-
-            // update plan in repository with new log event
-            final PlanInstanceRepository repo = new PlanInstanceRepository();
-            final PlanInstance plan = repo.findByCorrelationId(correlationID);
-
-            if (Objects.nonNull(plan)) {
-                plan.addEvent(event);
-                repo.update(plan);
-            }
-        }
+        }*/
     }
 
     /**
@@ -289,8 +280,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         final TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
 
-        final Optional<TNodeTemplate> node =
-            ToscaEngine.getNodeTemplate(csar, arguments.serviceTemplateId, arguments.nodeTemplateId);
         QName typeID = null;
         TEntityType type = null;
         if (Objects.nonNull(arguments.nodeTemplateId)) {
@@ -333,10 +322,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final RelationshipTemplateInstance relationshipInstance;
         if (Objects.nonNull(arguments.nodeTemplateId)) {
             nodeInstance =
-                MBUtils.getNodeTemplateInstance(arguments.serviceTemplateInstanceId, arguments.nodeTemplateId);
+                mbUtils.getNodeTemplateInstance(arguments.serviceTemplateInstanceId, arguments.nodeTemplateId);
             relationshipInstance = null;
         } else if (Objects.nonNull(arguments.relationshipTemplateId)) {
-            relationshipInstance = MBUtils.getRelationshipTemplateInstance(arguments.serviceTemplateInstanceId,
+            relationshipInstance = mbUtils.getRelationshipTemplateInstance(arguments.serviceTemplateInstanceId,
                 arguments.relationshipTemplateId);
             // assuming type is a TRelationshipType, because otherwise this should be unreachable
             final TRelationshipType relationshipType = (TRelationshipType) type;
@@ -356,7 +345,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         Csar replacementCsar = null;
         if (typeID.equals(Types.abstractOperatingSystemNodeType)) {
             // replace abstract operating system node instance
-            nodeInstance = MBUtils.getAbstractOSReplacementInstance(nodeInstance);
+            nodeInstance = mbUtils.getAbstractOSReplacementInstance(nodeInstance);
             assert nodeInstance != null; // if not, we're fucked anyways
             final ServiceTemplateInstance replacementSTI = nodeInstance.getServiceTemplateInstance();
             replacementCsar = this.storage.findById(replacementSTI.getCsarId());
@@ -546,27 +535,27 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             LOG.debug("Checking whether IA [{}] was already deployed", ia.getName());
 
             // check whether there are already stored endpoints for this IA
-            final List<WSDLEndpoint> endpoints =
-                this.endpointService.getWSDLEndpointsForNTImplAndIAName(triggeringContainer, deploymentLocation,
+            final List<Endpoint> endpoints =
+                this.endpointService.getEndpointsForNTImplAndIAName(triggeringContainer, deploymentLocation,
                     typeImplementation.getQName(), ia.getName());
 
             if (Objects.nonNull(endpoints) && !endpoints.isEmpty()) {
                 LOG.debug("IA is already deployed.");
 
-                final URI endpointURI = endpoints.get(0).getURI();
+                final URI endpointURI = endpoints.get(0).getUri();
                 message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpointURI);
 
-                final Optional<WSDLEndpoint> currentEndpoint =
-                    endpoints.stream().filter(wsdlEndpoint -> wsdlEndpoint.getServiceTemplateInstanceID()
+                final Optional<Endpoint> currentEndpoint =
+                    endpoints.stream().filter(endpoint -> endpoint.getServiceTemplateInstanceID()
                             .equals(serviceTemplateInstanceID))
                         .findFirst();
 
                 if (!currentEndpoint.isPresent()) {
                     // store new endpoint for the IA
-                    final WSDLEndpoint endpoint = new WSDLEndpoint(endpointURI, portType, triggeringContainer,
-                        deploymentLocation, csar.id(), serviceTemplateInstanceID, null, typeImplementation.getQName(),
-                        ia.getName(), new HashMap<>());
-                    this.endpointService.storeWSDLEndpoint(endpoint);
+                    final Endpoint endpoint = new Endpoint(endpointURI, triggeringContainer,
+                        deploymentLocation, csar.id(), serviceTemplateInstanceID, new HashMap<>(), portType, typeImplementation.getQName(),
+                        ia.getName(), null);
+                    this.endpointService.storeEndpoint(endpoint);
                 }
 
                 // Call IA, send response to caller and terminate bus
@@ -656,13 +645,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 LOG.debug("IA successfully deployed. Storing endpoint...");
 
                 // store new endpoint for the IA
-                final WSDLEndpoint endpoint =
-                    new WSDLEndpoint(endpointURI, portType, triggeringContainer, deploymentLocation, csar.id(),
-                        serviceTemplateInstanceID, null, typeImplementation.getQName(), ia.getName(), new HashMap<>());
+                final Endpoint endpoint =
+                    new Endpoint(endpointURI, triggeringContainer, deploymentLocation, csar.id(),
+                        serviceTemplateInstanceID, new HashMap<>(), portType, typeImplementation.getQName(), ia.getName(), null);
                 LOG.debug("Storing WSDLEndpoint:");
                 LOG.debug("URI = {}, portType = {}, triggeringContainer = {}, managingContainer = {}, csar = {}, serviceTemplateInstanceID = {}, planId = {}, nodeTypeImplementation = {}, iaName = {}, metadata = {}", endpointURI, portType, triggeringContainer, deploymentLocation, csar.id(),
                     serviceTemplateInstanceID, null, typeImplementation.getQName(), ia.getName(), new HashMap<>());
-                this.endpointService.storeWSDLEndpoint(endpoint);
+                this.endpointService.storeEndpoint(endpoint);
             }
             LOG.debug("Endpoint: {}", endpointURI.toString());
 
@@ -689,7 +678,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         // generate new unique correlation ID if no ID is passed
         if (Objects.isNull(correlationID)) {
-            correlationID = PlanInstanceHandler.createCorrelationId();
+            correlationID = planInstanceHandler.createCorrelationId();
             message.setHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), correlationID);
 
             // update message body with correlation id
@@ -931,7 +920,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         synchronized (this) {
 
             if (!isReceiveNotify && arguments.chorCorrelationId != null
-                && new PlanInstanceRepository().findByChoreographyCorrelationId(arguments.chorCorrelationId,
+                && planInstanceRepository.findByChoreographyCorrelationIdAndTemplateId(arguments.chorCorrelationId,
                 arguments.planId) != null) {
                 LOG.warn("Skipping the plan invocation of choreography build plan with choreography id {}",
                     arguments.chorCorrelationId);
@@ -939,17 +928,17 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             }
 
             if (isReceiveNotify) {
-                plan = new PlanInstanceRepository().findByChoreographyCorrelationId(arguments.chorCorrelationId,
-                    arguments.planId);
+                plan = planInstanceRepository
+                    .findByChoreographyCorrelationIdAndTemplateId(arguments.chorCorrelationId, arguments.planId);
             } else {
                 try {
-                    plan = PlanInstanceHandler.createPlanInstance(arguments.csar, arguments.serviceTemplateId,
+                    plan = planInstanceHandler.createPlanInstance(arguments.csar, arguments.serviceTemplateId,
                         arguments.serviceTemplateInstanceId, arguments.planId,
                         arguments.operationName, arguments.correlationId,
                         arguments.chorCorrelationId, arguments.chorPartners,
                         exchange.getIn().getBody());
                 } catch (final CorrelationIdAlreadySetException e) {
-                    LOG.warn(e.getMessage() + " Skipping the plan invocation!");
+                    LOG.error(e.getMessage() + " Skipping the plan invocation!");
                     return;
                 }
             }
@@ -964,32 +953,30 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.debug("Plan language: {}", plan.getLanguage().toString());
 
         LOG.debug("Getting endpoint for the plan...");
-        final List<WSDLEndpoint> WSDLendpoints =
-            this.endpointService.getWSDLEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, arguments.csar.id(),
-                plan.getTemplateId());
+        final List<Endpoint> endpoints = this.endpointService.getEndpointsForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, arguments.csar.id(),
+            plan.getTemplateId());
 
-        // choose WSDL endpoint depending on the invokation of the invoker or callback port type
-        WSDLEndpoint WSDLendpoint = null;
+        // choose endpoint depending on the invocation of the invoker or callback port type
+        Endpoint endpoint = null;
         if (Objects.isNull(callbackInvocation) || !callbackInvocation) {
-            WSDLendpoint = WSDLendpoints.stream()
-                .filter(endpoint -> endpoint.getPortType() == null
-                    || !endpoint.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
+            endpoint = endpoints.stream()
+                .filter(e -> e.getPortType() == null
+                    || !e.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
                 .findFirst().orElse(null);
         } else {
             LOG.debug("Invokation using callback.");
-            WSDLendpoint =
-                WSDLendpoints.stream().filter(endpoint -> endpoint.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
-                    .findFirst().orElse(null);
+            endpoint = endpoints.stream().filter(e -> e.getPortType().equals(Constants.CALLBACK_PORT_TYPE))
+                .findFirst().orElse(null);
         }
 
-        if (WSDLendpoint != null) {
+        if (endpoint != null) {
 
-            final URI endpoint = WSDLendpoint.getURI();
-            LOG.debug("Endpoint for Plan {} : {} ", plan.getTemplateId(), endpoint);
+            final URI endpointUri = endpoint.getUri();
+            LOG.debug("Endpoint for Plan {} : {} ", plan.getTemplateId(), endpointUri);
 
             // Assumption. Should be checked with ToscaEngine
             message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
-            message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
+            message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpointUri);
 
             // check if we are the initiator and if not send multicast to all participants - Overmind
             final TServiceTemplate serviceTemplate = arguments.csar.entryServiceTemplate();
@@ -1052,7 +1039,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         LOG.info("Plan execution duration: {}ms", duration);
 
         final SituationTriggerInstanceListener instanceListener = new SituationTriggerInstanceListener();
-        final long calculatedWCET = instanceListener.calculateWCETForPlan(currentPlan);
+        final long calculatedWCET = instanceListener.calculateWCETForPlan(currentPlan, planInstanceRepository.findAll());
 
         // if total duration larger than calculatedWCET, use duration
         if (calculatedWCET > 0 && calculatedWCET < duration) {
@@ -1070,10 +1057,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
 
         // update plan in repository with new log event
-        final PlanInstanceRepository repo = new PlanInstanceRepository();
-        plan = repo.findByCorrelationId(arguments.correlationId);
-        plan.addEvent(event);
-        repo.update(plan);
+        plan = planInstanceRepository.findWithLogsAndOutputsByCorrelationId(arguments.correlationId);
 
         // Undeploy IAs for the related ServiceTemplateInstance if a termination plan was executed.
         if (plan.getType().equals(PlanType.TERMINATION)) {
@@ -1086,14 +1070,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             }
         }
 
-        // update plan in repository with new log event
-        plan = repo.findByCorrelationId(arguments.correlationId);
         plan.addEvent(event);
-        repo.update(plan);
+        planInstanceRepository.save(plan);
 
         if (exchange != null) {
             // update the output parameters in the plan instance
-            PlanInstanceHandler.updatePlanInstanceOutput(plan, arguments.csar, exchange.getIn().getBody());
+            planInstanceHandler.updatePlanInstanceOutput(plan, arguments.csar, exchange.getIn().getBody());
 
             handleResponse(exchange);
         }
@@ -1153,11 +1135,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         final Csar csar = this.storage.findById(csarID);
 
-        final List<WSDLEndpoint> serviceEndpoints =
-            this.endpointService.getWSDLEndpointsForSTID(Settings.OPENTOSCA_CONTAINER_HOSTNAME, instanceID);
+        final List<Endpoint> serviceEndpoints =
+            this.endpointService.getEndpointsForSTID(Settings.OPENTOSCA_CONTAINER_HOSTNAME, instanceID);
         LOG.debug("Found {} endpoints to delete...", serviceEndpoints.size());
 
-        for (final WSDLEndpoint serviceEndpoint : serviceEndpoints) {
+        for (final Endpoint serviceEndpoint : serviceEndpoints) {
 
             final String triggeringContainer = serviceEndpoint.getTriggeringContainer();
             final String deploymentLocation = serviceEndpoint.getManagingContainer();
@@ -1176,7 +1158,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                 // get number of endpoints for the same IA
                 final int count =
-                    this.endpointService.getWSDLEndpointsForNTImplAndIAName(triggeringContainer, deploymentLocation,
+                    this.endpointService.getEndpointsForNTImplAndIAName(triggeringContainer, deploymentLocation,
                             typeImpl, iaName)
                         .size();
 
@@ -1197,7 +1179,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                     // create exchange for the undeployment plug-in invocation
                     Exchange exchange = new DefaultExchange(this.collaborationContext.getCamelContext());
-                    exchange.getIn().setHeader(MBHeader.ENDPOINT_URI.toString(), serviceEndpoint.getURI());
+                    exchange.getIn().setHeader(MBHeader.ENDPOINT_URI.toString(), serviceEndpoint.getUri());
+                    exchange.getIn().setHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), artifactType);
 
                     // get plug-in for the undeployment
                     IManagementBusDeploymentPluginService deploymentPlugin;
@@ -1230,7 +1213,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 }
 
                 // delete the endpoint
-                this.endpointService.removeWSDLEndpoint(serviceEndpoint);
+                this.endpointService.removeEndpoint(serviceEndpoint);
                 LOG.debug("Endpoint deleted.");
             }
         }
@@ -1271,7 +1254,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 endpoint.toString().lastIndexOf(Constants.PLACEHOLDER_END)
                     + Constants.PLACEHOLDER_END.length());
 
-        LOG.debug("Placeholder: {} detected in Endpoint: {}", placeholder, endpoint.toString());
+        LOG.debug("Placeholder: {} detected in Endpoint: {}", placeholder, endpoint);
         final String[] placeholderProperties =
             placeholder.replace(Constants.PLACEHOLDER_START, "").replace(Constants.PLACEHOLDER_END, "").split("_");
 
@@ -1285,10 +1268,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             LOG.debug("Value for property {} found: {}.", placeholderProperty, propertyValue);
             try {
                 endpoint = new URI(endpoint.toString().replace(placeholder, propertyValue));
+                break;
             } catch (final URISyntaxException e) {
                 e.printStackTrace();
             }
-            break;
         }
 
         return endpoint;

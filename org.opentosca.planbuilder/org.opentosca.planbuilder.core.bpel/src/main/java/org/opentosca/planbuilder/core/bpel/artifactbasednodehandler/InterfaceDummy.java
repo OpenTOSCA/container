@@ -9,8 +9,8 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 
-import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.ModelUtils;
+import org.opentosca.container.core.model.csar.Csar;
 
 /**
  * As some IAs may implement a whole interface we mock the matching of these kind of IAs with this dummy class

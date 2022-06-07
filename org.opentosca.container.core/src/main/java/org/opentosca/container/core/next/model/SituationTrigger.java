@@ -24,51 +24,52 @@ public class SituationTrigger extends PersistenceObject {
     public static final String TABLE_NAME = "SITUATION_TRIGGER";
 
     private static final long serialVersionUID = -6114808293357441034L;
-
     @OneToMany()
     @JoinColumn(name = "SITUATION_ID")
     private Collection<Situation> situations;
-
     @Column(nullable = false)
     private boolean triggerOnActivation;
-
     @Column(nullable = false)
     private boolean isSingleInstance;
-
     @Convert(converter = CsarIdConverter.class)
     @Column(name = "CSAR_ID", nullable = false)
     private CsarId csarId;
-
     @OneToOne
     @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID", nullable = true)
     private ServiceTemplateInstance serviceInstance;
-
     @OneToOne
     @JoinColumn(name = "NODE_TEMPLATE_INSTANCE_ID", nullable = true)
     private NodeTemplateInstance nodeInstance;
-
     @Column(nullable = false)
     private String interfaceName;
-
     @Column(nullable = false)
     private String operationName;
-
     @Column(nullable = false)
     private long timeAvailableInSeconds;
-
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "situationTrigger")
     private Collection<SituationTriggerInstance> situationTriggerInstances;
-
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "situationTrigger", cascade = {CascadeType.ALL})
     private Set<SituationTriggerProperty> inputs = Sets.newHashSet();
-
     @Column(nullable = true)
     private float eventProbability;
-
     @Column(nullable = true)
     private String eventTime;
+
+    public SituationTrigger() {
+    }
+
+    public SituationTrigger(final Collection<Situation> situations, final CsarId csarId,
+                            final boolean triggerOnActivation, final boolean isSingleInstance,
+                            final String interfaceName, final String operationName) {
+        this.situations = situations;
+        this.csarId = csarId;
+        this.triggerOnActivation = triggerOnActivation;
+        this.isSingleInstance = isSingleInstance;
+        this.interfaceName = interfaceName;
+        this.operationName = operationName;
+    }
 
     public Collection<Situation> getSituations() {
         return this.situations;
@@ -165,4 +166,13 @@ public class SituationTrigger extends PersistenceObject {
     public void setEventTime(final String eventTime) {
         this.eventTime = eventTime;
     }
+
+    public long getTimeAvailableInSeconds() {
+        return timeAvailableInSeconds;
+    }
+
+    public void setTimeAvailableInSeconds(long timeAvailableInSeconds) {
+        this.timeAvailableInSeconds = timeAvailableInSeconds;
+    }
+
 }

@@ -20,7 +20,6 @@ import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.extension.TParameterDTO;
 import org.opentosca.container.core.extension.TPlanDTO;
-//import org.opentosca.container.core.tosca.extension.TPlanDTO;
 
 @XmlRootElement(name = "Plan")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -62,16 +61,22 @@ public class PlanDTO extends ResourceSupport {
         this.name = plan.getName();
         this.planType = plan.getPlanType();
         this.planLanguage = plan.getPlanLanguage();
-        this.inputParameters.addAll(
-            plan.getInputParameters().stream()
-                .map(TParameter::new)
-                .collect(Collectors.toList())
-        );
-        this.outputParameters.addAll(
-            plan.getOutputParameters().stream()
-                .map(TParameter::new)
-                .collect(Collectors.toList())
-        );
+        if (plan.getInputParameters() != null) {
+            this.inputParameters.addAll(
+                plan.getInputParameters().stream()
+                    .map(TParameter::new)
+                    .collect(Collectors.toList())
+            );
+        }
+
+        if (plan.getOutputParameters() != null) {
+            this.outputParameters.addAll(
+                plan.getOutputParameters().stream()
+                    .map(TParameter::new)
+                    .collect(Collectors.toList())
+            );
+        }
+
         this.planModelReference = plan.getPlanModelReference().getReference();
         this.calculatedWCET = Long.parseLong(
             plan.getOtherAttributes()

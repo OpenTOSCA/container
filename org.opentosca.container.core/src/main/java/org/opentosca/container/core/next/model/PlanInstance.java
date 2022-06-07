@@ -1,19 +1,21 @@
 package org.opentosca.container.core.next.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedEntityGraphs;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
@@ -21,9 +23,17 @@ import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.opentosca.container.core.common.jpa.QNameConverter;
+import org.opentosca.container.core.next.trigger.PlanInstanceSubscriptionService;
 
+@EntityListeners(PlanInstanceSubscriptionService.class)
 @Entity
 @Table(name = PlanInstance.TABLE_NAME)
+@NamedEntityGraphs( {
+    @NamedEntityGraph(name = "events", includeAllAttributes = true, attributeNodes = {
+        @NamedAttributeNode("events"),
+        @NamedAttributeNode("outputs")
+    })
+})
 public class PlanInstance extends PersistenceObject {
 
     public static final String TABLE_NAME = "PLAN_INSTANCE";
@@ -53,7 +63,7 @@ public class PlanInstance extends PersistenceObject {
 
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
-    private List<PlanInstanceEvent> events = new ArrayList<>();
+    private Set<PlanInstanceEvent> events = new HashSet<>();
 
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
@@ -108,11 +118,11 @@ public class PlanInstance extends PersistenceObject {
         this.state = state;
     }
 
-    public List<PlanInstanceEvent> getEvents() {
+    public Set<PlanInstanceEvent> getEvents() {
         return this.events;
     }
 
-    public void setEvents(final List<PlanInstanceEvent> events) {
+    public void setEvents(final Set<PlanInstanceEvent> events) {
         this.events = events;
     }
 

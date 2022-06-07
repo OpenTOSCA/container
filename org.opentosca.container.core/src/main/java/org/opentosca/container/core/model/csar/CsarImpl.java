@@ -56,6 +56,8 @@ import org.eclipse.winery.repository.datatypes.ids.elements.SelfServiceMetaDataI
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.eclipse.winery.repository.export.CsarExporter;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.tika.mime.MediaType;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -69,22 +71,31 @@ public class CsarImpl implements Csar {
 
     @NonNull
     private final CsarId id;
-    private final Optional<ServiceTemplateId> entryServiceTemplate;
     // TODO evaluate putting the save-location into an additional field here!
+    private final Path location;
     private final IRepository wineryRepo;
-
-    private final Map<QName, TArtifactTemplate> artifactTemplates;
-    private final Map<QName, TArtifactType> artifactTypes;
-    private final Map<QName, TNodeType> nodeTypes;
-    private final Map<QName, TNodeTypeImplementation> nodeTypeImplementations;
-    private final Map<QName, TPolicyTemplate> policyTemplates;
-    private final Map<QName, TRelationshipType> relationshipTypes;
-    private final Map<QName, TRelationshipTypeImplementation> relationshipTypeImplementations;
+    private Optional<ServiceTemplateId> entryServiceTemplate;
+    private TServiceTemplate entryServiceTemplateModel;
+    private Map<QName, TDefinitions> definitions;
+    private Map<QName, TArtifactTemplate> artifactTemplates;
+    private Map<QName, TArtifactType> artifactTypes;
+    private Map<QName, TNodeType> nodeTypes;
+    private Map<QName, TNodeTypeImplementation> nodeTypeImplementations;
+    private Map<QName, TPolicyTemplate> policyTemplates;
+    private Map<QName, TRelationshipType> relationshipTypes;
+    private Map<QName, TRelationshipTypeImplementation> relationshipTypeImplementations;
 
     public CsarImpl(@NonNull CsarId id, @NonNull Path location) {
         this.id = id;
+        this.location = location;
         this.wineryRepo = RepositoryFactory.getRepository(location);
-        entryServiceTemplate = readEntryServiceTemplate(location);
+        this.loadContents();
+    }
+
+    private void loadContents() {
+        this.entryServiceTemplate = readEntryServiceTemplate(this.location);
+        this.entryServiceTemplateModel = this.entryServiceTemplate();
+        this.definitions = this.getQNameToDefinitionsMap();
         this.artifactTemplates = this.wineryRepo.getQNameToElementMapping(ArtifactTemplateId.class);
         this.artifactTypes = this.wineryRepo.getQNameToElementMapping(ArtifactTypeId.class);
         this.nodeTypes = this.wineryRepo.getQNameToElementMapping(NodeTypeId.class);
@@ -100,6 +111,9 @@ public class CsarImpl implements Csar {
             qname = Files.readString(csarLocation.resolve(ENTRY_SERVICE_TEMPLATE_LOCATION));
         } catch (IOException e) {
             // Swallow, no helping this
+            //
+            // How about instead of swallowing, we throw something more useful?
+            throw new RuntimeException("Couldn't find entryServiceTemplate", e);
         }
         return qname == null ? Optional.empty()
             : Optional.of(new ServiceTemplateId(QName.valueOf(qname)));
@@ -189,17 +203,20 @@ public class CsarImpl implements Csar {
     @Override
     public TServiceTemplate entryServiceTemplate() {
         // FIXME stop mapping between Optional and nullable.
-        if (entryServiceTemplate.isPresent()) {
+        if (this.entryServiceTemplateModel == null && entryServiceTemplate.isPresent()) {
             return wineryRepo.getElement(entryServiceTemplate.get());
         }
-        return null;
+        return this.entryServiceTemplateModel;
+    }
+
+    @Override
+    public TDefinitions entryDefinitions() {
+        return this.definitions.get(this.entryServiceTemplate.get().getQName());
     }
 
     @Override
     public @NonNull List<TDefinitions> definitions() {
-        return wineryRepo.getAllDefinitionsChildIds().stream()
-            .map(wineryRepo::getDefinitions)
-            .collect(Collectors.toList());
+        return Lists.newArrayList(this.definitions.values());
     }
 
     @Override
@@ -294,7 +311,20 @@ public class CsarImpl implements Csar {
     }
 
     @Override
+    public void reload() {
+        this.entryServiceTemplateModel = null;
+        this.loadContents();
+    }
+
+    @Override
     public @NonNull String toString() {
         return id().csarName();
+    }
+
+    private Map<QName, TDefinitions> getQNameToDefinitionsMap() {
+        Map<QName, TDefinitions> result = Maps.newHashMap();
+        Collection<DefinitionsChildId> ids = this.wineryRepo.getAllDefinitionsChildIds();
+        ids.forEach(x -> result.put(x.getQName(), this.wineryRepo.getDefinitions(x)));
+        return result;
     }
 }

@@ -9,7 +9,7 @@ import org.opentosca.bus.management.service.IManagementBusService;
  * Route of the Management Bus Java API.<br>
  * <br>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * Incoming events are given here from the EventHandler to be routed to the Management Bus for further processing. The
@@ -28,15 +28,15 @@ public class Route extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         this.from("direct:invoke").to("stream:out").process(exchange -> {
-            final String messageID =
-                exchange.getIn().getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
-            if (messageID != null) {
-                exchange.getIn().setMessageId(messageID);
-                exchange.getIn().setHeader(MBHeader.SYNCINVOCATION_BOOLEAN.toString(), false);
-            } else {
-                exchange.getIn().setHeader(MBHeader.SYNCINVOCATION_BOOLEAN.toString(), true);
-            }
-        }).to("stream:out")
+                final String messageID =
+                    exchange.getIn().getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
+                if (messageID != null) {
+                    exchange.getIn().setMessageId(messageID);
+                    exchange.getIn().setHeader(MBHeader.SYNCINVOCATION_BOOLEAN.toString(), false);
+                } else {
+                    exchange.getIn().setHeader(MBHeader.SYNCINVOCATION_BOOLEAN.toString(), true);
+                }
+            }).to("stream:out")
             .choice()
             .when(header("OPERATION").isEqualTo(ExposedManagementBusOperations.INVOKE_IA.getHeaderValue()))
             .to("direct:invokeIA")

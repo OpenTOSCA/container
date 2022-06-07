@@ -101,7 +101,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
             }
             return csarImpls.get(id);
         }
-        LOGGER.info("CSAR '{}' could not be found", id.csarName());
+        LOGGER.debug("CSAR '{}' could not be found", id.csarName());
         throw new NoSuchElementException();
     }
 
@@ -123,11 +123,11 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     }
 
     @Override
-    public CsarId storeCSAR(Path csarLocation) throws UserException, SystemException {
+    public CsarId storeCSAR(Path csarLocation) throws UserException {
         LOGGER.debug("Given file to store: {}", csarLocation);
         if (!Files.isRegularFile(csarLocation)) {
             throw new UserException(
-                "\"" + csarLocation.toString() + "\" to store is not an absolute path to an existing file.");
+                "\"" + csarLocation + "\" to store is not an absolute path to an existing file.");
         }
 
         CsarId candidateId = new CsarId(csarLocation.getFileName().toString());
@@ -167,12 +167,11 @@ public class CsarStorageServiceImpl implements CsarStorageService {
             LOGGER.warn("CSAR Import was interrupted or terminated with an exception", e);
             FileUtils.forceDelete(permanentLocation);
             throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
+        } catch (RuntimeException | Error e) {
+            throw e;
         } catch (Throwable e) {
             LOGGER.warn("CSAR Import failed with an unspecified exception", e);
             FileUtils.forceDelete(permanentLocation);
-            if (e instanceof RuntimeException || e instanceof Error) {
-                throw e;
-            }
             throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
         }
         assert (importInfo != null);
@@ -199,10 +198,11 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     }
 
     @Override
-    public void deleteCSAR(CsarId csarId) throws SystemException, UserException {
-        LOGGER.info("Deleting CSAR \"{}\"...", csarId.csarName());
+    public void deleteCSAR(CsarId csarId) {
+        LOGGER.debug("Deleting CSAR \"{}\"...", csarId.csarName());
         FileUtils.forceDelete(basePath.resolve(csarId.csarName()));
         LOGGER.info("Deleted CSAR \"{}\"...", csarId.csarName());
+        this.csarImpls.remove(csarId);
     }
 
     @Override
@@ -220,10 +220,11 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         } catch (IOException e) {
             throw new SystemException("Could not delete all CSARs.", e);
         }
+        this.csarImpls.clear();
     }
 
     @Override
-    public Path exportCSAR(final CsarId csarId) throws UserException, SystemException {
+    public Path exportCSAR(final CsarId csarId) throws SystemException {
         LOGGER.debug("Exporting CSAR \"{}\"...", csarId.csarName());
         Csar csar = findById(csarId);
 
@@ -239,7 +240,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
                 FileUtils.forceDelete(csarTarget);
             }
             csar.exportTo(csarTarget);
-            LOGGER.info("Successfully exported CSAR to {}", csarTarget);
+            LOGGER.debug("Successfully exported CSAR to {}", csarTarget);
             return csarTarget;
         } catch (final IOException e) {
             throw new SystemException("An IO Exception occured.", e);

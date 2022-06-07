@@ -5,10 +5,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -23,9 +25,18 @@ import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.extension.TParameter;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
+import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
+import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
+import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.service.CsarStorageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 
@@ -36,16 +47,81 @@ import org.w3c.dom.Document;
  *
  * @author Ghareeb Falazi
  */
+// TODO: remove dtos and move to core
 // TODO it is assumed that the name of the node template is the same as its id.
 //  That assumption is not accurate
 @Service
 public class NodeTemplateService {
 
+    private static final Logger logger = LoggerFactory.getLogger(NodeTemplateService.class);
+
     private final CsarStorageService storage;
 
+    private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
+    private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository;
+
     @Inject
-    public NodeTemplateService(CsarStorageService storage) {
+    public NodeTemplateService(CsarStorageService storage,
+                               ServiceTemplateInstanceRepository serviceTemplateInstanceRepository,
+                               NodeTemplateInstanceRepository nodeTemplateInstanceRepository) {
         this.storage = storage;
+        this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
+        this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
+    }
+
+    public NodeTemplateInstance createNewNodeTemplateInstance(final String csarId,
+                                                              final String serviceTemplateNameAsString,
+                                                              final String nodeTemplateId,
+                                                              final Long serviceTemplateInstanceId) throws InstantiationException,
+        IllegalAccessException,
+        IllegalArgumentException, ParserConfigurationException {
+        final Csar csar = storage.findById(new CsarId(csarId));
+        final TServiceTemplate serviceTemplate;
+        final TNodeTemplate nodeTemplate;
+        try {
+            serviceTemplate = ToscaEngine.resolveServiceTemplate(csar, serviceTemplateNameAsString);
+            nodeTemplate = ToscaEngine.resolveNodeTemplate(serviceTemplate, nodeTemplateId);
+        } catch (NotFoundException e) {
+            throw new javax.ws.rs.NotFoundException(e.getMessage(), e);
+        }
+        final Document propertiesAsDocument = ToscaEngine.getEntityTemplateProperties(nodeTemplate);
+
+        // Properties
+        // We set the properties of the template as initial properties
+        final NodeTemplateInstance newInstance = new NodeTemplateInstance();
+        if (propertiesAsDocument != null) {
+            final NodeTemplateInstanceProperty properties =
+                ModelUtils.convertDocumentToProperty(propertiesAsDocument, NodeTemplateInstanceProperty.class);
+            newInstance.addProperty(properties);
+        }
+        // State
+        newInstance.setState(NodeTemplateInstanceState.INITIAL);
+        // Template
+        newInstance.setTemplateId(nodeTemplate.getIdFromIdOrNameField());
+        // Type
+        newInstance.setTemplateType(nodeTemplate.getType());
+        // ServiceTemplateInstance
+        final Optional<ServiceTemplateInstance> instanceOptional = this.serviceTemplateInstanceRepository.findWithNodeTemplateInstancesById(serviceTemplateInstanceId);
+        if (instanceOptional.isEmpty()) {
+            logger.error("Unable to retrieve ServiceTemplateInstance with ID: {}", serviceTemplateInstanceId);
+            return null;
+        }
+        final ServiceTemplateInstance serviceTemplateInstance = instanceOptional.get();
+
+        // only compare the local Id, because ServiceTemplateInstance does not keep the
+        // fully namespaced QName as the parent Id (which sucks, but it is what it is for now)
+        if (!serviceTemplateInstance.getTemplateId().equals(serviceTemplate.getIdFromIdOrNameField())) {
+            final String msg =
+                String.format("Service template instance id <%s> does not belong to service template: %s",
+                    serviceTemplateInstanceId, serviceTemplate.getName());
+            logger.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        newInstance.setServiceTemplateInstance(serviceTemplateInstance);
+
+        this.nodeTemplateInstanceRepository.save(newInstance);
+
+        return newInstance;
     }
 
     /**
@@ -73,7 +149,14 @@ public class NodeTemplateService {
         }
 
         return nodeTemplates.stream()
-            .map(toscaNodeTemplate -> createNodeTemplate(toscaNodeTemplate, csar))
+            .map(toscaNodeTemplate -> {
+                try {
+                    return createNodeTemplate(toscaNodeTemplate, csar);
+                } catch (NotFoundException e) {
+                    logger.error("Couldn't create NodeTemplate", e);
+                    return null;
+                }
+            })
             .collect(Collectors.toList());
     }
 
@@ -137,7 +220,7 @@ public class NodeTemplateService {
      * Creates a new instance of the NodeTemplateDTO class. It fetches the qualified name of node type of the node
      * template.
      */
-    public NodeTemplateDTO createNodeTemplate(final TNodeTemplate toscaObject, final Csar csar) {
+    public NodeTemplateDTO createNodeTemplate(final TNodeTemplate toscaObject, final Csar csar) throws NotFoundException {
         final QName nodeTypeId = toscaObject.getType();
         final NodeTemplateDTO currentNodeTemplate = new NodeTemplateDTO();
         currentNodeTemplate.setId(toscaObject.getId());

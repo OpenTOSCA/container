@@ -1,0 +1,479 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:tns="http://www.apache.org/ode/pmapi"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                  xmlns:typ="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+                  xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+                  xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+                  xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+                  targetNamespace="http://www.apache.org/ode/pmapi">
+    <wsdl:types>
+        <xsd:schema attributeFormDefault="unqualified" elementFormDefault="unqualified">
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                        schemaLocation="pmapi.xsd"/>
+        </xsd:schema>
+        <xsd:schema xmlns:ns0="http://www.apache.org/ode/pmapi"
+                    xmlns:ns2="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns1="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns4="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns3="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns6="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns5="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns8="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns7="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns9="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    xmlns:ns10="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+                    attributeFormDefault="unqualified"
+                    elementFormDefault="unqualified"
+                    targetNamespace="http://www.apache.org/ode/pmapi">
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/"/>
+            <xsd:complexType name="aidsType">
+                <xsd:all>
+                    <xsd:element name="aid" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="listType">
+                <xsd:all>
+                    <xsd:element name="element" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:element name="ManagementFault" type="xsd:string"/>
+            <xsd:element name="listProcessesCustom">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="filter" nillable="true" type="xsd:string"/>
+                        <xsd:element form="unqualified" name="orderKeys" nillable="true" type="xsd:string"/>
+                        <xsd:element form="unqualified" name="customizer" nillable="true" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="setProcessProperty">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="pid" nillable="true" type="xsd:QName"/>
+                        <xsd:element form="unqualified" name="propertyName" nillable="true" type="xsd:QName"/>
+                        <xsd:element form="unqualified" name="propertyValue" nillable="true" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getProcessInfoCustom">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="pid" nillable="true" type="xsd:QName"/>
+                        <xsd:element form="unqualified" name="customizer" nillable="true" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="setProcessPropertyNode">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="pid" nillable="true" type="xsd:QName"/>
+                        <xsd:element form="unqualified" name="propertyName" nillable="true" type="xsd:QName"/>
+                        <xsd:element form="unqualified" name="propertyValue" nillable="true" type="xsd:anyType"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listProcesses">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="filter" nillable="true" type="xsd:string"/>
+                        <xsd:element form="unqualified" name="orderKeys" nillable="true" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listAllProcesses">
+                <xsd:complexType>
+                    <xsd:sequence/>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getProcessInfo">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="pid" nillable="true" type="xsd:QName"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="setRetired">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="pid" nillable="true" type="xsd:QName"/>
+                        <xsd:element form="unqualified" name="retired" nillable="true" type="xsd:boolean"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getExtensibilityElements">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="pid" nillable="true" type="xsd:QName"/>
+                        <xsd:element form="unqualified" name="aids" nillable="true" type="ns0:aidsType"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="activate">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="pid" nillable="true" type="xsd:QName"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listProcessesCustomResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info-list" nillable="true"
+                                     type="typ:tProcessInfoList"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="setProcessPropertyResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info" nillable="true" type="typ:tProcessInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getProcessInfoCustomResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info" nillable="true" type="typ:tProcessInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="setProcessPropertyNodeResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info" nillable="true" type="typ:tProcessInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listProcessesResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info-list" nillable="true"
+                                     type="typ:tProcessInfoList"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="listAllProcessesResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info-list" nillable="true"
+                                     type="typ:tProcessInfoList"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getProcessInfoResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info" nillable="true" type="typ:tProcessInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="setRetiredResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info" nillable="true" type="typ:tProcessInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="getExtensibilityElementsResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info" nillable="true" type="typ:tProcessInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="activateResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element form="unqualified" name="process-info" nillable="true" type="typ:tProcessInfo"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:schema>
+    </wsdl:types>
+    <wsdl:message name="listAllProcessesInput">
+        <wsdl:part name="parameters" element="tns:listAllProcesses"/>
+    </wsdl:message>
+    <wsdl:message name="listAllProcessesOutput">
+        <wsdl:part name="parameters" element="tns:listAllProcessesResponse"/>
+    </wsdl:message>
+    <wsdl:message name="managementFault">
+        <wsdl:part name="managementFault" element="tns:ManagementFault"/>
+    </wsdl:message>
+    <wsdl:message name="listProcessesInput">
+        <wsdl:part name="parameters" element="tns:listProcesses"/>
+    </wsdl:message>
+    <wsdl:message name="listProcessesOutput">
+        <wsdl:part name="parameters" element="tns:listProcessesResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getProcessInfoInput">
+        <wsdl:part name="parameters" element="tns:getProcessInfo"/>
+    </wsdl:message>
+    <wsdl:message name="getProcessInfoOutput">
+        <wsdl:part name="parameters" element="tns:getProcessInfoResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getProcessInfoCustomInput">
+        <wsdl:part name="parameters" element="tns:getProcessInfoCustom"/>
+    </wsdl:message>
+    <wsdl:message name="getProcessInfoCustomOutput">
+        <wsdl:part name="parameters" element="tns:getProcessInfoCustomResponse"/>
+    </wsdl:message>
+    <wsdl:message name="setRetiredInput">
+        <wsdl:part name="parameters" element="tns:setRetired"/>
+    </wsdl:message>
+    <wsdl:message name="setRetiredOutput">
+        <wsdl:part name="parameters" element="tns:setRetiredResponse"/>
+    </wsdl:message>
+    <wsdl:message name="setProcessPropertyNodeInput">
+        <wsdl:part name="parameters" element="tns:setProcessPropertyNode"/>
+    </wsdl:message>
+    <wsdl:message name="setProcessPropertyNodeOutput">
+        <wsdl:part name="parameters" element="tns:setProcessPropertyNodeResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getExtensibilityElementsInput">
+        <wsdl:part name="parameters" element="tns:getExtensibilityElements"/>
+    </wsdl:message>
+    <wsdl:message name="getExtensibilityElementsOutput">
+        <wsdl:part name="parameters" element="tns:getExtensibilityElementsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="listProcessesCustomInput">
+        <wsdl:part name="parameters" element="tns:listProcessesCustom"/>
+    </wsdl:message>
+    <wsdl:message name="listProcessesCustomOutput">
+        <wsdl:part name="parameters" element="tns:listProcessesCustomResponse"/>
+    </wsdl:message>
+    <wsdl:message name="activateInput">
+        <wsdl:part name="parameters" element="tns:activate"/>
+    </wsdl:message>
+    <wsdl:message name="activateOutput">
+        <wsdl:part name="parameters" element="tns:activateResponse"/>
+    </wsdl:message>
+    <wsdl:message name="setProcessPropertyInput">
+        <wsdl:part name="parameters" element="tns:setProcessProperty"/>
+    </wsdl:message>
+    <wsdl:message name="setProcessPropertyOutput">
+        <wsdl:part name="parameters" element="tns:setProcessPropertyResponse"/>
+    </wsdl:message>
+    <wsdl:portType name="ProcessManagementPortType">
+        <wsdl:operation name="listAllProcesses">
+            <wsdl:input message="tns:listAllProcessesInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/listAllProcessesRequest"/>
+            <wsdl:output message="tns:listAllProcessesOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/listAllProcessesResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:listAllProcessesmanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="listProcesses">
+            <wsdl:input message="tns:listProcessesInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/listProcessesRequest"/>
+            <wsdl:output message="tns:listProcessesOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/listProcessesResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:listProcessesmanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="getProcessInfo">
+            <wsdl:input message="tns:getProcessInfoInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/getProcessInfoRequest"/>
+            <wsdl:output message="tns:getProcessInfoOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/getProcessInfoResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:getProcessInfomanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="getProcessInfoCustom">
+            <wsdl:input message="tns:getProcessInfoCustomInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/getProcessInfoCustomRequest"/>
+            <wsdl:output message="tns:getProcessInfoCustomOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/getProcessInfoCustomResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:getProcessInfoCustommanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="setRetired">
+            <wsdl:input message="tns:setRetiredInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/setRetiredRequest"/>
+            <wsdl:output message="tns:setRetiredOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/setRetiredResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:setRetiredmanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="setProcessPropertyNode">
+            <wsdl:input message="tns:setProcessPropertyNodeInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/setProcessPropertyNodeRequest"/>
+            <wsdl:output message="tns:setProcessPropertyNodeOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/setProcessPropertyNodeResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:setProcessPropertyNodemanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="getExtensibilityElements">
+            <wsdl:input message="tns:getExtensibilityElementsInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/getExtensibilityElementsRequest"/>
+            <wsdl:output message="tns:getExtensibilityElementsOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/getExtensibilityElementsResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:getExtensibilityElementsmanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="listProcessesCustom">
+            <wsdl:input message="tns:listProcessesCustomInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/listProcessesCustomRequest"/>
+            <wsdl:output message="tns:listProcessesCustomOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/listProcessesCustomResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:listProcessesCustommanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="activate">
+            <wsdl:input message="tns:activateInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/activateRequest"/>
+            <wsdl:output message="tns:activateOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/activateResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:activatemanagementFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="setProcessProperty">
+            <wsdl:input message="tns:setProcessPropertyInput"
+                        wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/setProcessPropertyRequest"/>
+            <wsdl:output message="tns:setProcessPropertyOutput"
+                         wsaw:Action="http://www.apache.org/ode/pmapi/ProcessManagementPortType/setProcessPropertyResponse"/>
+            <wsdl:fault message="tns:managementFault" name="managementFault"
+                        wsaw:Action="urn:setProcessPropertymanagementFault"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="ProcessManagementBinding" type="tns:ProcessManagementPortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="listAllProcesses">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="listProcesses">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getProcessInfo">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getProcessInfoCustom">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="setRetired">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="setProcessPropertyNode">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getExtensibilityElements">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="listProcessesCustom">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="activate">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="setProcessProperty">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="managementFault">
+                <soap:fault use="literal" name="managementFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="ProcessManagement">
+        <wsdl:port name="ProcessManagementPort" binding="tns:ProcessManagementBinding">
+            <soap:address location="http://localhost:9763/ode/processes/ProcessManagement.ProcessManagementPort/"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

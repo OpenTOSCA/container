@@ -28,12 +28,14 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import com.google.common.collect.Sets;
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.OperationChain;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.NodeRelationInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.plugins.context.DeployTechDescriptorMapping;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
@@ -45,7 +47,6 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -56,7 +57,7 @@ import org.w3c.dom.Node;
  * This class is used for all Plugins. All acitions on TemplateBuildPlans and BuildPlans should be done with the
  * operations of this class. It is basically a Facade to Template and its TemplateBuildPlan
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -68,14 +69,23 @@ public class BPELPlanContext extends PlanContext {
     private final BPELScope templateBuildPlan;
     private final BPELScopeBuilder scopeBuilder;
     private final BPELScopeHandler bpelTemplateHandler;
-    private BPELPlanHandler buildPlanHandler;
-    private BPELPlanHandler bpelProcessHandler;
-    private NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
+    private final WSDLFactory factory;
+    private final WSDLReader reader;
+    private final BPELPlanHandler buildPlanHandler;
+    private final BPELPlanHandler bpelProcessHandler;
+    private final NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 
     public BPELPlanContext(BPELScopeBuilder scopeBuilder, final BPELPlan plan, final BPELScope templateBuildPlan, final Property2VariableMapping map,
                            final TServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
                            String serviceInstanceIDVarName, String serviceTemplateURLVarName, String planInstanceUrlVarName, Csar csar) {
-        super(plan, serviceTemplate, map, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, planInstanceUrlVarName, csar);
+        this(scopeBuilder, plan, templateBuildPlan, map, null, serviceTemplate, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, planInstanceUrlVarName, csar);
+    }
+
+    public BPELPlanContext(BPELScopeBuilder scopeBuilder, final BPELPlan plan, final BPELScope templateBuildPlan, final Property2VariableMapping map,
+                           final DeployTechDescriptorMapping descriptorMap,
+                           final TServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
+                           String serviceInstanceIDVarName, String serviceTemplateURLVarName, String planInstanceUrlVarName, Csar csar) {
+        super(plan, serviceTemplate, map, descriptorMap, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, planInstanceUrlVarName, csar);
 
         this.scopeBuilder = scopeBuilder;
         this.templateBuildPlan = templateBuildPlan;
@@ -84,8 +94,12 @@ public class BPELPlanContext extends PlanContext {
             this.buildPlanHandler = new BPELPlanHandler();
             this.bpelProcessHandler = new BPELPlanHandler();
             this.nodeRelationInstanceHandler = new NodeRelationInstanceVariablesHandler(this.bpelProcessHandler);
-        } catch (final ParserConfigurationException e) {
+            this.factory = WSDLFactory.newInstance();
+            this.reader = factory.newWSDLReader();
+            reader.setFeature("javax.wsdl.verbose", false);
+        } catch (final ParserConfigurationException | WSDLException e) {
             BPELPlanContext.LOG.warn("Coulnd't initialize internal handlers", e);
+            throw new RuntimeException("Coulnd't initialize internal handlers", e);
         }
     }
 
@@ -102,8 +116,8 @@ public class BPELPlanContext extends PlanContext {
     }
 
     public boolean addUsedOperation(String interfaceName, String operationName, String compensationInterfaceName, String compensationOperationName, Csar csar) {
-        TOperation op = ModelUtils.findOperation(csar, interfaceName, operationName);
-        TOperation compensationOp = ModelUtils.findOperation(csar, compensationInterfaceName, compensationOperationName);
+        TOperation op = ModelUtils.findNodeOperation(csar, interfaceName, operationName);
+        TOperation compensationOp = ModelUtils.findNodeOperation(csar, compensationInterfaceName, compensationOperationName);
         if (op != null) {
             this.addUsedOperation(op, compensationOp);
             return true;
@@ -276,6 +290,13 @@ public class BPELPlanContext extends PlanContext {
         return this.buildPlanHandler.createGlobalStringVariable(varName, initVal, this.templateBuildPlan.getBuildPlan());
     }
 
+    public boolean isOperationExecutable(final TNodeTemplate nodeTemplate, final String interfaceName,
+                                         final String operationName,
+                                         final Map<TParameter, Variable> param2variableMapping) {
+        scopeBuilder.createOperationCall(this, nodeTemplate, interfaceName, operationName);
+        return true;
+    }
+
     /**
      * Executes the operation of the given NodeTemplate
      *
@@ -306,28 +327,23 @@ public class BPELPlanContext extends PlanContext {
 
         // create context from this context and set the given nodeTemplate as
         // the node for the scope
-        final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
-            this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csar);
-
-        context.templateBuildPlan.setNodeTemplate(nodeTemplate);
-        context.templateBuildPlan.setRelationshipTemplate(null);
+        final BPELPlanContext context = this.createContext(nodeTemplate);
 
         /*
          * chain.executeIAProvisioning(context); chain.executeDAProvisioning(context);
          */
+        boolean executeProvOps = false;
         if (param2variableMapping == null) {
-            chain.executeOperationProvisioning(context, opNames);
+            executeProvOps = chain.executeOperationProvisioning(context, opNames);
         } else {
-            boolean executeProvOps = chain.executeOperationProvisioning(context, opNames, param2variableMapping);
-            LOG.debug("Execute Operation Provisioning successful: {}", executeProvOps);
+            executeProvOps = chain.executeOperationProvisioning(context, opNames, param2variableMapping);
         }
 
         // re-set the orginal configuration of the templateBuildPlan
         this.templateBuildPlan.setNodeTemplate(nodeBackup);
         this.templateBuildPlan.setRelationshipTemplate(relationBackup);
 
-        return true;
+        return executeProvOps;
     }
 
     /**
@@ -437,12 +453,7 @@ public class BPELPlanContext extends PlanContext {
 
         // create context from this context and set the given nodeTemplate as
         // the node for the scope
-        final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
-            this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csar);
-
-        context.templateBuildPlan.setNodeTemplate(nodeTemplate);
-        context.templateBuildPlan.setRelationshipTemplate(null);
+        final BPELPlanContext context = this.createContext(nodeTemplate);
 
         /*
          * chain.executeIAProvisioning(context); chain.executeDAProvisioning(context);
@@ -463,6 +474,16 @@ public class BPELPlanContext extends PlanContext {
         this.templateBuildPlan.setRelationshipTemplate(relationBackup);
 
         return true;
+    }
+
+    private BPELPlanContext createContext(TNodeTemplate nodeTemplate) {
+        final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
+            this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
+            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csar);
+
+        context.templateBuildPlan.setNodeTemplate(nodeTemplate);
+        context.templateBuildPlan.setRelationshipTemplate(null);
+        return context;
     }
 
     public boolean executeOperation(final TNodeTemplate nodeTemplate, final String interfaceName,
@@ -488,12 +509,7 @@ public class BPELPlanContext extends PlanContext {
 
         // create context from this context and set the given nodeTemplate as
         // the node for the scope
-        final BPELPlanContext context = new BPELPlanContext(this.scopeBuilder, (BPELPlan) this.plan, this.templateBuildPlan,
-            this.propertyMap, this.serviceTemplate, this.serviceInstanceURLVarName, this.serviceInstanceIDVarName,
-            this.serviceTemplateURLVarName, this.planInstanceUrlVarName, this.csar);
-
-        context.templateBuildPlan.setNodeTemplate(nodeTemplate);
-        context.templateBuildPlan.setRelationshipTemplate(null);
+        final BPELPlanContext context = this.createContext(nodeTemplate);
 
         /*
          * chain.executeIAProvisioning(context); chain.executeDAProvisioning(context);
@@ -751,10 +767,7 @@ public class BPELPlanContext extends PlanContext {
      *                       failed
      */
     public boolean containsPortType(final QName portType, final Path wsdlFile) throws WSDLException {
-        final WSDLFactory factory = WSDLFactory.newInstance();
-        final WSDLReader reader = factory.newWSDLReader();
-        reader.setFeature("javax.wsdl.verbose", false);
-        final Definition wsdlInstance = reader.readWSDL(wsdlFile.toAbsolutePath().toString());
+        final Definition wsdlInstance = this.reader.readWSDL(wsdlFile.toAbsolutePath().toString());
         final Map<?, ?> portTypes = wsdlInstance.getAllPortTypes();
         for (final Object key : portTypes.keySet()) {
             final PortType portTypeInWsdl = (PortType) portTypes.get(key);
@@ -840,10 +853,7 @@ public class BPELPlanContext extends PlanContext {
     private List<Service> getServicesInWSDLFile(final Path wsdlFile, final QName portType) throws WSDLException {
         final List<Service> servicesInWsdl = new ArrayList<>();
 
-        final WSDLFactory factory = WSDLFactory.newInstance();
-        final WSDLReader reader = factory.newWSDLReader();
-        reader.setFeature("javax.wsdl.verbose", false);
-        final Definition wsdlInstance = reader.readWSDL(wsdlFile.toAbsolutePath().toString());
+        final Definition wsdlInstance = this.reader.readWSDL(wsdlFile.toAbsolutePath().toString());
         final Map<?, ?> services = wsdlInstance.getAllServices();
         for (final Object key : services.keySet()) {
             final Service service = (Service) services.get(key);

@@ -10,7 +10,7 @@ import org.opentosca.container.core.common.Settings;
  * Asynchronous route of SOAP/HTTP-Invocation-Management-Bus-Plug-in.<br>
  * <br>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * This class manages the asynchronous communication with a service. Both invoking and handling the callback are done

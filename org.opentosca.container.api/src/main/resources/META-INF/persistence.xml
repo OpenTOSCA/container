@@ -16,6 +16,8 @@
 
     <!-- entities -->
     <class>org.opentosca.container.core.next.model.PersistenceObject</class>
+    <class>org.opentosca.container.core.next.model.Endpoint</class>
+    <class>org.opentosca.container.core.next.model.Capability</class>
     <class>org.opentosca.container.core.next.model.Property</class>
     <class>org.opentosca.container.core.next.model.ServiceTemplateInstance</class>
     <class>org.opentosca.container.core.next.model.ServiceTemplateInstanceProperty</class>
@@ -39,16 +41,13 @@
     <class>org.opentosca.container.core.next.model.SituationsMonitor</class>
     <class>org.opentosca.container.core.next.model.SituationsMonitorIdCollection</class>
 
-    <class>org.opentosca.container.core.model.credentials.Credentials</class>
-    <class>org.opentosca.container.core.model.deployment.ia.IADeploymentInfo</class>
-    <class>org.opentosca.container.core.model.deployment.plan.PlanDeploymentInfo</class>
-    <class>org.opentosca.container.core.model.deployment.process.DeploymentProcessInfo</class>
+    <class>org.opentosca.container.core.next.model.IADeploymentInfo</class>
+    <class>org.opentosca.container.core.next.model.PlanDeploymentInfo</class>
+    <class>org.opentosca.container.core.next.model.DeploymentProcessInfo</class>
     <class>org.opentosca.container.core.model.deployment.AbstractDeploymentInfo</class>
     <class>org.opentosca.container.core.model.deployment.AbstractFileDeploymentInfo</class>
-    <class>org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint</class>
-    <class>org.opentosca.container.core.model.endpoint.rest.RESTEndpoint</class>
 
-    <class>org.opentosca.container.core.model.capability.Capability</class>
+    <class>org.opentosca.container.core.next.model.Capability</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
@@ -56,6 +55,7 @@
       <property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
       <property name="hibernate.hbm2ddl.auto" value="update" />
       <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
+      <property name="hibernate.globally_quoted_identifiers" value="true" />
     </properties>
 
   </persistence-unit>

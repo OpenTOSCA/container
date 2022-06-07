@@ -32,7 +32,6 @@ import org.xml.sax.SAXException;
  */
 public class Fragments {
 
-    private final DocumentBuilderFactory docFactory;
     private final DocumentBuilder docBuilder;
 
     /**
@@ -41,8 +40,8 @@ public class Fragments {
      * @throws ParserConfigurationException is thrown when initializing the internal DocumentBuild fails
      */
     public Fragments() throws ParserConfigurationException {
-        this.docFactory = DocumentBuilderFactory.newInstance();
-        this.docFactory.setNamespaceAware(true);
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        docFactory.setNamespaceAware(true);
         this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 

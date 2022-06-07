@@ -27,17 +27,23 @@ import io.swagger.annotations.ApiParam;
 import org.opentosca.container.api.dto.ServiceTemplateDTO;
 import org.opentosca.container.api.dto.ServiceTemplateListDTO;
 import org.opentosca.container.api.dto.request.ServiceTransformRequest;
-import org.opentosca.container.api.service.CsarService;
-import org.opentosca.container.api.service.CsarService.AdaptationPlanGenerationResult;
-import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
-import org.opentosca.container.api.service.PlanService;
-import org.opentosca.container.api.service.RelationshipTemplateService;
+import org.opentosca.container.api.service.PlanInvokerService;
+import org.opentosca.container.api.util.Utils;
 import org.opentosca.container.control.OpenToscaControlService;
+import org.opentosca.container.control.plan.PlanGenerationService;
+import org.opentosca.container.control.plan.PlanGenerationService.AdaptationPlanGenerationResult;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.PlanType;
+import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
+import org.opentosca.container.core.next.services.instances.NodeTemplateInstanceService;
+import org.opentosca.container.core.next.services.instances.PlanInstanceService;
+import org.opentosca.container.core.next.services.instances.RelationshipTemplateInstanceService;
+import org.opentosca.container.core.next.services.instances.ServiceTemplateInstanceService;
+import org.opentosca.container.core.next.services.instances.SituationInstanceService;
+import org.opentosca.container.core.next.services.templates.RelationshipTemplateService;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.deployment.checks.DeploymentTestService;
 import org.slf4j.Logger;
@@ -55,19 +61,28 @@ public class ServiceTemplateController {
     private UriInfo uriInfo;
 
     @Context
-    private Request request;
-
-    @Context
     private ResourceContext resourceContext;
 
     @Inject
-    private PlanService planService;
+    private PlanInstanceService planInstanceService;
 
     @Inject
-    private InstanceService instanceService;
+    private PlanInvokerService planInvokerService;
+
+    @Inject
+    private RelationshipTemplateInstanceService relationshipTemplateInstanceService;
+
+    @Inject
+    private ServiceTemplateInstanceService serviceTemplateInstanceService;
+
+    @Inject
+    private SituationInstanceService situationInstanceService;
 
     @Inject
     private NodeTemplateService nodeTemplateService;
+
+    @Inject
+    private NodeTemplateInstanceService nodeTemplateInstanceService;
 
     @Inject
     private RelationshipTemplateService relationshipTemplateService;
@@ -82,7 +97,10 @@ public class ServiceTemplateController {
     private OpenToscaControlService controlService;
 
     @Inject
-    private CsarService csarService;
+    private PlanGenerationService planGenerationService;
+
+    @Inject
+    private ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
 
     @GET
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -139,7 +157,7 @@ public class ServiceTemplateController {
             .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
             .findFirst().orElseThrow(NotFoundException::new);
 
-        return new BuildPlanController(csar, serviceTemplate, this.planService);
+        return new BuildPlanController(csar, serviceTemplate, this.planInstanceService, this.planInvokerService);
     }
 
     @Path("/{servicetemplate}/nodetemplates")
@@ -152,7 +170,7 @@ public class ServiceTemplateController {
             .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
             .findFirst().orElseThrow(NotFoundException::new);
 
-        final NodeTemplateController child = new NodeTemplateController(this.nodeTemplateService, this.instanceService, this.storage);
+        final NodeTemplateController child = new NodeTemplateController(this.nodeTemplateService, this.nodeTemplateInstanceService, this.storage);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
         return child;
     }
@@ -167,7 +185,7 @@ public class ServiceTemplateController {
             .findFirst().orElseThrow(NotFoundException::new);
 
         final RelationshipTemplateController child =
-            new RelationshipTemplateController(this.relationshipTemplateService, this.instanceService);
+            new RelationshipTemplateController(this.relationshipTemplateService, this.relationshipTemplateInstanceService);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
         return child;
     }
@@ -176,12 +194,11 @@ public class ServiceTemplateController {
     public PlacementController startPlacement(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
                                               @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
         final Csar csar = storage.findById(new CsarId(csarId));
-        final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
-            .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
+        csar.serviceTemplates().stream().filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
             .findFirst().orElseThrow(NotFoundException::new);
 
         // init placement controller if placement is started
-        final PlacementController child = new PlacementController(instanceService, nodeTemplateService);
+        final PlacementController child = new PlacementController(nodeTemplateInstanceService, nodeTemplateService);
         resourceContext.initResource(child);
         return child;
     }
@@ -195,8 +212,8 @@ public class ServiceTemplateController {
             .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
             .findFirst().orElseThrow(NotFoundException::new);
 
-        final ServiceTemplateInstanceController child = new ServiceTemplateInstanceController(csar, serviceTemplate, this.instanceService,
-            this.planService, this.deploymentTestService);
+        final ServiceTemplateInstanceController child = new ServiceTemplateInstanceController(csar, serviceTemplate,
+            planInstanceService, planInvokerService, deploymentTestService, situationInstanceService, serviceTemplateInstanceRepository, serviceTemplateInstanceService);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
         return child;
     }
@@ -212,7 +229,7 @@ public class ServiceTemplateController {
         CsarId csarId = new CsarId(csar);
         Csar csarToTransform = this.storage.findById(csarId);
 
-        final AdaptationPlanGenerationResult result = this.csarService.generateAdaptationPlan(csarToTransform, QName.valueOf(serviceTemplateId), request.getSourceNodeTemplates(), request.getSourceRelationshipTemplates(), request.getTargetNodeTemplates(), request.getTargetRelationshipTemplates());
+        final AdaptationPlanGenerationResult result = this.planGenerationService.generateAdaptationPlan(csarToTransform, QName.valueOf(serviceTemplateId), request.getSourceNodeTemplates(), request.getSourceRelationshipTemplates(), request.getTargetNodeTemplates(), request.getTargetRelationshipTemplates());
 
         if (result == null) {
             return Response.serverError().build();
@@ -239,7 +256,7 @@ public class ServiceTemplateController {
 
         if (success) {
             PlanType[] planTypes = {PlanType.TRANSFORMATION};
-            return Response.ok(this.planService.getPlanDto(storage.findById(result.csarId), planTypes, result.planId)).build();
+            return Response.ok(Utils.getPlanDto(storage.findById(result.csarId), planTypes, result.planId)).build();
         } else {
             return Response.serverError().build();
         }

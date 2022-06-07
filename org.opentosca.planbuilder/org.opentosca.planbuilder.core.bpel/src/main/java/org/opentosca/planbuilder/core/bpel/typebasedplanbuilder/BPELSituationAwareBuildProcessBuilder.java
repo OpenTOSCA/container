@@ -17,6 +17,7 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TPolicy;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
@@ -30,11 +31,13 @@ import org.opentosca.planbuilder.core.plugins.context.Property2VariableMapping;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_BuildPlanOperation;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_LifecycleInterface;
 
 /**
  * <p>
@@ -44,7 +47,7 @@ import org.xml.sax.SAXException;
  * TopologyTemplate.
  * </p>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -129,10 +132,10 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
             LOG.debug(buildPlan.toString());
 
             final BPELPlan newBuildPlan =
-                this.planHandler.createEmptyBPELPlan(processNamespace, processName, buildPlan, "initiate");
+                this.planHandler.createEmptyBPELPlan(processNamespace, processName, buildPlan, OpenTOSCA_BuildPlanOperation);
 
-            newBuildPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
-            newBuildPlan.setTOSCAOperationname("initiate");
+            newBuildPlan.setTOSCAInterfaceName(OpenTOSCA_LifecycleInterface);
+            newBuildPlan.setTOSCAOperationname(OpenTOSCA_BuildPlanOperation);
 
             this.planHandler.initializeBPELSkeleton(newBuildPlan, csar);
 
@@ -184,7 +187,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
                 "RUNNING", planInstanceUrlVarName);
 
             this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
-                newBuildPlan.getBpelMainSequenceOutputAssignElement(),
+                newBuildPlan.getBpelMainSequenceCallbackInvokeElement(),
                 "FINISHED", planInstanceUrlVarName);
 
             this.finalizer.finalize(newBuildPlan);

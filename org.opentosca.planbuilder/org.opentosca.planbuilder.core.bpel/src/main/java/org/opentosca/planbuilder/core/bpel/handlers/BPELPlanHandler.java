@@ -29,6 +29,7 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProcessEvents;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
@@ -41,7 +42,6 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.CDATASection;
@@ -57,7 +57,7 @@ import org.xml.sax.SAXException;
  * This class is a part of the facade, which is used to work on a BuildPlan. This is class in particular is responsible
  * for the handling of various XML related actions on the whole BPEL process
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
@@ -66,7 +66,6 @@ public class BPELPlanHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELPlanHandler.class);
 
-    private final DocumentBuilderFactory documentBuilderFactory;
     private final DocumentBuilder documentBuilder;
 
     private final ObjectFactory ddFactory;
@@ -79,9 +78,9 @@ public class BPELPlanHandler {
      * @throws ParserConfigurationException is thrown when the interal DOM Builders couldn't be initialized
      */
     public BPELPlanHandler() throws ParserConfigurationException {
-        this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        this.documentBuilderFactory.setNamespaceAware(true);
-        this.documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setNamespaceAware(true);
+        this.documentBuilder = documentBuilderFactory.newDocumentBuilder();
         this.bpelScopeHandler = new BPELScopeHandler();
         this.ddFactory = new ObjectFactory();
     }
@@ -260,7 +259,7 @@ public class BPELPlanHandler {
         for (final TInvoke inv : buildPlan.getDeploymentDeskriptor().getProcess().get(0).getInvoke()) {
             if (inv.getPartnerLink().equals(partnerLinkName)) {
                 BPELPlanHandler.LOG.debug("Adding invoke for partnerLink {}, serviceName {} and portName {} failed, there is already a partnerLink with the same Name",
-                    partnerLinkName, serviceName.toString(), portName);
+                    partnerLinkName, serviceName, portName);
                 return false;
             }
         }
@@ -850,23 +849,11 @@ public class BPELPlanHandler {
             + " is already imported");
         for (final Element importElement : buildPlan.getBpelImportElements()) {
             BPELPlanHandler.LOG.debug("Checking import element");
-            int checkInt = 0;
-            if (importElement.hasAttribute("namespace") && importElement.getAttribute("namespace").equals(namespace)) {
-                BPELPlanHandler.LOG.debug("Found import with same namespace");
-                checkInt++;
-            }
-            if (importElement.hasAttribute("location") && importElement.getAttribute("location").equals(location)) {
-                BPELPlanHandler.LOG.debug("Found import with same location");
-                checkInt++;
-            }
-            if (checkInt == 2) {
-                return true;
-            }
-            if (importElement.hasAttribute("type") && importElement.getAttribute("type").equals(type.toString())) {
-                BPELPlanHandler.LOG.debug("Found import with same type");
-                checkInt++;
-            }
-            if (checkInt == 3) {
+
+            // namespace doesn't fit, continue
+            if ((!importElement.hasAttribute("namespace") || importElement.getAttribute("namespace").equals(namespace))
+                && (!importElement.hasAttribute("location") || importElement.getAttribute("location").equals(location))
+                && (!importElement.hasAttribute("type") || importElement.getAttribute("type").equals(type.toString()))) {
                 return true;
             }
         }

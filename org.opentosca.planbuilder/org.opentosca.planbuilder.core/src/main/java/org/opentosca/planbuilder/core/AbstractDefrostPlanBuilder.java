@@ -18,6 +18,7 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import com.google.common.collect.Sets;
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
@@ -27,11 +28,10 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
-import org.opentosca.container.core.model.ModelUtils;
 
 public abstract class AbstractDefrostPlanBuilder extends AbstractSimplePlanBuilder {
 
-    static QName freezableComponentPolicy = new QName("http://opentosca.org/policytypes", "FreezableComponent");
+    static QName freezableComponentPolicy = new QName("http://opentosca.org/management/features/policytypes", "FreezableComponent");
 
     public AbstractDefrostPlanBuilder(PluginRegistry pluginRegistry) {
         super(pluginRegistry);

@@ -2,19 +2,48 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/context
-                           http://www.springframework.org/schema/context/spring-context.xsd">
-  <description>
-    Configuration for Spring-Bean service discovery across container.core
-  </description>
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/data/jpa
+                           http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+    <description>
+        Configuration for Spring-Bean service discovery across container.core
+    </description>
 
-  <context:annotation-config />
+    <context:annotation-config/>
 
-  <context:component-scan base-package="org.opentosca.container.core.impl.service" />
-  <context:component-scan base-package="org.opentosca.container.core.plan" />
-  <!-- xml serializer service -->
-  <context:component-scan base-package="org.opentosca.container.core.engine.xml.impl" />
-  <context:component-scan base-package="org.opentosca.container.core.engine.next" />
+    <context:component-scan base-package="org.opentosca.container.core.impl.service"/>
+    <context:component-scan base-package="org.opentosca.container.core.plan"/>
+    <!-- xml serializer service -->
+    <context:component-scan base-package="org.opentosca.container.core.engine.xml.impl"/>
+    <context:component-scan base-package="org.opentosca.container.core.engine.next"/>
+    <context:component-scan base-package="org.opentosca.container.core.next.repository"/>
+    <context:component-scan base-package="org.opentosca.container.core.next.trigger"/>
+    <context:component-scan base-package="org.opentosca.container.core.next.services"/>
+
+    <jpa:repositories base-package="org.opentosca.container.core.next.repository" entity-manager-factory-ref="emf"/>
+
+    <bean class="org.opentosca.container.core.next.repository.DataSourceRegistry"/>
+
+    <bean id="emf"
+          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="opentoscaDataSource"/>
+        <property name="packagesToScan" value="org.opentosca.container.core.next.model"/>
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"/>
+        </property>
+        <property name="jpaProperties">
+            <props>
+                <prop key="hibernate.hbm2ddl.auto">update</prop>
+                <prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="emf"/>
+    </bean>
 </beans>

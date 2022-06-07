@@ -28,6 +28,10 @@ ENV ENGINE_IA_HOSTNAME localhost
 ENV ENGINE_IA_PORT 8090
 ENV ENGINE_IA_USER admin
 ENV ENGINE_IA_PASSWORD admin
+ENV ENGINE_IA_JAVA17_HOSTNAME localhost
+ENV ENGINE_IA_JAVA17_PORT 8093
+ENV ENGINE_IA_JAVA17_USER admin
+ENV ENGINE_IA_JAVA17_PASSWORD admin
 ENV ENGINE_IA_KEEP_FILES true
 
 ENV ENGINE_PLAN_BPEL ODE
@@ -61,8 +65,8 @@ RUN rm /dev/random && ln -s /dev/urandom /dev/random \
 RUN rm -rf ${CATALINA_HOME}/webapps/*
 COPY --from=builder /tmp/build/container ${CATALINA_HOME}/webapps/ROOT
 
-ADD .docker/application.properties.tpl /tmp/opentosca/container/application.properties.tpl
-ADD .docker/server.xml.tpl /tmp/opentosca/container/server.xml.tpl
+COPY .docker/application.properties.tpl /tmp/opentosca/container/application.properties.tpl
+COPY .docker/server.xml.tpl /tmp/opentosca/container/server.xml.tpl
 
 EXPOSE ${CONTAINER_PORT}
 

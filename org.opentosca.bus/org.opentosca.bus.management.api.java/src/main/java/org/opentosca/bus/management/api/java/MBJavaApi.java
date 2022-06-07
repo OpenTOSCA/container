@@ -36,9 +36,10 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.engine.management.IManagementBus;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
+import org.opentosca.container.core.next.model.Endpoint;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.opentosca.container.core.next.model.PlanInstanceInput;
@@ -49,11 +50,10 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.SituationRepository;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
-import org.opentosca.container.engine.plan.plugin.bpel.BpelPlanEnginePlugin;
+import org.opentosca.container.plan.deployment.plugin.bpel.BpelPlanEnginePlugin;
 import org.opentosca.planbuilder.export.WineryExporter;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -63,7 +63,7 @@ import org.springframework.stereotype.Component;
  * Exposes the ManagementBus to the container as a java bean
  * </p>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
@@ -85,20 +85,23 @@ public class MBJavaApi implements IManagementBus {
     private final ICoreEndpointService endpointService;
     private final BpelPlanEnginePlugin bpelDeployPlugin;
     private final CsarStorageService storage;
+    private final SituationRepository situationRepository;
 
     @Inject
     public MBJavaApi(CamelContext camelContext, Importer importer, WineryExporter exporter,
-                     ICoreEndpointService endpointService, BpelPlanEnginePlugin bpelPlanEnginePlugin, CsarStorageService storage) {
+                     ICoreEndpointService endpointService, BpelPlanEnginePlugin bpelPlanEnginePlugin,
+                     CsarStorageService storage, SituationRepository situationRepository) {
         this.camelContext = camelContext;
         this.importer = importer;
         this.exporter = exporter;
         this.endpointService = endpointService;
         this.bpelDeployPlugin = bpelPlanEnginePlugin;
         this.storage = storage;
+        this.situationRepository = situationRepository;
         LOG.info("Starting direct Java invocation API for Management Bus");
     }
 
-    private void invokePlan(final String operationName, final String messageID, final Long serviceInstanceID,
+    private void invokePlan(final String operationName, final String correlationId, final Long serviceInstanceID,
                             final QName serviceTemplateID, final Object message, final CsarId csarId,
                             final QName planID, final String planLanguage) {
 
@@ -107,7 +110,7 @@ public class MBJavaApi implements IManagementBus {
         headers.put(MBHeader.CSARID.toString(), csarId.csarName());
         headers.put(MBHeader.PLANID_QNAME.toString(), planID);
         headers.put(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
-        headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), messageID);
+        headers.put(MBHeader.PLANCORRELATIONID_STRING.toString(), correlationId);
         headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
         // FIXME considering that this is constant, we bind to the bean directly.
         // Is this used downstream?
@@ -135,7 +138,7 @@ public class MBJavaApi implements IManagementBus {
         // templates to communicate with the Management Bus
         final ProducerTemplate template = this.camelContext.createProducerTemplate();
 
-        LOG.debug("Correlation id: {}", messageID);
+        LOG.debug("Correlation id: {}", correlationId);
         LOG.debug("Sending message {}", message);
 
         // forward request to the Management Bus
@@ -159,7 +162,7 @@ public class MBJavaApi implements IManagementBus {
         final CsarId csarID = (CsarId) eventValues.get("CSARID");
         final QName planID = (QName) eventValues.get("PLANID");
         final String operationName = (String) eventValues.get("OPERATIONNAME");
-        final String messageID = (String) eventValues.get("MESSAGEID");
+        final String correlationID = (String) eventValues.get("MESSAGEID");
 
         // Optional parameter if message is of type HashMap. Not needed for Document.
         final Long serviceInstanceID = (Long) eventValues.get("SERVICEINSTANCEID");
@@ -176,11 +179,11 @@ public class MBJavaApi implements IManagementBus {
         }
 
         final Map<String, String> message =
-            createRequestBody(csarID, serviceTemplateID.toString(), serviceInstanceID, inputParameter, messageID);
+            createRequestBody(csarID, serviceTemplateID.toString(), serviceInstanceID, inputParameter, correlationID);
 
         // there is no necessity to set up response handling for the invocation,
         // because the ManagementBus does the updating of outputs for us through the PlanInstanceHandler
-        invokePlan(operationName, messageID, serviceInstanceID, serviceTemplateID, message, csarID, planID,
+        invokePlan(operationName, correlationID, serviceInstanceID, serviceTemplateID, message, csarID, planID,
             planLanguage);
     }
 
@@ -201,7 +204,7 @@ public class MBJavaApi implements IManagementBus {
         Csar csar = this.storage.findById(instance.getCsarId());
 
         final TTopologyTemplate topology =
-            Lists.newArrayList(this.importer.getMainDefinitions(csar).getServiceTemplates()).get(0)
+            Lists.newArrayList(csar.entryDefinitions().getServiceTemplates()).get(0)
                 .getTopologyTemplate();
 
         final ServiceTemplateInstanceConfiguration currentConfig =
@@ -225,7 +228,7 @@ public class MBJavaApi implements IManagementBus {
             return;
         }
 
-        final WSDLEndpoint endpoint = getAdaptationPlanEndpoint(currentConfigNodeIds, currentConfigRelationIds,
+        final Endpoint endpoint = getAdaptationPlanEndpoint(currentConfigNodeIds, currentConfigRelationIds,
             targetConfigNodeIds, targetConfigRelationIds);
         final String correlationID = String.valueOf(System.currentTimeMillis());
         QName planId = null;
@@ -298,11 +301,11 @@ public class MBJavaApi implements IManagementBus {
         template.asyncSend("direct:invoke", requestExchange);
     }
 
-    private WSDLEndpoint getAdaptationPlanEndpoint(final Collection<String> sourceNodeIDs,
-                                                   final Collection<String> sourceRelationIDs,
-                                                   final Collection<String> targetNodeIDs,
-                                                   final Collection<String> targetRelationIDs) {
-        for (final WSDLEndpoint endpoint : this.endpointService.getWSDLEndpoints()) {
+    private Endpoint getAdaptationPlanEndpoint(final Collection<String> sourceNodeIDs,
+                                               final Collection<String> sourceRelationIDs,
+                                               final Collection<String> targetNodeIDs,
+                                               final Collection<String> targetRelationIDs) {
+        for (final Endpoint endpoint : this.endpointService.getEndpoints()) {
             final Collection<String> sourceNodesMetadata =
                 toStringCollection(endpoint.getMetadata().get("SOURCENODES"), ",");
             final Collection<String> sourceRelationsMetadata =
@@ -496,11 +499,7 @@ public class MBJavaApi implements IManagementBus {
     }
 
     private boolean isSituationActive(final Long situationId) {
-        return getSituationRepository().find(situationId).get().isActive();
-    }
-
-    private SituationRepository getSituationRepository() {
-        return new SituationRepository();
+        return situationRepository.findById(situationId).get().isActive();
     }
 
     private Map<String, String> createRequestBody(final CsarId csarID, final String serviceTemplateID,

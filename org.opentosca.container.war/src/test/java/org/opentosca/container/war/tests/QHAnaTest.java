@@ -12,18 +12,22 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opentosca.container.api.service.CsarService;
-import org.opentosca.container.api.service.InstanceService;
-import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.control.OpenToscaControlService;
+import org.opentosca.container.control.plan.PlanGenerationService;
 import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.model.csar.Csar;
-import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
+import org.opentosca.container.core.next.services.instances.NodeTemplateInstanceService;
+import org.opentosca.container.core.next.services.instances.PlanInstanceService;
+import org.opentosca.container.core.next.services.instances.RelationshipTemplateInstanceService;
+import org.opentosca.container.core.next.services.instances.ServiceTemplateInstanceService;
 import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
@@ -33,30 +37,37 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = {Application.class})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = {Application.class}, properties = "spring.main.allow-bean-definition-overriding=true")
 @TestPropertySource(properties = "server.port=1337")
 public class QHAnaTest {
 
-    public static final String QcApplicationsRepository = "https://github.com/UST-QuAntiL/tosca-definitions-qc-applications";
+    public static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
 
     public QName csarId = QName.valueOf("{https://ust-quantil.github.io/quantum/applications/servicetemplates}QHAna_w1");
-
     @Inject
     public OpenToscaControlService control;
     @Inject
     public CsarStorageService storage;
     @Inject
-    public CsarService csarService;
+    public PlanGenerationService planGenerationService;
     @Inject
-    public PlanService planService;
+    public PlanInstanceService planInstanceService;
     @Inject
-    public InstanceService instanceService;
+    public PlanInvokerService planInvokerService;
+    @Inject
+    public ServiceTemplateInstanceService serviceTemplateInstanceService;
+    @Inject
+    public RelationshipTemplateInstanceService relationshipTemplateInstanceService;
+    @Inject
+    public NodeTemplateInstanceService nodeTemplateInstanceService;
+    @Inject
+    public ICoreEndpointService endpointService;
+    private TestUtils testUtils = new TestUtils();
 
     @Test
     public void testDeployment() throws Exception {
-        Csar csar = TestUtils.setupCsarTestRepository(this.csarId, this.storage,
-            QcApplicationsRepository);
-        TestUtils.generatePlans(this.csarService, csar);
+        Csar csar = testUtils.setupCsarTestRepository(this.csarId, this.storage, TESTAPPLICATIONSREPOSITORY);
+        testUtils.generatePlans(this.planGenerationService, csar);
 
         TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
         assertNotNull(serviceTemplate);
@@ -64,17 +75,17 @@ public class QHAnaTest {
         List<TPlan> plans = serviceTemplate.getPlans();
         assertNotNull(plans);
 
-        TPlan buildPlan = plans.stream()
-            .filter(tPlan -> tPlan.getPlanType().equals(PlanType.BUILD.toString()))
-            .filter(tPlan -> !tPlan.getId().toLowerCase().contains("defrost"))
-            .findFirst()
-            .orElse(null);
+        TPlan buildPlan = testUtils.getBuildPlan(plans);
+        TPlan terminationPlan = testUtils.getTerminationPlan(plans);
         assertNotNull(buildPlan);
+        assertNotNull(terminationPlan);
 
-        TestUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
+        testUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
 
-        ServiceTemplateInstance serviceTemplateInstance = TestUtils.runBuildPlanExecution(
-            this.planService, this.instanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters()
+        assertEquals(2, testUtils.getDeployedPlans(this.endpointService).size());
+
+        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planInstanceService,
+            this.planInvokerService, this.serviceTemplateInstanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters()
         );
 
         assertNotNull(serviceTemplateInstance);
@@ -98,16 +109,29 @@ public class QHAnaTest {
                 HttpResponse.BodyHandlers.ofString())
             .join();
         assertEquals(200, pluginRunnerResponse.statusCode());
+
+        testUtils.runTerminationPlanExecution(this.planInstanceService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
+
+        testUtils.invokePlanUndeployment(this.control, csar.id(), serviceTemplate);
+
+        assertEquals(0, testUtils.getDeployedPlans(this.endpointService).size());
+    }
+
+    @After
+    public void cleanUpContainer() {
+        testUtils.clearContainer(this.storage, this.control, this.planInstanceService,
+            this.relationshipTemplateInstanceService, this.nodeTemplateInstanceService,
+            this.serviceTemplateInstanceService);
     }
 
     private List<TParameter> getBuildPlanInputParameters() {
-        List<TParameter> baseInputParams = TestUtils.getBaseInputParams();
+        List<TParameter> baseInputParams = testUtils.getBaseInputParams();
 
         TParameter dockerInDocker = new TParameter();
         dockerInDocker.setName("DockerEngineURL");
         dockerInDocker.setRequired(true);
         dockerInDocker.setType("String");
-        dockerInDocker.setValue("tcp://172.17.0.1:2375");
+        dockerInDocker.setValue("tcp://" + testUtils.getDockerHost() + ":2375");
         baseInputParams.add(dockerInDocker);
 
         TParameter ibmQToken = new TParameter();

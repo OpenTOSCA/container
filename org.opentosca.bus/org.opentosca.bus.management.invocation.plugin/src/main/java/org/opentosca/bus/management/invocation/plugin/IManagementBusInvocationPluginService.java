@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * Interface of the Management Bus Invocation Plug-ins.<br>
  * <br>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * The interface specifies two methods. One for invoking a service like an operation of an implementation artifact or a

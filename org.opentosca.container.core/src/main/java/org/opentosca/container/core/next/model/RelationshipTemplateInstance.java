@@ -1,6 +1,5 @@
 package org.opentosca.container.core.next.model;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,8 +9,12 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedEntityGraphs;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
@@ -21,6 +24,11 @@ import org.opentosca.container.core.common.jpa.QNameConverter;
 
 @Entity
 @Table(name = RelationshipTemplateInstance.TABLE_NAME)
+@NamedEntityGraphs( {
+    @NamedEntityGraph(name = "relationshipTemplateInstanceEntityGraph", includeAllAttributes = true, attributeNodes = {
+        @NamedAttributeNode("properties")
+    })
+})
 public class RelationshipTemplateInstance extends PersistenceObject {
 
     public static final String TABLE_NAME = "RELATIONSHIP_TEMPLATE_INSTANCE";
@@ -36,7 +44,7 @@ public class RelationshipTemplateInstance extends PersistenceObject {
     private ServiceTemplateInstance serviceTemplateInstance;
 
     @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "relationshipTemplateInstance", cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "relationshipTemplateInstance", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<RelationshipTemplateInstanceProperty> properties = new HashSet<>();
 
     @ManyToOne
@@ -65,7 +73,7 @@ public class RelationshipTemplateInstance extends PersistenceObject {
         this.state = state;
     }
 
-    public Collection<RelationshipTemplateInstanceProperty> getProperties() {
+    public Set<RelationshipTemplateInstanceProperty> getProperties() {
         return this.properties;
     }
 

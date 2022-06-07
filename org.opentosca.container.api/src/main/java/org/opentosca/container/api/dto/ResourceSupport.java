@@ -127,7 +127,7 @@ public class ResourceSupport {
 
     @Override
     public String toString() {
-        return String.format("links: %s", this.links.toString());
+        return String.format("links: %s", this.links);
     }
 
     public static class LinksSerializer extends JsonSerializer<List<Link>> {

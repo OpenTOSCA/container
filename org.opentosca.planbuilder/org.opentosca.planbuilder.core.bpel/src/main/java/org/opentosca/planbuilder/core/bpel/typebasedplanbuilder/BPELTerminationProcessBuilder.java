@@ -11,6 +11,7 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractTerminationPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.artifactbasednodehandler.BPELScopeBuilder;
@@ -27,9 +28,11 @@ import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScope;
-import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_LifecycleInterface;
+import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_TerminationPlanOperation;
 
 /**
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
@@ -85,10 +88,10 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 
         final BPELPlan newTerminationPlan =
             this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractTerminationPlan,
-                "terminate");
+                OpenTOSCA_TerminationPlanOperation);
 
-        newTerminationPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
-        newTerminationPlan.setTOSCAOperationname("terminate");
+        newTerminationPlan.setTOSCAInterfaceName(OpenTOSCA_LifecycleInterface);
+        newTerminationPlan.setTOSCAOperationname(OpenTOSCA_TerminationPlanOperation);
 
         this.planHandler.initializeBPELSkeleton(newTerminationPlan, csar);
 
@@ -152,7 +155,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
             "RUNNING", planInstanceUrlVarName);
 
         this.serviceInstanceHandler.appendSetServiceInstanceState(newTerminationPlan,
-            newTerminationPlan.getBpelMainSequenceOutputAssignElement(),
+            newTerminationPlan.getBpelMainSequenceCallbackInvokeElement(),
             "FINISHED", planInstanceUrlVarName);
 
         this.finalizer.finalize(newTerminationPlan);
@@ -189,7 +192,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
-            if (ModelUtils.doesNotHaveBuildPlan(serviceTemplate)) {
+            if (ModelUtils.findServiceTemplateOperation(definitions, OpenTOSCA_LifecycleInterface, OpenTOSCA_TerminationPlanOperation) == null) {
                 LOG.debug("ServiceTemplate {} has no TerminationPlan, generating TerminationPlan",
                     serviceTemplate.getId());
                 final BPELPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);

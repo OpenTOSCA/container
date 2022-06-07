@@ -1,7 +1,6 @@
 package org.opentosca.bus.management.invocation.plugin.rest;
 
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +15,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -46,7 +46,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * Management Bus-Plug-in for invoking a service over HTTP.<br>
  * <br>
  * <p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2013-2022 IAAS University of Stuttgart <br>
  * <br>
  * <p>
  * The Plug-in gets needed information (like endpoint of the service or operation to invoke) from the Management Bus and
@@ -60,8 +60,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class ManagementBusInvocationPluginRest extends IManagementBusInvocationPluginService {
     final private static Logger LOG = LoggerFactory.getLogger(ManagementBusInvocationPluginRest.class);
 
-    // Supported types defined in messages.properties.
-    private static final String TYPES = "REST";
+    static final private String[] TYPES = {"REST"};
     // Default Values of specific content
     private static final String CONTENT_TYPE = "urlencoded";
     private static final String METHOD = "POST";
@@ -418,12 +417,7 @@ public class ManagementBusInvocationPluginRest extends IManagementBusInvocationP
 
     @Override
     public List<String> getSupportedTypes() {
-        LOG.debug("Getting Types: {}.", ManagementBusInvocationPluginRest.TYPES);
-        final List<String> types = new ArrayList<>();
-
-        for (final String type : ManagementBusInvocationPluginRest.TYPES.split("[,;]")) {
-            types.add(type.trim());
-        }
-        return types;
+        LOG.debug("Getting Types: {}.", TYPES);
+        return Lists.newArrayList(TYPES);
     }
 }
