@@ -1,4 +1,4 @@
 <bpmndi:BPMNEdge id="DataInputAssociation_IdToSet_di" bpmnElement="DataInputAssociation_IdToSet">
-    <di:waypoint x="xToSet" y="yToSet" />
-    <di:waypoint x="xToSet" y="yToSetMinusDataObjectHeight" />
+    <di:waypoint x="xToSetSource" y="yToSet" />
+    <di:waypoint x="xToSetTarget" y="yToSetMinusDataObjectHeight" />
 </bpmndi:BPMNEdge>

@@ -25,4 +25,13 @@ public class DockerContainerTypePluginPluginConstants {
         new QName("http://opentosca.org/nodetypes", "OpenMTCDockerContainerGateway");
     public final static QName OPENMTC_PROTOCOL_ADAPTER_DOCKER_CONTAINER_NODETYPE =
         new QName("http://opentosca.org/nodetypes", "OpenMTCDockerContainerProtocolAdapter");
+
+    public final static String PROPERTY_CONTAINER_PORT = "ContainerPort";
+    public final static String PROPERTY_PORT = "Port";
+    public final static String PROPERTY_SSHPORT = "SSHPort";
+    public final static String PROPERTY_CONTAINER_IP = "ContainerIP";
+    public final static String PROPERTY_CONTAINER_ID = "ContainerID";
+    public final static String PROPERTY_DOCKER_ENGINE_URL = "DockerEngineURL";
+    public final static String PROPERTY_IMAGE_ID = "ImageID";
+    public static final String PROPERTY_CONTAINER_MOUNT_PATH = "ContainerMountPath";
 }

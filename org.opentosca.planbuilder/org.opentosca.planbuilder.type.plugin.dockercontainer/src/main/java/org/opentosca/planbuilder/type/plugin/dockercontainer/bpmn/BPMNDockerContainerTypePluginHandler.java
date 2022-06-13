@@ -441,14 +441,14 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
         String[] directories = reference.split("/");
         String fileName = null;
         //String id = artifactTemplate.getId();
-        String id = "{" + directories[1] + "}" + artifactTemplate.getId();
+        String id = "/content/artifacttemplates/" + directories[1] + "/" + artifactTemplate.getId();
         for (int i = 0; i < directories.length; i += 1) {
             if (directories[i].equals("files")) {
                 fileName = directories[i + 1];
                 break;
             }
         }
-        return "DA!" + id + "#" + fileName;
+        return "DA!" + id + "/files/" + fileName;
     }
 
     protected boolean handleWithDA(final BPMNPlanContext context, final TNodeTemplate dockerEngineNode,
@@ -500,13 +500,14 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
         createDEInternalExternalPropsInput.put("ImageLocation", dockerContainerFileRefVar);
         createDEInternalExternalPropsInput.put("DockerEngineURL", dockerEngineUrlVar);
         //createDEInternalExternalPropsInput.put("DockerEngineURL", richtigeDockerengineURL);
-        createDEInternalExternalPropsInput.put("ContainerPorts", portMappingVar);
+        //createDEInternalExternalPropsInput.put("ContainerPorts", portMappingVar);
+        Variable test = new Variable(DockerContainerTypePluginPluginConstants.PROPERTY_CONTAINER_PORT + "," + DockerContainerTypePluginPluginConstants.PROPERTY_PORT);
+        createDEInternalExternalPropsInput.put("ContainerPorts", test);
+            // test
+            //Variable davariable = new Variable(artifactPathQuery);
+            //createDEInternalExternalPropsInput.put("DA", davariable);
 
-        // test
-        //Variable davariable = new Variable(artifactPathQuery);
-        //createDEInternalExternalPropsInput.put("DA", davariable);
-
-        createPropertiesMapping(containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable, vmPrivateKeyVariable, createDEInternalExternalPropsInput);
+            createPropertiesMapping(containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable, vmPrivateKeyVariable, createDEInternalExternalPropsInput);
 
         addProperties(sshPortVar, containerIpVar, containerIdVar, envMappingVar, linksVar, deviceMappingVar, createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput);
 

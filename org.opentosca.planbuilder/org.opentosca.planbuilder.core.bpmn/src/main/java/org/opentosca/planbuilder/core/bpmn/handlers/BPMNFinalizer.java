@@ -42,10 +42,10 @@ public class BPMNFinalizer {
 
     /**
      * The method is responsible to add the xml code of the BPMN subprocess to the bpmn document. First each sequence
-     * flow has to be computed (not added!) before the component is added to the xml document otherwise some flow elements are
-     * missing. After adding the xml elements, the DiagramAutoGenerator is called (which makes use of the Camunda API).
-     * Since data objects are not supported by now, we added them "manually" to the document. According to the bpmn
-     * standard, we added the corresponding data flow. Order:
+     * flow has to be computed (not added!) before the component is added to the xml document otherwise some flow
+     * elements are missing. After adding the xml elements, the DiagramAutoGenerator is called (which makes use of the
+     * Camunda API). Since data objects are not supported by now, we added them "manually" to the document. According to
+     * the bpmn standard, we added the corresponding data flow. Order:
      */
     public void finalize(final BPMNPlan buildPlan) throws IOException, SAXException {
         LOG.info("Finalizing BPMN build Plan {}", buildPlan.getId());
@@ -86,6 +86,7 @@ public class BPMNFinalizer {
         BPMNSubprocess lastErrorFlow = new BPMNSubprocess(BPMNSubprocessType.END_EVENT, "ErrorEndEvent_" + buildPlan.getIdForOuterFlowTestAndIncrement());
         lastErrorFlow.setBuildPlan(buildPlan);
         BPMNSubprocess outputParamTask = new BPMNSubprocess(BPMNSubprocessType.COMPUTE_OUTPUT_PARAMS_TASK, "Activity_outputParamTask");
+        outputParamTask.setDataObject(buildPlan.getDataObjectsList().stream().filter(bpmnDataObject -> (bpmnDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_INOUT)).findFirst().get());
         setBuildPlanAndSequenceFlows(buildPlan, flowElements, previousIncoming, outputParamTask, false);
         previousIncoming = outputParamTask;
         for (BPMNSubprocess bpmnSubprocess : bpmnSubprocessList) {
@@ -115,6 +116,7 @@ public class BPMNFinalizer {
         setBuildPlanAndSequenceFlows(buildPlan, errorFlowElements, userTask, errorEndEvent, true);
         computeNodeAndAddToXML(userTask);
         computeNodeAndAddToXML(errorEndEvent);
+        buildPlan.addSubprocess(outputParamTask);
 
         // add sequence flows in the end
         for (BPMNSubprocess flow : flowElements) {
@@ -135,9 +137,15 @@ public class BPMNFinalizer {
             for (BPMNDataObject dataObject : buildPlan.getDataObjectsList()) {
                 processFragments.createDataObjectAsNode(buildPlan, d, dataObject);
             }
-            for (BPMNSubprocess bpmnSubprocess : buildPlan.getSubprocess()) {
-                processFragments.addDataAssociations(buildPlan, d, bpmnSubprocess);
-            }
+
+            // to be operational conform each data object has corresponding data flows but this will pollute the model
+            // uncomment this if you want all the data flows in your diagram
+            // for (BPMNSubprocess bpmnSubprocess : buildPlan.getSubprocess()) {
+            //  processFragments.addDataAssociations(buildPlan, d, bpmnSubprocess);
+            // }
+
+            // special case for outputParameterTask
+            //processFragments.addTaskDataAssociations(buildPlan, d, outputParamTask);
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {
