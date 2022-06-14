@@ -45,7 +45,7 @@ public class BPMNFinalizer {
      * flow has to be computed (not added!) before the component is added to the xml document otherwise some flow
      * elements are missing. After adding the xml elements, the DiagramAutoGenerator is called (which makes use of the
      * Camunda API). Since data objects are not supported by now, we added them "manually" to the document. According to
-     * the bpmn standard, we added the corresponding data flow. Order:
+     * the bpmn standard, we added the corresponding data flow.
      */
     public void finalize(final BPMNPlan buildPlan) throws IOException, SAXException {
         LOG.info("Finalizing BPMN build Plan {}", buildPlan.getId());
@@ -93,25 +93,17 @@ public class BPMNFinalizer {
             computeNodeAndAddToXML(bpmnSubprocess);
         }
 
-        BPMNSubprocess setInstanceState = new BPMNSubprocess(BPMNSubprocessType.SET_ST_STATE, "Activity_ServiceInstanceState");
-        setInstanceState.setInstanceState("CREATED");
-        setBuildPlanAndSequenceFlows(buildPlan, flowElements, previousIncoming, setInstanceState, false);
         BPMNSubprocess endEvent = new BPMNSubprocess(BPMNSubprocessType.END_EVENT, "EndEvent_" + buildPlan.getIdForOuterFlowTestAndIncrement());
-        setBuildPlanAndSequenceFlows(buildPlan, flowElements, setInstanceState, endEvent, false);
+        setBuildPlanAndSequenceFlows(buildPlan, flowElements, previousIncoming, endEvent, false);
 
         BPMNSubprocess errorBoundaryOutputTask = new BPMNSubprocess(BPMNSubprocessType.EVENT, "BoundaryEvent_ErrorEvent" + outputParamTask.getId());
         errorBoundaryOutputTask.setBuildPlan(buildPlan);
         setBuildPlanAndSequenceFlows(buildPlan, errorFlowElements, errorBoundaryOutputTask, userTask, true);
         computeNodeAndAddToXML(outputParamTask);
 
-        BPMNSubprocess errorBoundarySetState = new BPMNSubprocess(BPMNSubprocessType.EVENT, "BoundaryEvent_ErrorEvent" + setInstanceState.getId());
-        setBuildPlanAndSequenceFlows(buildPlan, errorFlowElements, errorBoundarySetState, userTask, true);
-        computeNodeAndAddToXML(setInstanceState);
         computeErrorNodeAndAddToXML(errorBoundaryOutputTask, idError0);
-        computeErrorNodeAndAddToXML(errorBoundarySetState, idError0);
         computeNodeAndAddToXML(endEvent);
 
-        //userTask.setIncomingSubprocess(boundaryEvents);
         BPMNSubprocess errorEndEvent = new BPMNSubprocess(BPMNSubprocessType.END_EVENT, "ErrorEndEvent_" + buildPlan.getIdForErrorOuterFlowAndIncrement());
         setBuildPlanAndSequenceFlows(buildPlan, errorFlowElements, userTask, errorEndEvent, true);
         computeNodeAndAddToXML(userTask);
@@ -155,9 +147,9 @@ public class BPMNFinalizer {
         LOG.info("BPMN build Plan is finalized");
     }
 
-    private void computeNodeAndAddToXML(BPMNSubprocess outputParamTask) {
-        Node outputParamTaskNode = processFragments.createBPMNSubprocessAndComponentsAsNode(outputParamTask);
-        processFragments.addNodeToBPMN(outputParamTaskNode, outputParamTask.getBuildPlan());
+    private void computeNodeAndAddToXML(BPMNSubprocess bpmnSubprocess) {
+        Node outputParamTaskNode = processFragments.createBPMNSubprocessAndComponentsAsNode(bpmnSubprocess);
+        processFragments.addNodeToBPMN(outputParamTaskNode, bpmnSubprocess.getBuildPlan());
     }
 
     private void computeErrorNodeAndAddToXML(BPMNSubprocess errorSubprocess, int errorId) throws IOException, SAXException {

@@ -16,7 +16,6 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.AbstractBuildPlanBuilder;
-import org.opentosca.planbuilder.core.bpmn.fragments.BPMNProcessFragments;
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNFinalizer;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNPlanHandler;
@@ -53,18 +52,16 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
     final static Logger LOG = LoggerFactory.getLogger(BPMNBuildProcessBuilder.class);
 
     private BPMNPlanHandler planHandler;
-    private BPMNProcessFragments processFragments;
     private BPMNPluginHandler bpmnPluginHandler;
     private SimplePlanBuilderBPMNServiceInstanceHandler serviceInstanceInitializer;
 
-    private BPMNPropertyVariableHandler propertyInitializer;
-    // class for initializing output with boundarydefinitions of a
+    private final BPMNPropertyVariableHandler propertyInitializer;
+    // class for initializing output with boundary definitions of a
     // serviceTemplate
     private ServiceTemplateBoundaryPropertyMappingsToOutputHandler propertyOutputInitializer;
 
     private BPMNFinalizer bpmnFinalizer;
     private BPMNSubprocessHandler bpmnSubprocessHandler;
-    private final String CORRELATIONID = "CorrelationID";
 
     /**
      * Default Constructor
@@ -74,7 +71,6 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
         try {
             this.bpmnPluginHandler = new BPMNPluginHandler(pluginRegistry);
             this.planHandler = new BPMNPlanHandler();
-            this.processFragments = new BPMNProcessFragments();
             this.bpmnFinalizer = new BPMNFinalizer();
             this.bpmnSubprocessHandler = new BPMNSubprocessHandler();
             this.propertyOutputInitializer = new ServiceTemplateBoundaryPropertyMappingsToOutputHandler();
@@ -120,7 +116,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
                                final TServiceTemplate serviceTemplate) {
 
         LOG.info("Start of generating BPMN Build Plan for {}", csar.id());
-        // create empty plan from servicetemplate and add definitions
+        // create empty plan from service template and add definitions
         String namespace;
         if (serviceTemplate.getTargetNamespace() != null) {
             namespace = serviceTemplate.getTargetNamespace();
@@ -165,20 +161,19 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             HashMap<String, String> propertyOutput = this.propertyOutputInitializer.initializeBuildPlanOutput(definitions, bpmnPlan, propMap,
                 serviceTemplate);
 
-            propertyOutput.put(CORRELATIONID, CORRELATIONID);
+            String correlationId = "CorrelationID";
+            propertyOutput.put(correlationId, correlationId);
             bpmnPlan.setOutputParameters(propertyOutput);
 
             this.runPlugins(bpmnPlan, propMap, serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csar);
             try {
+                this.serviceInstanceInitializer.addServiceInstanceSetState("CREATED", bpmnPlan);
                 bpmnFinalizer.finalize(bpmnPlan);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (SAXException e) {
+            } catch (IOException | SAXException e) {
                 e.printStackTrace();
             }
             return bpmnPlan;
         }
-
         LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
             serviceTemplateQname, definitions.getId(), csar.id().csarName());
         return null;
