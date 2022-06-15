@@ -1,9 +1,7 @@
-/**
- *
- */
 package org.opentosca.planbuilder.type.plugin.dockercontainer.core;
 
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
@@ -18,7 +16,6 @@ import org.opentosca.planbuilder.core.plugins.context.PlanContext;
  * <br>
  *
  * @author kalmankepes
- *
  */
 public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> implements
     org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin<T> {
@@ -97,7 +94,7 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
     }
 
     public boolean canHandleGateway(final TNodeTemplate nodeTemplate, Csar csar) {
-        Map<String, String> propertiesMap = ModelUtils.asMap(nodeTemplate.getProperties());
+        Map<String, String> propertiesMap = ModelUtils.asMap(Objects.requireNonNull(nodeTemplate.getProperties()));
 
         if (!propertiesMap.containsKey("TenantID") || !propertiesMap.containsKey("InstanceID")) {
             return false;

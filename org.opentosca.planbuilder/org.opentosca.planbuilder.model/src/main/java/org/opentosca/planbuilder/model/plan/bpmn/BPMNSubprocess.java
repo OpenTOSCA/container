@@ -20,73 +20,14 @@ public class BPMNSubprocess {
     private final AbstractActivity activity;
     private BPMNPlan buildPlan;
     private Element bpmnSubprocessElement;
-    private String errorInflow;
 
     private Collection<BPMNSubprocess> incomingScope = new HashSet<>();
     private BPMNDataObject dataObject;
     private BPMNSubprocess subProServiceInstanceTask;
-    private ArrayList<BPMNSubprocess> outerflow = new ArrayList<>();
-    private ArrayList<BPMNSubprocess> incomingTestScope = new ArrayList<>();
+    private ArrayList<BPMNSubprocess> outgoingFlowElements = new ArrayList<>();
+    private ArrayList<BPMNSubprocess> incomingFlowElements = new ArrayList<>();
     private ArrayList<BPMNSubprocess> flowElements = new ArrayList<>();
     private ArrayList<BPMNSubprocess> errorFlowElements = new ArrayList<>();
-    private String errorOutflow;
-
-    public ArrayList<BPMNSubprocess> getFlowElements() {
-        return flowElements;
-    }
-
-    public void setFlowElements(ArrayList<BPMNSubprocess> flow) {
-        this.flowElements = flow;
-    }
-
-    public ArrayList<BPMNSubprocess> getErrorFlowElements() {
-        return errorFlowElements;
-    }
-
-    public void setErrorFlowElements(ArrayList<BPMNSubprocess> flow) {
-        this.errorFlowElements = flow;
-    }
-
-    public ArrayList<BPMNSubprocess> getIncomingTestFlow() {
-        return outerflow;
-    }
-
-    public ArrayList<BPMNSubprocess> getOuterflow() {
-        return outerflow;
-    }
-
-    public void setOuterflow(BPMNSubprocess outerflow) {
-        this.outerflow.add(outerflow);
-    }
-
-    public ArrayList<BPMNSubprocess> getOuterFlow() {
-        return this.incomingTestScope;
-    }
-
-    public void setIncomingTestScope(BPMNSubprocess incomingTestScopeflow) {
-        this.incomingTestScope.add(incomingTestScopeflow);
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getErrorOutflow() {
-        return errorOutflow;
-    }
-
-    public void setErrorOutflow(String errrorOutflow) {
-        this.errorOutflow = errrorOutflow;
-    }
-
-    public String getErrorInnerflow() {
-        return errorInflow;
-    }
-
-    public void setErrorInnerflow(String errorInflow) {
-        this.errorInflow = errorInflow;
-    }
-
     private String serviceInstanceURL;
 
     private TNodeTemplate nodeTemplate = null;
@@ -100,10 +41,10 @@ public class BPMNSubprocess {
     //callNodeOperation Variables
     private String interfaceVariable;
     private String operation;
-    private String outputparamnames;
-    private String outputparamvalues;
-    private String inputparamnames;
-    private String inputparamvalues;
+    private String outputParameterNames;
+    private String outputParameterValues;
+    private String inputParameterNames;
+    private String inputParameterValues;
 
     // create relationship instance variables
     private String sourceInstanceURL;
@@ -123,16 +64,56 @@ public class BPMNSubprocess {
     private String instanceState;
 
     private ArrayList<Integer> errorEventIds = new ArrayList<>();
-    private String DAstring;
+    private String deploymentArtifactString;
     private double x;
     private double y;
 
-    public String getDAstring() {
-        return DAstring;
+    public ArrayList<BPMNSubprocess> getFlowElements() {
+        return flowElements;
     }
 
-    public void setDAstring(String DAstring) {
-        this.DAstring = DAstring;
+    public void setFlowElements(ArrayList<BPMNSubprocess> flow) {
+        this.flowElements = flow;
+    }
+
+    public ArrayList<BPMNSubprocess> getErrorFlowElements() {
+        return errorFlowElements;
+    }
+
+    public void setErrorFlowElements(ArrayList<BPMNSubprocess> flow) {
+        this.errorFlowElements = flow;
+    }
+
+    public ArrayList<BPMNSubprocess> getIncomingTestFlow() {
+        return outgoingFlowElements;
+    }
+
+    public ArrayList<BPMNSubprocess> getOutgoingFlow() {
+        return outgoingFlowElements;
+    }
+
+    public void setOutgoingFlow(BPMNSubprocess outgoingSubprocess) {
+        this.outgoingFlowElements.add(outgoingSubprocess);
+    }
+
+    public ArrayList<BPMNSubprocess> getOuterFlow() {
+        return this.incomingFlowElements;
+    }
+
+    public void setIncomingFlowElements(BPMNSubprocess incomingTestScopeflow) {
+        this.incomingFlowElements.add(incomingTestScopeflow);
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getDeploymentArtifactString() {
+        return deploymentArtifactString;
+    }
+
+    public void setDeploymentArtifactString(String deploymentArtifactString) {
+        this.deploymentArtifactString = deploymentArtifactString;
     }
 
     public BPMNSubprocess(String name) {
@@ -236,8 +217,8 @@ public class BPMNSubprocess {
     }
 
     /**
-     * The usage is for the call node operation task because there is a difference between the nodetemplate and the
-     * nodetemplate from which we call the operation
+     * The usage is for the call node operation task because there is a difference between the node template and the
+     * node template from which we call the operation
      *
      * @return an TNodeTemplate, else null
      */
@@ -280,7 +261,7 @@ public class BPMNSubprocess {
         this.incomingScope = incoming;
     }
 
-    public void addTaskToSubproces(BPMNSubprocess scope) {
+    public void addTaskToSubprocess(BPMNSubprocess scope) {
         this.subprocessBPMNScopes.add(scope);
     }
 
@@ -376,36 +357,36 @@ public class BPMNSubprocess {
         this.operation = operation;
     }
 
-    public String getInputparamnames() {
-        return inputparamnames;
+    public String getInputParameterNames() {
+        return inputParameterNames;
     }
 
-    public void setInputparamnames(String inputparamnames) {
-        this.inputparamnames = inputparamnames;
+    public void setInputParameterNames(String inputParameterName) {
+        this.inputParameterNames = inputParameterName;
     }
 
-    public String getInputparamvalues() {
-        return inputparamvalues;
+    public String getInputParameterValues() {
+        return inputParameterValues;
     }
 
-    public void setInputparamvalues(String inputparamvalues) {
-        this.inputparamvalues = inputparamvalues;
+    public void setInputParameterValues(String inputparamvalues) {
+        this.inputParameterValues = inputparamvalues;
     }
 
-    public String getOutputparamnames() {
-        return outputparamnames;
+    public String getOutputParameterNames() {
+        return outputParameterNames;
     }
 
-    public void setOutputparamnames(String outputparamnames) {
-        this.outputparamnames = outputparamnames;
+    public void setOutputParameterNames(String outputParameterNames) {
+        this.outputParameterNames = outputParameterNames;
     }
 
-    public String getOutputparamvalues() {
-        return outputparamvalues;
+    public String getOutputParameterValues() {
+        return outputParameterValues;
     }
 
-    public void setOutputparamvalues(String outputparamvalues) {
-        this.outputparamvalues = outputparamvalues;
+    public void setOutputParameterValues(String outputParameterValues) {
+        this.outputParameterValues = outputParameterValues;
     }
 
     public String getSourceInstanceURL() {

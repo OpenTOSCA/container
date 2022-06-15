@@ -1,12 +1,9 @@
 package org.opentosca.planbuilder.model.plan.bpmn;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -19,8 +16,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.w3c.dom.Node;
-
 /**
  * This class represents a bpmn plan and its properties.
  */
@@ -30,26 +25,21 @@ public class BPMNPlan extends AbstractPlan {
     private String toscaOperationName = null;
     // xml document
 
-    private int outerFlowTestCounter = 0;
-    private int innerFlowTestCounter = 0;
-    private int outsidecounterforflows = 0;
-    private int erroroutsidecounterforflows = 0;
-    // bpmn -> process = main sequence, subprozess = process element
-    // process -> 'main' sequence / flow
+    private int outerFlowCounter = 0;
+    private int innerFlowCounter = 0;
+    private int errorOuterFlowCounter = 0;
+    private int errorInnerFlowCounter = 0;
+    // to be very specific every subprocess is associated with a data object but the properties are globally visible
+    // that's why they are added here
+    private List<BPMNDataObject> dataObjectsList = new ArrayList<>();
     private Document bpmnProcessDocument;
     private ArrayList<String> bpmnScript;
     private Element bpmnDefinitionElement;
     private Element bpmnProcessElement;
-    private Node bpmnStartEvent;
-    private Element bpmnEndEvent;
     private ArrayList<String> scriptNames;
-
-    private Map<AbstractActivity, BPMNSubprocess> abstract2bpmnMap;
     private ArrayList<String> inputParameters;
     private String csarName = null;
     private List<BPMNSubprocess> templateBuildPlans = new ArrayList<>();
-    private Map<TNodeTemplate, String> nodeTemplate2InstanceUrlVariableName = new HashMap<>();
-    private Map<TRelationshipTemplate, String> relationTemplate2InstanceUrlVariableName = new HashMap<>();
 
     private HashMap<String, String> propertiesOutputParameter = new HashMap<>();
     private ArrayList<BPMNSubprocess> flowElements = new ArrayList<>();
@@ -72,14 +62,8 @@ public class BPMNPlan extends AbstractPlan {
         this.errorFlowElements = flow;
     }
 
-    // to be very specific every subprocess is associated with a data object but the properties are globally visible
-    // that's why they are added here
-    private List<BPMNDataObject> dataObjectsList = new ArrayList<>();
-    private int errorinnercounterforflows = 0;
-
     public BPMNPlan(String id, PlanType type, TDefinitions definitions, TServiceTemplate serviceTemplate, Collection<AbstractActivity> activities, Collection<AbstractPlan.Link> links) {
         super(id, type, definitions, serviceTemplate, activities, links);
-        ;
     }
 
     public void setBpmnDocument(final Document bpmnProcessDocument) {
@@ -114,22 +98,6 @@ public class BPMNPlan extends AbstractPlan {
         return this.bpmnDefinitionElement;
     }
 
-    public void setBpmnStartEvent(final Node bpmnStartEvent) {
-        this.bpmnStartEvent = bpmnStartEvent;
-    }
-
-    public Node getBpmnStartEvent() {
-        return this.bpmnStartEvent;
-    }
-
-    public void setBpmnEndEvent(final Element bpmnEndEvent) {
-        this.bpmnEndEvent = bpmnEndEvent;
-    }
-
-    public Element getBpmnEndEvent() {
-        return this.bpmnEndEvent;
-    }
-
     public ArrayList<String> getScriptNames() {
         return this.scriptNames;
     }
@@ -158,7 +126,7 @@ public class BPMNPlan extends AbstractPlan {
         }
     }
 
-    public void setTOSCAOperationname(String operationName) {
+    public void setTOSCAOperationName(String operationName) {
         this.toscaOperationName = operationName;
     }
 
@@ -168,14 +136,6 @@ public class BPMNPlan extends AbstractPlan {
 
     public ArrayList<String> getInputParameters() {
         return inputParameters;
-    }
-
-    public void setAbstract2BPMNMapping(final Map<AbstractActivity, BPMNSubprocess> abstract2bpmnMap) {
-        this.abstract2bpmnMap = abstract2bpmnMap;
-    }
-
-    public Map<AbstractActivity, BPMNSubprocess> getAbstract2BPMN() {
-        return this.abstract2bpmnMap;
     }
 
     public boolean addSubprocess(final BPMNSubprocess template) {
@@ -223,14 +183,6 @@ public class BPMNPlan extends AbstractPlan {
      * @return a List of File
      */
 
-    public String getNodeTemplateInstanceUrlVariableName(TNodeTemplate nodeTemplate) {
-        return nodeTemplate2InstanceUrlVariableName.get(nodeTemplate);
-    }
-
-    public String getRelationshipTemplateInstanceUrlVariableName(TRelationshipTemplate relationshipTemplate) {
-        return relationTemplate2InstanceUrlVariableName.get(relationshipTemplate);
-    }
-
     public List<BPMNDataObject> getDataObjectsList() {
         return this.dataObjectsList;
     }
@@ -247,27 +199,8 @@ public class BPMNPlan extends AbstractPlan {
         this.propertiesOutputParameter = propertiesOutputParameter;
     }
 
-    public int getOuterFlowCounterId() {
-        return this.outsidecounterforflows;
-    }
-
-    /**
-     * Sets the id
-     *
-     * @param id an Integer
-     */
-    public void setOuterFlowCounterId(final int id) {
-        this.outsidecounterforflows = id;
-    }
-
-    public int getIdForOuterFlowAndIncrement() {
-        final int idToReturn = this.getOuterFlowCounterId();
-        this.setOuterFlowCounterId(idToReturn + 1);
-        return idToReturn;
-    }
-
     public int getOuterFlowTestCounterId() {
-        return this.outerFlowTestCounter;
+        return this.outerFlowCounter;
     }
 
     /**
@@ -276,7 +209,7 @@ public class BPMNPlan extends AbstractPlan {
      * @param id an Integer
      */
     public void setOuterFlowTestCounterId(final int id) {
-        this.outerFlowTestCounter = id;
+        this.outerFlowCounter = id;
     }
 
     public int getIdForOuterFlowTestAndIncrement() {
@@ -286,7 +219,7 @@ public class BPMNPlan extends AbstractPlan {
     }
 
     public int getInnerFlowTestCounterId() {
-        return this.innerFlowTestCounter;
+        return this.innerFlowCounter;
     }
 
     /**
@@ -295,7 +228,7 @@ public class BPMNPlan extends AbstractPlan {
      * @param id an Integer
      */
     public void setInnerFlowTestCounterId(final int id) {
-        this.innerFlowTestCounter = id;
+        this.innerFlowCounter = id;
     }
 
     public int getIdForInnerFlowTestAndIncrement() {
@@ -305,11 +238,11 @@ public class BPMNPlan extends AbstractPlan {
     }
 
     public int getErrorOuterFlowCounterId() {
-        return this.erroroutsidecounterforflows;
+        return this.errorOuterFlowCounter;
     }
 
     public void setErrorInnerFlowCounterId(final int id) {
-        this.errorinnercounterforflows = id;
+        this.errorInnerFlowCounter = id;
     }
 
     public int getIdForErrorInnerFlowAndIncrement() {
@@ -319,7 +252,7 @@ public class BPMNPlan extends AbstractPlan {
     }
 
     public int getErrorInnerFlowCounterId() {
-        return this.errorinnercounterforflows;
+        return this.errorInnerFlowCounter;
     }
 
     /**
@@ -328,7 +261,7 @@ public class BPMNPlan extends AbstractPlan {
      * @param id an Integer
      */
     public void setErrorOuterFlowCounterId(final int id) {
-        this.erroroutsidecounterforflows = id;
+        this.errorOuterFlowCounter = id;
     }
 
     public int getIdForErrorOuterFlowAndIncrement() {

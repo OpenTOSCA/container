@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
@@ -17,8 +15,6 @@ import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
-import org.opentosca.planbuilder.core.bpmn.fragments.BPMNProcessFragments;
-import org.opentosca.planbuilder.core.bpmn.handlers.BPMNSubprocessHandler;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
@@ -38,29 +34,13 @@ import static org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerC
  * <p>
  * This class contains all the logic to add BPMN Code which installs a PhpModule on an Apache HTTP Server
  * </p>
- * Copyright 2014 IAAS University of Stuttgart <br>
+ * Copyright 2022 IAAS University of Stuttgart <br>
  * <br>
- *
- * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  */
 public class BPMNDockerContainerTypePluginHandler implements DockerContainerTypePluginHandler<BPMNPlanContext> {
     private static final Logger LOG = LoggerFactory.getLogger(BPMNDockerContainerTypePluginHandler.class);
 
     private final BPMNInvokerPlugin invokerPlugin = new BPMNInvokerPlugin();
-
-    private BPMNProcessFragments planBuilderFragments;
-
-    private BPMNSubprocessHandler bpmnSubprocessHandler;
-
-    public BPMNDockerContainerTypePluginHandler() {
-        try {
-            this.planBuilderFragments = new BPMNProcessFragments();
-            this.bpmnSubprocessHandler = new BPMNSubprocessHandler();
-        } catch (final ParserConfigurationException e) {
-            BPMNDockerContainerTypePluginHandler.LOG.error("Couldn't initialize planBuilderFragments class");
-            e.printStackTrace();
-        }
-    }
 
     public static TDeploymentArtifact fetchFirstDockerContainerDA(final TNodeTemplate nodeTemplate, Csar csar) {
         return getTDeploymentArtifact(nodeTemplate, csar);
@@ -163,8 +143,6 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
             return false;
         }
 
-        //final Variable portMappingVar =
-        //    templateContext.createGlobalStringVariable("dockerContainerPortMappings" + System.currentTimeMillis(), "");
         final Variable portMappingVar = new Variable("dockerContainerPortMappings" + System.currentTimeMillis());
 
         // fetch (optional) SSHPort variable
@@ -281,8 +259,6 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
     private Variable createRemoteVolumeDataInputVariable(final List<TDeploymentArtifact> das,
                                                          final BPMNPlanContext context) {
 
-        //final Variable remoteVolumeDataVariable =
-        //    context.createGlobalStringVariable("remoteVolumeData" + System.currentTimeMillis(), "");
         final Variable remoteVolumeDataVariable = new Variable("remoteVolumeData" + System.currentTimeMillis());
 
         StringBuilder remoteVolumeDataVarAssignQuery = new StringBuilder("concat(");
@@ -296,19 +272,6 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
 
         remoteVolumeDataVarAssignQuery = new StringBuilder(remoteVolumeDataVarAssignQuery.substring(0, remoteVolumeDataVarAssignQuery.length() - 1));
         remoteVolumeDataVarAssignQuery.append(")");
-
-        /*
-        try {
-            Node assignContainerEnvNode =
-                this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignVolumeDataVariable",
-                    remoteVolumeDataVarAssignQuery.toString(),
-                    remoteVolumeDataVariable.getVariableName());
-            assignContainerEnvNode = context.importNode(assignContainerEnvNode);
-            context.getProvisioningPhaseElement().appendChild(assignContainerEnvNode);
-        } catch (final IOException | SAXException e) {
-            LOG.error("Error assigning container environment node", e);
-        }
-        */
         return remoteVolumeDataVariable;
     }
 
@@ -390,25 +353,10 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
             return null;
         }
 
-        //final Variable envMappingVar =
-        //    context.createGlobalStringVariable("dockerContainerEnvironmentMappings" + System.currentTimeMillis(), "");
         final Variable envMappingVar = new Variable("dockerContainerEnvironmentMappings" + System.currentTimeMillis());
 
         envVarXpathQuery = new StringBuilder(envVarXpathQuery.substring(0, envVarXpathQuery.length() - 1));
         envVarXpathQuery.append(")");
-
-        /*
-        try {
-            Node assignContainerEnvNode =
-                this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignEnvironmentVariables",
-                    envVarXpathQuery.toString(),
-                    envMappingVar.getVariableName());
-            assignContainerEnvNode = context.importNode(assignContainerEnvNode);
-            context.getProvisioningPhaseElement().appendChild(assignContainerEnvNode);
-        } catch (final IOException | SAXException e) {
-            LOG.error("Error while assigning environment vars...", e);
-        }
-*/
         return envMappingVar;
     }
 
@@ -422,13 +370,6 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
         return null;
     }
 
-    public String
-    createXPathQueryForURLRemoteFilePathViaContainerAPI(final String artifactPath, final String csarId) {
-        BPMNDockerContainerTypePluginHandler.LOG.debug("Generating XPATH Query for ArtifactPath: " + artifactPath);
-        return "string(concat($input.payload//*[local-name()='containerApiAddress']/text(),'/csars/" + csarId + "', '/content/"
-            + artifactPath + "'))";
-    }
-
     /**
      * @param da      deployment artifact
      * @param context contains subprocess for current task
@@ -437,10 +378,8 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
     public String createDAinput(TDeploymentArtifact da, BPMNPlanContext context) {
         final TArtifactTemplate artifactTemplate = ModelUtils.findArtifactTemplate(da.getArtifactRef(), context.getCsar());
         String reference = artifactTemplate.getArtifactReferences().get(0).getReference();
-        // reference="artifacttemplates/http%253A%252F%252Fopentosca.org%252Fartifacttemplates/MyTinyToDo_DA/files/tinytodo.zip"/>
         String[] directories = reference.split("/");
         String fileName = null;
-        //String id = artifactTemplate.getId();
         String id = "/content/artifacttemplates/" + directories[1] + "/" + artifactTemplate.getId();
         for (int i = 0; i < directories.length; i += 1) {
             if (directories[i].equals("files")) {
@@ -462,52 +401,23 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
 
         //context.addStringValueToPlanRequest("containerApiAddress");
 
-        final String artifactPathQuery =
-            this.createXPathQueryForURLRemoteFilePathViaContainerAPI(ModelUtils.findArtifactTemplate(da.getArtifactRef(), context.getCsar()).getArtifactReferences().stream().findFirst().get()
-                .getReference(), context.getCSARFileName());
-
         // create and set input for Input_DA
         final String DAinputVariable = createDAinput(da, context);
-        context.getSubprocessElement().setDAstring(DAinputVariable);
+        context.getSubprocessElement().setDeploymentArtifactString(DAinputVariable);
 
         final String artefactVarName = "dockerContainerFile" + System.currentTimeMillis();
 
         //value = xpath query for DA artifact
         final Variable dockerContainerFileRefVar = new Variable(artefactVarName);
-        LOG.info("DA query");
-        LOG.info(artifactPathQuery);
-        //final Variable dockerContainerFileRefVar = new Variable(artifactPathQuery);
-        //final Variable dockerContainerFileRefVar = context.createGlobalStringVariable(artefactVarName, "");
-
-        /*
-        try {
-            Node assignNode =
-                this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignDockerContainerFileRef"
-                    + System.currentTimeMillis(), artifactPathQuery, dockerContainerFileRefVar.getVariableName());
-            assignNode = context.importNode(assignNode);
-            context.getProvisioningPhaseElement().appendChild(assignNode);
-        } catch (final IOException | SAXException e) {
-            e.printStackTrace();
-        }
-       */
 
         // map properties to input and output parameters
         final Map<String, Variable> createDEInternalExternalPropsInput = new HashMap<>();
         final Map<String, Variable> createDEInternalExternalPropsOutput = new HashMap<>();
-
-        //Variable richtigeDockerengineURL = new Variable("String!${DockerEngineURL}");
-        //dockerEngineUrlVar.setVariablename("String!${DockerEngineURL}");
         createDEInternalExternalPropsInput.put("ImageLocation", dockerContainerFileRefVar);
         createDEInternalExternalPropsInput.put("DockerEngineURL", dockerEngineUrlVar);
-        //createDEInternalExternalPropsInput.put("DockerEngineURL", richtigeDockerengineURL);
-        //createDEInternalExternalPropsInput.put("ContainerPorts", portMappingVar);
         Variable test = new Variable(DockerContainerTypePluginPluginConstants.PROPERTY_CONTAINER_PORT + "," + DockerContainerTypePluginPluginConstants.PROPERTY_PORT);
         createDEInternalExternalPropsInput.put("ContainerPorts", test);
-            // test
-            //Variable davariable = new Variable(artifactPathQuery);
-            //createDEInternalExternalPropsInput.put("DA", davariable);
-
-            createPropertiesMapping(containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable, vmPrivateKeyVariable, createDEInternalExternalPropsInput);
+        createPropertiesMapping(containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable, vmPrivateKeyVariable, createDEInternalExternalPropsInput);
 
         addProperties(sshPortVar, containerIpVar, containerIdVar, envMappingVar, linksVar, deviceMappingVar, createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput);
 
@@ -554,15 +464,13 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
 
         createPropertiesMapping(containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable, vmPrivateKeyVariable, createDEInternalExternalPropsInput);
 
-        boolean check = this.invokerPlugin.handle(context, dockerEngineNode, true,
+        //check &= this.handleTerminate(context, context.getSubprocessElement().getBpmnScopeElement());
+
+        return this.invokerPlugin.handle(context, dockerEngineNode, true,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
             createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput,
             context.getSubprocessElement().getBpmnSubprocessElement());
-
-        //check &= this.handleTerminate(context, context.getSubprocessElement().getBpmnScopeElement());
-
-        return check;
     }
 
     private void createPropertiesMapping(Variable containerMountPath, Variable remoteVolumeDataVariable, Variable hostVolumeDataVariable, Variable vmIpVariable, Variable vmPrivateKeyVariable, Map<String, Variable> createDEInternalExternalPropsInput) {

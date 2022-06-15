@@ -29,7 +29,7 @@ abstract class DockerUtils {
         // {http://opentosca.org/artefacttypes}DockerContainer XOR a Property
         // "ContainerImage"
         // 3. Is connected to a {http://opentosca.org/nodetypes}DockerEngine
-        // Node trough a path of hostedOn relations
+        // Node through a path of hostedOn relations
 
         // check mandatory properties
         if (nodeTemplate.getProperties() == null || (ignoreType && notIsDockerContainer(ModelUtils.findNodeType(nodeTemplate, csar), csar))) {

@@ -162,8 +162,8 @@ public class BPMNFinalizer {
         previousIncoming.setBuildPlan(buildPlan);
         BPMNSubprocess subprocessToOutputParamTask = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "ErrorOuterFlow_" + buildPlan.getIdForOuterFlowTestAndIncrement());
         subprocessToOutputParamTask.setBuildPlan(buildPlan);
-        subprocessToOutputParamTask.setIncomingTestScope(previousIncoming);
-        subprocessToOutputParamTask.setOuterflow(outputParamTask);
+        subprocessToOutputParamTask.setIncomingFlowElements(previousIncoming);
+        subprocessToOutputParamTask.setOutgoingFlow(outputParamTask);
         if (!errorFlow) {
             subprocessToOutputParamTask.setId(subprocessToOutputParamTask.getId().replace("Error", ""));
             flowElements.add(subprocessToOutputParamTask);

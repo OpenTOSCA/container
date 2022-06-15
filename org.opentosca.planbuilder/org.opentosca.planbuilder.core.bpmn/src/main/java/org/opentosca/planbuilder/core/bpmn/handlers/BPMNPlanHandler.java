@@ -182,7 +182,7 @@ public class BPMNPlanHandler {
             }
 
             activateDataObjectTask.setDataObject(bpmnDataObject);
-            dataObjectSubprocess.addTaskToSubproces(activateDataObjectTask);
+            dataObjectSubprocess.addTaskToSubprocess(activateDataObjectTask);
         }
     }
 }

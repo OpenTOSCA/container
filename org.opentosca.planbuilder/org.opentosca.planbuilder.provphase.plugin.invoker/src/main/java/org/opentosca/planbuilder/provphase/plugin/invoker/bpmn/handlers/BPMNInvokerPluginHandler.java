@@ -93,19 +93,19 @@ public class BPMNInvokerPluginHandler {
             final BPMNSubprocess createNodeOperationTask = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
             final BPMNSubprocess setPreState = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.SET_ST_STATE);
             setPreState.setInstanceState(preState);
-            subprocess.addTaskToSubproces(setPreState);
-            subprocess.addTaskToSubproces(createNodeOperationTask);
+            subprocess.addTaskToSubprocess(setPreState);
+            subprocess.addTaskToSubprocess(createNodeOperationTask);
             boolean hasNodeOperation = false;
 
             for (BPMNSubprocess sub : context.getSubprocessElement().getSubprocessBPMNSubprocess()) {
                 if (sub.getSubprocessType() == (BPMNSubprocessType.CALL_NODE_OPERATION_TASK)) {
                     sub.setInterfaceVariable(interfaceName);
                     sub.setOperation(operationName);
-                    sub.setInputparamnames(inputParamNames.toString());
+                    sub.setInputParameterNames(inputParamNames.toString());
 
-                    sub.setInputparamvalues(inputParamValues.toString());
-                    sub.setOutputparamnames(outputParamNames.toString());
-                    sub.setOutputparamvalues(outputParamValues.toString());
+                    sub.setInputParameterValues(inputParamValues.toString());
+                    sub.setOutputParameterNames(outputParamNames.toString());
+                    sub.setOutputParameterValues(outputParamValues.toString());
                     for (BPMNDataObject dataObject : buildPlan.getDataObjectsList()) {
                         if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_ST) {
                             for (String property : dataObject.getProperties()) {
@@ -122,16 +122,16 @@ public class BPMNInvokerPluginHandler {
                 final BPMNSubprocess createNodeOperationTask2 = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
                 createNodeOperationTask2.setInterfaceVariable(interfaceName);
                 createNodeOperationTask2.setOperation(operationName);
-                createNodeOperationTask2.setInputparamnames(inputParamNames.toString());
-                createNodeOperationTask2.setInputparamvalues(inputParamValues.toString());
-                createNodeOperationTask2.setOutputparamnames(outputParamNames.toString());
-                createNodeOperationTask2.setOutputparamvalues(outputParamValues.toString());
+                createNodeOperationTask2.setInputParameterNames(inputParamNames.toString());
+                createNodeOperationTask2.setInputParameterValues(inputParamValues.toString());
+                createNodeOperationTask2.setOutputParameterNames(outputParamNames.toString());
+                createNodeOperationTask2.setOutputParameterValues(outputParamValues.toString());
             }
 
             final BPMNSubprocess setPostState = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.SET_ST_STATE);
             String postState = InstanceStates.getOperationPostState(operationName);
             setPostState.setInstanceState(postState);
-            subprocess.addTaskToSubproces(setPostState);
+            subprocess.addTaskToSubprocess(setPostState);
         }
 
         return true;

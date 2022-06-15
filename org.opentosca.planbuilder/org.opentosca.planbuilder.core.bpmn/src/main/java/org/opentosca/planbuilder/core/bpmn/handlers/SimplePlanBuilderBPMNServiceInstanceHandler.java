@@ -55,7 +55,7 @@ public class SimplePlanBuilderBPMNServiceInstanceHandler {
         dataObject.setServiceInstanceURL(serviceInstanceURL);
         dataObject.setId("DataObject_" + dataObject.getId());
         bpmnPlan.getDataObjectsList().add(dataObject);
-        createServiceInstanceSubprocess.addTaskToSubproces(createServiceInstanceTask);
+        createServiceInstanceSubprocess.addTaskToSubprocess(createServiceInstanceTask);
         bpmnPlan.getSubprocess().add(createServiceInstanceSubprocess);
     }
 

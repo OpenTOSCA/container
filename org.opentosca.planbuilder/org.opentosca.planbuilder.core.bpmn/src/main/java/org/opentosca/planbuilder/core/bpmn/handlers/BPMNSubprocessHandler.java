@@ -110,7 +110,7 @@ public class BPMNSubprocessHandler {
         }
         bpmnSubprocess.setSubProSetStateTask(setState);
         setState.setParentProcess(bpmnSubprocess);
-        bpmnSubprocess.addTaskToSubproces(setState);
+        bpmnSubprocess.addTaskToSubprocess(setState);
         bpmnSubprocess.setInstanceState("CREATED");
         this.processFragments.createSetServiceTemplateStateAsNode(bpmnSubprocess);
     }
@@ -159,7 +159,7 @@ public class BPMNSubprocessHandler {
                 createdScope.setBuildPlan(buildPlan);
                 return createdScope;
             }
-            parentSubprocess.addTaskToSubproces(createdScope);
+            parentSubprocess.addTaskToSubprocess(createdScope);
             createdScope.setParentProcess(parentSubprocess);
             createdScope.setBuildPlan(buildPlan);
             return createdScope;
