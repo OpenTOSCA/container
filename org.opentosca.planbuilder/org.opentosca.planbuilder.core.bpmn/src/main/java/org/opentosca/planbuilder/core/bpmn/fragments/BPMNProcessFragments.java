@@ -35,7 +35,7 @@ public class BPMNProcessFragments {
 
     private final DocumentBuilderFactory docFactory;
     private final DocumentBuilder docBuilder;
-    protected static final String ServiceInstanceURLVarKeyword = "OpenTOSCAContainerAPIServiceInstanceURL";
+    protected static final String ServiceInstanceURLVarKeyword = "ServiceInstanceURL";
 
     /**
      * Constructor
@@ -115,15 +115,19 @@ public class BPMNProcessFragments {
         createRelationshipInstance = createRelationshipInstance.replaceAll("RelationshipTemplate_IdToReplace", bpmnSubprocess.getId());
         createRelationshipInstance = createRelationshipInstance.replaceAll("StateToSet", "INITIAL");
         createRelationshipInstance = createRelationshipInstance.replaceAll("RelationshipTemplateToSet", bpmnSubprocess.getRelationshipTemplate().getId());
+        LOG.info("RRRRRRRRRRRRRRRRRRRRRRIEEEEEEEEEEER2");
         String parentId = bpmnSubprocess.getParentProcess().getId().replace("Subprocess_", "ResultVariable");
+        LOG.info(parentId);
+        LOG.info("RRRRRRRRRRRRRRRRRRRRRRIEEEEEEEEEEER3");
         createRelationshipInstance = createRelationshipInstance.replaceAll("ResultVariableToSet", parentId);
+        LOG.info("RRRRRRRRRRRRRRRRRRRRRRIEEEEEEEEEEER4");
         createRelationshipInstance = createRelationshipInstance.replaceAll("RelationshipTemplateToSet", relationshipTemplateId);
+        LOG.info("RRRRRRRRRRRRRRRRRRRRRRIEEEEEEEEEEER5");
         createRelationshipInstance = createRelationshipInstance.replaceAll("SourceURLToSet", bpmnSubprocess.getSourceInstanceURL());
+        LOG.info("RRRRRRRRRRRRRRRRRRRRRRIEEEEEEEEEEER6");
         createRelationshipInstance = createRelationshipInstance.replaceAll("TargetURLToSet", bpmnSubprocess.getTargetInstanceURL());
-
+LOG.info("RRRRRRRRRRRRRRRRRRRRRRIEEEEEEEEEEER");
         createRelationshipInstance = getServiceInstanceURLFromDataObject(bpmnSubprocess, createRelationshipInstance);
-        //Node relationshipInstanceNode = this.transformStringToNode(template);
-        //bpmnSubprocess.setBpmnSubprocessElement((Element) relationshipInstanceNode);
         return createRelationshipInstance;
     }
 
@@ -312,7 +316,7 @@ public class BPMNProcessFragments {
      */
     public String createRelationDataObjectReference(BPMNDataObject dataObject, BPMNPlan bpmnPlan) throws IOException, SAXException {
         String relationshipDataObject = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNRelationshipDataObjectReference.xml"));
-        relationshipDataObject = relationshipDataObject.replaceAll("RelationshipInstanceURLToSet", "\\${" + dataObject.getRelationshipInstanceURL() + "}");
+        relationshipDataObject = relationshipDataObject.replaceAll("ResultVariableToSet", "\\${" + dataObject.getRelationshipInstanceURL() + "}");
         relationshipDataObject = relationshipDataObject.replaceAll("RelationshipTemplateToSet", dataObject.getRelationshipTemplate());
         relationshipDataObject = relationshipDataObject.replaceAll("SourceURLToSet", "\\${" + dataObject.getSourceInstanceURL() + "}");
         relationshipDataObject = relationshipDataObject.replaceAll("TargetURLToSet", "\\${" + dataObject.getTargetInstanceURL() + "}");
@@ -366,6 +370,8 @@ public class BPMNProcessFragments {
         serviceInstanceDataObject = serviceInstanceDataObject.replaceAll("ServiceTemplateURLToSet", serviceTemplateNamespace + csarName);
         serviceInstanceDataObject = serviceInstanceDataObject.replaceAll("CsarIdToSet", csarName);
         serviceInstanceDataObject = serviceInstanceDataObject.replaceAll("IdToSet", dataObject.getId());
+        serviceInstanceDataObject = serviceInstanceDataObject.replaceAll("NameToSet", "Service_Instance_Creation");
+        serviceInstanceDataObject = serviceInstanceDataObject.replaceAll("ResultVariableToSet", dataObject.getServiceInstanceURL());
         return serviceInstanceDataObject;
     }
 
@@ -1599,32 +1605,12 @@ public class BPMNProcessFragments {
      * @return tempalte String
      */
     public String createServiceInstance(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
-        LOG.info("Passiert hier was");
-        String template = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateServiceTemplateInstanceScriptTask.xml"));
-        template = template.replaceAll("ResultVariableToSet", bpmnSubprocess.getResultVariableName());
-        template = template.replaceAll("Subprocess_IdToSet", bpmnSubprocess.getId());
-        template = template.replaceAll("StateToSet", "CREATING");
-        // we create for each output parameter a corresponding variable later in activate data object
-        String outputParameterNames = "";
-        HashMap<String, String> propertyNames = bpmnSubprocess.getBuildPlan().getPropertiesOutputParameters();
-        for (String propertyOutput : bpmnSubprocess.getBuildPlan().getPropertiesOutputParameters().keySet()) {
-            outputParameterNames = propertyOutput + "," + outputParameterNames;
-        }
-        template = template.replaceAll("OutputParameterNamesToSet", outputParameterNames);
-        String[] original = template.split("</camunda:inputOutput>");
-        original[1] = "</camunda:inputOutput>" + original[1];
-
-        String inputparambuilder = "";
-        for (String namestring : outputParameterNames.split(",")) {
-            //String namestringvalue = bpmnSubprocess.getInputparamvalues().split(",")[counter];
-            inputparambuilder = inputparambuilder + "<camunda:inputParameter name=\"Input_" + namestring + "\">" + propertyNames.get(namestring) + "</camunda:inputParameter>";
-        }
-
-        String resultstring = original[0] + inputparambuilder + original[1];
-        LOG.info("create instance template string");
-        LOG.info(template);
-        template = resultstring;
-        return template;
+        String createServiceInstance = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateServiceTemplateInstanceScriptTask.xml"));
+        createServiceInstance = createServiceInstance.replaceAll("ResultVariableToSet", bpmnSubprocess.getResultVariableName());
+        createServiceInstance = createServiceInstance.replaceAll("Subprocess_IdToSet", bpmnSubprocess.getId());
+        createServiceInstance = createServiceInstance.replaceAll("StateToSet", "CREATING");
+        createServiceInstance = createServiceInstance.replaceAll("DataObjectToSet", bpmnSubprocess.getParentProcess().getDataObject().getId());
+        return createServiceInstance;
     }
 
     /**

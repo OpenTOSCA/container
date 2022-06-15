@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder.core.bpmn.handlers;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -8,7 +9,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 
-import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
@@ -27,10 +27,9 @@ import org.opentosca.planbuilder.core.bpmn.fragments.BPMNProcessFragments;
 public class BPMNPlanHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPMNPlanHandler.class);
-    private final DocumentBuilderFactory documentBuilderFactory;
     private final DocumentBuilder documentBuilder;
     private final BPMNSubprocessHandler bpmnSubprocessHandler;
-    private final BPMNProcessFragments fragmentclass;
+    private final BPMNProcessFragments processFragments;
     final static String xmlns = "http://www.w3.org/2000/xmlns/";
     final static String[][] namespaces = {
         {"xmlns:bpmn", "http://www.omg.org/spec/BPMN/20100524/MODEL"},
@@ -42,20 +41,27 @@ public class BPMNPlanHandler {
         {"xmlns:qa", "http://some-company/schema/bpmn/qa"},
     };
 
+    public static final String[] BPMN_SCRIPT_NAMES = {"CreateServiceInstance",
+        "CreateNodeInstance",
+        "CreateRelationshipInstance",
+        "CallNodeOperation",
+        "DataObject",
+        "SetProperties",
+        "SetState", "SetOutputParameters"};
+
     public BPMNPlanHandler() throws ParserConfigurationException {
-        this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        this.documentBuilderFactory.setNamespaceAware(true);
-        this.documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setNamespaceAware(true);
+        this.documentBuilder = documentBuilderFactory.newDocumentBuilder();
         this.bpmnSubprocessHandler = new BPMNSubprocessHandler();
-        this.fragmentclass = new BPMNProcessFragments();
+        this.processFragments = new BPMNProcessFragments();
     }
 
     /**
      * Creates an "empty" xml document. The main reason why we called it empty because there are no elements in the
      * process.
      */
-    public BPMNPlan createEmptyBPMNPlan(final String processNamespace, final String processName,
-                                        final AbstractPlan abstractPlan, final String inputOperationName) {
+    public BPMNPlan createEmptyBPMNPlan(final AbstractPlan abstractPlan) {
         BPMNPlanHandler.LOG.debug("Creating BuildPlan for ServiceTemplate {}",
             abstractPlan.getServiceTemplate().getId());
 
@@ -75,11 +81,10 @@ public class BPMNPlanHandler {
         ArrayList<String> scripts = new ArrayList<>();
         newBuildPlan.setBpmnScript(scripts);
         ArrayList<String> scriptNames = new ArrayList<>();
-        String[] nameOfScripts = {"CreateServiceInstance", "CreateNodeInstance", "CreateRelationshipInstance", "CallNodeOperation", "DataObject", "SetProperties", "SetState", "SetOutputParameters"};
-        String script = "";
+        String script;
         try {
-            for (String name : nameOfScripts) {
-                script = fragmentclass.createScript(name);
+            for (String name : BPMN_SCRIPT_NAMES) {
+                script = processFragments.createScript(name);
                 scripts.add(script);
                 scriptNames.add(name);
             }
@@ -123,23 +128,20 @@ public class BPMNPlanHandler {
      * NodeTemplateActivity the data object type is DATA_OBJECT_NODE. For RelationshipActivity the data object type is
      * DATA_OBJECT_REL. The fault subprocess is added in the BPMNFinalizer.
      */
-    public void initializeBPMNSkeleton(final BPMNPlan plan, final Csar csar) {
-        String[] sourceOfRelationship = new String[2];
+    public void initializeBPMNSkeleton(final BPMNPlan plan) {
         ArrayList<String> visitedNodeIds = new ArrayList<>();
         for (final AbstractPlan.Link links : plan.getLinks()) {
             AbstractActivity source = links.getSrcActiv();
             AbstractActivity target = links.getTrgActiv();
-            BPMNSubprocess subprocess = null;
+            BPMNSubprocess subprocess;
             if (source instanceof NodeTemplateActivity && !visitedNodeIds.contains(source.getId())) {
-                int visitedCounter = ((RelationshipTemplateActivity) target).getVisitedCounter();
-                sourceOfRelationship[visitedCounter] = "Activity_" + plan.getInternalCounterId();
                 ((RelationshipTemplateActivity) target).setVisitedCounter();
                 subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(source, plan);
                 visitedNodeIds.add(source.getId());
                 LOG.debug("Generate empty subprocess for {}", source);
                 plan.addSubprocess(subprocess);
 
-                // if relationshiptemplateactivity is only target
+                // if relationship template activity is only target
                 if (((RelationshipTemplateActivity) target).getVisitedCounter() == 2) {
                     subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(target, plan);
                     LOG.debug("Generate empty subprocess for {}", target);
@@ -147,8 +149,6 @@ public class BPMNPlanHandler {
                 }
             }
             if (source instanceof RelationshipTemplateActivity && !visitedNodeIds.contains(target.getId())) {
-                int visitedCounter = ((RelationshipTemplateActivity) source).getVisitedCounter();
-                sourceOfRelationship[visitedCounter] = "Activity_" + plan.getInternalCounterId();
                 subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(target, plan);
                 visitedNodeIds.add(target.getId());
                 LOG.debug("Generate empty subprocess for target node {}", target);
@@ -165,12 +165,11 @@ public class BPMNPlanHandler {
      * tasks to make use of the data objects.
      */
     public void addActivateDataObjectTaskToSubprocess(BPMNSubprocess dataObjectSubprocess, BPMNPlan bpmnPlan) {
-
         for (BPMNDataObject bpmnDataObject : bpmnPlan.getDataObjectsList()) {
             BPMNSubprocess activateDataObjectTask = new BPMNSubprocess(BPMNSubprocessType.ACTIVATE_DATA_OBJECT_TASK, bpmnDataObject.getId() + "_DataObjectActivateTask");
             activateDataObjectTask.setBuildPlan(bpmnPlan);
             TNodeTemplate dataObjectNodeTemplate = null;
-            for (int i = 0; i < bpmnPlan.getServiceTemplate().getTopologyTemplate().getNodeTemplates().size(); i++) {
+            for (int i = 0; i < Objects.requireNonNull(bpmnPlan.getServiceTemplate().getTopologyTemplate()).getNodeTemplates().size(); i++) {
                 TNodeTemplate nodeTemplate = bpmnPlan.getServiceTemplate().getTopologyTemplate().getNodeTemplates().get(i);
                 if (nodeTemplate.getId().equals(bpmnDataObject.getNodeTemplate())) {
                     dataObjectNodeTemplate = nodeTemplate;

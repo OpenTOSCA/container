@@ -19,21 +19,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
-import org.opentosca.planbuilder.core.bpmn.fragments.BPMNProcessFragments;
 
 public class BPMNInvokerPluginHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(org.opentosca.planbuilder.provphase.plugin.invoker.bpmn.handlers.BPMNInvokerPluginHandler.class);
 
-    private final BPMNProcessFragments processFragments;
-    private BPMNSubprocessHandler bpmnSubprocessHandler;
-    protected static final String ServiceInstanceURLVarKeyword = "OpenTOSCAContainerAPIServiceInstanceURL";
+    private final BPMNSubprocessHandler bpmnSubprocessHandler;
+    protected static final String ServiceInstanceURLVarKeyword = "ServiceInstanceURL";
 
-    // @todo hier die inhalte der scopes zusammenbauen?
     public BPMNInvokerPluginHandler() {
         try {
-
-            this.processFragments = new BPMNProcessFragments();
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             docFactory.setNamespaceAware(true);
             this.bpmnSubprocessHandler = new BPMNSubprocessHandler();
@@ -46,11 +41,11 @@ public class BPMNInvokerPluginHandler {
     /**
      * @param context                     Plan context
      * @param templateId                  template id
-     * @param isNodeTemplate              Nodetemplate if true, Relationshiptemplate if false
+     * @param isNodeTemplate              Node template if true, Relationship template if false
      * @param operationName               operation
      * @param interfaceName               interface
      * @param internalExternalPropsInput  input params and values
-     * @param internalExternalPropsOutput ouput params and values
+     * @param internalExternalPropsOutput output params and values
      * @param elementToAppendTo           not used
      * @return true if successful
      */
@@ -61,68 +56,56 @@ public class BPMNInvokerPluginHandler {
                           Element elementToAppendTo) throws IOException, SAXException {
 
         // Main execution of provisioning function inside this method
-        // Die "große Hauptmethode in die alles rein muss und wo alles geregelt wird"
-
-        // handle node template
         if (isNodeTemplate) {
 
-            // build param inputs for nodeoperation
-            String inputParamNames = "";
-            String inputParamValues = "";
-            String outputParamNames = "";
-            String outputParamValues = "";
+            // build param inputs for node operation
+            StringBuilder inputParamNames = new StringBuilder();
+            StringBuilder inputParamValues = new StringBuilder();
+            StringBuilder outputParamNames = new StringBuilder();
+            StringBuilder outputParamValues = new StringBuilder();
 
             // set input param names and values
             for (Map.Entry<String, Variable> entry : internalExternalPropsInput.entrySet()) {
-                if (inputParamNames.equals("") && inputParamValues.equals("")) {
-                    inputParamNames = inputParamNames + entry.getKey();
-                    inputParamValues = inputParamValues + entry.getValue().getVariableName();
+                if (inputParamNames.toString().equals("") && inputParamValues.toString().equals("")) {
+                    inputParamNames.append(entry.getKey());
+                    inputParamValues.append(entry.getValue().getVariableName());
                 } else {
-                    inputParamNames = inputParamNames + "," + entry.getKey();
-                    inputParamValues = inputParamValues + "," + entry.getValue().getVariableName();
+                    inputParamNames.append(",").append(entry.getKey());
+                    inputParamValues.append(",").append(entry.getValue().getVariableName());
                 }
             }
 
             //set output param names and values
             for (Map.Entry<String, Variable> entry : internalExternalPropsOutput.entrySet()) {
-                if (outputParamNames.equals("") && outputParamValues.equals("")) {
-                    outputParamNames = outputParamNames + entry.getKey();
-                    outputParamValues = outputParamValues + entry.getValue().getVariableName();
+                if (outputParamNames.toString().equals("") && outputParamValues.toString().equals("")) {
+                    outputParamNames.append(entry.getKey());
+                    outputParamValues.append(entry.getValue().getVariableName());
                 } else {
-                    outputParamNames = outputParamNames + "," + entry.getKey();
-                    outputParamValues = outputParamValues + "," + entry.getValue().getVariableName();
+                    outputParamNames.append(",").append(entry.getKey());
+                    outputParamValues.append(",").append(entry.getValue().getVariableName());
                 }
             }
 
-            LOG.info("kurz vor ersetzen im invoker");
-
             BPMNSubprocess subprocess = context.getSubprocessElement();
-            LOG.info("WASSTSS");
-            LOG.info(templateId.getId());
             subprocess.setHostingNodeTemplate(templateId);
-            BPMNPlan buildPlan = ((BPMNSubprocess) subprocess).getBuildPlan();
+            BPMNPlan buildPlan = subprocess.getBuildPlan();
             String preState = InstanceStates.getOperationPreState(operationName);
-            final BPMNSubprocess createNodeOperationTask = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess((BPMNSubprocess) subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
+            final BPMNSubprocess createNodeOperationTask = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
             final BPMNSubprocess setPreState = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.SET_ST_STATE);
             setPreState.setInstanceState(preState);
             subprocess.addTaskToSubproces(setPreState);
             subprocess.addTaskToSubproces(createNodeOperationTask);
-            //final BPMNSubprocess setStateToNodeOperationflow = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess((BPMNSubprocess) subprocess, BPMNSubprocessType.SEQUENCE_FLOW2);
-            //setStateToNodeOperationflow.setSourceflow(setPreState);
-            //setStateToNodeOperationflow.setTargetflow(createNodeOperationTask);
-
-            boolean hasnodeoperation = false;
+            boolean hasNodeOperation = false;
 
             for (BPMNSubprocess sub : context.getSubprocessElement().getSubprocessBPMNSubprocess()) {
-                LOG.info("in schleife");
-                LOG.info(sub.getId());
                 if (sub.getSubprocessType() == (BPMNSubprocessType.CALL_NODE_OPERATION_TASK)) {
                     sub.setInterfaceVariable(interfaceName);
                     sub.setOperation(operationName);
-                    sub.setInputparamnames(inputParamNames);
-                    sub.setInputparamvalues(inputParamValues);
-                    sub.setOutputparamnames(outputParamNames);
-                    sub.setOutputparamvalues(outputParamValues);
+                    sub.setInputparamnames(inputParamNames.toString());
+
+                    sub.setInputparamvalues(inputParamValues.toString());
+                    sub.setOutputparamnames(outputParamNames.toString());
+                    sub.setOutputparamvalues(outputParamValues.toString());
                     for (BPMNDataObject dataObject : buildPlan.getDataObjectsList()) {
                         if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_ST) {
                             for (String property : dataObject.getProperties()) {
@@ -132,67 +115,23 @@ public class BPMNInvokerPluginHandler {
                             }
                         }
                     }
-                    hasnodeoperation = true;
+                    hasNodeOperation = true;
                 }
             }
-            if (!hasnodeoperation) {
-                //BPMNSubprocess subprocess = context.getSubprocessElement();
-                //BPMNPlan buildPlan = ((BPMNSubprocess) sub).getBuildPlan();
-                // eventuell unnötig
-                final BPMNSubprocess createNodeOperationTask2 = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess((BPMNSubprocess) subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
-
+            if (!hasNodeOperation) {
+                final BPMNSubprocess createNodeOperationTask2 = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
                 createNodeOperationTask2.setInterfaceVariable(interfaceName);
                 createNodeOperationTask2.setOperation(operationName);
-                createNodeOperationTask2.setInputparamnames(inputParamNames);
-                createNodeOperationTask2.setInputparamvalues(inputParamValues);
-                createNodeOperationTask2.setOutputparamnames(outputParamNames);
-                createNodeOperationTask2.setOutputparamvalues(outputParamValues);
+                createNodeOperationTask2.setInputparamnames(inputParamNames.toString());
+                createNodeOperationTask2.setInputparamvalues(inputParamValues.toString());
+                createNodeOperationTask2.setOutputparamnames(outputParamNames.toString());
+                createNodeOperationTask2.setOutputparamvalues(outputParamValues.toString());
             }
 
             final BPMNSubprocess setPostState = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.SET_ST_STATE);
             String postState = InstanceStates.getOperationPostState(operationName);
             setPostState.setInstanceState(postState);
             subprocess.addTaskToSubproces(setPostState);
-
-            //final BPMNSubprocess nodeOperationToSetPoststateflow = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess((BPMNSubprocess) subprocess, BPMNSubprocessType.SEQUENCE_FLOW2);
-            //nodeOperationToSetPoststateflow.setSourceflow(createNodeOperationTask);
-            //setStateToNodeOperationflow.setTargetflow(setPostState);
-
-                /*
-                try {
-
-                    //Node setPreStateNode = this.processFragments.createSetStateTask(subprocess, preState);
-
-                    Node childCreateNodeOperation = this.processFragments.createNodeOperation(context.getSubprocessElement(),
-                        interfaceName,operationName, inputParamNames, inputParamValues, outputParamNames, outputParamValues);
-
-                    //Node setPostStateNode = this.processFragments.createSetStateTask(subprocess, postState);
-                    NodeList subprocesses = context.getTemplateBuildPlan().getBuildPlan().getBpmnDocument().getElementsByTagName("bpmn:subProcess");
-                    for (int i = 0; i < subprocesses.getLength(); i++) {
-                        Node element = subprocesses.item(i);
-                        for (int j = 0; j < element.getAttributes().getLength(); j++) {
-                            String id = element.getAttributes().item(j).getTextContent();
-                            if (id.equals(subprocess.getId())) {
-                                LOG.info("ICH GEH HIER REIN IM DOCKER CONTAINER PLUGIN");
-                                Node parent2 = subprocesses.item(i);
-                                createNodeOperationTask.setParentProcess(context.getSubprocessElement());
-                                //processFragments.addNodeInsideSubprocess(setPreStateNode, parent2, buildPlan);
-                                processFragments.addNodeInsideSubprocess(childCreateNodeOperation, parent2, buildPlan);
-                                //processFragments.addNodeInsideSubprocess(setPostStateNode, parent2, buildPlan);
-                            }
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (SAXException e) {
-                    e.printStackTrace();
-                }
-
-                 */
-
-            // handle relationship template
-        } else {
-
         }
 
         return true;

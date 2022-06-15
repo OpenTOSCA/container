@@ -53,6 +53,7 @@ public class SimplePlanBuilderBPMNServiceInstanceHandler {
         dataObject.getProperties().add(ServiceInstanceIDVarKeyword + bpmnPlan.getInternalCounterId());
         dataObject.getProperties().add(ServiceTemplateURLVarKeyword + bpmnPlan.getInternalCounterId());
         dataObject.setServiceInstanceURL(serviceInstanceURL);
+        dataObject.setId("DataObject_" + dataObject.getId());
         bpmnPlan.getDataObjectsList().add(dataObject);
         createServiceInstanceSubprocess.addTaskToSubproces(createServiceInstanceTask);
         bpmnPlan.getSubprocess().add(createServiceInstanceSubprocess);
@@ -65,7 +66,7 @@ public class SimplePlanBuilderBPMNServiceInstanceHandler {
     public BPMNSubprocess addServiceInstanceHandlingFromInput(final BPMNPlan bpmnPlan) {
         String idSubprocessPrefix = BPMNSubprocessType.SUBPROCESS.toString();
         BPMNSubprocess dataObjectSubprocess = new BPMNSubprocess(BPMNSubprocessType.SUBPROCESS, idSubprocessPrefix + "_InputOutput_DataObject" + bpmnPlan.getIdForNamesAndIncrement());
-        BPMNDataObject dataObjectInput = new BPMNDataObject(BPMNSubprocessType.DATA_OBJECT_INOUT, "InputOutput_DataObject");
+        BPMNDataObject dataObjectInput = new BPMNDataObject(BPMNSubprocessType.DATA_OBJECT_INOUT, "DataObject_InputOutput");
         dataObjectInput.setProperties(bpmnPlan.getInputParameters());
         bpmnPlan.getDataObjectsList().add(dataObjectInput);
         dataObjectSubprocess.setBuildPlan(bpmnPlan);

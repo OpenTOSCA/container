@@ -1,10 +1,14 @@
-<bpmn:dataObjectReference id="DataObjectReference_IdToSet" name="ServiceInstanceTaskName" dataObjectRef="IdToSet">
+<bpmn:dataObjectReference id="DataObjectReference_IdToSet" name="NameToSet" dataObjectRef="IdToSet">
     <bpmn:extensionElements>
         <camunda:inputOutput>
-            <camunda:inputParameter name="ServiceInstanceURL">OpenTOSCAContainerAPIServiceInstanceURLIdToSet</camunda:inputParameter>
-            <camunda:inputParameter name="ServiceInstanceID">OpenTOSCAContainerAPIServiceInstanceIDIdToSet</camunda:inputParameter>
-            <camunda:inputParameter name="ServiceTemplateURL">OpenTOSCAContainerAPIServiceTemplateURLIdToSet</camunda:inputParameter>
+            <camunda:inputParameter name="ServiceInstanceURL">OpenTOSCAContainerAPIServiceInstanceURLIdToSet
+            </camunda:inputParameter>
+            <camunda:inputParameter name="ServiceInstanceID">OpenTOSCAContainerAPIServiceInstanceIDIdToSet
+            </camunda:inputParameter>
+            <camunda:inputParameter name="ServiceTemplateURL">OpenTOSCAContainerAPIServiceTemplateURLIdToSet
+            </camunda:inputParameter>
             <camunda:inputParameter name="CsarID">CsarIdToSet</camunda:inputParameter>
+            <camunda:inputParameter name="ResultVariable">ResultVariableToSet</camunda:inputParameter>
         </camunda:inputOutput>
     </bpmn:extensionElements>
 </bpmn:dataObjectReference>

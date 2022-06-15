@@ -6,14 +6,10 @@ import org.camunda.bpm.model.bpmn.instance.Process;
 import org.camunda.bpm.model.bpmn.instance.*;
 import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnDiagram;
 import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnPlane;
-import org.camunda.bpm.model.bpmn.instance.di.DiagramElement;
-import org.camunda.bpm.model.xml.impl.type.ModelElementTypeImpl;
-import org.camunda.bpm.model.xml.type.ModelElementType;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocess;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -28,13 +24,14 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 
+/**
+ * Creates the diagram elements for the given xml.
+ */
 public class BPMNDiagramGenerator {
     public static String generateDiagram(BPMNPlan bpmnPlan) {
         try {
@@ -59,8 +56,6 @@ public class BPMNDiagramGenerator {
                 e.getStackTrace();
             }
 
-            FileReader r = new FileReader(file);
-            System.out.println(r.read());
             BpmnModelInstance k = Bpmn.createEmptyModel();
             k.getDefinitions();
 
@@ -111,7 +106,7 @@ public class BPMNDiagramGenerator {
             // Create a map of elements and their associated lanes if lanes are detected
             HashMap<String, String> laneElementContent = new HashMap<>();
 
-            // Draw pools (aka participants) - need to calculate size based on the number of swimlanes
+            // Draw pools (aka participants) - need to calculate size based on the number of swim lanes
             ArrayList<Participant> participants = (ArrayList<Participant>) modelInstance.getModelElementsByType(Participant.class);
 
             // Some vendors do not use pools. If they do, add the pool and any lanes. If they don't, just add lanes (the else portion)
@@ -124,19 +119,13 @@ public class BPMNDiagramGenerator {
                     // Get process and then the lane sets
                     int counter = 0;
                     Collection<LaneSet> laneSets = participants.get(i).getProcess().getLaneSets();
-                    Iterator<LaneSet> iter = laneSets.iterator();
-                    while (iter.hasNext()) {
-                        LaneSet ls = iter.next();
+                    for (LaneSet ls : laneSets) {
                         Collection<Lane> lanes = ls.getLanes();
-                        Iterator<Lane> iterLane = lanes.iterator();
-                        while (iterLane.hasNext()) {
-                            Lane lane = iterLane.next();
+                        for (Lane lane : lanes) {
                             element = lane;
                             // Get flow nodes in lane and create map entries
                             Collection<FlowNode> flowNodes = lane.getFlowNodeRefs();
-                            Iterator<FlowNode> iterFn = flowNodes.iterator();
-                            while (iterFn.hasNext()) {
-                                FlowNode fn = iterFn.next();
+                            for (FlowNode fn : flowNodes) {
                                 laneElementContent.put(fn.getId(), lane.getId());
                             }
                             // Draw lane
@@ -149,25 +138,18 @@ public class BPMNDiagramGenerator {
             } else { // If no collaboration defined then check for processes, lane sets, and lanes
                 int counter = 0;
                 ArrayList<Process> processes = (ArrayList<Process>) modelInstance.getModelElementsByType(Process.class);
-                Iterator<Process> iterProcess = processes.iterator();
-                while (iterProcess.hasNext()) {
-                    Collection<LaneSet> laneSets = iterProcess.next().getLaneSets();
-                    Iterator<LaneSet> iterLaneSets = laneSets.iterator();
-                    while (iterLaneSets.hasNext()) {
-                        Collection<Lane> lanes = iterLaneSets.next().getLanes();
-                        Iterator<Lane> iterLanes = lanes.iterator();
-                        while (iterLanes.hasNext()) {
-                            Lane lane = iterLanes.next();
-                            BpmnModelElementInstance element = lane;
+                for (Process process : processes) {
+                    Collection<LaneSet> laneSets = process.getLaneSets();
+                    for (LaneSet laneSet : laneSets) {
+                        Collection<Lane> lanes = laneSet.getLanes();
+                        for (Lane lane : lanes) {
                             // Get flow nodes in lane and create map entries
                             Collection<FlowNode> flowNodes = lane.getFlowNodeRefs();
-                            Iterator<FlowNode> iterFn = flowNodes.iterator();
-                            while (iterFn.hasNext()) {
-                                FlowNode fn = iterFn.next();
+                            for (FlowNode fn : flowNodes) {
                                 laneElementContent.put(fn.getId(), lane.getId());
                             }
                             // Draw lane
-                            plane = DrawShape.drawShape(plane, modelInstance, element, 100, 100 + (500 * counter), 500, 1500, true);
+                            plane = DrawShape.drawShape(plane, modelInstance, lane, 100, 100 + (500 * counter), 500, 1500, true);
                             laneRefPoints.put(lane.getId(), new LanePoolReferencePoints(0, 500 * counter));
                             counter++;
                         }
@@ -180,8 +162,8 @@ public class BPMNDiagramGenerator {
             HashMap<String, SequenceReferencePoints> refPoints = new HashMap<>();
 
             // An array for shape source references to place process shapes in relative sequential order
-            ArrayList<String> sourceRefs = new ArrayList<String>();
-            ArrayList<String> nextSourceRefs = new ArrayList<String>();
+            ArrayList<String> sourceRefs = new ArrayList<>();
+            ArrayList<String> nextSourceRefs = new ArrayList<>();
 
             // Objects to search for and save references and coordinates
             XPath xpath = XPathFactory.newInstance().newXPath();
@@ -189,8 +171,6 @@ public class BPMNDiagramGenerator {
             // Get start events
             XPathExpression searchRequest = xpath.compile("//*[contains(name(),'startEvent')]");
             NodeList eventNodes = (NodeList) searchRequest.evaluate(doc, XPathConstants.NODESET);
-
-            //subprocess vielleicht schon hier
 
             int x = 0;
             // Begin diagram by drawing start events
@@ -211,12 +191,12 @@ public class BPMNDiagramGenerator {
             while (sourceRefs.size() > 0) {
                 // Move over 180 pixels to draw the next set of shapes
                 x += 180;
-                // y will determine the y axis of shape placement and the set to zero at the start of each run
+                // y will determine the y-axis of shape placement and the set to zero at the start of each run
                 int yOffset = 0;
-                int yEndOffset = 0;
+                int yEndOffset;
 
-                for (int i = 0; i < sourceRefs.size(); i++) {
-                    searchRequest = xpath.compile("//*[@sourceRef='" + sourceRefs.get(i) + "']");
+                for (String sourceRef : sourceRefs) {
+                    searchRequest = xpath.compile("//*[@sourceRef='" + sourceRef + "']");
                     NodeList nextShapes = (NodeList) searchRequest.evaluate(doc, XPathConstants.NODESET);
 
                     for (int y = 0; y < nextShapes.getLength(); y++) {
@@ -228,10 +208,6 @@ public class BPMNDiagramGenerator {
                         for (int z = 0; z < shapes.getLength(); z++) {
                             Element sElement = (Element) shapes.item(z);
                             if (!refPoints.containsKey(sElement.getAttribute("id"))) {
-                                System.out.println("WIRSTDUHIERÜBERHAUPTGEFUNDEN");
-                                Node sElementNode = bpmnPlan.getBpmnDocument().importNode(sElement, true);
-                                sElement.setIdAttribute("id", true);
-                                System.out.println(sElement.getAttribute("id"));
                                 nextSourceRefs.add(sElement.getAttribute("id"));
 
                                 String type = sElement.getNodeName();
@@ -255,28 +231,12 @@ public class BPMNDiagramGenerator {
                                     case ("bpmn:subProcess"):
                                     case ("bpmn:callActivity"):
                                         BpmnModelElementInstance element = modelInstance.getModelElementById(sElement.getAttribute("id"));
-                                        System.out.println("IIIIIIIIIIIIIIIIIIIIIIIIID");
-                                        System.out.println("PARENT ");
                                         element.getParentElement().getAttributeValue("id");
-
 
                                         double xLane = getLaneXOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
                                         double yLane = getLaneYOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
                                         String idSubprocess = element.getAttributeValue("id");
-                                        //if (!idSubprocess.startsWith("Subprocess")) {
-                                            plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, (yLane + 180 + yOffset) + y * 200, 80, 100, true);
-                                        //}
-                                        System.out.println("PREFPOINT2");
-                                        System.out.println(element.getAttributeValue("id"));
-
-                                        //for (BPMNSubprocess bpmnSubprocess : bpmnPlan.getSubprocess()) {
-                                          //  if (idSubprocess.contains(bpmnSubprocess.getId())) {
-                                            //    plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, (yLane + 180 + yOffset) + y * 200, 300, (bpmnSubprocess.getSubprocessBPMNSubprocess().size() + 5) * 100, true);
-                                            //}
-                                        //}
-                                        //plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, (yLane + 180 + yOffset) + y * 200, 80, 100, true);
-                                        //refPoints.put(sElement.getAttribute("id"), new SequenceReferencePoints(xLane + x, ((220 + yOffset + yLane) + y * 200), (xLane + x + 100), ((yLane + 220 + yOffset) + y * 200)));
-                                        System.out.println("PREFPOINT");
+                                        plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, (yLane + 180 + yOffset) + y * 200, 80, 100, true);
                                         refPoints.put(sElement.getAttribute("id"), new SequenceReferencePoints(xLane + x, ((220 + yOffset + yLane) + y * 200), (xLane + x + 100), ((yLane + 220 + yOffset) + y * 200)));
 
                                         for (BPMNSubprocess bpmnSubprocess : bpmnPlan.getSubprocess()) {
@@ -288,7 +248,6 @@ public class BPMNDiagramGenerator {
                                         // check for boundary events
                                         XPathExpression boundaryRequest = xpath.compile("//*[@attachedToRef='" + sElement.getAttribute("id") + "']");
                                         NodeList boundaryEvents = (NodeList) boundaryRequest.evaluate(doc, XPathConstants.NODESET);
-                                        yEndOffset = 0;
                                         for (int q = 0; q < boundaryEvents.getLength(); q++) {
                                             Element bdElement = (Element) boundaryEvents.item(q);
                                             element = modelInstance.getModelElementById(bdElement.getAttribute("id"));
@@ -320,30 +279,17 @@ public class BPMNDiagramGenerator {
                                     case ("endEvent"):
                                     case ("bpmn:endEvent"):
                                         element = modelInstance.getModelElementById(sElement.getAttribute("id"));
-                                        System.out.println("ENDEVENT ID");
-                                        System.out.println(element.getAttributeValue("id"));
                                         String id = element.getAttributeValue("id");
                                         if (id.contains("Error")) {
                                             yEndOffset = 200;
-                                            xLane = getLaneXOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
-                                            yLane = getLaneYOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
-                                            plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, ((yLane + 200 + yEndOffset) + y * 200), 36, 36, true);
-                                            //plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, yLane + 200 + (200), 36, 36, false);
-                                            //plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, ((yLane + 200 + yOffset) + y * 200), 36, 36, false);
-                                            //refPoints.put(sElement.getAttribute("id"), new SequenceReferencePoints(xLane + x, ((yLane + 220 + yOffset) + y * 200), (xLane + x + 36), ((yLane + 220 + yOffset) + y * 200)));
-                                            refPoints.put(sElement.getAttribute("id"), new SequenceReferencePoints(xLane + x, ((220 + yEndOffset + yLane) + y * 200), (xLane + x + 100), ((yLane + 220 + yEndOffset) + y * 200)));
-                                            break;
                                         } else {
                                             yEndOffset = 0;
-                                            xLane = getLaneXOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
-                                            yLane = getLaneYOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
-                                            plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, ((yLane + 200 + yEndOffset) + y * 200), 36, 36, true);
-                                            //plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, yLane + 200 + (200), 36, 36, false);
-                                            //plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, ((yLane + 200 + yOffset) + y * 200), 36, 36, false);
-                                            //refPoints.put(sElement.getAttribute("id"), new SequenceReferencePoints(xLane + x, ((yLane + 220 + yOffset) + y * 200), (xLane + x + 36), ((yLane + 220 + yOffset) + y * 200)));
-                                            refPoints.put(sElement.getAttribute("id"), new SequenceReferencePoints(xLane + x, ((220 + yEndOffset + yLane) + y * 200), (xLane + x + 100), ((yLane + 220 + yEndOffset) + y * 200)));
-                                            break;
                                         }
+                                        xLane = getLaneXOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
+                                        yLane = getLaneYOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
+                                        plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, ((yLane + 200 + yEndOffset) + y * 200), 36, 36, true);
+                                        refPoints.put(sElement.getAttribute("id"), new SequenceReferencePoints(xLane + x, ((220 + yEndOffset + yLane) + y * 200), (xLane + x + 100), ((yLane + 220 + yEndOffset) + y * 200)));
+                                        break;
 
                                     case ("textAnnotation"):
                                     case ("bpmn:textAnnotation"):
@@ -359,19 +305,13 @@ public class BPMNDiagramGenerator {
                                         xLane = getLaneXOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
                                         yLane = getLaneYOffset(laneElementContent, laneRefPoints, sElement.getAttribute("id"));
 
-                                        //plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, (yLane + 180 + yOffset) + y * 200, 80, 100, true);
                                         plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x + 30, (yLane + 180 + 200) + y * 200, 80, 100, false);
-                                        //refPoints.put(sElement.getAttribute("id"), new SequenceReferencePoints(xLane + x, ((220 + yOffset + yLane) + y * 200), (xLane + x + 100), ((yLane + 220 + yOffset) + y * 200)));
                                         refPoints.put(sElement.getAttribute("id"), new SequenceReferencePoints(xLane + x + 30, ((220 + 200 + yLane) + y * 200), (xLane + x + 100), ((yLane + 220 + 200) + y * 200)));
                                         break;
                                 }
                             }
                         }
                     }
-
-                    // If there are additional shapes move the y axis by 200 pixels
-                    //yOffset += 200;
-                    //yEndOffset += 200;
                 }
 
                 sourceRefs.clear();
@@ -385,11 +325,7 @@ public class BPMNDiagramGenerator {
             NodeList sfNodes = (NodeList) searchRequest.evaluate(doc, XPathConstants.NODESET);
 
             for (int i = 0; i < sfNodes.getLength(); i++) {
-                // TODO - add logic in drawFlow to create 'elbow' waypoints based on the relative xExit, xEntry and yExit, yEntry coordinates
                 Element sfElement = (Element) sfNodes.item(i);
-                System.out.println("NODENAME");
-                System.out.println(sfElement.getNodeName());
-                System.out.println(sfElement.getAttribute("id"));
                 plane = DrawFlow.drawFlow(plane, modelInstance, sfElement, refPoints);
             }
 
@@ -399,13 +335,6 @@ public class BPMNDiagramGenerator {
             for (int i = 0; i < associationNodes.getLength(); i++) {
                 Element aElement = (Element) associationNodes.item(i);
                 plane = DrawFlow.drawFlow(plane, modelInstance, aElement, refPoints);
-            }
-            for (DiagramElement d : plane.getDiagramElements()) {
-                System.out.println("ID DIAGRAM");
-                System.out.println(d.getId());
-                if (d.getAttributeValue("bpmnElement").startsWith("Subprocess")) {
-                    // d.setAttributeValue("isExpanded", "true");
-                }
             }
             Bpmn.validateModel(modelInstance);
 

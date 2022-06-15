@@ -3,6 +3,7 @@
         <camunda:inputOutput>
             <camunda:inputParameter name="State">StateToSet</camunda:inputParameter>
             <camunda:inputParameter name="ResultVariableName">ResultVariableToSet</camunda:inputParameter>
+            <camunda:inputParameter name="DataObject">DataObjectToSet</camunda:inputParameter>
         </camunda:inputOutput>
     </bpmn:extensionElements>
 </bpmn:scriptTask>

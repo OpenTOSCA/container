@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.core.bpmn.handlers;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -45,10 +46,9 @@ public class BPMNSubprocessHandler {
      */
     public BPMNSubprocess generateEmptySubprocess(final AbstractActivity activity, final BPMNPlan buildPlan) {
         LOG.debug("Create empty subprocess for abstract activity: {} of type: {}", activity.getId(), activity.getType());
-        String idPrefix = "";
-        String dataObjectPrefix = BPMNSubprocessType.DATA_OBJECT.toString();
+        String idPrefix;
         final BPMNSubprocess bpmnSubprocess;
-        final String RESULTVARIABLE = "ResultVariable";
+        final String resultVariablePrefix = "ResultVariable";
         if (activity instanceof NodeTemplateActivity) {
             NodeTemplateActivity ntActivity = (NodeTemplateActivity) activity;
             idPrefix = BPMNSubprocessType.SUBPROCESS.toString();
@@ -57,8 +57,8 @@ public class BPMNSubprocessHandler {
             bpmnSubprocess.setNodeTemplate(((NodeTemplateActivity) activity).getNodeTemplate());
 
             // with each subprocess a node data object is associated to enable fast access to node instance url & maybe properties
-            BPMNDataObject dataObject = new BPMNDataObject(BPMNSubprocessType.DATA_OBJECT_NODE, dataObjectPrefix + "_" + activity.getId());
-            String resultVariable = RESULTVARIABLE + activity.getId();
+            BPMNDataObject dataObject = new BPMNDataObject(BPMNSubprocessType.DATA_OBJECT_NODE, "DataObject_" +activity.getId());
+            String resultVariable = resultVariablePrefix + activity.getId();
             dataObject.setNodeInstanceURL(resultVariable);
             dataObject.setNodeTemplate(((NodeTemplateActivity) activity).getNodeTemplate().getId());
 
@@ -76,12 +76,12 @@ public class BPMNSubprocessHandler {
             String source = relActivity.getRelationshipTemplate().getSourceElement().getRef().getId();
             String target = relActivity.getRelationshipTemplate().getTargetElement().getRef().getId();
 
-            // with each subprocess a node data object is associated to enable fast access to node instance url & maybe properties
-            BPMNDataObject dataObject = new BPMNDataObject(BPMNSubprocessType.DATA_OBJECT_REL, dataObjectPrefix + "_" + activity.getId());
+            // with each subprocess a relationship data object is associated to enable fast access to relationship instance url & maybe properties
+            BPMNDataObject dataObject = new BPMNDataObject(BPMNSubprocessType.DATA_OBJECT_REL, "DataObject_" + activity.getId());
             dataObject.setRelationshipTemplate(((RelationshipTemplateActivity) activity).getRelationshipTemplate().getId());
-            String resultVariable = RESULTVARIABLE + activity.getId();
-            dataObject.setSourceInstanceURL(RESULTVARIABLE + source + "_provisioning_activity");
-            dataObject.setTargetInstanceURL(RESULTVARIABLE + target + "_provisioning_activity");
+            String resultVariable = resultVariablePrefix + activity.getId();
+            dataObject.setSourceInstanceURL(resultVariablePrefix + source + "_provisioning_activity");
+            dataObject.setTargetInstanceURL(resultVariablePrefix + target + "_provisioning_activity");
             dataObject.setRelationshipInstanceURL(resultVariable);
             buildPlan.getDataObjectsList().add(dataObject);
             bpmnSubprocess.setDataObject(dataObject);
@@ -96,9 +96,9 @@ public class BPMNSubprocessHandler {
 
     /**
      * Creates a set state task inside a subprocess. But this method is only called if we didn't apply any
-     * patternbasedplugin. Per default, we set then the nodetemplate to CREATED.
+     * pattern based plugin. Per default, we set then the node template to CREATED.
      */
-    public BPMNSubprocess createSetStateTaskInsideSubprocess(final BPMNPlan buildPlan, final BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
+    public void createSetStateTaskInsideSubprocess(final BPMNPlan buildPlan, final BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         String idPrefix = BPMNSubprocessType.TASK.toString();
         final BPMNSubprocess setState = new BPMNSubprocess(BPMNSubprocessType.SET_ST_STATE, idPrefix + "_" + buildPlan.getIdForNamesAndIncrement());
         setState.setParentProcess(bpmnSubprocess);
@@ -113,7 +113,6 @@ public class BPMNSubprocessHandler {
         bpmnSubprocess.addTaskToSubproces(setState);
         bpmnSubprocess.setInstanceState("CREATED");
         this.processFragments.createSetServiceTemplateStateAsNode(bpmnSubprocess);
-        return setState;
     }
 
     /**
@@ -191,7 +190,7 @@ public class BPMNSubprocessHandler {
         inputParameters.add("CorrelationID");
         for (TNodeTemplate nodeTemplate : topologyTemplate.getNodeTemplates()) {
             Document document = ToscaEngine.getEntityTemplateProperties(nodeTemplate);
-            NodeList nodeList = document.getDocumentElement().getChildNodes();
+            NodeList nodeList = Objects.requireNonNull(document).getDocumentElement().getChildNodes();
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node node = nodeList.item(i);
                 // node.getTextContent() gives the value of the property in the topology template
@@ -212,7 +211,7 @@ public class BPMNSubprocessHandler {
         ArrayList<String> properties = new ArrayList<>();
 
         Document document = ToscaEngine.getEntityTemplateProperties(nodeTemplate);
-        NodeList nodeList = document.getDocumentElement().getChildNodes();
+        NodeList nodeList = Objects.requireNonNull(document).getDocumentElement().getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
             String propertyName = node.getNodeName();
