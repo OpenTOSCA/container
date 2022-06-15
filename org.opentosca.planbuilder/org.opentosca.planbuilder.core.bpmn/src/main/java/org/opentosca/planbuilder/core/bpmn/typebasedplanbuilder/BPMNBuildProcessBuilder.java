@@ -112,6 +112,19 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
         return plans;
     }
 
+    /**
+     * <p>
+     * This method generates a build plan for the given input.
+     * First, an abstract build plan is created. This plan is used to create an empty bpmn plan.
+     * The plan then gets initialised and get completed with the help of various plugins.
+     * At the end, the actual plan is generated with the finalize method.
+     * </p>
+     *
+     * @param csar contains necessary information for creating the build plan
+     * @param definitions Tosca Definitions
+     * @param serviceTemplate the service template on which the plan is based on
+     * @return the finalised plan
+     */
     private BPMNPlan buildPlan(final Csar csar, final TDefinitions definitions,
                                final TServiceTemplate serviceTemplate) {
 
@@ -139,7 +152,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
             ArrayList<String> inputParameters = this.bpmnSubprocessHandler.computeInputParametersBasedTopology(serviceTemplate.getTopologyTemplate());
             final BPMNPlan bpmnPlan =
-                this.planHandler.createEmptyBPMNPlan(processNamespace, processName, buildPlan, OpenTOSCA_BuildPlanOperation);
+                this.planHandler.createEmptyBPMNPlan(buildPlan);
 
             bpmnPlan.setCsarName(csar.id().csarName());
             bpmnPlan.setInputParameters(inputParameters);
@@ -150,7 +163,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             BPMNSubprocess dataObjectSubprocess = this.serviceInstanceInitializer.addServiceInstanceHandlingFromInput(bpmnPlan);
             bpmnPlan.setTOSCAInterfaceName(OpenTOSCA_LifecycleInterface);
             bpmnPlan.setTOSCAOperationname(OpenTOSCA_BuildPlanOperation);
-            this.planHandler.initializeBPMNSkeleton(bpmnPlan, csar);
+            this.planHandler.initializeBPMNSkeleton(bpmnPlan);
             this.planHandler.addActivateDataObjectTaskToSubprocess(dataObjectSubprocess, bpmnPlan);
             String serviceInstanceUrl = this.serviceInstanceInitializer.findServiceInstanceUrlVariableName(bpmnPlan);
             String serviceInstanceID = this.serviceInstanceInitializer.findServiceInstanceIdVarName(bpmnPlan);
@@ -215,7 +228,8 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
                     setStateTask.setNodeTemplate(nodeTemplate);
                     setStateTask.setInstanceState("STARTED");
                     setStateTask.setBuildPlan(buildPlan);
-                    bpmnSubprocess.addTaskToSubproces(setStateTask);
+                    // this method is necessary if this case gets used!!!
+                    //bpmnSubprocess.addTaskToSubproces(setStateTask);
                     for (final IPlanBuilderBPMNPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostBPMNPlugins()) {
                         if (postPhasePlugin.canHandleCreate(context, bpmnSubprocess.getNodeTemplate())) {
                             postPhasePlugin.handleCreate(context, bpmnSubprocess.getNodeTemplate());

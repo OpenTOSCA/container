@@ -45,6 +45,9 @@ public class BPMNProcessFragments {
         this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
+    /**
+     * transform the given String to a Node by creating a document and outputting the first child
+     */
     public Node transformStringToNode(String xmlString) throws SAXException, IOException {
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(xmlString));
@@ -52,6 +55,12 @@ public class BPMNProcessFragments {
         return doc.getFirstChild();
     }
 
+    /**
+     *  create a template for script by name
+     * @param scriptName script name
+     * @return created string
+     * @throws IOException IOExpection
+     */
     public String createScript(String scriptName) throws IOException {
         return ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("scripts/" + scriptName + ".groovy"));
     }
@@ -162,6 +171,12 @@ public class BPMNProcessFragments {
         return original[0] + inputParameterBuilder + original[1];
     }
 
+    /**
+     * Replaces the given template String with the appropriate value for the specific data object type
+     * @param bpmnSubprocess the subprocess
+     * @param template the template to replace
+     * @return template string
+     */
     public String getServiceInstanceURLFromDataObject(BPMNSubprocess bpmnSubprocess, String template) {
         for (BPMNDataObject bpmnDataObject : bpmnSubprocess.getBuildPlan().getDataObjectsList()) {
             if (bpmnDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_ST) {
@@ -979,6 +994,11 @@ public class BPMNProcessFragments {
         return startEvent;
     }
 
+    /**
+     * computes all outgoing flow elements
+     * @param bpmnSubprocess the subprocess
+     * @return all relevant outgoing flow elements for the subprocess
+     */
     private ArrayList<String> computeOutgoingFlowElements(BPMNSubprocess bpmnSubprocess) {
         ArrayList<String> test = new ArrayList<>();
         ArrayList<BPMNSubprocess> flowElements = bpmnSubprocess.getBuildPlan().getFlowElements();
@@ -1000,6 +1020,11 @@ public class BPMNProcessFragments {
         return test;
     }
 
+    /**
+     * computes all outgoing error flow elements
+     * @param bpmnSubprocess the subprocess
+     * @return all relevant error outgoing flow elements for the subprocess
+     */
     private ArrayList<String> computeErrorOutgoingFlowElements(BPMNSubprocess bpmnSubprocess) {
         ArrayList<String> test = new ArrayList<>();
         ArrayList<BPMNSubprocess> flowElements = bpmnSubprocess.getBuildPlan().getErrorFlowElements();
@@ -1021,6 +1046,11 @@ public class BPMNProcessFragments {
         return test;
     }
 
+    /**
+     * computes all incoming flow elements
+     * @param bpmnSubprocess the subprocess
+     * @return all relevant incoming flow elements for the subprocess
+     */
     private ArrayList<String> computeIncomingFlowElements(BPMNSubprocess bpmnSubprocess) {
         ArrayList<String> test = new ArrayList<>();
         ArrayList<BPMNSubprocess> flowElements = bpmnSubprocess.getBuildPlan().getFlowElements();
@@ -1034,6 +1064,12 @@ public class BPMNProcessFragments {
         return test;
     }
 
+    /**
+     * help method for computing incoming flow elements
+     * @param bpmnSubprocess the subprocess
+     * @param test arraylist for saving relevant flow ids
+     * @param flowElements contains the flow elements
+     */
     private void computeIncomingFlowIds(BPMNSubprocess bpmnSubprocess, ArrayList<String> test, ArrayList<BPMNSubprocess> flowElements) {
         for (BPMNSubprocess flowElement : flowElements) {
             if (!flowElement.getOutgoingFlow().isEmpty()) {
@@ -1048,6 +1084,11 @@ public class BPMNProcessFragments {
         }
     }
 
+    /**
+     * computes all incoming error flow elements
+     * @param bpmnSubprocess the subprocess
+     * @return all relevant error incoming flow elements for the subprocess
+     */
     private ArrayList<String> computeIncomingErrorFlowElements(BPMNSubprocess bpmnSubprocess) {
         ArrayList<String> test = new ArrayList<>();
         ArrayList<BPMNSubprocess> flowElements = bpmnSubprocess.getBuildPlan().getErrorFlowElements();
@@ -1209,11 +1250,24 @@ public class BPMNProcessFragments {
         return createServiceInstance;
     }
 
+    /**
+     * create output params task node from template string
+     * @param bpmnSubprocess the subprocess
+     * @return created node
+     * @throws IOException IOException
+     * @throws SAXException SAXException
+     */
     public Node createOutputParamsTaskAsNode(BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         String outputParamsTask = createOutputParamsTask(bpmnSubprocess);
         return this.createImportNodeFromString(bpmnSubprocess, outputParamsTask);
     }
 
+    /**
+     * create output params task template string
+     * @param bpmnSubprocess the subprocess
+     * @return created template string
+     * @throws IOException IOException
+     */
     private String createOutputParamsTask(BPMNSubprocess bpmnSubprocess) throws IOException {
         LOG.info("Create output parameter task of id {}", bpmnSubprocess.getId());
         String outputParameterTask = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateOutputParameterTask.xml"));
@@ -1267,6 +1321,7 @@ public class BPMNProcessFragments {
         return outputParameterTask;
     }
 
+    // never used?
     public void addDataAssociations(BPMNPlan buildPlan, Document d, BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         if (bpmnSubprocess.getDataObject() != null) {
             NodeList subprocesses = d.getElementsByTagName("bpmn:subProcess");
@@ -1306,6 +1361,7 @@ public class BPMNProcessFragments {
         }
     }
 
+    // never used?
     public void addTaskDataAssociations(BPMNPlan buildPlan, Document d, BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         if (bpmnSubprocess.getDataObject() != null) {
             NodeList subprocesses = d.getElementsByTagName("bpmn:scriptTask");
