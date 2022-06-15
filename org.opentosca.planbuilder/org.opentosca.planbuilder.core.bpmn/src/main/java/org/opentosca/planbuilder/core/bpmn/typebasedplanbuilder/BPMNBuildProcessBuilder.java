@@ -228,8 +228,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
                     setStateTask.setNodeTemplate(nodeTemplate);
                     setStateTask.setInstanceState("STARTED");
                     setStateTask.setBuildPlan(buildPlan);
-                    // this method is necessary if this case gets used!!!
-                    //bpmnSubprocess.addTaskToSubproces(setStateTask);
+                    bpmnSubprocess.addTaskToSubprocess(setStateTask);
                     for (final IPlanBuilderBPMNPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostBPMNPlugins()) {
                         if (postPhasePlugin.canHandleCreate(context, bpmnSubprocess.getNodeTemplate())) {
                             postPhasePlugin.handleCreate(context, bpmnSubprocess.getNodeTemplate());
