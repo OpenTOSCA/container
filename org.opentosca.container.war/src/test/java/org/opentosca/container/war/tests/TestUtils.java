@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
+import org.eclipse.winery.common.configuration.Environments;
 import org.eclipse.winery.common.configuration.FileBasedRepositoryConfiguration;
 import org.eclipse.winery.common.configuration.GitBasedRepositoryConfiguration;
 import org.eclipse.winery.common.configuration.RepositoryConfigurationObject;
@@ -575,7 +576,7 @@ public class TestUtils {
         }
     }
 
-    public TPlan getBuildPlan(List<TPlan> plans) {
+    public TPlan getBuildPlan(Collection<TPlan> plans) {
         for (TPlan plan : plans) {
             if (PlanType.fromString(plan.getPlanType()).equals(PlanType.BUILD)
                 && !plan.getId().toLowerCase().contains(OpenTOSCA_DefrostPlanOperation)
@@ -586,7 +587,7 @@ public class TestUtils {
         return null;
     }
 
-    public TPlan getTerminationPlan(List<TPlan> plans) {
+    public TPlan getTerminationPlan(Collection<TPlan> plans) {
         for (TPlan plan : plans) {
             if (PlanType.fromString(plan.getPlanType()).equals(PlanType.TERMINATION)
                 && !plan.getId().toLowerCase().contains(OpenTOSCA_FreezePlanOperation)

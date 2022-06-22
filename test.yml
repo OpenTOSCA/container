@@ -11,7 +11,7 @@ services:
   engine-plan:
     image: opentosca/ode:latest
     environment:
-      _JAVA_OPTIONS: "-Xmx3048m -Xms512m -Xss4m"
+      _JAVA_OPTIONS: "-Xmx3048m -Xms512m -Xss10m"
     ports:
       - '9763:9763'
   engine-plan-bpmn:

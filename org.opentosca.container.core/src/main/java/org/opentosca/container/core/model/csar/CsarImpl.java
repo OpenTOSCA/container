@@ -63,6 +63,7 @@ import com.google.common.collect.Maps;
 import org.apache.tika.mime.MediaType;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.opentosca.container.core.model.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -251,9 +252,7 @@ public class CsarImpl implements Csar {
 
     @Override
     public @NonNull List<TPlan> plans() {
-        return Optional.ofNullable(entryServiceTemplate())
-            .map(TServiceTemplate::getPlans)
-            .orElse(Collections.emptyList());
+        return ModelUtils.getPlans(entryServiceTemplate());
     }
 
     @Override

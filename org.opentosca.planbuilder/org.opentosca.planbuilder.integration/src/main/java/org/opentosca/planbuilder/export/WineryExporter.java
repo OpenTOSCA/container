@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -26,9 +27,12 @@ import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TExportedInterface;
 import org.eclipse.winery.model.tosca.TExportedOperation;
+import org.eclipse.winery.model.tosca.TImplementation;
 import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.model.tosca.TWorkflow;
+import org.eclipse.winery.model.tosca.extensions.kvproperties.ParameterDefinition;
 import org.eclipse.winery.repository.backend.BackendUtils;
 import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.common.RepositoryFileReference;
@@ -37,6 +41,7 @@ import org.eclipse.winery.repository.datatypes.ids.elements.SelfServiceMetaDataI
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.tika.mime.MediaType;
 import org.opentosca.container.core.impl.service.FileSystem;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.PlanType;
@@ -167,6 +172,10 @@ public class WineryExporter {
             }
             serviceTemplate.setBoundaryDefinitions(boundary);
 
+            // create workflows for yaml
+            List<TWorkflow> wfs = serviceTemplate.getPlans().stream().map(plan -> ModelUtils.toTWorkflow(plan)).collect(Collectors.toList());
+            serviceTemplate.getTopologyTemplate().setWorkflows(wfs);
+
             ServiceTemplateId id = BackendUtils.getDefinitionsChildId(ServiceTemplateId.class, serviceTemplate.getTargetNamespace(), serviceTemplate.getId(), false);
             BackendUtils.persist(repository, id, defs);
 
@@ -266,9 +275,12 @@ public class WineryExporter {
             WineryExporter.LOG.error("Some error while marshalling with JAXB", e);
         }
 
+
         WineryExporter.LOG.debug(repackagedCsar.toString());
         return new PlanExportResult(repackagedCsar, exportedBpelPlanIds);
     }
+
+
 
     private void putSelfserviceFileToRepo(Path selfServiceDataXmlPath, IRepository repo, TServiceTemplate serviceTemplate) throws IOException {
         SelfServiceMetaDataId metaDataId = new SelfServiceMetaDataId(new ServiceTemplateId(new QName(serviceTemplate.getTargetNamespace(),serviceTemplate.getId())));

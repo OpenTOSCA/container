@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.opentosca.container.api.service.PlanInvokerService;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.control.plan.PlanGenerationService;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
@@ -79,7 +80,7 @@ public class MyTinyToDoYAMLIntegrationTest {
 
         assertNotNull(serviceTemplate);
 
-        List<TPlan> plans = serviceTemplate.getPlans();
+        Collection<TPlan> plans = ModelUtils.getPlans(serviceTemplate);
         assertNotNull(plans);
 
         TPlan buildPlan = testUtils.getBuildPlan(plans);

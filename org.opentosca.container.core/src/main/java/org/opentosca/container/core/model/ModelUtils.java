@@ -34,17 +34,22 @@ import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TExportedInterface;
 import org.eclipse.winery.model.tosca.TExportedOperation;
+import org.eclipse.winery.model.tosca.TImplementation;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TRequirement;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.model.tosca.TWorkflow;
+import org.eclipse.winery.model.tosca.extensions.kvproperties.ParameterDefinition;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -58,6 +63,7 @@ import org.opentosca.container.core.next.model.Property;
 import org.opentosca.container.core.next.xml.PropertyParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ui.Model;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -1221,5 +1227,55 @@ public abstract class ModelUtils {
         }
 
         return effectiveDAs;
+    }
+
+    public static TWorkflow toTWorkflow(TPlan plan) {
+        List<ParameterDefinition> inputs = plan.getInputParameters().stream().map(param -> ModelUtils.toParameterDefinition(param)).collect(Collectors.toList());
+        List<ParameterDefinition> outputs = plan.getOutputParameters().stream().map(param -> ModelUtils.toParameterDefinition(param)).collect(Collectors.toList());
+        TWorkflow wf = new TWorkflow.Builder(plan.getId()).setInputs(inputs).setOutputs(outputs).setImplementation(ModelUtils.toTImplementation(plan)).build();
+        // TODO FIXME absolutely insane
+        wf.setDescription(plan.getPlanType());
+        return wf;
+    }
+
+    public static TImplementation toTImplementation(TPlan plan) {
+        TImplementation  impl = new TImplementation();
+        impl.setPrimary(plan.getPlanModelReference().getReference());
+        // TODO FIXME this is insane
+        impl.setOperationHost(plan.getPlanLanguage());
+        return impl;
+    }
+
+    public static ParameterDefinition toParameterDefinition(TParameter param) {
+        ParameterDefinition paramDef = new ParameterDefinition();
+        paramDef.setKey(param.getName());
+        paramDef.setType(QName.valueOf(param.getType()));
+        paramDef.setRequired(param.getRequired());
+        return paramDef;
+    }
+
+    public static TParameter toTParameter(ParameterDefinition paramDef) {
+        return new TParameter.Builder(paramDef.getKey(), paramDef.getType().toString(), paramDef.getRequired()).build();
+    }
+
+    public static TPlan toTPlan(TWorkflow workflow) {
+        List<TParameter> inputs = workflow.getInputs().stream().map(param -> ModelUtils.toTParameter(param)).collect(Collectors.toList());
+        List<TParameter> outputs = workflow.getOutputs().stream().map(param -> ModelUtils.toTParameter(param)).collect(Collectors.toList());
+        TPlan plan = new TPlan.Builder(workflow.getName(), workflow.getDescription(), workflow.getImplementation().getOperationHost()).setInputParameters(inputs).setOutputParameters(outputs).setPlanModelReference(ModelUtils.toPlanModelReference(workflow)).build();
+        return plan;
+    }
+
+    public static TPlan.PlanModelReference toPlanModelReference(TWorkflow workflow) {
+        TPlan.PlanModelReference planModelReference = new TPlan.PlanModelReference();
+        planModelReference.setReference(workflow.getImplementation().getPrimary());
+        return planModelReference;
+    }
+
+    public static List<TPlan> getPlans(TServiceTemplate serviceTemplate) {
+        if (serviceTemplate.getPlans() != null && !serviceTemplate.getPlans().isEmpty()) {
+            return serviceTemplate.getPlans();
+        } else {
+            return serviceTemplate.getTopologyTemplate().getWorkflows().stream().map(wf -> ModelUtils.toTPlan(wf)).collect(Collectors.toList());
+        }
     }
 }

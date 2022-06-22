@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -15,6 +16,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.extension.TPlanDTO;
+import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.DeploymentProcessOperation;
@@ -243,10 +245,16 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
             return false;
         }
 
-        final List<TPlan> plans = serviceTemplate.getPlans();
+        List<TPlan> plans = serviceTemplate.getPlans();
         if (plans == null || plans.isEmpty()) {
-            LOGGER.info("No plans to process");
-            return true;
+
+            // check whether we find some yaml "plans"
+
+            plans = serviceTemplate.getTopologyTemplate().getWorkflows().stream().map(wf -> ModelUtils.toTPlan(wf)).collect(Collectors.toList());
+            if (plans == null || plans.isEmpty()) { {
+                LOGGER.info("No plans to process");
+                return true;
+            }}
         }
 
         for (final TPlan plan : plans) {
