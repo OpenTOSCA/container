@@ -439,7 +439,7 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
         Variable dockerEngineURLVar = new Variable(DockerContainerTypePluginPluginConstants.PROPERTY_DOCKER_ENGINE_URL);
         createDEInternalExternalPropsInput.put("ImageLocation", dockerContainerFileRefVar);
         createDEInternalExternalPropsInput.put("DockerEngineURL", dockerEngineURLVar);
-        Variable containerPortsVariable = new Variable(propMap.get(DockerContainerTypePluginPluginConstants.PROPERTY_CONTAINER_PORT) + "->" + propMap.get(DockerContainerTypePluginPluginConstants.PROPERTY_PORT));
+        Variable containerPortsVariable = new Variable(propMap.get(DockerContainerTypePluginPluginConstants.PROPERTY_CONTAINER_PORT) + "->" + propMap.get(DockerContainerTypePluginPluginConstants.PROPERTY_PORT) + ";");
         createDEInternalExternalPropsInput.put("ContainerPorts", containerPortsVariable);
         createPropertiesMapping(containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable, vmPrivateKeyVariable, createDEInternalExternalPropsInput);
         addProperties(sshPortVar, containerIpVar, containerIdVar, envMappingVar, linksVar, deviceMappingVar, createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput);

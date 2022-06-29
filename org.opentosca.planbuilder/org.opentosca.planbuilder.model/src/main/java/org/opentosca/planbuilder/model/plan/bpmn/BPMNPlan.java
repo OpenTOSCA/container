@@ -21,8 +21,6 @@ import org.w3c.dom.Element;
  */
 public class BPMNPlan extends AbstractPlan {
     public static final String bpmnNamespace = "http://www.omg.org/spec/BPMN/20100524/MODEL";
-    private String toscaInterfaceName = null;
-    private String toscaOperationName = null;
     // xml document
 
     private int outerFlowCounter = 0;

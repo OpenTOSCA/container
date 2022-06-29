@@ -146,12 +146,12 @@ public class BPMNProcessFragments {
             for (String inputParameterName : bpmnSubprocess.getInputParameterNames().split(",")) {
                 String inputParameterValue = bpmnSubprocess.getInputParameterValues().split(",")[counter];
                 if (inputParameterName.equals("DockerEngineURL")) {
-                    inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append("String!${DockerEngineURL}").append("</camunda:inputParameter>");
+                    inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append("String!${" + inputParameterName + "}").append("</camunda:inputParameter>");
                 } else if (inputParameterName.equals("ContainerPorts")) {
                     LOG.info("CONTainerPorts");
                     LOG.info(inputParameterValue);
                     String containerPortValue = "";
-                    inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append("String!80->9990;").append("</camunda:inputParameter>");
+                    inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append("String!" + inputParameterValue).append("</camunda:inputParameter>");
                 } else if (inputParameterName.equals("ImageLocation") && (bpmnSubprocess.getParentProcess().getDeploymentArtifactString() != null)) {
                     inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append(bpmnSubprocess.getParentProcess().getDeploymentArtifactString()).append("</camunda:inputParameter>");
                 } else {
@@ -933,7 +933,6 @@ public class BPMNProcessFragments {
 
     /**
      * create an error boundary event String
-     *
      */
     public Node createTaskErrorBoundaryEventAsNode(BPMNSubprocess innerEvent, BPMNSubprocess bpmnSubprocess,
                                                    int errorId) throws IOException, SAXException {
