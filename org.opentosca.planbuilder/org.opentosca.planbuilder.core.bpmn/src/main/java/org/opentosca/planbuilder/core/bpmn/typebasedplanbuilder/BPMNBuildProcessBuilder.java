@@ -112,19 +112,6 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
         return plans;
     }
 
-    /**
-     * <p>
-     * This method generates a build plan for the given input.
-     * First, an abstract build plan is created. This plan is used to create an empty bpmn plan.
-     * The plan then gets initialised and get completed with the help of various plugins.
-     * At the end, the actual plan is generated with the finalize method.
-     * </p>
-     *
-     * @param csar contains necessary information for creating the build plan
-     * @param definitions Tosca Definitions
-     * @param serviceTemplate the service template on which the plan is based on
-     * @return the finalised plan
-     */
     private BPMNPlan buildPlan(final Csar csar, final TDefinitions definitions,
                                final TServiceTemplate serviceTemplate) {
 
@@ -156,13 +143,13 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
             bpmnPlan.setCsarName(csar.id().csarName());
             bpmnPlan.setInputParameters(inputParameters);
+            bpmnPlan.setTOSCAInterfaceName(OpenTOSCA_LifecycleInterface);
+            bpmnPlan.setTOSCAOperationname(OpenTOSCA_BuildPlanOperation);
 
             // this step can be skipped in management plans
             this.serviceInstanceInitializer.appendCreateServiceInstanceVarsAndInitializeWithInstanceDataAPI(bpmnPlan);
 
             BPMNSubprocess dataObjectSubprocess = this.serviceInstanceInitializer.addServiceInstanceHandlingFromInput(bpmnPlan);
-            bpmnPlan.setTOSCAInterfaceName(OpenTOSCA_LifecycleInterface);
-            bpmnPlan.setTOSCAOperationname(OpenTOSCA_BuildPlanOperation);
             this.planHandler.initializeBPMNSkeleton(bpmnPlan);
             this.planHandler.addActivateDataObjectTaskToSubprocess(dataObjectSubprocess, bpmnPlan);
             String serviceInstanceUrl = this.serviceInstanceInitializer.findServiceInstanceUrlVariableName(bpmnPlan);

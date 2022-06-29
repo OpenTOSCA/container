@@ -400,25 +400,48 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
                                    final Variable vmIpVariable, final Variable vmPrivateKeyVariable) {
 
         //context.addStringValueToPlanRequest("containerApiAddress");
+        Map<String, String> containerPropMap = ModelUtils.asMap(context.getNodeTemplate().getProperties());
+        Map<String, String> propMap = containerPropMap;
+        // fetch properties
+        String containerPortVar = containerPropMap.getOrDefault(DockerContainerTypePluginPluginConstants.PROPERTY_CONTAINER_PORT, null);
+        String portVar = containerPropMap.getOrDefault(DockerContainerTypePluginPluginConstants.PROPERTY_PORT, null);
+        if (containerPortVar == null | portVar == null) {
+            LOG.error("Couldn't fetch Property variables ContainerPort or Port");
+            return false;
+        }
+        // map properties to input and output parameters
+        final Map<String, Variable> createDEInternalExternalPropsInput = new HashMap<>();
+        final Map<String, Variable> createDEInternalExternalPropsOutput = new HashMap<>();
+
+        // set value by data object
+        for (String property : context.getSubprocessElement().getDataObject().getProperties()) {
+            String propertyName = property.split("#")[0];
+            String propertyValue = property.split("#")[1];
+            // either we have something like DockerEngine#GDockerEngineURL or
+            // Port#GApplicationPort these values have to be in the dollar brackets otherwise we get an error
+            if (propertyValue.startsWith("G")) {
+                propertyValue = propertyValue.replace("G", "");
+                propertyValue = "${" + propertyValue + "}";
+                propMap.replace(propertyName, containerPropMap.get(propertyName), propertyValue);
+            } else {
+                propMap.replace(propertyName, containerPropMap.get(propertyName), propertyValue);
+            }
+        }
 
         // create and set input for Input_DA
-        final String DAinputVariable = createDAinput(da, context);
-        context.getSubprocessElement().setDeploymentArtifactString(DAinputVariable);
+        final String deploymentArtifactReference = createDAinput(da, context);
+        context.getSubprocessElement().setDeploymentArtifactString(deploymentArtifactReference);
 
         final String artefactVarName = "dockerContainerFile" + System.currentTimeMillis();
 
         //value = xpath query for DA artifact
         final Variable dockerContainerFileRefVar = new Variable(artefactVarName);
-
-        // map properties to input and output parameters
-        final Map<String, Variable> createDEInternalExternalPropsInput = new HashMap<>();
-        final Map<String, Variable> createDEInternalExternalPropsOutput = new HashMap<>();
+        Variable dockerEngineURLVar = new Variable(DockerContainerTypePluginPluginConstants.PROPERTY_DOCKER_ENGINE_URL);
         createDEInternalExternalPropsInput.put("ImageLocation", dockerContainerFileRefVar);
-        createDEInternalExternalPropsInput.put("DockerEngineURL", dockerEngineUrlVar);
-        Variable test = new Variable(DockerContainerTypePluginPluginConstants.PROPERTY_CONTAINER_PORT + "," + DockerContainerTypePluginPluginConstants.PROPERTY_PORT);
-        createDEInternalExternalPropsInput.put("ContainerPorts", test);
+        createDEInternalExternalPropsInput.put("DockerEngineURL", dockerEngineURLVar);
+        Variable containerPortsVariable = new Variable(propMap.get(DockerContainerTypePluginPluginConstants.PROPERTY_CONTAINER_PORT) + "->" + propMap.get(DockerContainerTypePluginPluginConstants.PROPERTY_PORT));
+        createDEInternalExternalPropsInput.put("ContainerPorts", containerPortsVariable);
         createPropertiesMapping(containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable, vmPrivateKeyVariable, createDEInternalExternalPropsInput);
-
         addProperties(sshPortVar, containerIpVar, containerIdVar, envMappingVar, linksVar, deviceMappingVar, createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput);
 
         return this.invokerPlugin.handle(context, dockerEngineNode, true,

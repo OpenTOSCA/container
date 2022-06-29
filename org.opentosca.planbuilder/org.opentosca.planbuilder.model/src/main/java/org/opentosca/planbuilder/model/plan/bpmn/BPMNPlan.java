@@ -106,30 +106,6 @@ public class BPMNPlan extends AbstractPlan {
         this.scriptNames = scriptNames;
     }
 
-    public String getTOSCAInterfaceName() {
-        if (this.toscaInterfaceName != null) {
-            return this.toscaInterfaceName;
-        } else {
-            return this.bpmnProcessElement.getAttribute("name");
-        }
-    }
-
-    public void setTOSCAInterfaceName(String interfaceName) {
-        this.toscaInterfaceName = interfaceName;
-    }
-
-    public String getTOSCAOperationName() {
-        if (this.toscaOperationName != null) {
-            return this.toscaOperationName;
-        } else {
-            return null;
-        }
-    }
-
-    public void setTOSCAOperationName(String operationName) {
-        this.toscaOperationName = operationName;
-    }
-
     public void setInputParameters(ArrayList<String> inputParameters) {
         this.inputParameters = inputParameters;
     }

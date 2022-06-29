@@ -21,37 +21,32 @@ def invokeParams = "{";
 
 for (int i in 0..inputParamNames.size() - 1) {
     if (inputParamNames[i] != null) {
+        if (inputParamNames[i] != "ContainerMountPath") {
+            def paramName = 'Input_' + inputParamNames[i];
+            def paramValue = execution.getVariable(paramName);
 
-        def paramName = 'Input_' + inputParamNames[i];
-        def paramValue = execution.getVariable(paramName);
+            if (paramValue != null) {
+                def type = paramValue.split("!")[0];
+                if (type == 'String') {
+                    paramValue = paramValue.split("!")[1];
+                    paramValue = paramValue.replace('->', ',');
+                }
 
-        if (paramValue != null) {
-            def type = paramValue.split("!")[0];
-            if (type == 'String') {
-                paramValue = paramValue.split("!")[1];
-                paramValue = paramValue.replace('->', ',');
+                // special handling with DA ex MyTinyToDo_DA#tinytodo.zip
+                if (type == 'DA') {
+                    def paramDA = execution.getVariable("instanceDataAPIUrl").split("/servicetemplates")[0];
+                    def fileName = paramValue.split("!")[1];
+                    paramValue = paramDA + fileName;
+                }
+
+                if (type == 'VALUE') {
+                    def propertyValue = paramValue.split("!")[1];
+                    paramValue = execution.getVariable(propertyValue);
+                }
+
+                println "Parameter ${inputParamNames[i]} is assigned with value $paramValue from $paramName: "
+                invokeParams = invokeParams + '"' + inputParamNames[i] + '" : "' + paramValue + '",';
             }
-
-            // special handling with DA ex MyTinyToDo_DA#tinytodo.zip
-            if (type == 'DA') {
-                def paramDA = execution.getVariable("instanceDataAPIUrl").split("/servicetemplates")[0];
-                //def da = paramValue.split("#")[0];
-                def fileName = paramValue.split("!")[1];
-                //def namespace = URLEncoder.encode(da.split("}")[0].substring(1), "UTF-8");
-                //def daName = da.split("}")[1];
-                //def namespace = da.split("}")[0].substring(1);
-                //paramDA = paramDA + '/content/artifacttemplates/' + namespace + '/' + daName + '/files/' + fileName;
-                //paramValue = "http://192.168.2.185:1337/csars/MyTinyToDo_Bare_Docker.csar/content/artifacttemplates/http%253A%252F%252Fopentosca.org%252Fartifacttemplates/MyTinyToDo_DA/files/tinytodo.zip";
-                paramValue = paramDA + fileName;
-            }
-
-            if (type == 'VALUE') {
-                def propertyValue = paramValue.split("!")[1];
-                paramValue = execution.getVariable(propertyValue);
-            }
-
-            println "Parameter ${inputParamNames[i]} is assigned with value $paramValue from $paramName: "
-            invokeParams = invokeParams + '"' + inputParamNames[i] + '" : "' + paramValue + '",';
         }
     }
 }
@@ -94,7 +89,6 @@ while (true) {
     def get = new URL(taskURL).openConnection()
 
     if (get.getResponseCode() != 200) {
-        println "DANEBEN"
         execution.setVariable("ErrorDescription", "Received status code " + status + " while polling for NodeTemplate operation result!");
         throw new org.camunda.bpm.engine.delegate.BpmnError("InvalidStatusCode")
     }
@@ -103,8 +97,10 @@ while (true) {
     def pollingResultJSON = slurper.parseText(pollingResult);
 
     if (!pollingResultJSON.status.equals("PENDING")) {
-        println "PENDING GEHT LOS"
         def responseJSON = pollingResultJSON.response;
+
+        println "Response of polling:"
+        println responseJSON
         // in this step we write the output parameter of the operation back to the corresponding data object
         // this is necessary to build the output parameter of the plan
         outputParamNames.each { outputParam ->

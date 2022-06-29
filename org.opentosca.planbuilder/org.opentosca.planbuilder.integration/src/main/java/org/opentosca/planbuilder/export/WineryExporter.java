@@ -170,11 +170,13 @@ public class WineryExporter extends AbstractExporter {
 
                         boolean alreadySpecified = false;
                         for (final TExportedOperation op : exportedIface.getOperation()) {
-                            if (op.getName().equals(((BPELPlan) plan).getTOSCAOperationName())) {
-                                alreadySpecified = true;
+
+                            if (op.getName() != null) {
+                                if (op.getName().equals(((BPELPlan) plan).getTOSCAOperationName())) {
+                                    alreadySpecified = true;
+                                }
                             }
                         }
-
                         if (!alreadySpecified) {
                             final TExportedOperation newOp = new TExportedOperation();
                             newOp.setName(((BPELPlan) plan).getTOSCAOperationName());
@@ -299,17 +301,16 @@ public class WineryExporter extends AbstractExporter {
                         plansToExport.add(plan);
                         TExportedInterface exportedIface = null;
 
+                        if (ifaces.isEmpty()) {
+                            exportedIface = new TExportedInterface();
+                            exportedIface.setName(((BPMNPlan) plan).getTOSCAInterfaceName());
+                            ifaces.add(exportedIface);
+                        }
                         // find already set openTOSCA lifecycle interface
                         for (final TExportedInterface exIface : ifaces) {
                             if (exIface.getName() != null && exIface.getName().equals(((BPMNPlan) plan).getTOSCAInterfaceName())) {
                                 exportedIface = exIface;
                             }
-                        }
-
-                        if (exportedIface == null) {
-                            exportedIface = new TExportedInterface();
-                            exportedIface.setName(((BPMNPlan) plan).getTOSCAInterfaceName());
-                            ifaces.add(exportedIface);
                         }
 
                         boolean alreadySpecified = false;
@@ -329,7 +330,6 @@ public class WineryExporter extends AbstractExporter {
                             exportedIface.getOperation().add(newOp);
                         }
                     }
-
                     serviceTemplate.setBoundaryDefinitions(boundary);
 
                     ServiceTemplateId id = BackendUtils.getDefinitionsChildId(ServiceTemplateId.class, serviceTemplate.getTargetNamespace(), serviceTemplate.getId(), false);
@@ -562,8 +562,7 @@ public class WineryExporter extends AbstractExporter {
     // TODO: implement method
 
     /**
-     * @param buildPlan
-     * @param xmlFile
+     *
      */
     private void writeBPMNPlanInputParameter(final BPMNPlan buildPlan, final File xmlFile) {
 

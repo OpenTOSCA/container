@@ -149,13 +149,18 @@ public class BPMNPlanHandler {
                 }
             }
             if (source instanceof RelationshipTemplateActivity && !visitedNodeIds.contains(target.getId())) {
+                ((RelationshipTemplateActivity) source).setVisitedCounter();
                 subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(target, plan);
                 visitedNodeIds.add(target.getId());
                 LOG.debug("Generate empty subprocess for target node {}", target);
                 plan.addSubprocess(subprocess);
-                subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(source, plan);
-                LOG.debug("Generate empty subprocess for source rel {}", source);
-                plan.addSubprocess(subprocess);
+
+                // if relationship template activity is only target
+                if (((RelationshipTemplateActivity) source).getVisitedCounter() == 2) {
+                    subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(source, plan);
+                    LOG.debug("Generate empty subprocess for {}", source);
+                    plan.addSubprocess(subprocess);
+                }
             }
         }
     }
