@@ -199,7 +199,7 @@ public class OdeConnector {
             undeploy.setPackageName(QName.valueOf(pid));
             undeployDocument.setUndeploy(undeploy);
             client.undeploy(undeployDocument);
-        } catch (final RemoteException e) {
+        } catch (final Exception e) {
             OdeConnector.LOG.error("Trying to undeploy package '" + packageName + "' caused an exception.", e);
             return false;
         }
