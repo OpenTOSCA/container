@@ -69,10 +69,11 @@ public class MyTinyToDoSqlIntegrationTest {
     public ICoreEndpointService endpointService;
     private TestUtils testUtils = new TestUtils();
 
+    private String wineryRepositoryUrl = "http://localhost:8091/winery";
+
     @Test
     public void test() throws Exception {
         String wineryRepositoryUrlForDockerContainer = "http://" + testUtils.getDockerHost() + ":8091/winery";
-        String wineryRepositoryUrl = "http://localhost:8091/winery";
 
         // download csar from winery
         Path csarPath = testUtils.exportCsarFromRepository(testUtils.fetchRepository(TESTAPPLICATIONSREPOSITORY), csarId);
@@ -175,6 +176,7 @@ public class MyTinyToDoSqlIntegrationTest {
         testUtils.clearContainer(this.storage, this.control, this.planInstanceService,
             this.relationshipTemplateInstanceService, this.nodeTemplateInstanceService,
             this.serviceTemplateInstanceService);
+        testUtils.clearWineryRepository(this.wineryRepositoryUrl);
     }
 
     private void checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance) throws IOException, SQLException, ClassNotFoundException {
