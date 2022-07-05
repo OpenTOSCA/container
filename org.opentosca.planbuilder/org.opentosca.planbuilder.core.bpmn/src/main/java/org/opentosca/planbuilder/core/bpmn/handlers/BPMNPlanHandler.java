@@ -134,28 +134,33 @@ public class BPMNPlanHandler {
             AbstractActivity source = links.getSrcActiv();
             AbstractActivity target = links.getTrgActiv();
             BPMNSubprocess subprocess;
-            if (source instanceof NodeTemplateActivity && !visitedNodeIds.contains(source.getId())) {
+            if (source instanceof NodeTemplateActivity) {
                 ((RelationshipTemplateActivity) target).setVisitedCounter();
-                subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(source, plan);
-                visitedNodeIds.add(source.getId());
-                LOG.debug("Generate empty subprocess for {}", source);
-                plan.addSubprocess(subprocess);
-
-                // if relationship template activity is only target
+                if (!visitedNodeIds.contains(source.getId())) {
+                    subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(source, plan);
+                    visitedNodeIds.add(source.getId());
+                    LOG.debug("Generate empty subprocess for {}", source);
+                    plan.addSubprocess(subprocess);
+                }
+                // each relationship template must be visited twice after that
+                // we can add it otherwise one of the instance url is unknown
                 if (((RelationshipTemplateActivity) target).getVisitedCounter() == 2) {
                     subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(target, plan);
                     LOG.debug("Generate empty subprocess for {}", target);
                     plan.addSubprocess(subprocess);
                 }
             }
-            if (source instanceof RelationshipTemplateActivity && !visitedNodeIds.contains(target.getId())) {
+            if (source instanceof RelationshipTemplateActivity) {
                 ((RelationshipTemplateActivity) source).setVisitedCounter();
-                subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(target, plan);
-                visitedNodeIds.add(target.getId());
-                LOG.debug("Generate empty subprocess for target node {}", target);
-                plan.addSubprocess(subprocess);
+                if (!visitedNodeIds.contains(target.getId())) {
+                    subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(target, plan);
+                    visitedNodeIds.add(target.getId());
+                    LOG.debug("Generate empty subprocess for target node {}", target);
+                    plan.addSubprocess(subprocess);
+                }
 
-                // if relationship template activity is only target
+                // each relationship template must be visited twice after that
+                // we can add it otherwise one of the instance url is unknown
                 if (((RelationshipTemplateActivity) source).getVisitedCounter() == 2) {
                     subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(source, plan);
                     LOG.debug("Generate empty subprocess for {}", source);

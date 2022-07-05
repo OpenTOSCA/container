@@ -275,6 +275,15 @@ public class PluginRegistry {
             .orElse(null);
     }
 
+    public IPlanBuilderBPMNTypePlugin<?> findBPMNTypePluginForCreation(final TRelationshipTemplate relationshipTemplate, Csar csar) {
+        return getBPMNTypePlugins().stream()
+            .filter(p -> p.canHandleCreate(csar, relationshipTemplate))
+            // sort highest priority first
+            .sorted(Comparator.comparingInt(IPlanBuilderPlugin::getPriority).reversed())
+            .findFirst()
+            .orElse(null);
+    }
+
     public IPlanBuilderTypePlugin<?> findTypePluginForUpdate(final TNodeTemplate nodeTemplate, Csar csar) {
         return getTypePlugins().stream()
             .filter(p -> p.canHandleUpdate(csar, nodeTemplate))
@@ -296,6 +305,12 @@ public class PluginRegistry {
     public boolean handleCreateWithTypePlugin(final PlanContext context,
                                               final TRelationshipTemplate relationshipTemplate,
                                               IPlanBuilderTypePlugin plugin) {
+        return plugin.handleCreate(context, relationshipTemplate);
+    }
+
+    public boolean handleCreateWithBPMNTypePlugin(final PlanContext context,
+                                              final TRelationshipTemplate relationshipTemplate,
+                                              IPlanBuilderBPMNTypePlugin plugin) {
         return plugin.handleCreate(context, relationshipTemplate);
     }
 }

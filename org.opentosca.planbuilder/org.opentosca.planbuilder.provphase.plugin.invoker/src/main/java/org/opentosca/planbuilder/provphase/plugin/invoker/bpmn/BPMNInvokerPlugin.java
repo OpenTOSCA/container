@@ -10,8 +10,8 @@ import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
-import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
-import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseParamOperationPlugin;
+import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseOperationBPMNPlugin;
+import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseParamOperationBPMNPlugin;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpmn.handlers.BPMNInvokerPluginHandler;
 import org.slf4j.Logger;
@@ -20,8 +20,8 @@ import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 
 @Component
-public class BPMNInvokerPlugin implements IPlanBuilderProvPhaseOperationPlugin<BPMNPlanContext>,
-    IPlanBuilderProvPhaseParamOperationPlugin<BPMNPlanContext> {
+public class BPMNInvokerPlugin implements IPlanBuilderProvPhaseOperationBPMNPlugin<BPMNPlanContext>,
+    IPlanBuilderProvPhaseParamOperationBPMNPlugin<BPMNPlanContext> {
 
     private static final Logger LOG = LoggerFactory.getLogger(org.opentosca.planbuilder.provphase.plugin.invoker.bpmn.BPMNInvokerPlugin.class);
     private static final String PLUGIN_ID = "OpenTOSCA ProvPhase BPMNInvokerPlugin";

@@ -508,6 +508,7 @@ public class TestUtils {
         while ((state != ServiceTemplateInstanceState.CREATED)) {
             state = serviceTemplateInstanceService.getServiceTemplateInstanceState(s.getId());
         }
+        s.setState(state);
         return s;
     }
 
@@ -569,6 +570,18 @@ public class TestUtils {
             }
         }
         return null;
+    }
+
+    public List<TPlan> getBuildPlans(List<TPlan> plans) {
+        List<TPlan> buildPlans = new ArrayList<>();
+        for (TPlan plan : plans) {
+            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.BUILD)
+                && !plan.getId().toLowerCase().contains(OpenTOSCA_DefrostPlanOperation)
+                && plan.getId().toLowerCase().contains("buildplan")) {
+                buildPlans.add(plan);
+            }
+        }
+        return buildPlans;
     }
 
     public TPlan getTerminationPlan(List<TPlan> plans) {

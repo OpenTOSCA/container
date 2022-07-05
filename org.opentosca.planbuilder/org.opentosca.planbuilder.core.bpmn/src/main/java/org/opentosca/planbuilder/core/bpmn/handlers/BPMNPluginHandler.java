@@ -15,9 +15,6 @@ import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderBPMNPostPhasePlugin;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderBPMNPrePhasePlugin;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderBPMNTypePlugin;
-import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlugin;
-import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPrePhasePlugin;
-import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocess;
 import org.slf4j.Logger;
@@ -162,10 +159,10 @@ public class BPMNPluginHandler {
                 bpmnSubprocess.getActivity().getType());
 
             if (this.pluginRegistry.canTypePluginHandleCreate(relationshipTemplate, context.getCsar())) {
-                final IPlanBuilderTypePlugin plugin = this.pluginRegistry
-                    .findTypePluginForCreation(relationshipTemplate, context.getCsar());
-                LOG.debug("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
-                result &= this.pluginRegistry.handleCreateWithTypePlugin(context, relationshipTemplate, plugin);
+                final IPlanBuilderBPMNTypePlugin plugin = this.pluginRegistry
+                    .findBPMNTypePluginForCreation(relationshipTemplate, context.getCsar());
+                LOG.debug("Handling RelationshipTemplate {} with generic plugin {}", relationshipTemplate.getId(), plugin.getID());
+                result &= this.pluginRegistry.handleCreateWithBPMNTypePlugin(context, relationshipTemplate, plugin);
             } else {
                 LOG.debug("Couldn't handle provisioning code generation RelationshipTemplate {} with type plugin", relationshipTemplate.getId());
             }
