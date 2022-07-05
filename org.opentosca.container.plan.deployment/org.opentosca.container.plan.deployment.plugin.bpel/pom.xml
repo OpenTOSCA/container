@@ -126,6 +126,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
+				<version>3.2.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -137,8 +138,10 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
+				<version>3.0.0</version>
                 <configuration>
                     <appendAssemblyId>false</appendAssemblyId>
+					<tarLongFileMode>gnu</tarLongFileMode>
                     <descriptorRefs>
                         <descriptorRef>src</descriptorRef>
                     </descriptorRefs>
