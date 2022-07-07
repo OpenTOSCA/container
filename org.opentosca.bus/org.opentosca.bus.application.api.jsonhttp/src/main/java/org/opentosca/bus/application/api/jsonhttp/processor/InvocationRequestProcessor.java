@@ -96,7 +96,7 @@ public class InvocationRequestProcessor implements Processor {
             }
         } else {
             InvocationRequestProcessor.LOG.warn("Needed information not specified.");
-            throw new NullPointerException();
+            throw new IllegalArgumentException("Needed information not specified.");
         }
 
         exchange.getIn().setHeader(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString(),

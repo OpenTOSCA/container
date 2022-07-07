@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -73,7 +74,7 @@ public class NodeTemplateService {
                                                               final String nodeTemplateId,
                                                               final Long serviceTemplateInstanceId) throws InstantiationException,
         IllegalAccessException,
-        IllegalArgumentException {
+        IllegalArgumentException, ParserConfigurationException {
         final Csar csar = storage.findById(new CsarId(csarId));
         final TServiceTemplate serviceTemplate;
         final TNodeTemplate nodeTemplate;
@@ -83,7 +84,6 @@ public class NodeTemplateService {
         } catch (NotFoundException e) {
             throw new javax.ws.rs.NotFoundException(e.getMessage(), e);
         }
-        final NodeTemplateDTO dto = createNodeTemplate(nodeTemplate, csar);
         final Document propertiesAsDocument = ToscaEngine.getEntityTemplateProperties(nodeTemplate);
 
         // Properties
@@ -99,7 +99,7 @@ public class NodeTemplateService {
         // Template
         newInstance.setTemplateId(nodeTemplate.getIdFromIdOrNameField());
         // Type
-        newInstance.setTemplateType(QName.valueOf(dto.getNodeType()));
+        newInstance.setTemplateType(nodeTemplate.getType());
         // ServiceTemplateInstance
         final Optional<ServiceTemplateInstance> instanceOptional = this.serviceTemplateInstanceRepository.findWithNodeTemplateInstancesById(serviceTemplateInstanceId);
         if (instanceOptional.isEmpty()) {
@@ -149,7 +149,14 @@ public class NodeTemplateService {
         }
 
         return nodeTemplates.stream()
-            .map(toscaNodeTemplate -> createNodeTemplate(toscaNodeTemplate, csar))
+            .map(toscaNodeTemplate -> {
+                try {
+                    return createNodeTemplate(toscaNodeTemplate, csar);
+                } catch (NotFoundException e) {
+                    logger.error("Couldn't create NodeTemplate", e);
+                    return null;
+                }
+            })
             .collect(Collectors.toList());
     }
 
@@ -213,7 +220,7 @@ public class NodeTemplateService {
      * Creates a new instance of the NodeTemplateDTO class. It fetches the qualified name of node type of the node
      * template.
      */
-    public NodeTemplateDTO createNodeTemplate(final TNodeTemplate toscaObject, final Csar csar) {
+    public NodeTemplateDTO createNodeTemplate(final TNodeTemplate toscaObject, final Csar csar) throws NotFoundException {
         final QName nodeTypeId = toscaObject.getType();
         final NodeTemplateDTO currentNodeTemplate = new NodeTemplateDTO();
         currentNodeTemplate.setId(toscaObject.getId());

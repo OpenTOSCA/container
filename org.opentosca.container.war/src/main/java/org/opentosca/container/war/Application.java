@@ -20,7 +20,7 @@ public class Application implements ServletContextInitializer {
         SpringApplication application = new SpringApplication(Application.class);
         Map<String, Object> props = Maps.newHashMap();
         props.put("server.port", "1337");
-        props.put("spring.main.allow-bean-definition-overriding",true);
+        props.put("spring.main.allow-bean-definition-overriding", true);
         application.setDefaultProperties(props);
         application.run(args);
     }

@@ -261,7 +261,6 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
         final Collection<TTag> tags = serviceTemplate.getTags();
 
-
         if (tags == null || tags.stream().filter(x -> x.getName().equals("scalingplans")).findFirst().orElse(null) == null) {
             return scalingPlans;
         }
@@ -274,7 +273,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
         for (final ScalingPlanDefinition scalingPlanDefinition : scalingPlanDefinitions) {
 
-            final BPELPlan bpelScaleOutProcess = this.createScalingPlan(csar,definitions,serviceTemplate,scalingPlanDefinition);
+            final BPELPlan bpelScaleOutProcess = this.createScalingPlan(csar, definitions, serviceTemplate, scalingPlanDefinition);
 
             scalingPlans.add(bpelScaleOutProcess);
         }
@@ -282,7 +281,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         return scalingPlans;
     }
 
-    private BPELPlan createScalingPlan(Csar csar, TDefinitions definitions, TServiceTemplate serviceTemplate, ScalingPlanDefinition scalingPlanDefinition){
+    private BPELPlan createScalingPlan(Csar csar, TDefinitions definitions, TServiceTemplate serviceTemplate, ScalingPlanDefinition scalingPlanDefinition) {
         final String processName =
             ModelUtils.makeValidNCName(serviceTemplate.getId() + "_scalingPlan_" + scalingPlanDefinition.name);
         final String processNamespace = serviceTemplate.getTargetNamespace() + "_scalingPlan";

@@ -178,16 +178,18 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
 
     private TOperation getLoadStateOperation(final TNodeTemplate nodeTemplate, Csar csar) {
         final TInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE, csar);
+        TOperation operation = null;
         if (iface != null) {
             for (final TOperation op : iface.getOperations()) {
                 if (!op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE_DEFREEZE)) {
                     continue;
+                } else {
+                    operation = op;
+                    break;
                 }
-
-                return op;
             }
         }
-        return null;
+        return operation;
     }
 
     private void runPlugins(final BPELPlan buildPlan, final Property2VariableMapping map,

@@ -188,12 +188,11 @@ public class CsarStorageServiceImpl implements CsarStorageService {
             LOGGER.warn("CSAR Import was interrupted or terminated with an exception", e);
             FileUtils.forceDelete(permanentLocation);
             throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
+        } catch (RuntimeException | Error e) {
+            throw e;
         } catch (Throwable e) {
             LOGGER.warn("CSAR Import failed with an unspecified exception", e);
             FileUtils.forceDelete(permanentLocation);
-            if (e instanceof RuntimeException || e instanceof Error) {
-                throw e;
-            }
             throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
         }
         assert (importInfo != null);

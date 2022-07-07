@@ -78,13 +78,11 @@ public class CsarImpl implements Csar {
 
     @NonNull
     private final CsarId id;
-    private Optional<ServiceTemplateId> entryServiceTemplate;
-    private TServiceTemplate entryServiceTemplateModel;
-
     // TODO evaluate putting the save-location into an additional field here!
     private final Path location;
     private final IRepository wineryRepo;
-
+    private Optional<ServiceTemplateId> entryServiceTemplate;
+    private TServiceTemplate entryServiceTemplateModel;
     private Map<QName, TDefinitions> definitions;
     private Map<QName, TArtifactTemplate> artifactTemplates;
     private Map<QName, TArtifactType> artifactTypes;
@@ -339,9 +337,9 @@ public class CsarImpl implements Csar {
     }
 
     private Map<QName, TDefinitions> getQNameToDefinitionsMap() {
-       Map<QName, TDefinitions> result = Maps.newHashMap();
-       Collection<DefinitionsChildId> ids = this.wineryRepo.getAllDefinitionsChildIds();
-       ids.forEach(x -> result.put(x.getQName(),this.wineryRepo.getDefinitions(x)));
-       return result;
+        Map<QName, TDefinitions> result = Maps.newHashMap();
+        Collection<DefinitionsChildId> ids = this.wineryRepo.getAllDefinitionsChildIds();
+        ids.forEach(x -> result.put(x.getQName(), this.wineryRepo.getDefinitions(x)));
+        return result;
     }
 }

@@ -28,7 +28,6 @@ import org.opentosca.container.core.next.services.instances.ServiceTemplateInsta
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.DeploymentTracker;
 import org.opentosca.container.core.service.IPlanInvocationEngine;
-
 import org.opentosca.container.plan.deployment.core.IPlanEngineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,7 +134,9 @@ public class OpenToscaControlServiceImpl implements OpenToscaControlService {
             case TOSCA_PROCESSED:
                 operations.add(DeploymentProcessOperation.INVOKE_PLAN_DEPL);
                 // intentional fallthrough
+                break;
             case STORED:
+                operations.add(DeploymentProcessOperation.INVOKE_PLAN_DEPL);
                 operations.add(DeploymentProcessOperation.PROCESS_TOSCA);
                 break;
             default:

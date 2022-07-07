@@ -85,6 +85,14 @@ public class PlanInstanceService {
             .collect(Collectors.toList());
     }
 
+    public PlanInstance getPlanInstanceByIdWithConnectedEntities(final long id) {
+        return planInstanceRepository.findWithLogsAndInputsAndOutputsById(id);
+    }
+
+    public PlanInstance getPlanInstanceByCorrelationIdWithConnectedEntities(final String correlationId) {
+        return planInstanceRepository.findWithLogsAndInputsAndOutputsByCorrelationId(correlationId);
+    }
+
     public PlanInstance getPlanInstanceByCorrelationId(final String correlationId) {
         return planInstanceRepository.findByCorrelationId(correlationId);
     }

@@ -76,8 +76,8 @@ public class BPELPlanContext extends PlanContext {
     private final NodeRelationInstanceVariablesHandler nodeRelationInstanceHandler;
 
     public BPELPlanContext(BPELScopeBuilder scopeBuilder, final BPELPlan plan, final BPELScope templateBuildPlan, final Property2VariableMapping map,
-                       final TServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
-                       String serviceInstanceIDVarName, String serviceTemplateURLVarName, String planInstanceUrlVarName, Csar csar) {
+                           final TServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
+                           String serviceInstanceIDVarName, String serviceTemplateURLVarName, String planInstanceUrlVarName, Csar csar) {
         this(scopeBuilder, plan, templateBuildPlan, map, null, serviceTemplate, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, planInstanceUrlVarName, csar);
     }
 
@@ -86,7 +86,6 @@ public class BPELPlanContext extends PlanContext {
                            final TServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
                            String serviceInstanceIDVarName, String serviceTemplateURLVarName, String planInstanceUrlVarName, Csar csar) {
         super(plan, serviceTemplate, map, descriptorMap, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, planInstanceUrlVarName, csar);
-
 
         this.scopeBuilder = scopeBuilder;
         this.templateBuildPlan = templateBuildPlan;

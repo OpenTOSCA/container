@@ -17,7 +17,6 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstanceState;
@@ -223,8 +222,7 @@ public class RelationshipTemplateInstanceService {
 
         // Properties
         // We set the properties of the template as initial properties
-        final Document propertiesAsDocument =
-            ToscaEngine.getEntityTemplateProperties(relationshipTemplate);
+        final Document propertiesAsDocument = ToscaEngine.getEntityTemplateProperties(relationshipTemplate);
 
         if (propertiesAsDocument != null) {
             final RelationshipTemplateInstanceProperty properties =

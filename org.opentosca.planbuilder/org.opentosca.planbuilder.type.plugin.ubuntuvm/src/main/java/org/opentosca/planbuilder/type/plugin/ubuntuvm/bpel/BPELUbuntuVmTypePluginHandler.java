@@ -13,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.common.version.VersionUtils;
 import org.eclipse.winery.common.version.WineryVersion;
+import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TPolicy;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
@@ -296,37 +297,9 @@ public class BPELUbuntuVmTypePluginHandler {
         final Map<String, Variable> createEC2InternalExternalPropsInput = new HashMap<>();
 
         // set external parameters
-        for (final String externalParameter : BPELUbuntuVmTypePluginHandler.createEC2InstanceExternalInputParams) {
-            // find the variable for the inputparam
-
-            PropertyVariable variable = context.getPropertyVariable(externalParameter, true);
-            if (variable == null) {
-                variable = context.getPropertyVariable(externalParameter);
-            }
-
-            // if we use ubuntu image version etc. from the nodeType not some
-            // property/parameter
-            if (externalParameter.equals("AMIid") && ubuntuAMIIdVar != null) {
-                createEC2InternalExternalPropsInput.put(externalParameter, ubuntuAMIIdVar);
-                continue;
-            }
-
-            // if the variable is still null, something was not specified
-            // properly
-            if (variable == null) {
-                LOG.warn("Didn't find  property variable for parameter "
-                    + externalParameter);
-                return false;
-            } else {
-                LOG.debug("Found property variable " + externalParameter);
-            }
-
-            if (PluginUtils.isVariableValueEmpty(variable)) {
-                LOG.debug("Variable value is empty, adding to plan input");
-                createEC2InternalExternalPropsInput.put(externalParameter, null);
-            } else {
-                createEC2InternalExternalPropsInput.put(externalParameter, variable);
-            }
+        if (setExternalParameters(context, ubuntuNodeTemplate, ubuntuAMIIdVar, createEC2InternalExternalPropsInput)) {
+            // if an error occurred, return.
+            return false;
         }
 
         // generate var with random value for the correlation id
@@ -386,17 +359,24 @@ public class BPELUbuntuVmTypePluginHandler {
                 final Map<String, Variable> inputs = new HashMap<>();
                 final Map<String, Variable> outputs = new HashMap<>();
 
-                Variable hypervisorTenant = context.getPropertyVariable(infraNode, "HypervisorTenantID");
+                if (nodeTemplate.getProperties() instanceof TEntityTemplate.WineryKVProperties) {
+                    Map<String, String> properties = ((TEntityTemplate.WineryKVProperties) nodeTemplate.getProperties()).getKVProperties();
+
+                    if (properties.containsKey("HypervisorUserName")) {
+                        inputs.put("HypervisorUserName", context.getPropertyVariable(infraNode, "HypervisorUserName"));
+                        inputs.put("HypervisorTenantID", context.getPropertyVariable(infraNode, "HypervisorTenantID"));
+                        inputs.put("HypervisorUserPassword", context.getPropertyVariable(infraNode, "HypervisorUserPassword"))
+                        ;
+                    } else if (properties.containsKey("HypervisorApplicationID")) {
+                        inputs.put("HypervisorApplicationID", context.getPropertyVariable(infraNode, "HypervisorApplicationID"));
+                    }
+                }
+
                 Variable hypervisorEndpoint = context.getPropertyVariable(infraNode, "HypervisorEndpoint");
                 Variable VMInstanceID = context.getPropertyVariable(ubuntuNode, "VMInstanceID");
-                Variable hypervisorUserName = context.getPropertyVariable(infraNode, "HypervisorUserName");
-                Variable hypervisorUserPassword = context.getPropertyVariable(infraNode, "HypervisorUserPassword");
 
-                inputs.put("HypervisorTenantID", hypervisorTenant);
                 inputs.put("HypervisorEndpoint", hypervisorEndpoint);
                 inputs.put("VMInstanceID", VMInstanceID);
-                inputs.put("HypervisorUserName", hypervisorUserName);
-                inputs.put("HypervisorUserPassword", hypervisorUserPassword);
 
                 return this.invokerOpPlugin.handle(context, infraNode.getId(), true,
                     org.opentosca.container.core.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
@@ -527,66 +507,10 @@ public class BPELUbuntuVmTypePluginHandler {
 
         final Map<String, Variable> createEC2InternalExternalPropsInput = new HashMap<>();
 
-        /*
-         * In the following part we take the known property names and try to match them unto the topology. If
-         * we found one property, and it's set with a value, it will be used without any problems. If the
-         * property is found but not set, we will set an input param and take the value from planinput.
-         * Everything else aborts this method
-         */
-
         // set external parameters
-        for (final String externalParameter : BPELUbuntuVmTypePluginHandler.createVMInstanceExternalInputParams) {
-            // find the variable for the inputparam
-
-            PropertyVariable variable = context.getPropertyVariable(ubuntuNodeTemplate, externalParameter);
-            if (variable == null) {
-                variable = context.getPropertyVariable(externalParameter, true);
-            }
-
-            // if we use ubuntu image version etc. from the nodeType not some
-            // property/parameter
-            if (externalParameter.trim().equals("VMImageID") && ubuntuAMIIdVar != null) {
-                createEC2InternalExternalPropsInput.put(externalParameter, ubuntuAMIIdVar);
-
-                continue;
-            }
-
-            // quick fix... we should definitely rewrite this to a pattern-based handler and use required inputs
-            if (variable == null && externalParameter.trim().equalsIgnoreCase("HypervisorUserName")) {
-                variable = context.getPropertyVariable("HypervisorApplicationID", true);
-            }
-            if (variable == null && externalParameter.trim().equalsIgnoreCase("HypervisorUserPassword")) {
-                variable = context.getPropertyVariable("HypervisorApplicationSecret", true);
-            }
-            if (variable == null && externalParameter.trim().equalsIgnoreCase("HypervisorTenantID")
-                && context.getPropertyVariable("HypervisorApplicationID", true) != null
-                && context.getPropertyVariable("HypervisorApplicationSecret", true) != null) {
-                // In this case, the tenant ID is implicitly set as the app ID and secret are bound a specific tenant
-                continue;
-            }
-
-            // if the variable is still null, something was not specified
-            // properly
-            if (variable == null) {
-                LOG.error("Didn't find  property variable for parameter "
-                    + externalParameter);
-                return false;
-            } else {
-                LOG.debug("Found property variable " + externalParameter);
-            }
-
-            if (PluginUtils.isVariableValueEmpty(variable)) {
-                LOG.debug("Variable value is empty, adding to plan input");
-
-                // add the new property name to input
-                context.addStringValueToPlanRequest(externalParameter);
-                // add an assign from input to internal property variable
-                context.addAssignFromInput2VariableToMainAssign(externalParameter, variable);
-
-                createEC2InternalExternalPropsInput.put(externalParameter, variable);
-            } else {
-                createEC2InternalExternalPropsInput.put(externalParameter, variable);
-            }
+        if (setExternalParameters(context, ubuntuNodeTemplate, ubuntuAMIIdVar, createEC2InternalExternalPropsInput)) {
+            // if an error occurred, return.
+            return false;
         }
 
         // check if there is an access policy attached
@@ -671,6 +595,77 @@ public class BPELUbuntuVmTypePluginHandler {
         }
 
         return true;
+    }
+
+    /**
+     * Sets parameters from other Node Templates
+     *
+     * @return true, if an error occurred, false otherwise
+     */
+    private boolean setExternalParameters(BPELPlanContext context, TNodeTemplate ubuntuNodeTemplate, Variable ubuntuAMIIdVar, Map<String, Variable> createEC2InternalExternalPropsInput) {
+        /*
+         * In the following part we take the known property names and try to match them unto the topology. If
+         * we found one property, and it's set with a value, it will be used without any problems. If the
+         * property is found but not set, we will set an input param and take the value from plan input.
+         * Everything else aborts this method
+         */
+        for (final String externalParameter : BPELUbuntuVmTypePluginHandler.createVMInstanceExternalInputParams) {
+            // find the variable for the inputParam
+
+            PropertyVariable variable = context.getPropertyVariable(ubuntuNodeTemplate, externalParameter);
+            if (variable == null) {
+                variable = context.getPropertyVariable(externalParameter, true);
+            }
+
+            // if we use ubuntu image version etc. from the nodeType not some
+            // property/parameter
+            if (externalParameter.trim().equals("VMImageID") && ubuntuAMIIdVar != null) {
+                createEC2InternalExternalPropsInput.put(externalParameter, ubuntuAMIIdVar);
+                continue;
+            }
+
+            // quick fix... we should definitely rewrite this to a pattern-based handler and use required inputs
+            if (variable == null && externalParameter.trim().equalsIgnoreCase("HypervisorUserName")) {
+                variable = context.getPropertyVariable("HypervisorApplicationID", true);
+                createEC2InternalExternalPropsInput.put("HypervisorApplicationID", variable);
+                continue;
+            }
+            if (variable == null && externalParameter.trim().equalsIgnoreCase("HypervisorUserPassword")) {
+                variable = context.getPropertyVariable("HypervisorApplicationSecret", true);
+                createEC2InternalExternalPropsInput.put("HypervisorApplicationSecret", variable);
+                continue;
+            }
+            if (variable == null && externalParameter.trim().equalsIgnoreCase("HypervisorTenantID")
+                && context.getPropertyVariable("HypervisorApplicationID", true) != null
+                && context.getPropertyVariable("HypervisorApplicationSecret", true) != null) {
+                // In this case, the tenant ID is implicitly set as the app ID and secret are bound a specific tenant
+                continue;
+            }
+
+            // if the variable is still null, something was not specified
+            // properly
+            if (variable == null) {
+                LOG.error("Didn't find  property variable for parameter "
+                    + externalParameter);
+                return true;
+            } else {
+                LOG.debug("Found property variable " + externalParameter);
+            }
+
+            if (PluginUtils.isVariableValueEmpty(variable)) {
+                LOG.info("Variable '{}' value is empty, adding to plan input", variable.getPropertyName());
+
+                // add the new property name to input
+                context.addStringValueToPlanRequest(externalParameter);
+                // add an assign from input to internal property variable
+                context.addAssignFromInput2VariableToMainAssign(externalParameter, variable);
+
+                createEC2InternalExternalPropsInput.put(externalParameter, variable);
+            } else {
+                createEC2InternalExternalPropsInput.put(externalParameter, variable);
+            }
+        }
+        return false;
     }
 
     private void addIpTablesScriptLogic(final BPELPlanContext context, final List<Variable> portVariables,
@@ -785,7 +780,7 @@ public class BPELUbuntuVmTypePluginHandler {
         }
 
         if (instanceIdPropWrapper == null) {
-            LOG.warn("Ubuntu Node doesn't have InstanceId property, altough it has the proper NodeType");
+            LOG.warn("Ubuntu Node doesn't have InstanceId property, although it has the proper NodeType");
             return false;
         }
 
@@ -801,7 +796,7 @@ public class BPELUbuntuVmTypePluginHandler {
         }
 
         if (serverIpPropWrapper == null) {
-            LOG.warn("Ubuntu Node doesn't have ServerIp property, altough it has the proper NodeType");
+            LOG.warn("Ubuntu Node doesn't have ServerIp property, although it has the proper NodeType");
             return false;
         }
 
@@ -868,56 +863,10 @@ public class BPELUbuntuVmTypePluginHandler {
 
         final Map<String, Variable> createEC2InternalExternalPropsInput = new HashMap<>();
 
-        /*
-         * In the following part we take the know property names and try to match them unto the topology. If
-         * we found one property and it's set with a value it will be used without any problems. If the
-         * property is found but not set we will set an input param and take the value from planinput.
-         * Everything else aborts this method
-         */
-
         // set external parameters
-        for (final String externalParameter : BPELUbuntuVmTypePluginHandler.localCreateVMInstanceExternalInputParams) {
-            // find the variable for the inputparam
-
-            PropertyVariable variable = context.getPropertyVariable(ubuntuNodeTemplate, externalParameter);
-            if (variable == null) {
-                variable = context.getPropertyVariable(externalParameter, true);
-            }
-
-            // if we use ubuntu image version etc. from the nodeType not some
-            // property/parameter
-            if (externalParameter.equals("VMImageID") && ubuntuAMIIdVar != null) {
-                createEC2InternalExternalPropsInput.put(externalParameter, ubuntuAMIIdVar);
-                continue;
-            }
-
-            if (variable == null & externalParameter.equals("HostNetworkAdapterName")) {
-                // the IA shall determine the hardware adapter in this case
-                continue;
-            }
-
-            // if the variable is still null, something was not specified
-            // properly
-            if (variable == null) {
-                LOG.warn("Didn't find  property variable for parameter "
-                    + externalParameter);
-                return false;
-            } else {
-                LOG.debug("Found property variable " + externalParameter);
-            }
-
-            if (PluginUtils.isVariableValueEmpty(variable)) {
-                LOG.debug("Variable value is empty, adding to plan input");
-
-                // add the new property name to input
-                context.addStringValueToPlanRequest(externalParameter);
-                // add an assign from input to internal property variable
-                context.addAssignFromInput2VariableToMainAssign(externalParameter, variable);
-
-                createEC2InternalExternalPropsInput.put(externalParameter, variable);
-            } else {
-                createEC2InternalExternalPropsInput.put(externalParameter, variable);
-            }
+        if (setExternalParameters(context, ubuntuNodeTemplate, ubuntuAMIIdVar, createEC2InternalExternalPropsInput)) {
+            // if an error occurred, return.
+            return false;
         }
 
         // generate var with random value for the correlation id

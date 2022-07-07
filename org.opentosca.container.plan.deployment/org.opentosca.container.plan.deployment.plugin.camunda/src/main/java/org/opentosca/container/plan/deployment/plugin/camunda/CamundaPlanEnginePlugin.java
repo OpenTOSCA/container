@@ -176,8 +176,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             final URI endpointUri = new URI(Settings.ENGINE_PLAN_BPMN_URL + PROCESS_DEFINITION_SUFFIX + "/"
                 + planDefinitionID + INSTANCE_CREATION_SUFFIX);
 
-
-            Map<String,String> endpointMetadata = new HashMap<String, String>();
+            Map<String, String> endpointMetadata = new HashMap<String, String>();
             endpointMetadata.put("PlanType", "BPMN");
             endpointMetadata.put("EndpointType", "Invoke");
 

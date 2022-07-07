@@ -9,7 +9,7 @@ and as a PDF: [Visual Representation of the OpenTOSCA Container REST API](../doc
 
 ## Swagger Specification
 When the container is running, the generated swagger file can be found in the following path:
-http://localhost:1337/swagger.json
+http://localhost:1337/openapi.yaml
 A visual representation can be produced then using Swagger UI by: 
 - Navigate to [Swagger UI](https://swagger.io/swagger-ui/)
 - Start the live demo: ![Start Swagger UI demo](../docs/container-api/swagger_ui_1.PNG)

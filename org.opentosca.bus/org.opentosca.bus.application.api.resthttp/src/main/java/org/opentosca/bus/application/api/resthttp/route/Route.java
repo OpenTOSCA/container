@@ -44,13 +44,10 @@ public class Route extends RouteBuilder {
     public static final String POLL_ENDPOINT_SUFFIX = "/activeRequests/" + Route.ID_PLACEHODLER;
 
     public static final String POLL_ENDPOINT_SI = Route.INVOKE_ENDPOINT_SI + Route.POLL_ENDPOINT_SUFFIX;
-    public static final String POLL_ENDPOINT_NI = Route.INVOKE_ENDPOINT_NI + Route.POLL_ENDPOINT_SUFFIX;
-
-    public static final String GET_RESULT_ENDPOINT_SUFFIX = "/response";
-
     public static final String GET_RESULT_ENDPOINT_SI = Route.POLL_ENDPOINT_SI + Route.GET_RESULT_ENDPOINT_SUFFIX;
+    public static final String POLL_ENDPOINT_NI = Route.INVOKE_ENDPOINT_NI + Route.POLL_ENDPOINT_SUFFIX;
     public static final String GET_RESULT_ENDPOINT_NI = Route.POLL_ENDPOINT_NI + Route.GET_RESULT_ENDPOINT_SUFFIX;
-
+    public static final String GET_RESULT_ENDPOINT_SUFFIX = "/response";
     private static final String TO_APP_BUS_ENDPOINT = "direct:toAppBus";
 
     private static final String HOST = "http://localhost";

@@ -52,17 +52,12 @@ public class BPELInvokerPluginHandler {
     private final BPELProcessFragments bpelFrags;
     private final DocumentBuilder docBuilder;
 
-    public BPELInvokerPluginHandler() {
-        try {
-            this.resHandler = new ResourceHandler();
-            this.bpelFrags = new BPELProcessFragments();
-            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-            docFactory.setNamespaceAware(true);
-            this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        } catch (final ParserConfigurationException e) {
-            LOG.error("Couldn't initialize ResourceHandler", e);
-            throw new RuntimeException(e);
-        }
+    public BPELInvokerPluginHandler() throws ParserConfigurationException {
+        this.resHandler = new ResourceHandler();
+        this.bpelFrags = new BPELProcessFragments();
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        docFactory.setNamespaceAware(true);
+        this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
     public void appendLOGMessageActivity(final BPELPlanContext context, final String message,
@@ -269,7 +264,7 @@ public class BPELInvokerPluginHandler {
         final String requestVariableName =
             invokerPortType.getLocalPart() + InputMessageId.getLocalPart() + "Request" + context.getIdForNames();
         context.addVariable(requestVariableName, BPELPlan.VariableType.MESSAGE, InputMessageId);
-    final String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageId.getLocalPart()
+        final String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageId.getLocalPart()
             + "Response" + context.getIdForNames();
         context.addVariable(responseVariableName, BPELPlan.VariableType.MESSAGE, OutputMessageId);
 

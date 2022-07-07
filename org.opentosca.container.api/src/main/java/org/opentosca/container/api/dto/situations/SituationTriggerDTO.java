@@ -160,6 +160,14 @@ public class SituationTriggerDTO extends ResourceSupport {
         this.eventTime = eventTime;
     }
 
+    public Long getTimeAvailableInSeconds() {
+        return timeAvailableInSeconds;
+    }
+
+    public void setTimeAvailableInSeconds(Long timeAvailableInSeconds) {
+        this.timeAvailableInSeconds = timeAvailableInSeconds;
+    }
+
     public static final class Converter {
         public static SituationTriggerDTO convert(final SituationTrigger object) {
             final SituationTriggerDTO dto = new SituationTriggerDTO();

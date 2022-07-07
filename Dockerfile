@@ -57,6 +57,10 @@ ENV COLLABORATION_MODE false
 ENV COLLABORATION_HOSTNAMES ""
 ENV COLLABORATION_PORTS ""
 
+RUN apt-get update \
+  && apt-get install -y wget \
+  && rm -rf /var/lib/apt/lists/*
+
 RUN rm /dev/random && ln -s /dev/urandom /dev/random \
     && wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
@@ -65,8 +69,8 @@ RUN rm /dev/random && ln -s /dev/urandom /dev/random \
 RUN rm -rf ${CATALINA_HOME}/webapps/*
 COPY --from=builder /tmp/build/container ${CATALINA_HOME}/webapps/ROOT
 
-ADD .docker/application.properties.tpl /tmp/opentosca/container/application.properties.tpl
-ADD .docker/server.xml.tpl /tmp/opentosca/container/server.xml.tpl
+COPY .docker/application.properties.tpl /tmp/opentosca/container/application.properties.tpl
+COPY .docker/server.xml.tpl /tmp/opentosca/container/server.xml.tpl
 
 EXPOSE ${CONTAINER_PORT}
 

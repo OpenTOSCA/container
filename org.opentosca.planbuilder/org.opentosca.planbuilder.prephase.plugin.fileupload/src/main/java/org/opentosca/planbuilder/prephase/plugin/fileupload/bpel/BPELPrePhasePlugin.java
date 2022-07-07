@@ -69,6 +69,8 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
         new QName("http://opentosca.org/artifacttypes", "DockerContainerArtifact");
     private static final QName stateArtifactType = new QName("http://opentosca.org/artifacttypes", "State");
 
+    private static final QName imageArtifactType = new QName("http://docs.oasis-open.org/tosca/ToscaNormativeTypes/artifacttypes", "Image");
+
     private final BPELPrePhasePluginHandler handler = new BPELPrePhasePluginHandler();
 
     /**
@@ -171,7 +173,8 @@ public class BPELPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPELPlanCo
         }
 
         if (!Utils.isSupportedInfrastructureNodeType(infrastructureNodeType)) {
-            return false;
+            return Utils.isCloudProvider(infrastructureNodeType)
+                && ModelUtilities.isOfType(imageArtifactType, artifactType, artifactTypes);
         }
         // else if we have a supported infrastructure node, and we are handling a DA, upload it...
         if (isDA) {
