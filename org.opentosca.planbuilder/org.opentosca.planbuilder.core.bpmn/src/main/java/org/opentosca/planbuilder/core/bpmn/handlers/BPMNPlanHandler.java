@@ -130,44 +130,60 @@ public class BPMNPlanHandler {
      */
     public void initializeBPMNSkeleton(final BPMNPlan plan) {
         ArrayList<String> visitedNodeIds = new ArrayList<>();
-        for (final AbstractPlan.Link links : plan.getLinks()) {
-            AbstractActivity source = links.getSrcActiv();
-            AbstractActivity target = links.getTrgActiv();
-            BPMNSubprocess subprocess;
-            if (source instanceof NodeTemplateActivity) {
-                ((RelationshipTemplateActivity) target).setVisitedCounter();
-                if (!visitedNodeIds.contains(source.getId())) {
-                    subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(source, plan);
-                    visitedNodeIds.add(source.getId());
-                    LOG.debug("Generate empty subprocess for {}", source);
-                    plan.addSubprocess(subprocess);
-                }
-                // each relationship template must be visited twice after that
-                // we can add it otherwise one of the instance url is unknown
-                if (((RelationshipTemplateActivity) target).getVisitedCounter() == 2) {
-                    subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(target, plan);
-                    LOG.debug("Generate empty subprocess for {}", target);
-                    plan.addSubprocess(subprocess);
-                }
+        BPMNSubprocess subprocess;
+        for (final AbstractActivity activity : plan.getActivites()) {
+            if (activity instanceof NodeTemplateActivity) {
+                subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(activity, plan);
+                visitedNodeIds.add(activity.getId());
+                LOG.debug("Generate empty subprocess for {}", activity.getId());
+                plan.addSubprocess(subprocess);
             }
-            if (source instanceof RelationshipTemplateActivity) {
-                ((RelationshipTemplateActivity) source).setVisitedCounter();
-                if (!visitedNodeIds.contains(target.getId())) {
-                    subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(target, plan);
-                    visitedNodeIds.add(target.getId());
-                    LOG.debug("Generate empty subprocess for target node {}", target);
-                    plan.addSubprocess(subprocess);
-                }
-
-                // each relationship template must be visited twice after that
-                // we can add it otherwise one of the instance url is unknown
-                if (((RelationshipTemplateActivity) source).getVisitedCounter() == 2) {
-                    subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(source, plan);
-                    LOG.debug("Generate empty subprocess for {}", source);
-                    plan.addSubprocess(subprocess);
-                }
+            if (activity instanceof RelationshipTemplateActivity) {
+                subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(activity, plan);
+                LOG.debug("Generate empty subprocess for {}", activity);
+                plan.addSubprocess(subprocess);
             }
         }
+        /**
+         for (final AbstractPlan.Link links : plan.getLinks()) {
+         AbstractActivity source = links.getSrcActiv();
+         AbstractActivity target = links.getTrgActiv();
+         BPMNSubprocess subprocess;
+         if (source instanceof NodeTemplateActivity) {
+         ((RelationshipTemplateActivity) target).setVisitedCounter();
+         if (!visitedNodeIds.contains(source.getId())) {
+         subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(source, plan);
+         visitedNodeIds.add(source.getId());
+         LOG.debug("Generate empty subprocess for {}", source);
+         plan.addSubprocess(subprocess);
+         }
+         // each relationship template must be visited twice after that
+         // we can add it otherwise one of the instance url is unknown
+         if (((RelationshipTemplateActivity) target).getVisitedCounter() == 2) {
+         subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(target, plan);
+         LOG.debug("Generate empty subprocess for {}", target);
+         plan.addSubprocess(subprocess);
+         }
+         }
+         if (source instanceof RelationshipTemplateActivity) {
+         ((RelationshipTemplateActivity) source).setVisitedCounter();
+         if (!visitedNodeIds.contains(target.getId())) {
+         subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(target, plan);
+         visitedNodeIds.add(target.getId());
+         LOG.debug("Generate empty subprocess for target node {}", target);
+         plan.addSubprocess(subprocess);
+         }
+
+         // each relationship template must be visited twice after that
+         // we can add it otherwise one of the instance url is unknown
+         if (((RelationshipTemplateActivity) source).getVisitedCounter() == 2) {
+         subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(source, plan);
+         LOG.debug("Generate empty subprocess for {}", source);
+         plan.addSubprocess(subprocess);
+         }
+         }
+         }
+         */
     }
 
     /**

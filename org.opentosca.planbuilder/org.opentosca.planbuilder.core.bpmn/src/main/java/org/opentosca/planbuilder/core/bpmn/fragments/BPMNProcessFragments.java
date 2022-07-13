@@ -141,7 +141,7 @@ public class BPMNProcessFragments {
         original[1] = "</camunda:inputOutput>" + original[1];
 
         StringBuilder inputParameterBuilder = new StringBuilder();
-        if ((bpmnSubprocess.getInputParameterNames() != null) && (bpmnSubprocess.getInputParameterValues() != null)) {
+        if ((bpmnSubprocess.getInputParameterNames() != null) && !(bpmnSubprocess.getInputParameterNames().isBlank()) && (bpmnSubprocess.getInputParameterValues() != null)) {
             int counter = 0;
             for (String inputParameterName : bpmnSubprocess.getInputParameterNames().split(",")) {
                 String inputParameterValue = bpmnSubprocess.getInputParameterValues().split(",")[counter];
@@ -1167,7 +1167,12 @@ public class BPMNProcessFragments {
     private String createSetServiceTemplateState(BPMNSubprocess bpmnSubprocess) throws IOException {
         String setState = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNSetStateTask.xml"));
         setState = setState.replace("Activity_IdToSet", bpmnSubprocess.getId());
-        setState = setState.replaceAll("StateToSet", bpmnSubprocess.getInstanceState());
+        LOG.info("DERSTATEIST");
+        setState = setState.replaceAll("StateToSet", "CREATED");
+        if (bpmnSubprocess.getInstanceState() != null) {
+            setState = setState.replaceAll("StateToSet", bpmnSubprocess.getInstanceState());
+        }
+        LOG.info(bpmnSubprocess.getInstanceState());
         for (BPMNDataObject bpmnDataObject : bpmnSubprocess.getBuildPlan().getDataObjectsList()) {
             if (bpmnSubprocess.getNodeTemplate() != null) {
                 if (bpmnDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_NODE && bpmnDataObject.getNodeTemplate().equals(bpmnSubprocess.getNodeTemplate().getId())) {

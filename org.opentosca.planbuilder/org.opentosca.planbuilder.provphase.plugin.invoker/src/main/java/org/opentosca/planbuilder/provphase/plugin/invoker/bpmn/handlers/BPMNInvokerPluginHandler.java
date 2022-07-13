@@ -63,10 +63,33 @@ public class BPMNInvokerPluginHandler {
             StringBuilder inputParamValues = new StringBuilder();
             StringBuilder outputParamNames = new StringBuilder();
             StringBuilder outputParamValues = new StringBuilder();
-
+            BPMNSubprocess subprocess = context.getSubprocessElement();
+            subprocess.setHostingNodeTemplate(templateId);
+            BPMNPlan buildPlan = subprocess.getBuildPlan();
             // set input param names and values
             for (Map.Entry<String, Variable> entry : internalExternalPropsInput.entrySet()) {
-                if (inputParamNames.toString().equals("") && inputParamValues.toString().equals("")) {
+                if (entry.getValue().getVariableName().contains("toscaProperty")) {
+                    for (BPMNDataObject nodeDataObject : buildPlan.getDataObjectsList()) {
+                        if (nodeDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_NODE && entry.getValue().getVariableName().contains(nodeDataObject.getNodeTemplate())) {
+                            for (String property : nodeDataObject.getProperties()) {
+                                String propertyName = property.split("#")[0];
+                                if (propertyName.equals(entry.getKey())) {
+                                    String propertyValue = property.split("#")[1];
+                                    if (propertyValue.startsWith("G")) {
+                                        propertyValue = propertyValue.replaceFirst("G", "");
+                                    }
+                                    if (inputParamNames.toString().equals("") && inputParamValues.toString().equals("")) {
+                                        inputParamNames.append(entry.getKey());
+                                        inputParamValues.append(propertyValue);
+                                    } else {
+                                        inputParamNames.append(",").append(entry.getKey());
+                                        inputParamValues.append(",").append(propertyValue);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else if (inputParamNames.toString().equals("") && inputParamValues.toString().equals("")) {
                     inputParamNames.append(entry.getKey());
                     inputParamValues.append(entry.getValue().getVariableName());
                 } else {
@@ -86,9 +109,6 @@ public class BPMNInvokerPluginHandler {
                 }
             }
 
-            BPMNSubprocess subprocess = context.getSubprocessElement();
-            subprocess.setHostingNodeTemplate(templateId);
-            BPMNPlan buildPlan = subprocess.getBuildPlan();
             String preState = InstanceStates.getOperationPreState(operationName);
             final BPMNSubprocess createNodeOperationTask = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
             final BPMNSubprocess setPreState = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.SET_ST_STATE);

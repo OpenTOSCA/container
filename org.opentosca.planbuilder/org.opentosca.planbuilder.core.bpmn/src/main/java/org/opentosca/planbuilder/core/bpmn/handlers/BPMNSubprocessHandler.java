@@ -49,16 +49,18 @@ public class BPMNSubprocessHandler {
         String idPrefix;
         final BPMNSubprocess bpmnSubprocess;
         final String resultVariablePrefix = "ResultVariable";
+        String id = replaceDotByHyphen(activity.getId());
+
         if (activity instanceof NodeTemplateActivity) {
             NodeTemplateActivity ntActivity = (NodeTemplateActivity) activity;
             idPrefix = BPMNSubprocessType.SUBPROCESS.toString();
-            bpmnSubprocess = new BPMNSubprocess(ntActivity, BPMNSubprocessType.SUBPROCESS, idPrefix + "_" + activity.getId());
+            bpmnSubprocess = new BPMNSubprocess(ntActivity, BPMNSubprocessType.SUBPROCESS, idPrefix + "_" + id);
             bpmnSubprocess.setBuildPlan(buildPlan);
             bpmnSubprocess.setNodeTemplate(((NodeTemplateActivity) activity).getNodeTemplate());
 
             // with each subprocess a node data object is associated to enable fast access to node instance url & maybe properties
-            BPMNDataObject dataObject = new BPMNDataObject(BPMNSubprocessType.DATA_OBJECT_NODE, "DataObject_" +activity.getId());
-            String resultVariable = resultVariablePrefix + activity.getId();
+            BPMNDataObject dataObject = new BPMNDataObject(BPMNSubprocessType.DATA_OBJECT_NODE, "DataObject_" + id);
+            String resultVariable = resultVariablePrefix + id;
             dataObject.setNodeInstanceURL(resultVariable);
             dataObject.setNodeTemplate(((NodeTemplateActivity) activity).getNodeTemplate().getId());
 
@@ -69,17 +71,16 @@ public class BPMNSubprocessHandler {
         } else if (activity instanceof RelationshipTemplateActivity) {
             RelationshipTemplateActivity relActivity = (RelationshipTemplateActivity) activity;
             idPrefix = BPMNSubprocessType.SUBPROCESS.toString();
-            bpmnSubprocess = new BPMNSubprocess(relActivity, BPMNSubprocessType.SUBPROCESS, idPrefix + "_" + activity.getId());
+            bpmnSubprocess = new BPMNSubprocess(relActivity, BPMNSubprocessType.SUBPROCESS, idPrefix + "_" + id);
             bpmnSubprocess.setBuildPlan(buildPlan);
             bpmnSubprocess.setRelationshipTemplate(((RelationshipTemplateActivity) activity).getRelationshipTemplate());
 
-            String source = relActivity.getRelationshipTemplate().getSourceElement().getRef().getId();
-            String target = relActivity.getRelationshipTemplate().getTargetElement().getRef().getId();
-
+            String source = replaceDotByHyphen(relActivity.getRelationshipTemplate().getSourceElement().getRef().getId());
+            String target = replaceDotByHyphen(relActivity.getRelationshipTemplate().getTargetElement().getRef().getId());
             // with each subprocess a relationship data object is associated to enable fast access to relationship instance url & maybe properties
-            BPMNDataObject dataObject = new BPMNDataObject(BPMNSubprocessType.DATA_OBJECT_REL, "DataObject_" + activity.getId());
+            BPMNDataObject dataObject = new BPMNDataObject(BPMNSubprocessType.DATA_OBJECT_REL, "DataObject_" + id);
             dataObject.setRelationshipTemplate(((RelationshipTemplateActivity) activity).getRelationshipTemplate().getId());
-            String resultVariable = resultVariablePrefix + activity.getId();
+            String resultVariable = resultVariablePrefix + id;
             dataObject.setSourceInstanceURL(resultVariablePrefix + source + "_provisioning_activity");
             dataObject.setTargetInstanceURL(resultVariablePrefix + target + "_provisioning_activity");
             dataObject.setRelationshipInstanceURL(resultVariable);
@@ -95,8 +96,16 @@ public class BPMNSubprocessHandler {
     }
 
     /**
-     * Creates a set state task inside a subprocess. But this method is only called if we didn't apply any
-     * pattern based plugin. Per default, we set then the node template to CREATED.
+     * The dot must be replaced by the hyphen otherwise the Camunda Engine throws an exception because the result
+     * variable contains the activity id
+     */
+    public String replaceDotByHyphen(String activityId) {
+        return activityId.replace(".", "-");
+    }
+
+    /**
+     * Creates a set state task inside a subprocess. But this method is only called if we didn't apply any pattern based
+     * plugin. Per default, we set then the node template to CREATED.
      */
     public void createSetStateTaskInsideSubprocess(final BPMNPlan buildPlan, final BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
         String idPrefix = BPMNSubprocessType.TASK.toString();
@@ -112,7 +121,7 @@ public class BPMNSubprocessHandler {
         setState.setParentProcess(bpmnSubprocess);
         bpmnSubprocess.setInstanceState("CREATED");
         bpmnSubprocess.addTaskToSubprocess(setState);
-        this.processFragments.createSetServiceTemplateStateAsNode(bpmnSubprocess);
+        //this.processFragments.createSetServiceTemplateStateAsNode(bpmnSubprocess);
     }
 
     /**

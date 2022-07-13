@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.print.Doc;
+
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
@@ -463,10 +465,25 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
         // map properties to input and output parameters
         final Map<String, Variable> createDEInternalExternalPropsInput = new HashMap<>();
         final Map<String, Variable> createDEInternalExternalPropsOutput = new HashMap<>();
-
-        createDEInternalExternalPropsInput.put("ContainerImage", containerImageVar);
+        Map<String, String> containerPropMap = ModelUtils.asMap(context.getNodeTemplate().getProperties());
+        Map<String, String> propMap = containerPropMap;
+        for (String property : context.getSubprocessElement().getDataObject().getProperties()) {
+            String propertyName = property.split("#")[0];
+            String propertyValue = property.split("#")[1];
+            // either we have something like DockerEngine#GDockerEngineURL or
+            // Port#GApplicationPort these values have to be in the dollar brackets otherwise we get an error
+            if (propertyValue.startsWith("G")) {
+                propertyValue = propertyValue.replace("G", "");
+                propertyValue = "${" + propertyValue + "}";
+                propMap.replace(propertyName, containerPropMap.get(propertyName), propertyValue);
+            } else {
+                propMap.replace(propertyName, containerPropMap.get(propertyName), propertyValue);
+            }
+        }
+        createDEInternalExternalPropsInput.put("ContainerImage", new Variable(propMap.get(DockerContainerTypePluginPluginConstants.PROPERTY_IMAGE_ID)));
         createDEInternalExternalPropsInput.put("DockerEngineURL", dockerEngineUrlVar);
-        createDEInternalExternalPropsInput.put("ContainerPorts", portMappingVar);
+        Variable containerPortsVariable = new Variable(propMap.get(DockerContainerTypePluginPluginConstants.PROPERTY_CONTAINER_PORT) + "->" + propMap.get(DockerContainerTypePluginPluginConstants.PROPERTY_PORT) + ";");
+        createDEInternalExternalPropsInput.put("ContainerPorts", containerPortsVariable);
 
         if (envMappingVar != null) {
             createDEInternalExternalPropsInput.put("ContainerEnv", envMappingVar);

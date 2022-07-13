@@ -15,39 +15,41 @@ def operation = execution.getVariable("Operation");
 
 println "Service Instance $serviceInstanceURL of $serviceTemplateID in CSAR $csarID"
 
-def inputParamNames = execution.getVariable("InputParamNames").split(",");
-def outputParamNames = execution.getVariable("OutputParamNames").split(",");
+def inputParamNames = execution.getVariable("InputParamNames");
+def outputParamNames = execution.getVariable("OutputParamNames");
+
+
 def invokeParams = "{";
+if (inputParamNames != null) {
+    inputParamNames = inputParamNames.split(",");
+    for (int i in 0..inputParamNames.size() - 1) {
+        if (inputParamNames[i] != null) {
+                def paramName = 'Input_' + inputParamNames[i];
+                def paramValue = execution.getVariable(paramName);
 
-for (int i in 0..inputParamNames.size() - 1) {
-    if (inputParamNames[i] != null) {
-        if (inputParamNames[i] != "ContainerMountPath") {
-            def paramName = 'Input_' + inputParamNames[i];
-            def paramValue = execution.getVariable(paramName);
+                if (paramValue != null) {
+                    def type = paramValue.split("!")[0];
+                    if (type == 'String') {
+                        paramValue = paramValue.split("!")[1];
+                        paramValue = paramValue.replace('->', ',');
+                    }
 
-            if (paramValue != null) {
-                def type = paramValue.split("!")[0];
-                if (type == 'String') {
-                    paramValue = paramValue.split("!")[1];
-                    paramValue = paramValue.replace('->', ',');
+                    // special handling with DA ex MyTinyToDo_DA#tinytodo.zip
+                    if (type == 'DA') {
+                        def paramDA = execution.getVariable("instanceDataAPIUrl").split("/servicetemplates")[0];
+                        def fileName = paramValue.split("!")[1];
+                        paramValue = paramDA + fileName;
+                    }
+
+                    if (type == 'VALUE') {
+                        def propertyValue = paramValue.split("!")[1];
+                        paramValue = execution.getVariable(propertyValue);
+                    }
+
+                    println "Parameter ${inputParamNames[i]} is assigned with value $paramValue from $paramName: "
+                    invokeParams = invokeParams + '"' + inputParamNames[i] + '" : "' + paramValue + '",';
                 }
-
-                // special handling with DA ex MyTinyToDo_DA#tinytodo.zip
-                if (type == 'DA') {
-                    def paramDA = execution.getVariable("instanceDataAPIUrl").split("/servicetemplates")[0];
-                    def fileName = paramValue.split("!")[1];
-                    paramValue = paramDA + fileName;
-                }
-
-                if (type == 'VALUE') {
-                    def propertyValue = paramValue.split("!")[1];
-                    paramValue = execution.getVariable(propertyValue);
-                }
-
-                println "Parameter ${inputParamNames[i]} is assigned with value $paramValue from $paramName: "
-                invokeParams = invokeParams + '"' + inputParamNames[i] + '" : "' + paramValue + '",';
             }
-        }
     }
 }
 
@@ -103,11 +105,14 @@ while (true) {
         println responseJSON
         // in this step we write the output parameter of the operation back to the corresponding data object
         // this is necessary to build the output parameter of the plan
-        outputParamNames.each { outputParam ->
-            String name = dataObject + PROPERTIES + outputParam
-            String value = responseJSON.get(outputParam)
-            execution.setVariable(name, value);
-            println "Set variable $name: $value"
+        if (outputParamNames != null) {
+            outputParamNames = outputParamNames.split(",");
+            outputParamNames.each { outputParam ->
+                String name = dataObject + PROPERTIES + outputParam
+                String value = responseJSON.get(outputParam)
+                execution.setVariable(name, value);
+                println "Set variable $name: $value"
+            }
         }
         return;
     }
