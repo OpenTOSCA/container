@@ -322,6 +322,10 @@ public abstract class ModelUtils {
             return ((TEntityTemplate.WineryKVProperties) properties).getElementName();
         }
 
+        if (isYaml) {
+            return "yamlProps";
+        }
+
         return null;
     }
 
@@ -1229,6 +1233,53 @@ public abstract class ModelUtils {
         return effectiveDAs;
     }
 
+    public static boolean hasWorkflows(TServiceTemplate serviceTemplate) {
+        return !serviceTemplate.getTopologyTemplate().getWorkflows().isEmpty();
+    }
+
+    public static TBoundaryDefinitions getTBoundaryDefinitions(TServiceTemplate serviceTemplate) {
+
+        if (serviceTemplate.getBoundaryDefinitions() != null && !hasWorkflows(serviceTemplate)) {
+            // if this service template has no workflows it probably XML based => TODO FIXME
+            return serviceTemplate.getBoundaryDefinitions();
+        } else {
+            final TBoundaryDefinitions boundaryDefinitions = new TBoundaryDefinitions.Builder().build();
+            // here we only construct a boundary which has the interfaces and plans at least now
+            Map<String, TExportedInterface> ifaces = Maps.newHashMap();
+            serviceTemplate.getTopologyTemplate().getWorkflows().forEach(wf -> {
+                String interfaceName = wf.getImplementation().getDependencies().stream().filter(dep -> dep.startsWith("interfaceName=")).findFirst().orElse(null);
+                String operationName = wf.getImplementation().getDependencies().stream().filter(dep -> dep.startsWith("operationName=")).findFirst().orElse(null);
+
+                if (Objects.nonNull(interfaceName) && Objects.nonNull(operationName)) {
+                    interfaceName = interfaceName.substring("interfaceName=".length());
+                    operationName = operationName.substring("operationName=".length());
+                    TExportedOperation op = new TExportedOperation(operationName);
+                    TExportedOperation.Plan plan = new TExportedOperation.Plan();
+                    plan.setPlanRef(toTPlan(wf));
+                    op.setPlan(plan);
+                    if (ifaces.containsKey(interfaceName)) {
+                        TExportedInterface iFace = ifaces.get(interfaceName);
+                        iFace.getOperation().add(op);
+                    } else {
+                        TExportedInterface iFace = new TExportedInterface(interfaceName, Lists.newArrayList(op));
+                        ifaces.put(interfaceName, iFace);
+                    }
+                }
+            });
+            boundaryDefinitions.setInterfaces(Lists.newArrayList(ifaces.values()));
+            return boundaryDefinitions;
+        }
+    }
+
+    public static TWorkflow toTWorkflow(TPlan plan, TExportedOperation operation, String interfaceName) {
+        List<ParameterDefinition> inputs = plan.getInputParameters().stream().map(param -> ModelUtils.toParameterDefinition(param)).collect(Collectors.toList());
+        List<ParameterDefinition> outputs = plan.getOutputParameters().stream().map(param -> ModelUtils.toParameterDefinition(param)).collect(Collectors.toList());
+        TWorkflow wf = new TWorkflow.Builder(plan.getId()).setInputs(inputs).setOutputs(outputs).setImplementation(ModelUtils.toTImplementation(plan, operation, interfaceName)).build();
+        // TODO FIXME absolutely insane
+        wf.setDescription(plan.getPlanType());
+        return wf;
+    }
+
     public static TWorkflow toTWorkflow(TPlan plan) {
         List<ParameterDefinition> inputs = plan.getInputParameters().stream().map(param -> ModelUtils.toParameterDefinition(param)).collect(Collectors.toList());
         List<ParameterDefinition> outputs = plan.getOutputParameters().stream().map(param -> ModelUtils.toParameterDefinition(param)).collect(Collectors.toList());
@@ -1236,6 +1287,18 @@ public abstract class ModelUtils {
         // TODO FIXME absolutely insane
         wf.setDescription(plan.getPlanType());
         return wf;
+    }
+
+    public static TImplementation toTImplementation(TPlan plan, TExportedOperation operation, String interfaceName) {
+        TImplementation  impl = new TImplementation();
+        impl.setPrimary(plan.getPlanModelReference().getReference());
+        // TODO FIXME this is insane
+        impl.setOperationHost(plan.getPlanLanguage());
+        List<String> deps = Lists.newArrayList();
+        deps.add("operationName=" + operation.getName());
+        deps.add("interfaceName=" + interfaceName);
+        impl.setDependencies(deps);
+        return impl;
     }
 
     public static TImplementation toTImplementation(TPlan plan) {

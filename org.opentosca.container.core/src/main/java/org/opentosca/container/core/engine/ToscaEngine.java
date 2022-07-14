@@ -42,6 +42,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
 import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.model.tosca.TWorkflow;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -50,6 +51,7 @@ import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ui.Model;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -345,8 +347,13 @@ public abstract class ToscaEngine {
     public static TPlan resolvePlanReference(Csar csar, QName planId) throws NotFoundException {
         // can't reformulate using queryRepository because PlanId requires a PlansId as parent for resolution
         return csar.serviceTemplates().stream()
-            .flatMap(st ->
-                st.getPlans() == null ? Stream.empty() : st.getPlans().stream()
+            .flatMap(st ->{
+                    if (!ModelUtils.hasWorkflows(st)) {
+                        return st.getPlans() == null ? Stream.empty() : st.getPlans().stream();
+                    } else {
+                        return st.getTopologyTemplate().getWorkflows().stream().map(wf -> ModelUtils.toTPlan(wf));
+                    }
+                }
             )
             .filter(tPlan -> tPlan.getId().equals(planId.getLocalPart()))
             .findFirst()
@@ -407,9 +414,25 @@ public abstract class ToscaEngine {
             return null;
         }
 
+        Map<String, String> propMap = ModelUtils.asMap(template.getProperties());
+        String propsNamespace = ModelUtils.getNamespace(template.getProperties());
+        String propsElement = ModelUtils.getElementName(template.getProperties());
+
+
+        /*
+        if (template.getProperties() instanceof  TEntityTemplate.YamlProperties) {
+            TEntityTemplate.YamlProperties props = (TEntityTemplate.YamlProperties) template.getProperties();
+            propMap = ModelUtils.asMap(props.getProperties());
+            propsNamespace = "tosca_simple_yaml_1_3";
+            propsElement = "yamlProps";
+        }*/
+
+        /*
         if (template.getProperties() instanceof TEntityTemplate.WineryKVProperties) {
             TEntityTemplate.WineryKVProperties props = (TEntityTemplate.WineryKVProperties) template.getProperties();
-            Map<String, String> propMap = props.getKVProperties();
+            propMap = props.getKVProperties();
+            propsNamespace = props.getNamespace();
+            propsElement = props.getElementName();
 
             // So just that people understand:
                 /*
@@ -437,16 +460,16 @@ public abstract class ToscaEngine {
                 in case of the MyTinyToDoDocker Container Properties props.getElementName() returns NULL!!
 
                 TODO: FIXME in winery!
-                 */
 
-            Element rootElement = doc.createElementNS(props.getNamespace(), props.getElementName() != null ? props.getElementName() : "Properties");
-            doc.appendChild(rootElement);
+        }*/
 
-            for (String propName : propMap.keySet()) {
-                Element propElement = doc.createElementNS(props.getNamespace(), propName);
-                propElement.setTextContent(propMap.get(propName));
-                rootElement.appendChild(propElement);
-            }
+        Element rootElement = doc.createElementNS(propsNamespace, propsElement != null ? propsElement : "Properties");
+        doc.appendChild(rootElement);
+
+        for (String propName : propMap.keySet()) {
+            Element propElement = doc.createElementNS(propsNamespace, propName);
+            propElement.setTextContent(propMap.get(propName));
+            rootElement.appendChild(propElement);
         }
 
         return doc;
@@ -454,7 +477,7 @@ public abstract class ToscaEngine {
 
     private static Stream<TExportedOperation> listOperations(TServiceTemplate serviceTemplate) {
         return Optional.of(serviceTemplate)
-            .map(TServiceTemplate::getBoundaryDefinitions)
+            .map(servTemp -> ModelUtils.getTBoundaryDefinitions(servTemp))
             .map(TBoundaryDefinitions::getInterfaces)
             .orElse(Collections.emptyList())
             .stream()
@@ -464,10 +487,35 @@ public abstract class ToscaEngine {
 
     @Nullable
     public static TExportedOperation getReferencingOperationWithin(TServiceTemplate serviceTemplate, String planReference) {
-        return listOperations(serviceTemplate)
+        Collection<TExportedOperation> servOps = listOperations(serviceTemplate).collect(Collectors.toList());
+        TExportedOperation op = servOps.stream()
             .filter(operation -> ((TPlan) operation.getPlan().getPlanRef()).getId().equals(planReference))
             .findFirst()
             .orElse(null);
+
+        if (op == null) {
+            // lets do search on the workflows
+            TWorkflow workflow = serviceTemplate
+                .getTopologyTemplate()
+                .getWorkflows()
+                .stream()
+                .filter(wf -> wf.getName().equals(planReference)).findFirst().orElse(null);
+            if (workflow == null) {
+                return null;
+            }
+            String operationName = workflow.getImplementation()
+                .getDependencies().stream().filter(dep -> dep.contains("operationName="))
+                .findFirst().orElse(null);
+
+            if (operationName == null) {
+                return null;
+            } else {
+                final String operation = operationName.substring("operationName=".length());
+                return servOps.stream().filter(sOp -> sOp.getName().equals(operation)).findFirst().orElse(null);
+            }
+        } else {
+            return op;
+        }
     }
 
     public static TExportedOperation resolveBoundaryDefinitionOperation(TServiceTemplate serviceTemplate, String interfaceName, String operationName) throws NotFoundException {

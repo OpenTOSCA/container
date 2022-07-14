@@ -40,6 +40,7 @@ import org.eclipse.winery.repository.datatypes.ids.elements.SelfServiceMetaDataI
 
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.tika.mime.MediaType;
+import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.impl.service.FileSystem;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
@@ -172,8 +173,14 @@ public class WineryExporter {
             }
             serviceTemplate.setBoundaryDefinitions(boundary);
 
+            final List<TPlan> planlist = planList;
             // create workflows for yaml
-            List<TWorkflow> wfs = serviceTemplate.getPlans().stream().map(plan -> ModelUtils.toTWorkflow(plan)).collect(Collectors.toList());
+            List<TWorkflow> wfs = plans.stream().map(plan -> {
+
+                TPlan tPlan = planlist.stream().filter(tP -> tP.getId().equals(plan.getId().substring(plan.getId().lastIndexOf("}") + 1))).findFirst().orElse(null);
+
+                return ModelUtils.toTWorkflow(tPlan, ToscaEngine.getReferencingOperationWithin(serviceTemplate, tPlan.getId()), plan.getTOSCAInterfaceName());
+            }).collect(Collectors.toList());
             serviceTemplate.getTopologyTemplate().setWorkflows(wfs);
 
             ServiceTemplateId id = BackendUtils.getDefinitionsChildId(ServiceTemplateId.class, serviceTemplate.getTargetNamespace(), serviceTemplate.getId(), false);
