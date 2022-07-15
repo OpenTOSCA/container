@@ -37,10 +37,12 @@ import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TImplementation;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TInterfaceDefinition;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TOperationDefinition;
 import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
@@ -1147,13 +1149,36 @@ public abstract class ModelUtils {
      * @return the corresponding interface definition or null if not found
      */
     private static TInterface getInterfaceFromNodeTypeWithoutHierarchy(TNodeType nodeType, String interfaceName) {
-        return Objects.nonNull(nodeType.getInterfaces()) ?
+        TInterface tInterface = Objects.nonNull(nodeType.getInterfaces()) ?
             nodeType.getInterfaces().stream()
                 .filter(anInterface -> anInterface.getName().equals(interfaceName))
                 .findFirst()
                 .orElse(null)
             : null;
+        if (tInterface != null) {
+            return null;
+        }
+        tInterface = Objects.nonNull(nodeType.getInterfaceDefinitions()) ?
+        nodeType.getInterfaceDefinitions().stream()
+            .filter(anInterface -> anInterface.getName().equals(interfaceName))
+            .map(anInterface -> ModelUtils.toTInterface(anInterface))
+            .findFirst()
+            .orElse(null) : null;
+        return tInterface;
     }
+
+    public static TInterface toTInterface(TInterfaceDefinition anInterface) {
+        return new TInterface.Builder(anInterface.getName(), anInterface.getOperations().stream()
+            .map(iface -> ModelUtils.toTOperation(iface)).collect(Collectors.toList())).build();
+    }
+
+    public static TOperation toTOperation(TOperationDefinition operationDefinition) {
+        return new TOperation.Builder(operationDefinition.getName())
+            .setInputParameters(operationDefinition.getInputs().stream().map(parameterDefinition -> ModelUtils.toTParameter(parameterDefinition)).collect(Collectors.toList()))
+            .setOutputParameters(operationDefinition.getOutputs().stream().map(parameterDefinition -> ModelUtils.toTParameter(parameterDefinition)).collect(Collectors.toList()))
+            .build();
+    }
+
 
     /**
      * Get the AbstractOperation with a certain name from a NodeTemplate
