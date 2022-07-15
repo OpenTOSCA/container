@@ -115,7 +115,7 @@ public class NodeTemplateInstanceController {
     @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response createNodeTemplateInstance(@Context final UriInfo uriInfo, final String serviceTemplateInstanceId) {
-        logger.debug("Invoking createNodeTemplateInstance");
+        logger.debug("Invoking createNodeTemplateInstance in serviceTemplateInstance " + serviceTemplateInstanceId + " and nodeTemplate " + this.nodetemplate);
         try {
             final NodeTemplateInstance createdInstance =
                 this.nodeTemplateService.createNewNodeTemplateInstance(this.csar, this.servicetemplate, this.nodetemplate,
@@ -177,7 +177,7 @@ public class NodeTemplateInstanceController {
     @Consumes( {MediaType.TEXT_PLAIN})
     @ApiOperation(hidden = true, value = "")
     public Response updateNodeTemplateInstanceState(@PathParam("id") final Long id, final String request) {
-        logger.debug("Invoking updateNodeTemplateInstanceState");
+        logger.debug("Invoking updateNodeTemplateInstanceState for nodeInstance " + id + " and state " + request);
         try {
             this.nodeTemplateInstanceService.setNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id, request);
         } catch (final IllegalArgumentException e) { // this handles a null request too

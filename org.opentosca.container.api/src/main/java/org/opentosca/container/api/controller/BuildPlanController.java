@@ -198,7 +198,7 @@ public class BuildPlanController {
     public Response changeBuildPlanInstanceState(@PathParam("plan") final String plan,
                                                  @PathParam("instance") final String instance,
                                                  @Context final UriInfo uriInfo, final String request) {
-        LOGGER.debug("Invoking changeBuildPlanInstanceState");
+        LOGGER.debug("Invoking changeBuildPlanInstanceState on buildPlanInstance " + instance + " to state " + request);
         PlanInstance pi = planInstanceService.resolvePlanInstance(null, instance);
         return planInstanceService.updatePlanInstanceState(pi, PlanInstanceState.valueOf(request))
             ? Response.ok().build()

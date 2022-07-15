@@ -223,7 +223,7 @@ public class ServiceTemplateInstanceController {
     @Consumes( {MediaType.TEXT_PLAIN})
     @ApiOperation(hidden = true, value = "")
     public Response updateServiceTemplateInstanceState(@PathParam("id") final Long id, final String request) {
-        logger.debug("Invoking updateServiceTemplateInstanceState");
+        logger.debug("Invoking updateServiceTemplateInstanceState of serviceTemplateInstance " + id + " to state " + request);
         try {
             this.serviceTemplateInstanceService.setServiceTemplateInstanceState(id, request);
         } catch (final IllegalArgumentException e) { // this handles a null request too
