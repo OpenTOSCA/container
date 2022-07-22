@@ -13,6 +13,7 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 
+import org.apache.commons.logging.Log;
 import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
@@ -99,13 +100,17 @@ public abstract class BPMNPatternBasedHandler {
             new ConcreteOperationMatching(abstractMatching.interfaceName, abstractMatching.operationName);
 
         matching.matchedNodes = abstractMatching.matchedNodes;
-
         for (final TParameter param : abstractMatching.inputMatching.keySet()) {
             boolean added = false;
-
             for (final TNodeTemplate nodeForMatch : matching.matchedNodes) {
                 for (final String nodePropName : ModelUtils.getPropertyNames(nodeForMatch)) {
                     if (abstractMatching.inputMatching.get(param).equals(nodePropName)) {
+                        matching.inputMatching.put(param, context.getPropertyVariable(nodeForMatch, nodePropName));
+                        added = true;
+                        break;
+                    }
+                    // as discussed we replace it later with Utils
+                    if (abstractMatching.inputMatching.get(param).equals("IP") && nodePropName.equals("ContainerIP")) {
                         matching.inputMatching.put(param, context.getPropertyVariable(nodeForMatch, nodePropName));
                         added = true;
                         break;
@@ -139,8 +144,6 @@ public abstract class BPMNPatternBasedHandler {
     protected boolean hasCompleteMatching(final Collection<TNodeTemplate> nodesForMatching,
                                           final TInterface ifaceToMatch,
                                           final TOperation operationToMatch) {
-
-        System.out.println("hascompletematching start");
         final OperationMatching matching =
             createPropertyToParameterMatching(nodesForMatching, ifaceToMatch, operationToMatch);
 
@@ -149,8 +152,6 @@ public abstract class BPMNPatternBasedHandler {
         if (operationToMatch.getInputParameters() != null) {
             inputParamSize = operationToMatch.getInputParameters().size();
         }
-
-        System.out.println("hascompletematching return: " + (matching.inputMatching.size() == inputParamSize));
         return matching.inputMatching.size() == inputParamSize;
     }
 
@@ -159,13 +160,19 @@ public abstract class BPMNPatternBasedHandler {
                                                                   final TOperation operationToMatch) {
         final OperationMatching matching = new OperationMatching(ifaceToMatch, operationToMatch);
         final Set<TNodeTemplate> matchedNodes = new HashSet<>();
-
         if (operationToMatch.getInputParameters() != null) {
             for (final TParameter param : operationToMatch.getInputParameters()) {
                 boolean matched = false;
 
                 for (final TNodeTemplate nodeForMatching : nodesForMatching) {
                     for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
+                       // as discussed we replace it with Utils
+                        if (param.getName().equals("IP") && propName.equals("ContainerIP")) {
+                            matching.inputMatching.put(param, param.getName());
+                            matched = true;
+                            matchedNodes.add(nodeForMatching);
+                            break;
+                        }
                         if (param.getName().equals(propName)) {
                             matching.inputMatching.put(param, propName);
                             matched = true;

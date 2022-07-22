@@ -26,6 +26,7 @@ public class BPMNInvokerPluginHandler {
 
     private final BPMNSubprocessHandler bpmnSubprocessHandler;
     protected static final String ServiceInstanceURLVarKeyword = "ServiceInstanceURL";
+    private static final String suffixActivity = "_provisioning_activity";
 
     public BPMNInvokerPluginHandler() {
         try {
@@ -67,23 +68,58 @@ public class BPMNInvokerPluginHandler {
             subprocess.setHostingNodeTemplate(templateId);
             BPMNPlan buildPlan = subprocess.getBuildPlan();
             // set input param names and values
+            System.out.println("INVOKER" + templateId.getId());
             for (Map.Entry<String, Variable> entry : internalExternalPropsInput.entrySet()) {
+                LOG.info(entry.getValue().getVariableName());
+                System.out.println(entry.getKey());
+                String parameterValue = entry.getValue().getVariableName();
                 if (entry.getValue().getVariableName().contains("toscaProperty")) {
+                    String removeToscaProperty = parameterValue.split("_toscaProperty")[0];
+                    //LOG.info("removeToscaProperty: {}", removeToscaProperty);
+                    //LOG.info("lastIndexCSAR: {}", parameterValue.lastIndexOf(context.getCSARFileName()) + 1);
+                    //LOG.info("SeervicetemplateName: {}", context.getSubprocessElement().getBuildPlan().getServiceTemplate().getName());
+                    String serviceTemplateName = context.getSubprocessElement().getBuildPlan().getServiceTemplate().getName();
+                    //LOG.info("CSAR NAME {}", context.getCSARFileName());
+                    String propertyToSearchFromDataObject = removeToscaProperty.substring(0, parameterValue.lastIndexOf(context.getSubprocessElement().getBuildPlan().getServiceTemplate().getName()) + serviceTemplateName.length() + 1);
+                    // LOG.info("propertyToSearchFromDataObject: {}", propertyToSearchFromDataObject);
+                    removeToscaProperty = removeToscaProperty.split(propertyToSearchFromDataObject)[1];
+                    //LOG.info("split after CSAR: {}", removeToscaProperty);
+                    //LOG.info("lastIndexOfUnderScore: {}", removeToscaProperty.lastIndexOf("_"));
+                    String nodeTemplateIdToFetchDataObject = removeToscaProperty.substring(0, removeToscaProperty.lastIndexOf("_"));
+                    LOG.info("nodeTemplateIdToFetchDataObject: {}", nodeTemplateIdToFetchDataObject);
+                    String propertyOfDataObject = removeToscaProperty.substring(removeToscaProperty.lastIndexOf("_") + 1).trim();
+                    LOG.info("propertyOfDataObject : {}", propertyOfDataObject);
                     for (BPMNDataObject nodeDataObject : buildPlan.getDataObjectsList()) {
-                        if (nodeDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_NODE && entry.getValue().getVariableName().contains(nodeDataObject.getNodeTemplate())) {
-                            for (String property : nodeDataObject.getProperties()) {
-                                String propertyName = property.split("#")[0];
-                                if (propertyName.equals(entry.getKey())) {
-                                    String propertyValue = property.split("#")[1];
-                                    if (propertyValue.startsWith("G")) {
-                                        propertyValue = propertyValue.replaceFirst("G", "");
-                                    }
-                                    if (inputParamNames.toString().equals("") && inputParamValues.toString().equals("")) {
-                                        inputParamNames.append(entry.getKey());
-                                        inputParamValues.append(propertyValue);
-                                    } else {
-                                        inputParamNames.append(",").append(entry.getKey());
-                                        inputParamValues.append(",").append(propertyValue);
+                        LOG.info("DATAOBJECT ID");
+                        LOG.info(nodeDataObject.getId());
+                        if (nodeDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_NODE && nodeDataObject.getId().contains(nodeTemplateIdToFetchDataObject)) {
+                            String lastSuffixCut = nodeDataObject.getId().split(nodeTemplateIdToFetchDataObject)[1];
+                            LOG.info("lastSuffixCut : {}", lastSuffixCut);
+                            if (lastSuffixCut.equals(suffixActivity)) {
+                                for (String property : nodeDataObject.getProperties()) {
+                                    String propertyName = property.split("#")[0];
+                                    LOG.info("propertyName {}", propertyName);
+                                    LOG.info("propertyName Size {}", propertyName.length());
+                                    LOG.info("propertyOfDataObject {}", propertyOfDataObject);
+                                    LOG.info("pD Size {}", propertyOfDataObject.length());
+                                    if (propertyName.equals(propertyOfDataObject)) {
+                                        LOG.info("GEHT HIER REIN");
+                                        String propertyValue = property.split("#")[1];
+                                        if (propertyValue.startsWith("G")) {
+                                            LOG.info("GEHT HIER REING");
+                                            propertyValue = propertyValue.replaceFirst("G", "");
+                                        }
+                                        // propertyValue = "String!" + propertyValue;
+                                        propertyValue = "VALUE!" + "DataObjectReference_" + nodeDataObject.getId() + ".Properties." + propertyName;
+                                        if (inputParamNames.toString().equals("") && inputParamValues.toString().equals("")) {
+                                            LOG.info("GEHT HIER REIN3");
+                                            inputParamNames.append(entry.getKey());
+                                            inputParamValues.append(propertyValue);
+                                        } else {
+                                            LOG.info("GEHT HIER REIN4");
+                                            inputParamNames.append(",").append(entry.getKey());
+                                            inputParamValues.append(",").append(propertyValue);
+                                        }
                                     }
                                 }
                             }

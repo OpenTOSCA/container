@@ -24,32 +24,34 @@ if (inputParamNames != null) {
     inputParamNames = inputParamNames.split(",");
     for (int i in 0..inputParamNames.size() - 1) {
         if (inputParamNames[i] != null) {
-                def paramName = 'Input_' + inputParamNames[i];
-                def paramValue = execution.getVariable(paramName);
+            def paramName = 'Input_' + inputParamNames[i];
+            def paramValue = execution.getVariable(paramName);
 
-                if (paramValue != null) {
-                    def type = paramValue.split("!")[0];
-                    if (type == 'String') {
-                        paramValue = paramValue.split("!")[1];
-                        paramValue = paramValue.replace('->', ',');
-                    }
+            if (paramValue != null) {
+                def type = paramValue.split("!")[0];
+                if (type == 'String') {
+                    paramValue = paramValue.split("!")[1];
+                    paramValue = paramValue.replace('->', ',');
+                }
 
-                    // special handling with DA ex MyTinyToDo_DA#tinytodo.zip
-                    if (type == 'DA') {
-                        def paramDA = execution.getVariable("instanceDataAPIUrl").split("/servicetemplates")[0];
-                        def fileName = paramValue.split("!")[1];
-                        paramValue = paramDA + fileName;
-                    }
+                // special handling with DA ex MyTinyToDo_DA#tinytodo.zip
+                if (type == 'DA') {
+                    def paramDA = execution.getVariable("instanceDataAPIUrl").split("/servicetemplates")[0];
+                    def fileName = paramValue.split("!")[1];
+                    paramValue = paramDA + fileName;
+                }
 
-                    if (type == 'VALUE') {
-                        def propertyValue = paramValue.split("!")[1];
-                        paramValue = execution.getVariable(propertyValue);
-                    }
-
+                if (type == 'VALUE') {
+                    def propertyValue = paramValue.split("!")[1];
+                    paramValue = execution.getVariable(propertyValue);
+                }
+                println "Parameter ${inputParamNames[i]} is (maybe) assigned with value $paramValue from $paramName: "
+                if (paramValue != "LEER" && paramValue != null) {
                     println "Parameter ${inputParamNames[i]} is assigned with value $paramValue from $paramName: "
                     invokeParams = invokeParams + '"' + inputParamNames[i] + '" : "' + paramValue + '",';
                 }
             }
+        }
     }
 }
 
