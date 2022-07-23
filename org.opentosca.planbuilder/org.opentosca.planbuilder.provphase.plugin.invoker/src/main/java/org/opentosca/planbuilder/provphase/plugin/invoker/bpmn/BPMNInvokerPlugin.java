@@ -4,14 +4,17 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 
+import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseOperationBPMNPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseParamOperationBPMNPlugin;
+import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpmn.handlers.BPMNInvokerPluginHandler;
 import org.slf4j.Logger;
@@ -95,6 +98,34 @@ public class BPMNInvokerPlugin implements IPlanBuilderProvPhaseOperationBPMNPlug
     @Override
     public boolean handle(BPMNPlanContext context, TOperation operation, TImplementationArtifact ia, Map<TParameter, Variable> param2propertyMapping, Map<TParameter, Variable> param2PropertyOutputMapping, Element elementToAppendTo) {
         return false;
+    }
+
+    /**
+     * Adds bpel code to the given templateContext, which uploads the given ArtifactReference ref to the
+     * given server ip. The destination of the artifact will be a replica of the given csar on the home
+     * folder of the selected user. The file must be available from the openTosca container api.
+     *
+     * @param ref the reference to upload
+     * @param templateContext the templateContext to use
+     * @param serverIp the ip to upload the file to
+     * @param sshUser a variable containing the sshUser value, if null the user will be requested from
+     *        the planInput
+     * @param sshKey a variable containing the sshKey value, if null the key will be requested from the
+     *        planInput
+     * @param infraTemplate the templateId the serverIp belongs to
+     * @return true iff appending all bpel code was successful
+     */
+    public boolean handleArtifactReferenceUpload(final TArtifactReference ref,
+                                                 final BPMNPlanContext templateContext, final PropertyVariable serverIp,
+                                                 final PropertyVariable sshUser, final PropertyVariable sshKey,
+                                                 final TNodeTemplate infraTemplate, Element elementToAppendTo) {
+        try {
+            return this.handler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser, sshKey,
+                infraTemplate, elementToAppendTo);
+        } catch (final Exception e) {
+            LOG.error("Couldn't load internal files", e);
+            return false;
+        }
     }
 }
 
