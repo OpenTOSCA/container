@@ -21,9 +21,9 @@ import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
-import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
-import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
-import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPrePhasePlugin;
+import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderBPMNPrePhaseDAPlugin;
+import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderBPMNPrePhaseIAPlugin;
+import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderBPMNPrePhasePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +38,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  */
-public class BPMNPrePhasePlugin implements IPlanBuilderPrePhasePlugin<BPMNPlanContext>,
-    IPlanBuilderPrePhaseIAPlugin<BPMNPlanContext>, IPlanBuilderPrePhaseDAPlugin<BPMNPlanContext> {
+public class BPMNPrePhasePlugin implements IPlanBuilderBPMNPrePhasePlugin<BPMNPlanContext>,
+    IPlanBuilderBPMNPrePhaseIAPlugin<BPMNPlanContext>, IPlanBuilderBPMNPrePhaseDAPlugin<BPMNPlanContext> {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPMNPrePhasePlugin.class);
 
