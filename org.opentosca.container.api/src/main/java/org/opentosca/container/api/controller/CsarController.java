@@ -37,14 +37,19 @@ import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opentosca.container.api.controller.content.DirectoryController;
 import org.opentosca.container.api.dto.CsarDTO;
 import org.opentosca.container.api.dto.CsarListDTO;
+import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.api.dto.request.CsarTransformRequest;
 import org.opentosca.container.api.dto.request.CsarUploadRequest;
 import org.opentosca.container.api.util.Utils;
@@ -63,7 +68,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-@Api
+@OpenAPIDefinition
 @javax.ws.rs.Path("/csars")
 @Component
 public class CsarController {
@@ -84,7 +89,15 @@ public class CsarController {
 
     @GET
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all CSARs", response = CsarListDTO.class)
+    @Operation(summary = "Get all CSARs",
+        responses = {@ApiResponse(responseCode = "200",
+            description = "A list of CSARs",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = CsarListDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "A list of CSARs",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = CsarListDTO.class))})})
     public Response getCsars() {
         logger.debug("Invoking getCsars");
         try {
@@ -110,8 +123,16 @@ public class CsarController {
     @GET
     @javax.ws.rs.Path("/{csar}")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get a CSAR", response = CsarDTO.class)
-    public Response getCsar(@ApiParam("ID of CSAR") @PathParam("csar") final String id) {
+    @Operation(summary = "Get all CSARs",
+        responses = {@ApiResponse(responseCode = "200",
+            description = "A CSAR",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = CsarDTO.class))}),
+            @ApiResponse(responseCode = "200",
+                description = "A CSAR",
+                content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CsarDTO.class))})})
+    public Response getCsar(@Parameter(description = "ID of CSAR") @PathParam("csar") final String id) {
         logger.debug("Invoking getCsar");
         try {
             final Csar csarContent = storage.findById(new CsarId(id));
@@ -165,7 +186,6 @@ public class CsarController {
     }
 
     @javax.ws.rs.Path("/{csar}/content")
-    @ApiOperation(hidden = true, value = "")
     public DirectoryController getContent(@PathParam("csar") final String id) {
         logger.debug("Invoking getContent");
         try {
@@ -178,7 +198,6 @@ public class CsarController {
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
     public Response uploadCsar(@FormDataParam("enrichment") final String applyEnrichment,
                                @FormDataParam("file") final InputStream is,
                                @FormDataParam("file") final FormDataContentDisposition file) {
@@ -193,8 +212,15 @@ public class CsarController {
     @POST
     @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Handles an upload request for a CSAR file")
-    public Response uploadCsar(@ApiParam(required = true) final CsarUploadRequest request, @HeaderParam("Authorization") String authorizationString) {
+    @Operation(description = "Handles an upload request for a CSAR file",  responses = {@ApiResponse(responseCode = "200",
+        description = "The URI to the uploaded CSAR",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = URI.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "The URI to the uploaded CSAR",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = URI.class))})})
+    public Response uploadCsar(@Parameter(required = true) final CsarUploadRequest request, @HeaderParam("Authorization") String authorizationString) {
         logger.debug("Invoking uploadCsar");
         if (request == null) {
             return Response.status(Status.BAD_REQUEST).build();
@@ -348,8 +374,8 @@ public class CsarController {
 
     @DELETE
     @javax.ws.rs.Path("/{csar}")
-    @ApiOperation(value = "Delete a CSAR")
-    public Response deleteCsar(@ApiParam("ID of CSAR") @PathParam("csar") final String id) {
+    @Operation(description = "Delete a CSAR", responses = @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))))
+    public Response deleteCsar(@Parameter(description = "ID of CSAR") @PathParam("csar") final String id) {
         logger.debug("Invoking deleteCsar");
         Csar csarContent;
         try {
@@ -371,10 +397,17 @@ public class CsarController {
 
     @POST
     @javax.ws.rs.Path("/transform")
-    @ApiOperation(value = "Transform this CSAR to a new CSAR")
+    @Operation(description = "Transform this CSAR to a new CSAR", responses = {@ApiResponse(responseCode = "200",
+        description = "Transformation Plan",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = PlanDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "Transformation Plan",
+            content = {@Content(mediaType = "application/xml",
+                schema = @Schema(implementation = PlanDTO.class))})})
     @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response transformCsar(@ApiParam(required = true) final CsarTransformRequest request) {
+    public Response transformCsar(@Parameter(required = true) final CsarTransformRequest request) {
         logger.debug("Invoking transform Csar");
         final CsarId sourceCsarId = new CsarId(request.getSourceCsarName());
         Csar sourceCsar = this.storage.findById(sourceCsarId);

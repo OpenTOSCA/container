@@ -54,11 +54,24 @@
 			<artifactId>jackson-dataformat-hal</artifactId>
 			<version>1.0.1</version>
 		</dependency>
-		<dependency>
-			<groupId>io.swagger</groupId>
+		<!--<dependency>
+			<groupId>io.swagger.core.v3</groupId>
 			<artifactId>swagger-annotations</artifactId>
 			<version>${swagger.version}</version>
-		</dependency>
+		</dependency>-->
+
+
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-jaxrs2</artifactId>
+            <version>${swagger.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-jaxrs2-servlet-initializer-v2</artifactId>
+            <version>${swagger.version}</version>
+        </dependency>
+
 
 
 		<dependency>

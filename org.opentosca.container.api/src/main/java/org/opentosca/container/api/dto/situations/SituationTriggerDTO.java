@@ -12,7 +12,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import io.swagger.annotations.ApiModelProperty;
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.next.model.Situation;
 import org.opentosca.container.core.next.model.SituationTrigger;
@@ -30,7 +29,6 @@ public class SituationTriggerDTO extends ResourceSupport {
     private Collection<Long> situationIds;
 
     @XmlElement(name = "CsarId")
-    @ApiModelProperty(name = "csar_id")
     private String csarId;
 
     @XmlElement(name = "onActivation")

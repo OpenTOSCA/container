@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.swagger.annotations.ApiModelProperty;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
 
 @XmlRootElement(name = "NodeTemplate")
@@ -43,7 +42,6 @@ public class NodeTemplateDTO extends ResourceSupport {
         this.name = name;
     }
 
-    @ApiModelProperty(name = "node_type")
     public String getNodeType() {
         return this.nodeType;
     }

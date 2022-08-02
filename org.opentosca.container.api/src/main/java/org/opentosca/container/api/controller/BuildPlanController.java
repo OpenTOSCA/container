@@ -20,9 +20,13 @@ import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.opentosca.container.api.dto.boundarydefinitions.PropertiesDTO;
 import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.api.dto.plan.PlanInstanceDTO;
 import org.opentosca.container.api.dto.plan.PlanInstanceEventDTO;
@@ -43,7 +47,7 @@ import org.opentosca.container.core.next.services.instances.PlanInstanceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Api
+@OpenAPIDefinition
 // not marked as @RestController because lifecycle is controlled by parent resource
 //@RestController
 public class BuildPlanController {
@@ -68,7 +72,14 @@ public class BuildPlanController {
 
     @GET
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get build plans of service template", response = PlanListDTO.class)
+    @Operation(description = "Get build plans of service template", responses = {@ApiResponse(responseCode = "200",
+        description = "Build Plans of the ServiceTemplate",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = PlanListDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "Build Plans of the Service Template",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = PlanListDTO.class))})})
     public Response getBuildPlans(@Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlans");
         PlanListDTO list = new PlanListDTO();
@@ -93,8 +104,15 @@ public class BuildPlanController {
     @GET
     @Path("/{plan}")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get a build plan", response = PlanDTO.class)
-    public Response getBuildPlan(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
+    @Operation(description = "Get a build plan", responses = {@ApiResponse(responseCode = "200",
+        description = "Build Plan of the ServiceTemplate",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = PlanDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "Build Plan of the Service Template",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = PlanDTO.class))})})
+    public Response getBuildPlan(@Parameter(description = "ID of build plan") @PathParam("plan") final String plan,
                                  @Context final UriInfo uriInfo) {
         PlanDTO dto = Utils.getPlanDto(csar, ALL_PLAN_TYPES, plan);
 
@@ -107,8 +125,15 @@ public class BuildPlanController {
     @GET
     @Path("/{plan}/instances")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get build plan instances", response = PlanInstanceListDTO.class)
-    public Response getBuildPlanInstances(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
+    @Operation(description = "Get build plan instances", responses = {@ApiResponse(responseCode = "200",
+        description = "Plan Instances of the plan",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = PlanInstanceListDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "Plan Instances of the plan",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = PlanInstanceListDTO.class))})})
+    public Response getBuildPlanInstances(@Parameter(description = "ID of build plan") @PathParam("plan") final String plan,
                                           @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstances");
         Collection<PlanInstance> planInstances = planInstanceService.getPlanInstances(csar, PLAN_TYPE);
@@ -139,11 +164,18 @@ public class BuildPlanController {
     @Path("/{plan}/instances")
     @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    @ApiOperation(value = "Invokes a build plan", response = String.class)
-    public Response invokeBuildPlan(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
+    @Operation(description = "Invokes a build plan", responses = {@ApiResponse(responseCode = "200",
+        description = "Invokes a build plan",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = String.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "Invokes a build plan",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = String.class))})})
+    public Response invokeBuildPlan(@Parameter(description = "ID of build plan") @PathParam("plan") final String plan,
                                     @Context final UriInfo uriInfo,
-                                    @ApiParam(required = true,
-                                        value = "plan input parameters") final List<TParameter> parameters) {
+                                    @Parameter(required = true,
+                                        description = "plan input parameters") final List<TParameter> parameters) {
         LOGGER.debug("Invoking invokeBuildPlan");
         // We pass -1L because "PlanInvocationEngine.invokePlan()" expects it for build plans
         String correlationId = planInvokerService.invokePlan(csar, serviceTemplate, -1L, plan, parameters, PLAN_TYPE);
@@ -153,9 +185,16 @@ public class BuildPlanController {
     @GET
     @Path("/{plan}/instances/{instance}")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get a build plan instance", response = PlanInstanceDTO.class)
-    public Response getBuildPlanInstance(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
-                                         @ApiParam("correlation ID") @PathParam("instance") final String instance,
+    @Operation(description = "Get a build plan instance", responses = {@ApiResponse(responseCode = "200",
+        description = "A build plan instance",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = PlanInstanceDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "A build plan instance",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = PlanInstanceDTO.class))})})
+    public Response getBuildPlanInstance(@Parameter(description = "ID of build plan") @PathParam("plan") final String plan,
+                                         @Parameter(description = "correlation ID") @PathParam("instance") final String instance,
                                          @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstance");
         PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);
@@ -182,9 +221,16 @@ public class BuildPlanController {
     @GET
     @Path("/{plan}/instances/{instance}/state")
     @Produces( {MediaType.TEXT_PLAIN})
-    @ApiOperation(value = "Get the state of a build plan instance", response = String.class)
-    public Response getBuildPlanInstanceState(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
-                                              @ApiParam("correlation ID") @PathParam("instance") final String instance,
+    @Operation(description = "Get the state of a build plan instance", responses = {@ApiResponse(responseCode = "200",
+        description = "PlanInstance State",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = String.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "PlanInstance State",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = String.class))})})
+    public Response getBuildPlanInstanceState(@Parameter(description = "ID of build plan") @PathParam("plan") final String plan,
+                                              @Parameter(description = "correlation ID") @PathParam("instance") final String instance,
                                               @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstanceState");
         PlanInstance pi = planInstanceService.resolvePlanInstance(null, instance);
@@ -194,7 +240,6 @@ public class BuildPlanController {
     @PUT
     @Path("/{plan}/instances/{instance}/state")
     @Consumes( {MediaType.TEXT_PLAIN})
-    @ApiOperation(hidden = true, value = "")
     public Response changeBuildPlanInstanceState(@PathParam("plan") final String plan,
                                                  @PathParam("instance") final String instance,
                                                  @Context final UriInfo uriInfo, final String request) {
@@ -208,10 +253,16 @@ public class BuildPlanController {
     @GET
     @Path("/{plan}/instances/{instance}/logs")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get log entries for a build plan instance", response = PlanInstanceEventDTO.class,
-        responseContainer = "list")
-    public Response getBuildPlanInstanceLogs(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
-                                             @ApiParam("Correlation ID") @PathParam("instance") final String instance,
+    @Operation(description = "Get log entries for a build plan instance",  responses = {@ApiResponse(responseCode = "200",
+        description = "Plan Instance Logs",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = PlanInstanceEventListDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "Plan Instance Logs",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = PlanInstanceEventListDTO.class))})})
+    public Response getBuildPlanInstanceLogs(@Parameter(description = "ID of build plan") @PathParam("plan") final String plan,
+                                             @Parameter(description = "Correlation ID") @PathParam("instance") final String instance,
                                              @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstanceLogs");
         PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);
@@ -227,7 +278,6 @@ public class BuildPlanController {
     @Path("/{plan}/instances/{instance}/logs")
     @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
     public Response addBuildPlanLogEntry(@PathParam("plan") final String plan,
                                          @PathParam("instance") final String instance, @Context final UriInfo uriInfo,
                                          final CreatePlanInstanceLogEntryRequest logEntry) {

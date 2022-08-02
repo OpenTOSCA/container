@@ -22,21 +22,24 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import io.swagger.annotations.Contact;
-import io.swagger.annotations.Info;
-import io.swagger.annotations.License;
-import io.swagger.annotations.SwaggerDefinition;
+
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@SwaggerDefinition(info = @Info(title = "Public API for OpenTOSCA Container",
-    description = "API access to query entities and manipulate them using plans",
-    version = "2.1.0", termsOfService = "",
-    contact = @Contact(name = "OpenTOSCA", url = "http://opentosca.org",
+@OpenAPIDefinition(
+    info = @Info(title = "Public API for OpenTOSCA Container",
+        description = "API access to query entities and manipulate them using plans",
+        version = "2.1.0", termsOfService = "",
+        contact = @Contact(name = "OpenTOSCA", url = "http://opentosca.org",
         email = "opentosca@iaas.uni-stuttgart.de"),
-    license = @License(name = "Apache License, Version 2.0",
-        url = "https://www.apache.org/licenses/LICENSE-2.0")))
+        license = @License(name = "Apache License, Version 2.0",
+            url = "https://www.apache.org/licenses/LICENSE-2.0"))
+)
 @Path("/")
 @Component
 @RequestMapping("/")

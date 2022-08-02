@@ -12,7 +12,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.swagger.annotations.ApiModelProperty;
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
@@ -50,7 +49,6 @@ public class PlanInstanceDTO extends ResourceSupport {
     @XmlElementWrapper(name = "Logs")
     private Collection<PlanInstanceEventDTO> logs;
 
-    @ApiModelProperty(name = "correlation_id")
     public String getCorrelationId() {
         return this.correlationId;
     }
@@ -99,7 +97,6 @@ public class PlanInstanceDTO extends ResourceSupport {
         this.logs = logs;
     }
 
-    @ApiModelProperty(name = "service_template_instance_id")
     public Long getServiceTemplateInstanceId() {
         return this.serviceTemplateInstanceId;
     }

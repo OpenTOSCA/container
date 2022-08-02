@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.swagger.annotations.ApiModelProperty;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 
@@ -50,7 +49,6 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
         this.id = id;
     }
 
-    @ApiModelProperty(name = "created_at")
     public Date getCreatedAt() {
         return this.createdAt;
     }
@@ -59,7 +57,6 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
         this.createdAt = createdAt;
     }
 
-    @ApiModelProperty(name = "csar_id")
     public String getCsarId() {
         return this.csarId;
     }
@@ -68,7 +65,6 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
         this.csarId = csarId;
     }
 
-    @ApiModelProperty(name = "service_template_id")
     public String getServiceTemplateId() {
         return this.serviceTemplateId;
     }
@@ -85,7 +81,6 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
         this.state = state;
     }
 
-    @ApiModelProperty(name = "node_template_id")
     public String getNodeTemplateId() {
         return this.nodeTemplateId;
     }
@@ -94,7 +89,6 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
         this.nodeTemplateId = nodeTemplateId;
     }
 
-    @ApiModelProperty(name = "node_template_type")
     public String getNodeTemplateType() {
         return this.nodeTemplateType;
     }
@@ -103,7 +97,6 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
         this.nodeTemplateType = nodeTemplateType;
     }
 
-    @ApiModelProperty(name = "service_template_instance_id")
     public Long getServiceTemplateInstanceId() {
         return this.serviceTemplateInstanceId;
     }

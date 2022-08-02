@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.swagger.annotations.ApiModelProperty;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 
@@ -35,7 +34,6 @@ public class ServiceTemplateInstanceDTO extends ResourceSupport {
     }
 
     @XmlElement(name = "CreatedAt")
-    @ApiModelProperty(name = "created_at")
     public Date getCreatedAt() {
         return this.createdAt;
     }
@@ -45,7 +43,6 @@ public class ServiceTemplateInstanceDTO extends ResourceSupport {
     }
 
     @XmlElement(name = "CsarId")
-    @ApiModelProperty(name = "csar_id")
     public String getCsarId() {
         return this.csarId;
     }
@@ -55,7 +52,6 @@ public class ServiceTemplateInstanceDTO extends ResourceSupport {
     }
 
     @XmlElement(name = "ServiceTemplateId")
-    @ApiModelProperty(name = "service_template_id")
     public String getServiceTemplateId() {
         return this.serviceTemplateId;
     }

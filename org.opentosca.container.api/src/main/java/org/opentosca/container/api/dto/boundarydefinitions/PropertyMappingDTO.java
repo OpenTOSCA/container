@@ -6,7 +6,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.swagger.annotations.ApiModelProperty;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "PropertyMapping")
@@ -25,7 +24,6 @@ public class PropertyMappingDTO {
 
     }
 
-    @ApiModelProperty(name = "service_template_property_ref")
     public String getServiceTemplatePropertyRef() {
         return this.serviceTemplatePropertyRef;
     }
@@ -34,7 +32,6 @@ public class PropertyMappingDTO {
         this.serviceTemplatePropertyRef = serviceTemplatePropertyRef;
     }
 
-    @ApiModelProperty(name = "target_object_ref")
     public String getTargetObjectRef() {
         return this.targetObjectRef;
     }
@@ -43,7 +40,6 @@ public class PropertyMappingDTO {
         this.targetObjectRef = targetObjectRef;
     }
 
-    @ApiModelProperty(name = "target_property_ref")
     public String getTargetPropertyRef() {
         return this.targetPropertyRef;
     }

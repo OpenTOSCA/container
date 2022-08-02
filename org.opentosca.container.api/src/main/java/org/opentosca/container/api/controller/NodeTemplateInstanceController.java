@@ -21,11 +21,16 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.parsers.ParserConfigurationException;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.opentosca.container.api.dto.NodeTemplateInstanceDTO;
 import org.opentosca.container.api.dto.NodeTemplateInstanceListDTO;
+import org.opentosca.container.api.dto.NodeTemplateListDTO;
+import org.opentosca.container.api.dto.plan.PlanInstanceEventListDTO;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.util.Utils;
 import org.opentosca.container.core.common.uri.UriUtil;
@@ -39,20 +44,20 @@ import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-@Api
+@OpenAPIDefinition
 @Component
 public class NodeTemplateInstanceController {
 
     private static final Logger logger = LoggerFactory.getLogger(NodeTemplateInstanceController.class);
     private final NodeTemplateService nodeTemplateService;
     private final NodeTemplateInstanceService nodeTemplateInstanceService;
-    @ApiParam("ID of node template")
+    @Parameter(description = "ID of node template")
     @PathParam("nodetemplate")
     String nodetemplate;
-    @ApiParam("ID of CSAR")
+    @Parameter(description = "ID of CSAR")
     @PathParam("csar")
     String csar;
-    @ApiParam("qualified name of the service template")
+    @Parameter(description = "qualified name of the service template")
     @PathParam("servicetemplate")
     String servicetemplate;
     @Context
@@ -66,7 +71,14 @@ public class NodeTemplateInstanceController {
 
     @GET
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all instances of a node template", response = NodeTemplateInstanceListDTO.class)
+    @Operation(description = "Get all instances of a node template", responses = {@ApiResponse(responseCode = "200",
+        description = "Node instances",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = NodeTemplateInstanceListDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "Node instances",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = NodeTemplateInstanceListDTO.class))})})
     public Response getNodeTemplateInstances(@QueryParam(value = "state") final List<NodeTemplateInstanceState> states,
                                              @QueryParam(value = "source") final List<Long> relationIds,
                                              @QueryParam(value = "serviceInstanceId") final Long serviceInstanceId) {
@@ -113,7 +125,7 @@ public class NodeTemplateInstanceController {
     @POST
     @Consumes( {MediaType.TEXT_PLAIN})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response createNodeTemplateInstance(@Context final UriInfo uriInfo, final String serviceTemplateInstanceId) {
         logger.debug("Invoking createNodeTemplateInstance");
         try {
@@ -137,8 +149,15 @@ public class NodeTemplateInstanceController {
     @GET
     @Path("/{id}")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get a node template instance", response = NodeTemplateInstanceDTO.class)
-    public Response getNodeTemplateInstance(@ApiParam("ID of node template instance") @PathParam("id") final Long id) {
+    @Operation(description = "Get a node template instance", responses = {@ApiResponse(responseCode = "200",
+        description = "Node instance",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = NodeTemplateInstanceDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "Node instance",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = NodeTemplateInstanceDTO.class))})})
+    public Response getNodeTemplateInstance(@Parameter(description = "ID of node template instance") @PathParam("id") final Long id) {
         logger.debug("Invoking getNodeTemplateInstance");
         final NodeTemplateInstance instance =
             this.nodeTemplateInstanceService.resolveNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
@@ -154,7 +173,7 @@ public class NodeTemplateInstanceController {
     @DELETE
     @Path("/{id}")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response deleteNodeTemplateInstance(@PathParam("id") final Long id) {
         logger.debug("Invoking deleteNodeTemplateInstance");
         this.nodeTemplateInstanceService.deleteNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
@@ -164,8 +183,15 @@ public class NodeTemplateInstanceController {
     @GET
     @Path("/{id}/state")
     @Produces( {MediaType.TEXT_PLAIN})
-    @ApiOperation(value = "Get state of a node template instance", response = String.class)
-    public Response getNodeTemplateInstanceState(@ApiParam("ID node template instance") @PathParam("id") final Long id) {
+    @Operation(description = "Get state of a node template instance",responses = {@ApiResponse(responseCode = "200",
+        description = "State",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = String.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "State",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = String.class))})})
+    public Response getNodeTemplateInstanceState(@Parameter(description = "ID node template instance") @PathParam("id") final Long id) {
         logger.debug("Invoking getNodeTemplateInstanceState");
         final NodeTemplateInstanceState state =
             this.nodeTemplateInstanceService.getNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id);
@@ -175,7 +201,7 @@ public class NodeTemplateInstanceController {
     @PUT
     @Path("/{id}/state")
     @Consumes( {MediaType.TEXT_PLAIN})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response updateNodeTemplateInstanceState(@PathParam("id") final Long id, final String request) {
         logger.debug("Invoking updateNodeTemplateInstanceState");
         try {
@@ -189,7 +215,7 @@ public class NodeTemplateInstanceController {
     @GET
     @Path("/{id}/properties")
     @Produces( {MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response getNodeTemplateInstanceProperties(@PathParam("id") final Long id) {
         logger.debug("Invoking getNodeTemplateInstanceProperties");
         final Document properties = this.nodeTemplateInstanceService.getNodeTemplateInstancePropertiesDocument(id);
@@ -204,9 +230,13 @@ public class NodeTemplateInstanceController {
     @GET
     @Path("/{id}/properties")
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(
-        value = "Get properties of a node template instance",
-        response = Map.class)
+    @Operation(
+        description = "Get properties of a node template instance",
+        responses = {@ApiResponse(responseCode = "200",
+            description = "Properties",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = Map.class))}),
+            })
     public Map<String, String> getNodeTemplateInstancePropertiesAsJson(@PathParam("id") final Long id) {
         logger.debug("Invoking getNodeTemplateInstancePropertiesAsJson");
         final NodeTemplateInstance instance =
@@ -217,7 +247,7 @@ public class NodeTemplateInstanceController {
     @GET
     @Path("/{id}/properties/{propname}")
     @Produces( {MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response getNodeTemplateInstanceProperty(@PathParam("id") final Long id,
                                                     @PathParam("propname") final String propertyName) {
         logger.debug("Invoking getNodeTemplateInstanceProperty");
@@ -236,7 +266,7 @@ public class NodeTemplateInstanceController {
     @Path("/{id}/properties")
     @Consumes( {MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response updateNodeTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
         logger.debug("Invoking updateNodeTemplateInstanceProperties");
         try {
@@ -254,7 +284,7 @@ public class NodeTemplateInstanceController {
     @Path("/{id}/properties/{propname}")
     @Consumes( {MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response updateNodeTemplateInstanceProperty(@PathParam("id") final Long id,
                                                        @PathParam("propname") final String propertyName,
                                                        final Document request) {

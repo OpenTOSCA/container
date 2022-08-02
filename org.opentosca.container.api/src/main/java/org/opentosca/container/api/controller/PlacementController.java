@@ -18,9 +18,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.core.common.NotFoundException;
@@ -30,7 +30,7 @@ import org.opentosca.container.core.next.services.instances.NodeTemplateInstance
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Api
+@OpenAPIDefinition
 public class PlacementController {
 
     private static final Logger logger = LoggerFactory.getLogger(PlacementController.class);
@@ -40,10 +40,10 @@ public class PlacementController {
     UriInfo uriInfo;
     @Context
     ResourceContext resourceContext;
-    @ApiParam("ID of CSAR")
+    @Parameter(description = "ID of CSAR")
     @PathParam("csar")
     String csarId;
-    @ApiParam("qualified name of the service template")
+    @Parameter(description = "qualified name of the service template")
     @PathParam("servicetemplate")
     String serviceTemplateId;
 
@@ -55,8 +55,8 @@ public class PlacementController {
     @POST
     @Produces( {MediaType.APPLICATION_JSON})
     @Consumes( {MediaType.APPLICATION_JSON})
-    @ApiOperation(hidden = true, value = "")
-    public Response getInstances(@ApiParam("node template list need to be placed") final List<String> request) throws InstantiationException,
+    @Operation(hidden = true)
+    public Response getInstances(@Parameter(description = "node template list need to be placed") final List<String> request) throws InstantiationException,
         IllegalAccessException,
         IllegalArgumentException {
 

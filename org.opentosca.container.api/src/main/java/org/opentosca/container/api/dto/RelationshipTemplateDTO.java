@@ -9,8 +9,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.swagger.annotations.ApiModelProperty;
-
 @XmlRootElement(name = "RelationshipTemplate")
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -49,7 +47,6 @@ public class RelationshipTemplateDTO extends ResourceSupport {
         this.name = name;
     }
 
-    @ApiModelProperty(name = "relationship_type")
     public String getRelationshipType() {
         return this.relationshipType;
     }

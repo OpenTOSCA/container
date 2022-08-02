@@ -20,11 +20,15 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.opentosca.container.api.dto.RelationshipTemplateInstanceDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateInstanceListDTO;
+import org.opentosca.container.api.dto.plan.PlanInstanceEventListDTO;
 import org.opentosca.container.api.dto.request.CreateRelationshipTemplateInstanceRequest;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
@@ -35,19 +39,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 
-@Api
+@OpenAPIDefinition
 @Component
 public class RelationshipTemplateInstanceController {
 
     private static final Logger logger = LoggerFactory.getLogger(RelationshipTemplateInstanceController.class);
     private final RelationshipTemplateInstanceService relationshipTemplateInstanceService;
-    @ApiParam("ID of CSAR")
+    @Parameter(description = "ID of CSAR")
     @PathParam("csar")
     String csar;
-    @ApiParam("qualified name of the service template")
+    @Parameter(description = "qualified name of the service template")
     @PathParam("servicetemplate")
     String servicetemplate;
-    @ApiParam("ID of relationship template")
+    @Parameter(description = "ID of relationship template")
     @PathParam("relationshiptemplate")
     String relationshiptemplate;
     @Context
@@ -59,8 +63,15 @@ public class RelationshipTemplateInstanceController {
 
     @GET
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all relationship template instances",
-        response = RelationshipTemplateInstanceListDTO.class)
+    @Operation(description = "Get all relationship template instances",
+        responses = {@ApiResponse(responseCode = "200",
+            description = "Relationship Instances",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = RelationshipTemplateInstanceListDTO.class))}),
+            @ApiResponse(responseCode = "200",
+                description = "Relationship Instances",
+                content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = RelationshipTemplateInstanceListDTO.class))})})
     public Response getRelationshipTemplateInstances(@QueryParam(value = "state") final List<RelationshipTemplateInstanceState> states,
                                                      @QueryParam(value = "target") final Long targetNodeInstanceId,
                                                      @QueryParam(value = "serviceInstanceId") final Long serviceInstanceId) {
@@ -102,7 +113,7 @@ public class RelationshipTemplateInstanceController {
     @POST
     @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response createRelationshipTemplateInstance(@Context final UriInfo uriInfo,
                                                        final CreateRelationshipTemplateInstanceRequest request) {
         try {
@@ -124,8 +135,15 @@ public class RelationshipTemplateInstanceController {
     @GET
     @Path("/{id}")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get a relationship template instance", response = RelationshipTemplateInstanceDTO.class)
-    public Response getRelationshipTemplateInstance(@ApiParam("ID of relationship template instance") @PathParam("id") final Long id) {
+    @Operation(description = "Get a relationship template instance", responses = {@ApiResponse(responseCode = "200",
+        description = "Relationship instance",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = RelationshipTemplateInstanceDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "Relationship instance",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = RelationshipTemplateInstanceDTO.class))})})
+    public Response getRelationshipTemplateInstance(@Parameter(description = "ID of relationship template instance") @PathParam("id") final Long id) {
 
         final RelationshipTemplateInstance instance =
             this.relationshipTemplateInstanceService.resolveRelationshipTemplateInstance(this.servicetemplate, this.relationshiptemplate,
@@ -156,7 +174,7 @@ public class RelationshipTemplateInstanceController {
     @DELETE
     @Path("/{id}")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response deleteRelationshipTemplateInstance(@PathParam("id") final Long id) {
         this.relationshipTemplateInstanceService.deleteRelationshipTemplateInstance(this.servicetemplate, this.relationshiptemplate, id);
         return Response.noContent().build();
@@ -165,8 +183,15 @@ public class RelationshipTemplateInstanceController {
     @GET
     @Path("/{id}/state")
     @Produces( {MediaType.TEXT_PLAIN})
-    @ApiOperation(value = "Get state of a relationship template instance", response = String.class)
-    public Response getRelationshipTemplateInstanceState(@ApiParam("ID of relationship template instance") @PathParam("id") final Long id) {
+    @Operation(description = "Get state of a relationship template instance", responses = {@ApiResponse(responseCode = "200",
+        description = "State",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = String.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "State",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = String.class))})})
+    public Response getRelationshipTemplateInstanceState(@Parameter(description = "ID of relationship template instance") @PathParam("id") final Long id) {
         final RelationshipTemplateInstanceState state =
             this.relationshipTemplateInstanceService.getRelationshipTemplateInstanceState(this.servicetemplate, this.relationshiptemplate,
                 id);
@@ -176,7 +201,7 @@ public class RelationshipTemplateInstanceController {
     @PUT
     @Path("/{id}/state")
     @Consumes( {MediaType.TEXT_PLAIN})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response updateRelationshipTemplateInstanceState(@PathParam("id") final Long id, final String request) {
         try {
             this.relationshipTemplateInstanceService.setRelationshipTemplateInstanceState(this.servicetemplate, this.relationshiptemplate,
@@ -190,7 +215,7 @@ public class RelationshipTemplateInstanceController {
     @GET
     @Path("/{id}/properties")
     @Produces( {MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response getRelationshipTemplateInstanceProperties(@PathParam("id") final Long id) {
         final Document properties = this.relationshipTemplateInstanceService.getRelationshipTemplateInstanceProperties(id);
         if (properties == null) {
@@ -204,7 +229,7 @@ public class RelationshipTemplateInstanceController {
     @Path("/{id}/properties")
     @Consumes( {MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response updateRelationshipTemplateInstanceProperties(@PathParam("id") final Long id,
                                                                  final Document request) {
 

@@ -28,9 +28,12 @@ import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.opentosca.container.api.dto.NodeOperationDTO;
 import org.opentosca.container.api.dto.ResourceDecorator;
 import org.opentosca.container.api.dto.ServiceTemplateInstanceDTO;
@@ -39,6 +42,7 @@ import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.api.dto.plan.PlanDTO;
+import org.opentosca.container.api.dto.plan.PlanInstanceEventListDTO;
 import org.opentosca.container.api.dto.request.CreateServiceTemplateInstanceRequest;
 import org.opentosca.container.api.dto.situations.SituationsMonitorDTO;
 import org.opentosca.container.api.dto.situations.SituationsMonitorListDTO;
@@ -60,7 +64,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-@Api
+@OpenAPIDefinition
 // not marked as @RestController because it is created by a parent controller
 public class ServiceTemplateInstanceController {
 
@@ -95,7 +99,14 @@ public class ServiceTemplateInstanceController {
 
     @GET
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all instances of a service template", response = ServiceTemplateInstanceListDTO.class)
+    @Operation(description = "Get all instances of a service template", responses = {@ApiResponse(responseCode = "200",
+        description = "ServiceTemplate Instances",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = ServiceTemplateInstanceListDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "ServiceTemplate Instances",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = ServiceTemplateInstanceListDTO.class))})})
     public Response getServiceTemplateInstances() {
         logger.debug("Invoking getServiceTemplateInstances");
         final Collection<ServiceTemplateInstance> serviceInstances =
@@ -118,7 +129,7 @@ public class ServiceTemplateInstanceController {
     @POST
     @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response createServiceTemplateInstance(final CreateServiceTemplateInstanceRequest request) {
         logger.debug("Invoking createServiceTemplateInstance");
         if (request == null || request.getCorrelationId() == null || request.getCorrelationId().trim().length() == 0) {
@@ -149,8 +160,15 @@ public class ServiceTemplateInstanceController {
     @GET
     @Path("/{id}")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get a service template instance", response = ServiceTemplateInstanceDTO.class)
-    public Response getServiceTemplateInstance(@ApiParam("ID of service template instance") @PathParam("id") final Long id) {
+    @Operation(description = "Get a service template instance", responses = {@ApiResponse(responseCode = "200",
+        description = "ServiceTemplate Instance",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = ServiceTemplateInstanceDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "ServiceTemplate Instance",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = ServiceTemplateInstanceDTO.class))})})
+    public Response getServiceTemplateInstance(@Parameter(description = "ID of service template instance") @PathParam("id") final Long id) {
         logger.debug("Invoking getServiceTemplateInstance");
         final ServiceTemplateInstance instance = resolveInstance(id, serviceTemplate.getId());
         final ServiceTemplateInstanceDTO dto = ServiceTemplateInstanceDTO.Converter.convert(instance);
@@ -194,7 +212,7 @@ public class ServiceTemplateInstanceController {
     @DELETE
     @Path("/{id}")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response deleteServiceTemplateInstance(@PathParam("id") final Long id) {
         logger.debug("Invoking deleteServiceTemplateInstance");
         this.serviceTemplateInstanceService.deleteServiceTemplateInstance(id);
@@ -202,7 +220,7 @@ public class ServiceTemplateInstanceController {
     }
 
     @Path("/{id}/managementplans")
-    public ManagementPlanController getManagementPlans(@ApiParam("ID of service template instance") @PathParam("id") final Long id) {
+    public ManagementPlanController getManagementPlans(@Parameter(description = "ID of service template instance") @PathParam("id") final Long id) {
         logger.debug("Invoking getManagementPlans");
         return new ManagementPlanController(csar, serviceTemplate, id, this.planInstanceService, this.planInvokerService,
             PlanType.TERMINATION, PlanType.MANAGEMENT, PlanType.TRANSFORMATION);
@@ -211,8 +229,15 @@ public class ServiceTemplateInstanceController {
     @GET
     @Path("/{id}/state")
     @Produces( {MediaType.TEXT_PLAIN})
-    @ApiOperation(value = "Get state of a service template instance", response = String.class)
-    public Response getServiceTemplateInstanceState(@ApiParam("ID of service template instance") @PathParam("id") final Long id) {
+    @Operation(description = "Get state of a service template instance", responses = {@ApiResponse(responseCode = "200",
+        description = "State",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = String.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "State",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = String.class))})})
+    public Response getServiceTemplateInstanceState(@Parameter(description = "ID of service template instance") @PathParam("id") final Long id) {
         logger.debug("Invoking getServiceTemplateInstanceState");
         final ServiceTemplateInstanceState state = this.serviceTemplateInstanceService.getServiceTemplateInstanceState(id);
         return Response.ok(state.toString()).build();
@@ -221,7 +246,7 @@ public class ServiceTemplateInstanceController {
     @PUT
     @Path("/{id}/state")
     @Consumes( {MediaType.TEXT_PLAIN})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response updateServiceTemplateInstanceState(@PathParam("id") final Long id, final String request) {
         logger.debug("Invoking updateServiceTemplateInstanceState");
         try {
@@ -235,7 +260,7 @@ public class ServiceTemplateInstanceController {
     @GET
     @Path("/{id}/properties")
     @Produces( {MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response getServiceTemplateInstanceProperties(@PathParam("id") final Long id) {
         logger.debug("Invoking getServiceTemplateInstanceProperties");
         final ServiceTemplateInstance instance = this.serviceTemplateInstanceService.getServiceTemplateInstance(id, true);
@@ -251,7 +276,10 @@ public class ServiceTemplateInstanceController {
     @GET
     @Path("/{id}/properties")
     @Produces( {MediaType.APPLICATION_JSON})
-    @ApiOperation(value = "Gets the properties of a service template instance", response = Map.class)
+    @Operation(description = "Gets the properties of a service template instance", responses = {@ApiResponse(responseCode = "200",
+        description = "ServiceTemplate Instance Properties",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Map.class))})})
     public Map<String, String> getServiceTemplateInstancePropertiesAsJSON(@PathParam("id") final Long id) {
         logger.debug("Invoking getServiceTemplateInstancePropertiesAsJSON");
         final ServiceTemplateInstance serviceTemplateInstance = this.serviceTemplateInstanceService.getServiceTemplateInstance(id, true);
@@ -262,7 +290,7 @@ public class ServiceTemplateInstanceController {
     @Path("/{id}/properties")
     @Consumes( {MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response updateServiceTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
         logger.debug("Invoking updateServiceTemplateInstanceProperties");
         try {
@@ -331,7 +359,14 @@ public class ServiceTemplateInstanceController {
     @GET
     @Path("/{id}/boundarydefinitions/interfaces")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get interfaces of a service tempate", response = InterfaceListDTO.class)
+    @Operation(description = "Get interfaces of a service tempate", responses = {@ApiResponse(responseCode = "200",
+        description = "ServiceTemplate Instance Interfaces",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = InterfaceListDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "ServiceTemplate Instance Interfaces",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = InterfaceListDTO.class))})})
     public Response getInterfaces(@PathParam("id") final Long id) {
         logger.debug("Invoking getInterfaces");
         List<TExportedInterface> boundaryInterfaces = serviceTemplate.getBoundaryDefinitions().getInterfaces();
@@ -398,7 +433,7 @@ public class ServiceTemplateInstanceController {
     @GET
     @Path("/{id}/deploymenttests")
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response getDeploymentTests(@PathParam("id") final Integer id) {
         logger.debug("Invoking getDeploymentTests");
         // TODO: Check if instance belongs to CSAR and Service Template
@@ -429,7 +464,7 @@ public class ServiceTemplateInstanceController {
     @GET
     @Path("/{id}/deploymenttests/{deploymenttest}")
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response getDeploymentTest(@PathParam("id") final Integer id,
                                       @PathParam("deploymenttest") final Integer deploymenttest) {
         logger.debug("Invoking getDeploymentTest");
@@ -458,7 +493,7 @@ public class ServiceTemplateInstanceController {
     @POST
     @Path("/{id}/deploymenttests")
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response createDeploymentTest(@PathParam("id") final Integer id) {
         logger.debug("Invoking createDeploymentTest");
         // TODO: Check if instance belongs to CSAR and Service Template

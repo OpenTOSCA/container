@@ -15,7 +15,6 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.tosca.TPlan;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.swagger.annotations.ApiModelProperty;
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.extension.TParameterDTO;
@@ -100,7 +99,6 @@ public class PlanDTO extends ResourceSupport {
         this.name = name;
     }
 
-    @ApiModelProperty(name = "plan_type")
     public String getPlanType() {
         return this.planType;
     }
@@ -109,7 +107,6 @@ public class PlanDTO extends ResourceSupport {
         this.planType = planType;
     }
 
-    @ApiModelProperty(name = "plan_language")
     public String getPlanLanguage() {
         return this.planLanguage;
     }
@@ -118,7 +115,6 @@ public class PlanDTO extends ResourceSupport {
         this.planLanguage = planLanguage;
     }
 
-    @ApiModelProperty(name = "input_parameters")
     public List<TParameter> getInputParameters() {
         return this.inputParameters;
     }
@@ -127,7 +123,6 @@ public class PlanDTO extends ResourceSupport {
         this.inputParameters = inputParameters;
     }
 
-    @ApiModelProperty(name = "output_parameters")
     public List<TParameter> getOutputParameters() {
         return this.outputParameters;
     }
@@ -136,7 +131,6 @@ public class PlanDTO extends ResourceSupport {
         this.outputParameters = outputParameters;
     }
 
-    @ApiModelProperty(name = "plan_model_reference")
     public String getPlanModelReference() {
         return this.planModelReference;
     }
@@ -145,7 +139,6 @@ public class PlanDTO extends ResourceSupport {
         this.planModelReference = planModelReference;
     }
 
-    @ApiModelProperty(name = "calculated_wcet")
     public long getCalculatedWCET() {
         return this.calculatedWCET;
     }

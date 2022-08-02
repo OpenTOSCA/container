@@ -10,7 +10,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.swagger.annotations.ApiModelProperty;
 import org.opentosca.container.api.dto.ResourceSupport;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -36,7 +35,6 @@ public class PropertiesDTO extends ResourceSupport {
 
     }
 
-    @ApiModelProperty(name = "xml_fragment")
     public Object getXmlFragment() {
         return this.xmlFragment;
     }
@@ -45,7 +43,6 @@ public class PropertiesDTO extends ResourceSupport {
         this.xmlFragment = xmlFragment;
     }
 
-    @ApiModelProperty(name = "property_mappings")
     public List<PropertyMappingDTO> getPropertyMappings() {
         return this.propertyMappings;
     }

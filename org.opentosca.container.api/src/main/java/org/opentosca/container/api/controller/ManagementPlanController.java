@@ -20,9 +20,12 @@ import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.api.dto.plan.PlanInstanceDTO;
 import org.opentosca.container.api.dto.plan.PlanInstanceEventDTO;
@@ -44,7 +47,7 @@ import org.opentosca.container.core.next.services.instances.PlanInstanceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Api
+@OpenAPIDefinition
 // not marked as @RestController because instantiation is controlled by parent resource
 //@RestController
 public class ManagementPlanController {
@@ -73,7 +76,14 @@ public class ManagementPlanController {
 
     @GET
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get management plans", response = PlanListDTO.class)
+    @Operation(description = "Get management plans", responses = {@ApiResponse(responseCode = "200",
+        description = "Management Plans of the ServiceTemplate",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = PlanListDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "Management Plans of the ServiceTemplate",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = PlanListDTO.class))})})
     public Response getManagementPlans(@Context final UriInfo uriInfo) {
         PlanListDTO list = new PlanListDTO();
         csar.plans().stream()
@@ -97,8 +107,15 @@ public class ManagementPlanController {
     @GET
     @Path("/{plan}")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get a management plan", response = PlanDTO.class)
-    public Response getManagementPlan(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
+    @Operation(description = "Get a management plan", responses = {@ApiResponse(responseCode = "200",
+        description = "A management plan of the service template",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = PlanListDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "A management plan of the service template",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = PlanListDTO.class))})})
+    public Response getManagementPlan(@Parameter(description = "ID of management plan") @PathParam("plan") final String plan,
                                       @Context final UriInfo uriInfo) {
         PlanDTO dto = Utils.getPlanDto(csar, planTypes, plan);
 
@@ -111,8 +128,15 @@ public class ManagementPlanController {
     @GET
     @Path("/{plan}/instances")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get instances of a management plan", response = PlanInstanceListDTO.class)
-    public Response getManagementPlanInstances(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
+    @Operation(description = "Get instances of a management plan", responses = {@ApiResponse(responseCode = "200",
+        description = "Instances of management plan",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = PlanInstanceListDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "Instances of management plan",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = PlanInstanceListDTO.class))})})
+    public Response getManagementPlanInstances(@Parameter(description = "ID of management plan") @PathParam("plan") final String plan,
                                                @Context final UriInfo uriInfo) {
         List<PlanInstance> planInstances = planInstanceService.getPlanInstance(serviceTemplateInstanceId, planTypes);
 
@@ -143,11 +167,18 @@ public class ManagementPlanController {
     @Path("/{plan}/instances")
     @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    @ApiOperation(value = "Invokes a management plan", response = String.class)
-    public Response invokeManagementPlan(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
+    @Operation(description = "Invokes a management plan", responses = {@ApiResponse(responseCode = "200",
+        description = "Response of management plan invocation",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = String.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "Response of management plan invocation",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = String.class))})})
+    public Response invokeManagementPlan(@Parameter(description = "ID of management plan") @PathParam("plan") final String plan,
                                          @Context final UriInfo uriInfo,
-                                         @ApiParam(required = true,
-                                             value = "plan input parameters") final List<TParameter> parameters) {
+                                         @Parameter(required = true,
+                                             description = "plan input parameters") final List<TParameter> parameters) {
         String correlationId = planInvokerService.invokePlan(csar, serviceTemplate, serviceTemplateInstanceId, plan, parameters, this.planTypes);
         return Response.ok(correlationId).build();
     }
@@ -155,9 +186,16 @@ public class ManagementPlanController {
     @GET
     @Path("/{plan}/instances/{instance}")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get a management plan instance", response = PlanInstanceDTO.class)
-    public Response getManagementPlanInstance(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
-                                              @ApiParam("correlation ID") @PathParam("instance") final String instance,
+    @Operation(description = "Get a management plan instance", responses = {@ApiResponse(responseCode = "200",
+        description = "Management Plan Instance",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = PlanInstanceDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "Management Plan Instance",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = PlanInstanceDTO.class))})})
+    public Response getManagementPlanInstance(@Parameter(description = "ID of management plan") @PathParam("plan") final String plan,
+                                              @Parameter(description = "correlation ID") @PathParam("instance") final String instance,
                                               @Context final UriInfo uriInfo) {
         PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);
 
@@ -183,9 +221,16 @@ public class ManagementPlanController {
     @GET
     @Path("/{plan}/instances/{instance}/state")
     @Produces( {MediaType.TEXT_PLAIN})
-    @ApiOperation(value = "Get state of a management plan instance", response = String.class)
-    public Response getManagementPlanInstanceState(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
-                                                   @ApiParam("correlation ID") @PathParam("instance") final String instance,
+    @Operation(description = "Get state of a management plan instance", responses = {@ApiResponse(responseCode = "200",
+        description = "Management Plan Instance State",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = String.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "Management Plan Instance State",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = String.class))})})
+    public Response getManagementPlanInstanceState(@Parameter(description = "ID of management plan") @PathParam("plan") final String plan,
+                                                   @Parameter(description = "correlation ID") @PathParam("instance") final String instance,
                                                    @Context final UriInfo uriInfo) {
         PlanInstance pi = planInstanceService.resolvePlanInstance(null, instance);
         return Response.ok(pi.getState().toString()).build();
@@ -194,7 +239,7 @@ public class ManagementPlanController {
     @PUT
     @Path("/{plan}/instances/{instance}/state")
     @Consumes( {MediaType.TEXT_PLAIN})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response changeManagementPlanInstanceState(@PathParam("plan") final String plan,
                                                       @PathParam("instance") final String instance,
                                                       @Context final UriInfo uriInfo, final String request) {
@@ -207,10 +252,16 @@ public class ManagementPlanController {
     @GET
     @Path("/{plan}/instances/{instance}/logs")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get log entries of a management plan instance", response = PlanInstanceEventDTO.class,
-        responseContainer = "list")
-    public Response getManagementPlanInstanceLogs(@ApiParam("management plan id") @PathParam("plan") final String plan,
-                                                  @ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
+    @Operation(description = "Get log entries of a management plan instance", responses = {@ApiResponse(responseCode = "200",
+        description = "Plan Instance Logs",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = PlanInstanceEventListDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "Plan Instance Logs",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = PlanInstanceEventListDTO.class))})})
+    public Response getManagementPlanInstanceLogs(@Parameter(description = "management plan id") @PathParam("plan") final String plan,
+                                                  @Parameter(description = "plan instance correlation id") @PathParam("instance") final String instance,
                                                   @Context final UriInfo uriInfo) {
         PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);
 
@@ -225,7 +276,7 @@ public class ManagementPlanController {
     @Path("/{plan}/instances/{instance}/logs")
     @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @ApiOperation(hidden = true, value = "")
+    @Operation(hidden = true)
     public Response addManagementPlanLogEntry(@PathParam("plan") final String plan,
                                               @PathParam("instance") final String instance,
                                               @Context final UriInfo uriInfo,

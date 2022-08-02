@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
 
 @XmlRootElement(name = "RelationshipTemplateResources")
 public class RelationshipTemplateListDTO extends ResourceSupport {
@@ -19,7 +18,6 @@ public class RelationshipTemplateListDTO extends ResourceSupport {
     @XmlElementWrapper(name = "RelationshipTemplate")
     private final List<RelationshipTemplateDTO> relationshipTemplates = new ArrayList<>();
 
-    @ApiModelProperty(name = "relationship_templates")
     public List<RelationshipTemplateDTO> getRelationshipTemplates() {
         return this.relationshipTemplates;
     }

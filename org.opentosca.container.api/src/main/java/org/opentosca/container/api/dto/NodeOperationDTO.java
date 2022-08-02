@@ -13,7 +13,6 @@ import org.eclipse.winery.model.tosca.TExportedOperation;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
-import io.swagger.annotations.ApiModelProperty;
 import org.opentosca.container.core.extension.TParameter;
 
 @XmlRootElement(name = "NodeOperation")
@@ -51,7 +50,6 @@ public class NodeOperationDTO {
         this.interfaceName = interfaceName;
     }
 
-    @ApiModelProperty(name = "input_parameters")
     public List<TParameter> getInputParameters() {
         return this.inputParameters;
     }
@@ -60,7 +58,6 @@ public class NodeOperationDTO {
         this.inputParameters = inputParameters;
     }
 
-    @ApiModelProperty(name = "output_parameters")
     public List<TParameter> getOutputParameters() {
         return this.outputParameters;
     }

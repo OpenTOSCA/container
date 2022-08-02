@@ -15,11 +15,15 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateListDTO;
+import org.opentosca.container.api.dto.plan.PlanInstanceEventListDTO;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.next.services.instances.RelationshipTemplateInstanceService;
 import org.opentosca.container.core.next.services.templates.RelationshipTemplateService;
@@ -27,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-@Api
+@OpenAPIDefinition
 @Component
 public class RelationshipTemplateController {
     private static final Logger logger = LoggerFactory.getLogger(RelationshipTemplateController.class);
@@ -46,10 +50,17 @@ public class RelationshipTemplateController {
 
     @GET
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all relationship templates of a service template",
-        response = RelationshipTemplateListDTO.class)
-    public Response getRelationshipTemplates(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
-                                             @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) throws NotFoundException {
+    @Operation(description = "Get all relationship templates of a service template",
+        responses = {@ApiResponse(responseCode = "200",
+            description = "RelationshipTemplates",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = RelationshipTemplateListDTO.class))}),
+            @ApiResponse(responseCode = "200",
+                description = "RelationshipTemplates",
+                content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = RelationshipTemplateListDTO.class))})})
+    public Response getRelationshipTemplates(@Parameter(description = "ID of CSAR") @PathParam("csar") final String csarId,
+                                             @Parameter(description = "qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) throws NotFoundException {
 
         // this validates that the CSAR contains the service template
         final List<RelationshipTemplateDTO> relationshipTemplateIds =
@@ -74,10 +85,17 @@ public class RelationshipTemplateController {
     @GET
     @Path("/{relationshiptemplate}")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get a relationship template", response = RelationshipTemplateDTO.class)
-    public Response getRelationshipTemplate(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
-                                            @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateName,
-                                            @ApiParam("ID of relationship template") @PathParam("relationshiptemplate") final String relationshipTemplateId) throws NotFoundException {
+    @Operation(description = "Get a relationship template", responses = {@ApiResponse(responseCode = "200",
+        description = "RelationshipTemplate",
+        content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = RelationshipTemplateDTO.class))}),
+        @ApiResponse(responseCode = "200",
+            description = "RelationshipTemplate",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = RelationshipTemplateDTO.class))})})
+    public Response getRelationshipTemplate(@Parameter(description = "ID of CSAR") @PathParam("csar") final String csarId,
+                                            @Parameter(description = "qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateName,
+                                            @Parameter(description = "ID of relationship template") @PathParam("relationshiptemplate") final String relationshipTemplateId) throws NotFoundException {
 
         final RelationshipTemplateDTO result = RelationshipTemplateDTO.fromToscaObject(this.relationshipTemplateService.getRelationshipTemplateById(csarId, serviceTemplateName, relationshipTemplateId));
 
@@ -88,9 +106,9 @@ public class RelationshipTemplateController {
     }
 
     @Path("/{relationshiptemplate}/instances")
-    public RelationshipTemplateInstanceController getInstances(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
-                                                               @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
-                                                               @ApiParam(hidden = true) @PathParam("relationshiptemplate") final String relationshipTemplateId) {
+    public RelationshipTemplateInstanceController getInstances(@Parameter(hidden = true) @PathParam("csar") final String csarId,
+                                                               @Parameter(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
+                                                               @Parameter(hidden = true) @PathParam("relationshiptemplate") final String relationshipTemplateId) {
 
         if (!this.relationshipTemplateService.hasRelationshipTemplate(csarId, QName.valueOf(serviceTemplateId),
             relationshipTemplateId)) {
