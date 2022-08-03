@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateListDTO;
-import org.opentosca.container.api.dto.plan.PlanInstanceEventListDTO;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.next.services.instances.RelationshipTemplateInstanceService;
 import org.opentosca.container.core.next.services.templates.RelationshipTemplateService;

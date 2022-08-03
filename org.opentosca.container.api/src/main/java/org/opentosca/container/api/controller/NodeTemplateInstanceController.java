@@ -29,8 +29,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.opentosca.container.api.dto.NodeTemplateInstanceDTO;
 import org.opentosca.container.api.dto.NodeTemplateInstanceListDTO;
-import org.opentosca.container.api.dto.NodeTemplateListDTO;
-import org.opentosca.container.api.dto.plan.PlanInstanceEventListDTO;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.util.Utils;
 import org.opentosca.container.core.common.uri.UriUtil;
@@ -48,20 +46,22 @@ import org.w3c.dom.Element;
 @Component
 public class NodeTemplateInstanceController {
 
-    private static final Logger logger = LoggerFactory.getLogger(NodeTemplateInstanceController.class);
-    private final NodeTemplateService nodeTemplateService;
-    private final NodeTemplateInstanceService nodeTemplateInstanceService;
-    @Parameter(description = "ID of node template")
-    @PathParam("nodetemplate")
-    String nodetemplate;
     @Parameter(description = "ID of CSAR")
     @PathParam("csar")
     String csar;
+    @Parameter(description = "ID of node template")
+    @PathParam("nodetemplate")
+    String nodetemplate;
     @Parameter(description = "qualified name of the service template")
     @PathParam("servicetemplate")
     String servicetemplate;
     @Context
     UriInfo uriInfo;
+
+    private static final Logger logger = LoggerFactory.getLogger(NodeTemplateInstanceController.class);
+    private final NodeTemplateService nodeTemplateService;
+    private final NodeTemplateInstanceService nodeTemplateInstanceService;
+
 
     public NodeTemplateInstanceController(final NodeTemplateService nodeTemplateService,
                                           final NodeTemplateInstanceService nodeTemplateInstanceService) {

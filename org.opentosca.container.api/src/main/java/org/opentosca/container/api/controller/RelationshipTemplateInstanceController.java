@@ -28,7 +28,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.opentosca.container.api.dto.RelationshipTemplateInstanceDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateInstanceListDTO;
-import org.opentosca.container.api.dto.plan.PlanInstanceEventListDTO;
 import org.opentosca.container.api.dto.request.CreateRelationshipTemplateInstanceRequest;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
@@ -43,19 +42,20 @@ import org.w3c.dom.Document;
 @Component
 public class RelationshipTemplateInstanceController {
 
-    private static final Logger logger = LoggerFactory.getLogger(RelationshipTemplateInstanceController.class);
-    private final RelationshipTemplateInstanceService relationshipTemplateInstanceService;
     @Parameter(description = "ID of CSAR")
     @PathParam("csar")
     String csar;
-    @Parameter(description = "qualified name of the service template")
-    @PathParam("servicetemplate")
-    String servicetemplate;
     @Parameter(description = "ID of relationship template")
     @PathParam("relationshiptemplate")
     String relationshiptemplate;
+    @Parameter(description = "qualified name of the service template")
+    @PathParam("servicetemplate")
+    String servicetemplate;
     @Context
     UriInfo uriInfo;
+
+    private static final Logger logger = LoggerFactory.getLogger(RelationshipTemplateInstanceController.class);
+    private final RelationshipTemplateInstanceService relationshipTemplateInstanceService;
 
     public RelationshipTemplateInstanceController(final RelationshipTemplateInstanceService relationshipTemplateInstanceService) {
         this.relationshipTemplateInstanceService = relationshipTemplateInstanceService;

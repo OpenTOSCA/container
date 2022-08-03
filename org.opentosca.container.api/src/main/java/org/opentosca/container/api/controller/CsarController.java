@@ -37,7 +37,6 @@ import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
 
-
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -53,9 +52,9 @@ import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.api.dto.request.CsarTransformRequest;
 import org.opentosca.container.api.dto.request.CsarUploadRequest;
 import org.opentosca.container.api.util.Utils;
-import org.opentosca.container.control.winery.WineryConnector;
 import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.control.plan.PlanGenerationService;
+import org.opentosca.container.control.winery.WineryConnector;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.common.uri.UriUtil;

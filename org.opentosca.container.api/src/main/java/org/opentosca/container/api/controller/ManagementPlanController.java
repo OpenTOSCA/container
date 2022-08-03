@@ -28,7 +28,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.api.dto.plan.PlanInstanceDTO;
-import org.opentosca.container.api.dto.plan.PlanInstanceEventDTO;
 import org.opentosca.container.api.dto.plan.PlanInstanceEventListDTO;
 import org.opentosca.container.api.dto.plan.PlanInstanceListDTO;
 import org.opentosca.container.api.dto.plan.PlanListDTO;

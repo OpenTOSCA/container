@@ -3,14 +3,12 @@ package org.opentosca.container.control.plan;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
-import org.eclipse.winery.repository.backend.filebased.FileUtils;
 
 import com.google.common.collect.Lists;
 import org.opentosca.container.core.common.SystemException;

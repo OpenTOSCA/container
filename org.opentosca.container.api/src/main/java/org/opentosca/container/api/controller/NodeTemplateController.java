@@ -35,7 +35,6 @@ import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.NodeTemplateListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
-import org.opentosca.container.api.dto.plan.PlanInstanceEventListDTO;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.model.ModelUtils;
