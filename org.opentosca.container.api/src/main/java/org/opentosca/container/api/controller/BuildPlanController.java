@@ -110,7 +110,7 @@ public class BuildPlanController {
             description = "Build Plan of the Service Template",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = PlanDTO.class))})})
-    public Response getBuildPlan(@Parameter(description = "ID of build plan") @PathParam("plan") final String plan,
+    public Response getBuildPlan(@PathParam("plan") final String plan,
                                  @Context final UriInfo uriInfo) {
         PlanDTO dto = Utils.getPlanDto(csar, ALL_PLAN_TYPES, plan);
 
@@ -131,7 +131,7 @@ public class BuildPlanController {
             description = "Plan Instances of the plan",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = PlanInstanceListDTO.class))})})
-    public Response getBuildPlanInstances(@Parameter(description = "ID of build plan") @PathParam("plan") final String plan,
+    public Response getBuildPlanInstances(@PathParam("plan") final String plan,
                                           @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstances");
         Collection<PlanInstance> planInstances = planInstanceService.getPlanInstances(csar, PLAN_TYPE);
@@ -170,7 +170,7 @@ public class BuildPlanController {
             description = "Invokes a build plan",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = String.class))})})
-    public Response invokeBuildPlan(@Parameter(description = "ID of build plan") @PathParam("plan") final String plan,
+    public Response invokeBuildPlan(@PathParam("plan") final String plan,
                                     @Context final UriInfo uriInfo,
                                     @Parameter(required = true,
                                         description = "plan input parameters") final List<TParameter> parameters) {
@@ -191,8 +191,8 @@ public class BuildPlanController {
             description = "A build plan instance",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = PlanInstanceDTO.class))})})
-    public Response getBuildPlanInstance(@Parameter(description = "ID of build plan") @PathParam("plan") final String plan,
-                                         @Parameter(description = "correlation ID") @PathParam("instance") final String instance,
+    public Response getBuildPlanInstance(@PathParam("plan") final String plan,
+                                         @PathParam("instance") final String instance,
                                          @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstance");
         PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);
@@ -227,8 +227,8 @@ public class BuildPlanController {
             description = "PlanInstance State",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = String.class))})})
-    public Response getBuildPlanInstanceState(@Parameter(description = "ID of build plan") @PathParam("plan") final String plan,
-                                              @Parameter(description = "correlation ID") @PathParam("instance") final String instance,
+    public Response getBuildPlanInstanceState(@PathParam("plan") final String plan,
+                                              @PathParam("instance") final String instance,
                                               @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstanceState");
         PlanInstance pi = planInstanceService.resolvePlanInstance(null, instance);
@@ -259,8 +259,8 @@ public class BuildPlanController {
             description = "Plan Instance Logs",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = PlanInstanceEventListDTO.class))})})
-    public Response getBuildPlanInstanceLogs(@Parameter(description = "ID of build plan") @PathParam("plan") final String plan,
-                                             @Parameter(description = "Correlation ID") @PathParam("instance") final String instance,
+    public Response getBuildPlanInstanceLogs(@PathParam("plan") final String plan,
+                                             @PathParam("instance") final String instance,
                                              @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstanceLogs");
         PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);

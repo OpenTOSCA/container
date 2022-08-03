@@ -115,7 +115,7 @@ public class ServiceTemplateController {
             description = "ServiceTemplate list",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = ServiceTemplateListDTO.class))})})
-    public Response getServiceTemplates(@Parameter(description = "ID of CSAR") @PathParam("csar") final String csarId) {
+    public Response getServiceTemplates(@PathParam("csar") final String csarId) {
         logger.info("Loading all service templates for csar [{}]", csarId);
         final Csar csar = storage.findById(new CsarId(csarId));
         final ServiceTemplateListDTO list = new ServiceTemplateListDTO();
@@ -143,8 +143,8 @@ public class ServiceTemplateController {
             description = "Plan Instance Logs",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = ServiceTemplateDTO.class))})})
-    public Response getServiceTemplate(@Parameter(description = "ID of CSAR") @PathParam("csar") final String csarId,
-                                       @Parameter(description = "qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) {
+    public Response getServiceTemplate(@PathParam("csar") final String csarId,
+                                       @PathParam("servicetemplate") final String serviceTemplateId) {
 
         final Csar csar = storage.findById(new CsarId(csarId));
         // return value is not used, we only need to throw if we didn't find stuff
@@ -167,8 +167,8 @@ public class ServiceTemplateController {
     }
 
     @Path("/{servicetemplate}/buildplans")
-    public BuildPlanController getBuildPlans(@Parameter(description = "ID of CSAR") @PathParam("csar") final String csarId,
-                                             @Parameter(description = "qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) {
+    public BuildPlanController getBuildPlans(@PathParam("csar") final String csarId,
+                                             @PathParam("servicetemplate") final String serviceTemplateId) {
         final Csar csar = storage.findById(new CsarId(csarId));
         final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
             .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
@@ -208,8 +208,8 @@ public class ServiceTemplateController {
     }
 
     @Path("/{servicetemplate}/placement")
-    public PlacementController startPlacement(@Parameter(hidden = true) @PathParam("csar") final String csarId,
-                                              @Parameter(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
+    public PlacementController startPlacement(@PathParam("csar") final String csarId,
+                                              @PathParam("servicetemplate") final String serviceTemplateId) {
         final Csar csar = storage.findById(new CsarId(csarId));
         csar.serviceTemplates().stream().filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
             .findFirst().orElseThrow(NotFoundException::new);
@@ -221,8 +221,8 @@ public class ServiceTemplateController {
     }
 
     @Path("/{servicetemplate}/instances")
-    public ServiceTemplateInstanceController getInstances(@Parameter(hidden = true) @PathParam("csar") final String csarId,
-                                                          @Parameter(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
+    public ServiceTemplateInstanceController getInstances(@PathParam("csar") final String csarId,
+                                                          @PathParam("servicetemplate") final String serviceTemplateId) {
         final Csar csar = storage.findById(new CsarId(csarId));
         // return value is not used, we only need to throw if we didn't find stuff
         TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
@@ -249,8 +249,8 @@ public class ServiceTemplateController {
     @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 
-    public Response transformCsar(@Parameter(description = "ID of CSAR") @PathParam("csar") final String csar,
-                                  @Parameter(description = "qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId, @Parameter(required = true) final ServiceTransformRequest request) {
+    public Response transformCsar(@PathParam("csar") final String csar,
+                                  @PathParam("servicetemplate") final String serviceTemplateId, @Parameter(required = true) final ServiceTransformRequest request) {
 
         CsarId csarId = new CsarId(csar);
         Csar csarToTransform = this.storage.findById(csarId);

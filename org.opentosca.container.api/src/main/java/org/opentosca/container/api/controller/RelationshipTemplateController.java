@@ -58,8 +58,8 @@ public class RelationshipTemplateController {
                 description = "RelationshipTemplates",
                 content = {@Content(mediaType = "application/json",
                     schema = @Schema(implementation = RelationshipTemplateListDTO.class))})})
-    public Response getRelationshipTemplates(@Parameter(description = "ID of CSAR") @PathParam("csar") final String csarId,
-                                             @Parameter(description = "qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) throws NotFoundException {
+    public Response getRelationshipTemplates(@Parameter(hidden = true) @PathParam("csar") final String csarId,
+                                             @Parameter(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) throws NotFoundException {
 
         // this validates that the CSAR contains the service template
         final List<RelationshipTemplateDTO> relationshipTemplateIds =
@@ -92,9 +92,9 @@ public class RelationshipTemplateController {
             description = "RelationshipTemplate",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = RelationshipTemplateDTO.class))})})
-    public Response getRelationshipTemplate(@Parameter(description = "ID of CSAR") @PathParam("csar") final String csarId,
-                                            @Parameter(description = "qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateName,
-                                            @Parameter(description = "ID of relationship template") @PathParam("relationshiptemplate") final String relationshipTemplateId) throws NotFoundException {
+    public Response getRelationshipTemplate(@Parameter(hidden = true) @PathParam("csar") final String csarId,
+                                            @Parameter(hidden = true) @PathParam("servicetemplate") final String serviceTemplateName,
+                                            @PathParam("relationshiptemplate") final String relationshipTemplateId) throws NotFoundException {
 
         final RelationshipTemplateDTO result = RelationshipTemplateDTO.fromToscaObject(this.relationshipTemplateService.getRelationshipTemplateById(csarId, serviceTemplateName, relationshipTemplateId));
 
@@ -107,7 +107,7 @@ public class RelationshipTemplateController {
     @Path("/{relationshiptemplate}/instances")
     public RelationshipTemplateInstanceController getInstances(@Parameter(hidden = true) @PathParam("csar") final String csarId,
                                                                @Parameter(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
-                                                               @Parameter(hidden = true) @PathParam("relationshiptemplate") final String relationshipTemplateId) {
+                                                               @PathParam("relationshiptemplate") final String relationshipTemplateId) {
 
         if (!this.relationshipTemplateService.hasRelationshipTemplate(csarId, QName.valueOf(serviceTemplateId),
             relationshipTemplateId)) {

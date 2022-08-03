@@ -44,13 +44,13 @@ public class RelationshipTemplateInstanceController {
 
     private static final Logger logger = LoggerFactory.getLogger(RelationshipTemplateInstanceController.class);
 
-    @Parameter(description = "ID of CSAR")
+    @Parameter(hidden = true)
     @PathParam("csar")
     String csar;
-    @Parameter(description = "ID of relationship template")
+    @Parameter(hidden = true)
     @PathParam("relationshiptemplate")
     String relationshiptemplate;
-    @Parameter(description = "qualified name of the service template")
+    @Parameter(hidden = true)
     @PathParam("servicetemplate")
     String servicetemplate;
     @Context
@@ -144,7 +144,7 @@ public class RelationshipTemplateInstanceController {
             description = "Relationship instance",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = RelationshipTemplateInstanceDTO.class))})})
-    public Response getRelationshipTemplateInstance(@Parameter(description = "ID of relationship template instance") @PathParam("id") final Long id) {
+    public Response getRelationshipTemplateInstance(@PathParam("id") final Long id) {
 
         final RelationshipTemplateInstance instance =
             this.relationshipTemplateInstanceService.resolveRelationshipTemplateInstance(this.servicetemplate, this.relationshiptemplate,
@@ -192,7 +192,7 @@ public class RelationshipTemplateInstanceController {
             description = "State",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = String.class))})})
-    public Response getRelationshipTemplateInstanceState(@Parameter(description = "ID of relationship template instance") @PathParam("id") final Long id) {
+    public Response getRelationshipTemplateInstanceState(@PathParam("id") final Long id) {
         final RelationshipTemplateInstanceState state =
             this.relationshipTemplateInstanceService.getRelationshipTemplateInstanceState(this.servicetemplate, this.relationshiptemplate,
                 id);

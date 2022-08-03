@@ -81,8 +81,8 @@ public class NodeTemplateController {
             description = "NodeTempaltes",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = NodeTemplateListDTO.class))})})
-    public Response getNodeTemplates(@Parameter(description = "ID of CSAR") @PathParam("csar") final String csarId,
-                                     @Parameter(description = "qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) throws NotFoundException {
+    public Response getNodeTemplates(@PathParam("csar") final String csarId,
+                                     @PathParam("servicetemplate") final String serviceTemplateId) throws NotFoundException {
         logger.debug("Invoking getNodeTemplates");
         // this validates that the CSAR contains the service template
         final List<NodeTemplateDTO> nodeTemplateIds =
@@ -120,9 +120,9 @@ public class NodeTemplateController {
             description = "A NodeTemplate",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = NodeTemplateDTO.class))})})
-    public Response getNodeTemplate(@Parameter(description = "ID of CSAR") @PathParam("csar") final String csarId,
-                                    @Parameter(description = "qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId,
-                                    @Parameter(description = "ID of node template") @PathParam("nodetemplate") final String nodeTemplateId)
+    public Response getNodeTemplate(@Parameter(hidden = true) @PathParam("csar") final String csarId,
+                                    @Parameter(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
+                                    @PathParam("nodetemplate") final String nodeTemplateId)
         throws NotFoundException {
         logger.debug("Invoking getNodeTemplate");
         NodeTemplateDTO result;
@@ -149,9 +149,9 @@ public class NodeTemplateController {
             description = "Properties",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = Document.class))})})
-    public Response getNodeTemplateProperties(@Parameter(description = "ID of CSAR") @PathParam("csar") final String csarId,
-                                              @Parameter(description = "qualified name of service template") @PathParam("servicetemplate") final String serviceTemplateId,
-                                              @Parameter(description = "ID of node template") @PathParam("nodetemplate") final String nodeTemplateId)
+    public Response getNodeTemplateProperties(@PathParam("csar") final String csarId,
+                                              @PathParam("servicetemplate") final String serviceTemplateId,
+                                              @PathParam("nodetemplate") final String nodeTemplateId)
         throws NotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException {
 
         final Document result;
@@ -179,7 +179,7 @@ public class NodeTemplateController {
     @Path("/{nodetemplate}/instances")
     public NodeTemplateInstanceController getInstances(@Parameter(hidden = true) @PathParam("csar") final String csarId,
                                                        @Parameter(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
-                                                       @Parameter(hidden = true) @PathParam("nodetemplate") final String nodeTemplateId) {
+                                                       @PathParam("nodetemplate") final String nodeTemplateId) {
         logger.debug("Invoking getInstances");
         if (!this.nodeTemplateService.hasNodeTemplate(csarId, serviceTemplateId, nodeTemplateId)) {
             logger.info("Node template \"" + nodeTemplateId + "\" could not be found");
@@ -196,9 +196,9 @@ public class NodeTemplateController {
     @Path("/{nodetemplate}/uploadDA")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response uploadStatefulDA(@Parameter(hidden = true) @PathParam("csar") final String csarId,
-                                     @Parameter(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
-                                     @Parameter(hidden = true) @PathParam("nodetemplate") final String nodeTemplateId,
+    public Response uploadStatefulDA(@PathParam("csar") final String csarId,
+                                     @PathParam("servicetemplate") final String serviceTemplateId,
+                                     @PathParam("nodetemplate") final String nodeTemplateId,
                                      @FormDataParam("file") final InputStream is,
                                      @FormDataParam("file") final FormDataContentDisposition file) {
 

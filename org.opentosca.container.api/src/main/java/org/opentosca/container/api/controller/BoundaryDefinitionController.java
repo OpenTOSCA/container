@@ -115,8 +115,8 @@ public class BoundaryDefinitionController {
             description = "Properties of the boundaries definitions",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = PropertiesDTO.class))})})
-    public Response getBoundaryDefinitionProperties(@Parameter(description = "ID of CSAR") @PathParam("csar") final String csarId,
-                                                    @Parameter(description = "qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
+    public Response getBoundaryDefinitionProperties(@PathParam("csar") final String csarId,
+                                                    @PathParam("servicetemplate") final String servicetemplate) {
         logger.debug("Invoking getBoundaryDefinitionProperties");
         final Csar csar = this.storage.findById(new CsarId(csarId));
         final TServiceTemplate serviceTemplate;
@@ -179,8 +179,8 @@ public class BoundaryDefinitionController {
             description = "The interface of the boundary",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = InterfaceListDTO.class))})})
-    public Response getBoundaryDefinitionInterfaces(@Parameter(description = "ID of CSAR") @PathParam("csar") final String csarId,
-                                                    @Parameter(description = "qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
+    public Response getBoundaryDefinitionInterfaces(@PathParam("csar") final String csarId,
+                                                   @PathParam("servicetemplate") final String servicetemplate) {
         logger.debug("Invoking getBoundaryDefinitionInterfaces");
         final Csar csar = this.storage.findById(new CsarId(csarId));
         final TServiceTemplate serviceTemplate;
@@ -221,9 +221,9 @@ public class BoundaryDefinitionController {
             description = "Interface of the boundaries definitions",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = InterfaceDTO.class))})})
-    public Response getBoundaryDefinitionInterface(@Parameter(description = "interface name") @PathParam("name") final String name,
-                                                   @Parameter(description = "ID of CSAR") @PathParam("csar") final String csarId,
-                                                   @Parameter(description = "qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
+    public Response getBoundaryDefinitionInterface(@PathParam("name") final String name,
+                                                   @PathParam("csar") final String csarId,
+                                                   @PathParam("servicetemplate") final String servicetemplate) {
         logger.debug("Invoking getBoundaryDefinitionInterface");
         final Csar csar = this.storage.findById(new CsarId(csarId));
         final TServiceTemplate serviceTemplate;

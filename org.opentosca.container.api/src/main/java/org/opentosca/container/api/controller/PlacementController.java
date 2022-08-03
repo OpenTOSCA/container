@@ -40,10 +40,8 @@ public class PlacementController {
     UriInfo uriInfo;
     @Context
     ResourceContext resourceContext;
-    @Parameter(description = "ID of CSAR")
     @PathParam("csar")
     String csarId;
-    @Parameter(description = "qualified name of the service template")
     @PathParam("servicetemplate")
     String serviceTemplateId;
 
@@ -56,7 +54,7 @@ public class PlacementController {
     @Produces( {MediaType.APPLICATION_JSON})
     @Consumes( {MediaType.APPLICATION_JSON})
     @Operation(hidden = true)
-    public Response getInstances(@Parameter(description = "node template list need to be placed") final List<String> request) throws InstantiationException,
+    public Response getInstances(final List<String> request) throws InstantiationException,
         IllegalAccessException,
         IllegalArgumentException {
 

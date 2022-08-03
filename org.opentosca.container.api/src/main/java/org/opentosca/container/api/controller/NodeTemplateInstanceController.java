@@ -48,15 +48,6 @@ public class NodeTemplateInstanceController {
 
     private static final Logger logger = LoggerFactory.getLogger(NodeTemplateInstanceController.class);
 
-    @Parameter(description = "ID of CSAR")
-    @PathParam("csar")
-    String csar;
-    @Parameter(description = "ID of node template")
-    @PathParam("nodetemplate")
-    String nodetemplate;
-    @Parameter(description = "qualified name of the service template")
-    @PathParam("servicetemplate")
-    String servicetemplate;
     @Context
     UriInfo uriInfo;
 
@@ -79,12 +70,21 @@ public class NodeTemplateInstanceController {
             description = "Node instances",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = NodeTemplateInstanceListDTO.class))})})
-    public Response getNodeTemplateInstances(@QueryParam(value = "state") final List<NodeTemplateInstanceState> states,
+    public Response getNodeTemplateInstances(@Parameter(hidden = true)
+                                                 @PathParam("csar")
+                                                     String csar,
+                                                     @Parameter(hidden = true)
+                                                     @PathParam("nodetemplate")
+                                                         String nodetemplate,
+                                                     @Parameter(hidden = true)
+                                                     @PathParam("servicetemplate")
+                                                         String servicetemplate,
+                                             @QueryParam(value = "state") final List<NodeTemplateInstanceState> states,
                                              @QueryParam(value = "source") final List<Long> relationIds,
                                              @QueryParam(value = "serviceInstanceId") final Long serviceInstanceId) {
         logger.debug("Invoking getNodeTemplateInstances");
         final Collection<NodeTemplateInstance> nodeInstances = this.nodeTemplateInstanceService.getNodeTemplateInstances(nodetemplate);
-        logger.debug("Found <{}> instances of NodeTemplate \"{}\" ", nodeInstances.size(), this.nodetemplate);
+        logger.debug("Found <{}> instances of NodeTemplate \"{}\" ", nodeInstances.size(), nodetemplate);
 
         final NodeTemplateInstanceListDTO list = new NodeTemplateInstanceListDTO();
 
@@ -94,7 +94,7 @@ public class NodeTemplateInstanceController {
                 continue;
             }
 
-            if (!i.getServiceTemplateInstance().getTemplateId().equals(this.servicetemplate)) {
+            if (!i.getServiceTemplateInstance().getTemplateId().equals(servicetemplate)) {
                 continue;
             }
 
@@ -126,11 +126,19 @@ public class NodeTemplateInstanceController {
     @Consumes( {MediaType.TEXT_PLAIN})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     @Operation(hidden = true)
-    public Response createNodeTemplateInstance(@Context final UriInfo uriInfo, final String serviceTemplateInstanceId) {
+    public Response createNodeTemplateInstance(@Parameter(hidden = true)
+                                                   @PathParam("csar")
+                                                       String csar,
+                                               @Parameter(hidden = true)
+                                                   @PathParam("nodetemplate")
+                                                       String nodetemplate,
+                                               @Parameter(hidden = true)
+                                                   @PathParam("servicetemplate")
+                                                       String servicetemplate,@Context final UriInfo uriInfo, final String serviceTemplateInstanceId) {
         logger.debug("Invoking createNodeTemplateInstance");
         try {
             final NodeTemplateInstance createdInstance =
-                this.nodeTemplateService.createNewNodeTemplateInstance(this.csar, this.servicetemplate, this.nodetemplate,
+                this.nodeTemplateService.createNewNodeTemplateInstance(csar, servicetemplate, nodetemplate,
                     Long.parseLong(serviceTemplateInstanceId));
             final URI instanceURI = UriUtil.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
             return Response.ok(instanceURI).build();
@@ -157,10 +165,18 @@ public class NodeTemplateInstanceController {
             description = "Node instance",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = NodeTemplateInstanceDTO.class))})})
-    public Response getNodeTemplateInstance(@Parameter(description = "ID of node template instance") @PathParam("id") final Long id) {
+    public Response getNodeTemplateInstance(@Parameter(hidden = true)
+                                                @PathParam("csar")
+                                                    String csar,
+                                            @Parameter(hidden = true)
+                                                @PathParam("nodetemplate")
+                                                    String nodetemplate,
+                                            @Parameter(hidden = true)
+                                                @PathParam("servicetemplate")
+                                                    String servicetemplate,@PathParam("id") final Long id) {
         logger.debug("Invoking getNodeTemplateInstance");
         final NodeTemplateInstance instance =
-            this.nodeTemplateInstanceService.resolveNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
+            this.nodeTemplateInstanceService.resolveNodeTemplateInstance(servicetemplate, nodetemplate, id);
         final NodeTemplateInstanceDTO dto = NodeTemplateInstanceDTO.Converter.convert(instance);
 
         dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "state", false, "state"));
@@ -174,9 +190,17 @@ public class NodeTemplateInstanceController {
     @Path("/{id}")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Operation(hidden = true)
-    public Response deleteNodeTemplateInstance(@PathParam("id") final Long id) {
+    public Response deleteNodeTemplateInstance(@Parameter(hidden = true)
+                                                   @PathParam("csar")
+                                                       String csar,
+                                               @Parameter(hidden = true)
+                                                   @PathParam("nodetemplate")
+                                                       String nodetemplate,
+                                               @Parameter(hidden = true)
+                                                   @PathParam("servicetemplate")
+                                                       String servicetemplate,@PathParam("id") final Long id) {
         logger.debug("Invoking deleteNodeTemplateInstance");
-        this.nodeTemplateInstanceService.deleteNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
+        this.nodeTemplateInstanceService.deleteNodeTemplateInstance(servicetemplate, nodetemplate, id);
         return Response.noContent().build();
     }
 
@@ -191,10 +215,18 @@ public class NodeTemplateInstanceController {
             description = "State",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = String.class))})})
-    public Response getNodeTemplateInstanceState(@Parameter(description = "ID node template instance") @PathParam("id") final Long id) {
+    public Response getNodeTemplateInstanceState(@Parameter(hidden = true)
+                                                     @PathParam("csar")
+                                                         String csar,
+                                                 @Parameter(hidden = true)
+                                                     @PathParam("nodetemplate")
+                                                         String nodetemplate,
+                                                 @Parameter(hidden = true)
+                                                     @PathParam("servicetemplate")
+                                                         String servicetemplate,@PathParam("id") final Long id) {
         logger.debug("Invoking getNodeTemplateInstanceState");
         final NodeTemplateInstanceState state =
-            this.nodeTemplateInstanceService.getNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id);
+            this.nodeTemplateInstanceService.getNodeTemplateInstanceState(servicetemplate, nodetemplate, id);
         return Response.ok(state.toString()).build();
     }
 
@@ -202,10 +234,18 @@ public class NodeTemplateInstanceController {
     @Path("/{id}/state")
     @Consumes( {MediaType.TEXT_PLAIN})
     @Operation(hidden = true)
-    public Response updateNodeTemplateInstanceState(@PathParam("id") final Long id, final String request) {
+    public Response updateNodeTemplateInstanceState(@Parameter(hidden = true)
+                                                        @PathParam("csar")
+                                                            String csar,
+                                                    @Parameter(hidden = true)
+                                                        @PathParam("nodetemplate")
+                                                            String nodetemplate,
+                                                    @Parameter(hidden = true)
+                                                        @PathParam("servicetemplate")
+                                                            String servicetemplate,@PathParam("id") final Long id, final String request) {
         logger.debug("Invoking updateNodeTemplateInstanceState");
         try {
-            this.nodeTemplateInstanceService.setNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id, request);
+            this.nodeTemplateInstanceService.setNodeTemplateInstanceState(servicetemplate, nodetemplate, id, request);
         } catch (final IllegalArgumentException e) { // this handles a null request too
             return Response.status(Status.BAD_REQUEST).build();
         }
@@ -216,7 +256,15 @@ public class NodeTemplateInstanceController {
     @Path("/{id}/properties")
     @Produces( {MediaType.APPLICATION_XML})
     @Operation(hidden = true)
-    public Response getNodeTemplateInstanceProperties(@PathParam("id") final Long id) {
+    public Response getNodeTemplateInstanceProperties(@Parameter(hidden = true)
+                                                          @PathParam("csar")
+                                                              String csar,
+                                                      @Parameter(hidden = true)
+                                                          @PathParam("nodetemplate")
+                                                              String nodetemplate,
+                                                      @Parameter(hidden = true)
+                                                          @PathParam("servicetemplate")
+                                                              String servicetemplate,@PathParam("id") final Long id) {
         logger.debug("Invoking getNodeTemplateInstanceProperties");
         final Document properties = this.nodeTemplateInstanceService.getNodeTemplateInstancePropertiesDocument(id);
 
@@ -237,10 +285,18 @@ public class NodeTemplateInstanceController {
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = Map.class))}),
             })
-    public Map<String, String> getNodeTemplateInstancePropertiesAsJson(@PathParam("id") final Long id) {
+    public Map<String, String> getNodeTemplateInstancePropertiesAsJson(@Parameter(hidden = true)
+                                                                           @PathParam("csar")
+                                                                               String csar,
+                                                                       @Parameter(hidden = true)
+                                                                           @PathParam("nodetemplate")
+                                                                               String nodetemplate,
+                                                                       @Parameter(hidden = true)
+                                                                           @PathParam("servicetemplate")
+                                                                               String servicetemplate,@PathParam("id") final Long id) {
         logger.debug("Invoking getNodeTemplateInstancePropertiesAsJson");
         final NodeTemplateInstance instance =
-            this.nodeTemplateInstanceService.resolveNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
+            this.nodeTemplateInstanceService.resolveNodeTemplateInstance(servicetemplate, nodetemplate, id);
         return instance.getPropertiesAsMap();
     }
 
@@ -248,7 +304,15 @@ public class NodeTemplateInstanceController {
     @Path("/{id}/properties/{propname}")
     @Produces( {MediaType.APPLICATION_XML})
     @Operation(hidden = true)
-    public Response getNodeTemplateInstanceProperty(@PathParam("id") final Long id,
+    public Response getNodeTemplateInstanceProperty(@Parameter(hidden = true)
+                                                        @PathParam("csar")
+                                                            String csar,
+                                                    @Parameter(hidden = true)
+                                                        @PathParam("nodetemplate")
+                                                            String nodetemplate,
+                                                    @Parameter(hidden = true)
+                                                        @PathParam("servicetemplate")
+                                                            String servicetemplate,@PathParam("id") final Long id,
                                                     @PathParam("propname") final String propertyName) {
         logger.debug("Invoking getNodeTemplateInstanceProperty");
         final Document properties = this.nodeTemplateInstanceService.getNodeTemplateInstancePropertiesDocument(id);
@@ -267,7 +331,15 @@ public class NodeTemplateInstanceController {
     @Consumes( {MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     @Operation(hidden = true)
-    public Response updateNodeTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
+    public Response updateNodeTemplateInstanceProperties(@Parameter(hidden = true)
+                                                             @PathParam("csar")
+                                                                 String csar,
+                                                         @Parameter(hidden = true)
+                                                             @PathParam("nodetemplate")
+                                                                 String nodetemplate,
+                                                         @Parameter(hidden = true)
+                                                             @PathParam("servicetemplate")
+                                                                 String servicetemplate,@PathParam("id") final Long id, final Document request) {
         logger.debug("Invoking updateNodeTemplateInstanceProperties");
         try {
             this.nodeTemplateInstanceService.setNodeTemplateInstanceProperties(id, request);
@@ -285,7 +357,15 @@ public class NodeTemplateInstanceController {
     @Consumes( {MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     @Operation(hidden = true)
-    public Response updateNodeTemplateInstanceProperty(@PathParam("id") final Long id,
+    public Response updateNodeTemplateInstanceProperty(@Parameter(hidden = true)
+                                                           @PathParam("csar")
+                                                               String csar,
+                                                       @Parameter(hidden = true)
+                                                           @PathParam("nodetemplate")
+                                                               String nodetemplate,
+                                                       @Parameter(hidden = true)
+                                                           @PathParam("servicetemplate")
+                                                               String servicetemplate,@PathParam("id") final Long id,
                                                        @PathParam("propname") final String propertyName,
                                                        final Document request) {
         logger.debug("Invoking updateNodeTemplateInstanceProperty");

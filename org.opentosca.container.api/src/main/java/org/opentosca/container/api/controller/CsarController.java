@@ -131,7 +131,7 @@ public class CsarController {
                 description = "A CSAR",
                 content = {@Content(mediaType = "application/json",
                     schema = @Schema(implementation = CsarDTO.class))})})
-    public Response getCsar(@Parameter(description = "ID of CSAR") @PathParam("csar") final String id) {
+    public Response getCsar(@PathParam("csar") final String id) {
         logger.debug("Invoking getCsar");
         try {
             final Csar csarContent = storage.findById(new CsarId(id));
@@ -374,7 +374,7 @@ public class CsarController {
     @DELETE
     @javax.ws.rs.Path("/{csar}")
     @Operation(description = "Delete a CSAR", responses = @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))))
-    public Response deleteCsar(@Parameter(description = "ID of CSAR") @PathParam("csar") final String id) {
+    public Response deleteCsar(@PathParam("csar") final String id) {
         logger.debug("Invoking deleteCsar");
         Csar csarContent;
         try {

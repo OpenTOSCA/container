@@ -167,7 +167,7 @@ public class ServiceTemplateInstanceController {
             description = "ServiceTemplate Instance",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = ServiceTemplateInstanceDTO.class))})})
-    public Response getServiceTemplateInstance(@Parameter(description = "ID of service template instance") @PathParam("id") final Long id) {
+    public Response getServiceTemplateInstance(@PathParam("id") final Long id) {
         logger.debug("Invoking getServiceTemplateInstance");
         final ServiceTemplateInstance instance = resolveInstance(id, serviceTemplate.getId());
         final ServiceTemplateInstanceDTO dto = ServiceTemplateInstanceDTO.Converter.convert(instance);
@@ -219,7 +219,7 @@ public class ServiceTemplateInstanceController {
     }
 
     @Path("/{id}/managementplans")
-    public ManagementPlanController getManagementPlans(@Parameter(description = "ID of service template instance") @PathParam("id") final Long id) {
+    public ManagementPlanController getManagementPlans(@PathParam("id") final Long id) {
         logger.debug("Invoking getManagementPlans");
         return new ManagementPlanController(csar, serviceTemplate, id, this.planInstanceService, this.planInvokerService,
             PlanType.TERMINATION, PlanType.MANAGEMENT, PlanType.TRANSFORMATION);
@@ -236,7 +236,7 @@ public class ServiceTemplateInstanceController {
             description = "State",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = String.class))})})
-    public Response getServiceTemplateInstanceState(@Parameter(description = "ID of service template instance") @PathParam("id") final Long id) {
+    public Response getServiceTemplateInstanceState(@PathParam("id") final Long id) {
         logger.debug("Invoking getServiceTemplateInstanceState");
         final ServiceTemplateInstanceState state = this.serviceTemplateInstanceService.getServiceTemplateInstanceState(id);
         return Response.ok(state.toString()).build();

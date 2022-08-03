@@ -114,7 +114,7 @@ public class ManagementPlanController {
             description = "A management plan of the service template",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = PlanListDTO.class))})})
-    public Response getManagementPlan(@Parameter(description = "ID of management plan") @PathParam("plan") final String plan,
+    public Response getManagementPlan(@PathParam("plan") final String plan,
                                       @Context final UriInfo uriInfo) {
         PlanDTO dto = Utils.getPlanDto(csar, planTypes, plan);
 
@@ -135,7 +135,7 @@ public class ManagementPlanController {
             description = "Instances of management plan",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = PlanInstanceListDTO.class))})})
-    public Response getManagementPlanInstances(@Parameter(description = "ID of management plan") @PathParam("plan") final String plan,
+    public Response getManagementPlanInstances(@PathParam("plan") final String plan,
                                                @Context final UriInfo uriInfo) {
         List<PlanInstance> planInstances = planInstanceService.getPlanInstance(serviceTemplateInstanceId, planTypes);
 
@@ -174,7 +174,7 @@ public class ManagementPlanController {
             description = "Response of management plan invocation",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = String.class))})})
-    public Response invokeManagementPlan(@Parameter(description = "ID of management plan") @PathParam("plan") final String plan,
+    public Response invokeManagementPlan(@PathParam("plan") final String plan,
                                          @Context final UriInfo uriInfo,
                                          @Parameter(required = true,
                                              description = "plan input parameters") final List<TParameter> parameters) {
@@ -193,8 +193,8 @@ public class ManagementPlanController {
             description = "Management Plan Instance",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = PlanInstanceDTO.class))})})
-    public Response getManagementPlanInstance(@Parameter(description = "ID of management plan") @PathParam("plan") final String plan,
-                                              @Parameter(description = "correlation ID") @PathParam("instance") final String instance,
+    public Response getManagementPlanInstance(@PathParam("plan") final String plan,
+                                              @PathParam("instance") final String instance,
                                               @Context final UriInfo uriInfo) {
         PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);
 
@@ -228,8 +228,8 @@ public class ManagementPlanController {
             description = "Management Plan Instance State",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = String.class))})})
-    public Response getManagementPlanInstanceState(@Parameter(description = "ID of management plan") @PathParam("plan") final String plan,
-                                                   @Parameter(description = "correlation ID") @PathParam("instance") final String instance,
+    public Response getManagementPlanInstanceState(@PathParam("plan") final String plan,
+                                                   @PathParam("instance") final String instance,
                                                    @Context final UriInfo uriInfo) {
         PlanInstance pi = planInstanceService.resolvePlanInstance(null, instance);
         return Response.ok(pi.getState().toString()).build();
@@ -259,8 +259,8 @@ public class ManagementPlanController {
             description = "Plan Instance Logs",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = PlanInstanceEventListDTO.class))})})
-    public Response getManagementPlanInstanceLogs(@Parameter(description = "management plan id") @PathParam("plan") final String plan,
-                                                  @Parameter(description = "plan instance correlation id") @PathParam("instance") final String instance,
+    public Response getManagementPlanInstanceLogs(@PathParam("plan") final String plan,
+                                                  @PathParam("instance") final String instance,
                                                   @Context final UriInfo uriInfo) {
         PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);
 
