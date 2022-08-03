@@ -19,7 +19,7 @@ import javax.ws.rs.ext.Provider;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import dk.nykredit.jackson.dataformat.hal.HALMapper;
+import io.openapitools.jackson.dataformat.hal.HALMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

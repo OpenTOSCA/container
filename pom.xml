@@ -24,7 +24,7 @@
         <spring.version>5.3.20</spring.version>
         <springdata.version>2.5.10</springdata.version>
         <springboot.version>2.5.12</springboot.version>
-        <swagger.version>2.2.1</swagger.version>
+        <swagger.version>2.1.13</swagger.version>
         <tomcat.version>9.0.43</tomcat.version>
         <winery.version>ustutt-SNAPSHOT</winery.version>
         <winery.groupid>com.github.opentosca.winery</winery.groupid>

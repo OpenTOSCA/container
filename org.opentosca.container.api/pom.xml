@@ -48,19 +48,12 @@
 			<artifactId>commons-io</artifactId>
 			<version>${commons-io.version}</version>
 		</dependency>
-		<!-- TODO replace with the maintained openAPI-Tools version at io.openapitools.jackson.dataformat:jackson-dataformat-hal -->
-		<dependency>
-			<groupId>dk.nykredit.jackson.dataformat</groupId>
-			<artifactId>jackson-dataformat-hal</artifactId>
-			<version>1.0.1</version>
-		</dependency>
-		<!--<dependency>
-			<groupId>io.swagger.core.v3</groupId>
-			<artifactId>swagger-annotations</artifactId>
-			<version>${swagger.version}</version>
-		</dependency>-->
-
-
+        
+        <dependency>
+            <groupId>io.openapitools.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-hal</artifactId>
+            <version>1.0.9</version>
+        </dependency>
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-jaxrs2</artifactId>
@@ -71,8 +64,6 @@
             <artifactId>swagger-jaxrs2-servlet-initializer-v2</artifactId>
             <version>${swagger.version}</version>
         </dependency>
-
-
 
 		<dependency>
 			<groupId>com.h2database</groupId>
