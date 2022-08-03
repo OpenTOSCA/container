@@ -42,6 +42,8 @@ import org.w3c.dom.Document;
 @Component
 public class RelationshipTemplateInstanceController {
 
+    private static final Logger logger = LoggerFactory.getLogger(RelationshipTemplateInstanceController.class);
+
     @Parameter(description = "ID of CSAR")
     @PathParam("csar")
     String csar;
@@ -54,7 +56,6 @@ public class RelationshipTemplateInstanceController {
     @Context
     UriInfo uriInfo;
 
-    private static final Logger logger = LoggerFactory.getLogger(RelationshipTemplateInstanceController.class);
     private final RelationshipTemplateInstanceService relationshipTemplateInstanceService;
 
     public RelationshipTemplateInstanceController(final RelationshipTemplateInstanceService relationshipTemplateInstanceService) {

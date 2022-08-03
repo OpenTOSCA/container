@@ -46,6 +46,8 @@ import org.w3c.dom.Element;
 @Component
 public class NodeTemplateInstanceController {
 
+    private static final Logger logger = LoggerFactory.getLogger(NodeTemplateInstanceController.class);
+
     @Parameter(description = "ID of CSAR")
     @PathParam("csar")
     String csar;
@@ -58,10 +60,8 @@ public class NodeTemplateInstanceController {
     @Context
     UriInfo uriInfo;
 
-    private static final Logger logger = LoggerFactory.getLogger(NodeTemplateInstanceController.class);
     private final NodeTemplateService nodeTemplateService;
     private final NodeTemplateInstanceService nodeTemplateInstanceService;
-
 
     public NodeTemplateInstanceController(final NodeTemplateService nodeTemplateService,
                                           final NodeTemplateInstanceService nodeTemplateInstanceService) {
