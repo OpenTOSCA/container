@@ -29,6 +29,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.opentosca.container.api.dto.NodeTemplateInstanceDTO;
 import org.opentosca.container.api.dto.NodeTemplateInstanceListDTO;
+import org.opentosca.container.api.dto.openapi.OpenAPIMap;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.util.Utils;
 import org.opentosca.container.core.common.uri.UriUtil;
@@ -236,13 +237,13 @@ public class NodeTemplateInstanceController {
         responses = {@ApiResponse(responseCode = "200",
             description = "Properties",
             content = {@Content(mediaType = "application/json",
-                schema = @Schema(implementation = Map.class))}),
+                schema = @Schema(implementation = OpenAPIMap.class))}),
             })
-    public Map<String, String> getNodeTemplateInstancePropertiesAsJson(@PathParam("id") final Long id) {
+    public OpenAPIMap getNodeTemplateInstancePropertiesAsJson(@PathParam("id") final Long id) {
         logger.debug("Invoking getNodeTemplateInstancePropertiesAsJson");
         final NodeTemplateInstance instance =
             this.nodeTemplateInstanceService.resolveNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
-        return instance.getPropertiesAsMap();
+        return (OpenAPIMap) instance.getPropertiesAsMap();
     }
 
     @GET

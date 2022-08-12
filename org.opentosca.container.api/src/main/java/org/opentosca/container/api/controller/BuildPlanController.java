@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -37,17 +38,22 @@ import org.opentosca.container.api.util.Utils;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.services.instances.PlanInstanceService;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 @OpenAPIDefinition
 // not marked as @RestController because lifecycle is controlled by parent resource
 //@RestController
+@Path("/csars/{csar}/servicetemplates/{servicetemplate}/buildplans")
+@Component
 public class BuildPlanController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildPlanController.class);
@@ -57,15 +63,23 @@ public class BuildPlanController {
 
     private final PlanInstanceService planInstanceService;
     private final PlanInvokerService planInvokerService;
-    private final Csar csar;
-    private final TServiceTemplate serviceTemplate;
+    private final CsarStorageService csarStorageService;
 
-    public BuildPlanController(final Csar csar, final TServiceTemplate serviceTemplate, final PlanInstanceService planInstanceService,
-                               final PlanInvokerService planInvokerService) {
+    @PathParam("csar")
+    private String csarId;
+    @PathParam("servicetemplate")
+    private String serviceTemplateId;
+
+    @Inject
+    public BuildPlanController(final PlanInstanceService planInstanceService,
+                               final PlanInvokerService planInvokerService, CsarStorageService csarStorageService) {
         this.planInstanceService = planInstanceService;
         this.planInvokerService = planInvokerService;
-        this.csar = csar;
-        this.serviceTemplate = serviceTemplate;
+        this.csarStorageService = csarStorageService;
+    }
+
+    private Csar getCsar() {
+        return this.csarStorageService.findById(new CsarId(this.csarId));
     }
 
     @GET
@@ -81,7 +95,7 @@ public class BuildPlanController {
     public Response getBuildPlans(@Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlans");
         PlanListDTO list = new PlanListDTO();
-        csar.plans().stream()
+        this.getCsar().plans().stream()
             .filter(tplan -> tplan.getPlanType().equals(PLAN_TYPE.toString()))
             .map(p -> {
                 final PlanDTO plan = new PlanDTO(p);
@@ -112,7 +126,7 @@ public class BuildPlanController {
                 schema = @Schema(implementation = PlanDTO.class))})})
     public Response getBuildPlan(@PathParam("plan") final String plan,
                                  @Context final UriInfo uriInfo) {
-        PlanDTO dto = Utils.getPlanDto(csar, ALL_PLAN_TYPES, plan);
+        PlanDTO dto = Utils.getPlanDto(this.getCsar(), ALL_PLAN_TYPES, plan);
 
         dto.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path("instances").build()))
             .rel("instances").build());
@@ -134,7 +148,7 @@ public class BuildPlanController {
     public Response getBuildPlanInstances(@PathParam("plan") final String plan,
                                           @Context final UriInfo uriInfo) {
         LOGGER.debug("Invoking getBuildPlanInstances");
-        Collection<PlanInstance> planInstances = planInstanceService.getPlanInstances(csar, PLAN_TYPE);
+        Collection<PlanInstance> planInstances = planInstanceService.getPlanInstances(this.getCsar(), PLAN_TYPE);
 
         final PlanInstanceListDTO list = new PlanInstanceListDTO();
         planInstances.stream()
@@ -144,9 +158,10 @@ public class BuildPlanController {
 
                 PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(planInstanceWithEntities);
                 if (planInstanceWithEntities.getServiceTemplateInstance() != null) {
+                    Csar csar = this.getCsar();
                     final URI uri = uriInfo.getBaseUriBuilder()
                         .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
-                        .build(csar.id().csarName(), serviceTemplate.getId(), planInstanceWithEntities.getServiceTemplateInstance().getId());
+                        .build(csar.id().csarName(), csar.entryServiceTemplate().getId(), planInstanceWithEntities.getServiceTemplateInstance().getId());
                     dto.add(Link.fromUri(UriUtil.encode(uri)).rel("service_template_instance").build());
                 }
                 dto.add(UriUtil.generateSubResourceLink(uriInfo, planInstanceWithEntities.getCorrelationId(), false, "self"));
@@ -176,7 +191,8 @@ public class BuildPlanController {
                                         description = "plan input parameters") final List<TParameter> parameters) {
         LOGGER.debug("Invoking invokeBuildPlan");
         // We pass -1L because "PlanInvocationEngine.invokePlan()" expects it for build plans
-        String correlationId = planInvokerService.invokePlan(csar, serviceTemplate, -1L, plan, parameters, PLAN_TYPE);
+        Csar csar = this.getCsar();
+        String correlationId = planInvokerService.invokePlan(csar, csar.entryServiceTemplate(), -1L, plan, parameters, PLAN_TYPE);
         return Response.ok(correlationId).build();
     }
 
@@ -200,9 +216,10 @@ public class BuildPlanController {
         final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
         // Add service template instance link
         if (pi.getServiceTemplateInstance() != null) {
+            Csar csar = this.getCsar();
             final URI uri = uriInfo.getBaseUriBuilder()
                 .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
-                .build(csar.id().csarName(), serviceTemplate.getId(),
+                .build(csar.id().csarName(), csar.entryServiceTemplate().getId(),
                     String.valueOf(pi.getServiceTemplateInstance().getId()));
             dto.add(Link.fromUri(UriUtil.encode(uri)).rel("service_template_instance").build());
         }

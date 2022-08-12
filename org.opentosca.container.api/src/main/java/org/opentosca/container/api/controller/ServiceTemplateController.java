@@ -166,17 +166,6 @@ public class ServiceTemplateController {
         return Response.ok(serviceTemplate).build();
     }
 
-    @Path("/{servicetemplate}/buildplans")
-    public BuildPlanController getBuildPlans(@PathParam("csar") final String csarId,
-                                             @PathParam("servicetemplate") final String serviceTemplateId) {
-        final Csar csar = storage.findById(new CsarId(csarId));
-        final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
-            .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
-            .findFirst().orElseThrow(NotFoundException::new);
-
-        return new BuildPlanController(csar, serviceTemplate, this.planInstanceService, this.planInvokerService);
-    }
-
     @Path("/{servicetemplate}/nodetemplates")
     public NodeTemplateController getNodeTemplates(@Parameter(hidden = true) @PathParam("csar") final String csarId,
                                                    @Parameter(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {

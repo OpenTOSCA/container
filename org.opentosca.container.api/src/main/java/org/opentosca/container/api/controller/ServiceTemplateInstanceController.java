@@ -41,6 +41,7 @@ import org.opentosca.container.api.dto.ServiceTemplateInstanceListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
+import org.opentosca.container.api.dto.openapi.OpenAPIMap;
 import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.api.dto.request.CreateServiceTemplateInstanceRequest;
 import org.opentosca.container.api.dto.situations.SituationsMonitorDTO;
@@ -218,13 +219,6 @@ public class ServiceTemplateInstanceController {
         return Response.noContent().build();
     }
 
-    @Path("/{id}/managementplans")
-    public ManagementPlanController getManagementPlans(@PathParam("id") final Long id) {
-        logger.debug("Invoking getManagementPlans");
-        return new ManagementPlanController(csar, serviceTemplate, id, this.planInstanceService, this.planInvokerService,
-            PlanType.TERMINATION, PlanType.MANAGEMENT, PlanType.TRANSFORMATION);
-    }
-
     @GET
     @Path("/{id}/state")
     @Produces( {MediaType.TEXT_PLAIN})
@@ -278,11 +272,11 @@ public class ServiceTemplateInstanceController {
     @Operation(description = "Gets the properties of a service template instance", responses = {@ApiResponse(responseCode = "200",
         description = "ServiceTemplate Instance Properties",
         content = {@Content(mediaType = "application/json",
-            schema = @Schema(implementation = Map.class))})})
-    public Map<String, String> getServiceTemplateInstancePropertiesAsJSON(@PathParam("id") final Long id) {
+            schema = @Schema(implementation = OpenAPIMap.class))})})
+    public OpenAPIMap getServiceTemplateInstancePropertiesAsJSON(@PathParam("id") final Long id) {
         logger.debug("Invoking getServiceTemplateInstancePropertiesAsJSON");
         final ServiceTemplateInstance serviceTemplateInstance = this.serviceTemplateInstanceService.getServiceTemplateInstance(id, true);
-        return serviceTemplateInstance.getPropertiesAsMap();
+        return (OpenAPIMap) serviceTemplateInstance.getPropertiesAsMap();
     }
 
     @PUT

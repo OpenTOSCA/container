@@ -3,6 +3,7 @@ package org.opentosca.container.api.dto;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,15 +16,31 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.Lists;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @XmlRootElement(name = "Resources")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ResourceSupport {
 
+    // TODO/FIXME until we can't handle these JAX-RS links
+    //  without custom deserializers, we can't use them properly
+    //  in the openapi spec as clients can't generate proper deserialization
+    //  without copying our classes.
+    // Therefore, we hide them in the api spec for now
+    @Schema(hidden = true)
     @JsonSerialize(using = LinksSerializer.class)
+    //@JsonDeserialize(using = LinksDeserializer.class)
     private final List<Link> links = new ArrayList<>();
 
     public ResourceSupport() {
@@ -162,6 +179,62 @@ public class ResourceSupport {
                 json.writeStringField(Link.TYPE, link.getType());
             }
             json.writeEndObject();
+        }
+    }
+
+    public static class LinksDeserializer extends JsonDeserializer<List<Link>> {
+
+        @Override
+        public List<Link> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+            TreeNode node = jsonParser.readValueAsTree();
+            LinkDeserializer deserializer = new LinkDeserializer();
+            List<Link> links = Lists.newArrayList();
+            if (node.isArray()) {
+                for (int i = 0; i < node.size(); i++) {
+                    TreeNode subnode = node.get(i);
+                    Link link = deserializer.deserialize(subnode.traverse(), deserializationContext);
+                    if (link != null) {
+                        links.add(link);
+                    }
+                }
+            }
+            return links;
+        }
+    }
+
+    public static class LinkDeserializer extends JsonDeserializer<Link> {
+
+        /*
+        "_links": {
+        "self": {
+            "href": "http://localhost:1337/csars"
+        }
+    }
+         */
+        @Override
+        public Link deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+            String rel = jsonParser.readValueAsTree().asToken().asString();
+            TreeNode node = jsonParser.readValueAsTree();
+            String href = null;
+            String title = null;
+            String type = null;
+            if (node.isObject()) {
+                Iterator<String> fieldIterator = node.fieldNames();
+                while (fieldIterator.hasNext()) {
+                    String fieldName = fieldIterator.next();
+                    String value = node.get(fieldName).asToken().asString();
+                    switch (fieldName){
+                        case "href": href = value;break;
+                        case "title": title = value;break;
+                        case "type": type = value;break;
+                    }
+                }
+            }
+
+            Link.Builder builder = Link.fromUri(href).rel(rel);
+            if (title != null) builder.title(title);
+            if (type != null) builder.type(type);
+            return builder.build();
         }
     }
 }

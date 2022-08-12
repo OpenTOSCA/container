@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -38,17 +39,21 @@ import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.uri.UriUtil;
 import org.opentosca.container.core.extension.TParameter;
 import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.services.instances.PlanInstanceService;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 @OpenAPIDefinition
 // not marked as @RestController because instantiation is controlled by parent resource
 //@RestController
+@Path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{id}/managementplans")
 public class ManagementPlanController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagementPlanController.class);
@@ -56,21 +61,23 @@ public class ManagementPlanController {
     private final PlanInstanceService planInstanceService;
     private final PlanInvokerService planInvokerService;
 
-    private final Csar csar;
-    private final TServiceTemplate serviceTemplate;
-    private final Long serviceTemplateInstanceId;
+    @PathParam("csar")
+    private String csarId;
+    @PathParam("servicetemplate")
+    private String serviceTemplateId;
+    @PathParam("id")
+    private Long serviceTemplateInstanceId;
     // supports TERMINATION and  MANAGEMENT
-    private final PlanType[] planTypes;
+    private final PlanType[] planTypes = {PlanType.TERMINATION, PlanType.MANAGEMENT, PlanType.TRANSFORMATION};
 
-    public ManagementPlanController(final Csar csar, final TServiceTemplate serviceTemplate,
-                                    final Long serviceTemplateInstanceId, final PlanInstanceService planInstanceService,
-                                    final PlanInvokerService planInvokerService, final PlanType... types) {
-        this.csar = csar;
-        this.serviceTemplate = serviceTemplate;
-        this.serviceTemplateInstanceId = serviceTemplateInstanceId;
+    private CsarStorageService csarStorageService;
+
+    @Inject
+    public ManagementPlanController(final PlanInstanceService planInstanceService,
+                                    final PlanInvokerService planInvokerService, final CsarStorageService csarStorageService) {
         this.planInstanceService = planInstanceService;
         this.planInvokerService = planInvokerService;
-        this.planTypes = types;
+        this.csarStorageService = csarStorageService;
     }
 
     @GET
@@ -85,7 +92,7 @@ public class ManagementPlanController {
                 schema = @Schema(implementation = PlanListDTO.class))})})
     public Response getManagementPlans(@Context final UriInfo uriInfo) {
         PlanListDTO list = new PlanListDTO();
-        csar.plans().stream()
+        this.getCsar().plans().stream()
             .filter(tplan -> Arrays.stream(planTypes).anyMatch(pt -> tplan.getPlanType().equals(pt.toString())))
             .map(p -> {
                 final PlanDTO plan = new PlanDTO(p);
@@ -103,6 +110,10 @@ public class ManagementPlanController {
         return Response.ok(list).build();
     }
 
+    private Csar getCsar() {
+        return this.csarStorageService.findById(new CsarId(this.csarId));
+    }
+
     @GET
     @Path("/{plan}")
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -116,7 +127,7 @@ public class ManagementPlanController {
                 schema = @Schema(implementation = PlanListDTO.class))})})
     public Response getManagementPlan(@PathParam("plan") final String plan,
                                       @Context final UriInfo uriInfo) {
-        PlanDTO dto = Utils.getPlanDto(csar, planTypes, plan);
+        PlanDTO dto = Utils.getPlanDto(this.getCsar(), planTypes, plan);
 
         dto.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path("instances").build()))
             .rel("instances").build());
@@ -150,7 +161,7 @@ public class ManagementPlanController {
                 if (planInstanceWithEntities.getServiceTemplateInstance() != null) {
                     final URI uri = uriInfo.getBaseUriBuilder()
                         .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
-                        .build(csar.id().csarName(), serviceTemplate.toString(), planInstanceWithEntities.getServiceTemplateInstance().getId());
+                        .build(this.getCsar().id().csarName(), this.getCsar().entryServiceTemplate().toString(), planInstanceWithEntities.getServiceTemplateInstance().getId());
                     dto.add(Link.fromUri(UriUtil.encode(uri)).rel("service_template_instance").build());
                 }
                 dto.add(UriUtil.generateSubResourceLink(uriInfo, planInstanceWithEntities.getCorrelationId(), false, "self"));
@@ -178,7 +189,8 @@ public class ManagementPlanController {
                                          @Context final UriInfo uriInfo,
                                          @Parameter(required = true,
                                              description = "plan input parameters") final List<TParameter> parameters) {
-        String correlationId = planInvokerService.invokePlan(csar, serviceTemplate, serviceTemplateInstanceId, plan, parameters, this.planTypes);
+        Csar csar = this.getCsar();
+        String correlationId = planInvokerService.invokePlan(csar, csar.entryServiceTemplate(), serviceTemplateInstanceId, plan, parameters, this.planTypes);
         return Response.ok(correlationId).build();
     }
 
@@ -201,9 +213,10 @@ public class ManagementPlanController {
         final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
         // Add service template instance link
         if (pi.getServiceTemplateInstance() != null) {
+            Csar csar = this.getCsar();
             final URI uri = uriInfo.getBaseUriBuilder()
                 .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
-                .build(csar.id().csarName(), serviceTemplate.toString(),
+                .build(csar.id().csarName(), csar.entryServiceTemplate().toString(),
                     String.valueOf(pi.getServiceTemplateInstance().getId()));
             dto.add(Link.fromUri(UriUtil.encode(uri)).rel("service_template_instance").build());
         }
