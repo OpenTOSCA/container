@@ -110,6 +110,44 @@ public class QHAnaTest {
             .join();
         assertEquals(200, pluginRunnerResponse.statusCode());
 
+        String inputJsonExperiment = "{ \"name\":\"test-name\", \"description\":\"test\"}";
+
+        final HttpRequest requestExperiment = HttpRequest.newBuilder()
+            .uri(URI.create("http://localhost:9998/experiments"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(inputJsonExperiment))
+            .build();
+
+        final HttpResponse<String> experimentResponse = httpClient.sendAsync(
+                requestExperiment,
+                HttpResponse.BodyHandlers.ofString())
+            .join();
+
+        assertEquals(200, experimentResponse.statusCode());
+
+        String inputJsonData = "{\n" +
+            "\t\"inputData\": [],\n" +
+            "\t\"parameters\": \"inputStr=test+input\",\n" +
+            "\t\"parametersContentType\": \"application/x-www-form-urlencoded\",\n" +
+            "\t\"processorLocation\": \"http://localhost:9997/plugins/hello-world%40v0-1-0/\",\n" +
+            "\t\"processorName\": \"hello-world\",\n" +
+            "\t\"processorVersion\": \"v0.1.0\",\n" +
+            "\t\"resultLocation\": \"http://localhost:9997/tasks/1/\"\n" +
+            "}";
+
+        final HttpRequest requestData = HttpRequest.newBuilder()
+            .uri(URI.create("http://localhost:9998/experiments/1/timeline"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(inputJsonData))
+            .build();
+
+        final HttpResponse<String> dataResponse = httpClient.sendAsync(
+                requestData,
+                HttpResponse.BodyHandlers.ofString())
+            .join();
+
+        assertEquals(200, dataResponse.statusCode());
+
         testUtils.runTerminationPlanExecution(this.planInstanceService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
 
         testUtils.invokePlanUndeployment(this.control, csar.id(), serviceTemplate);
