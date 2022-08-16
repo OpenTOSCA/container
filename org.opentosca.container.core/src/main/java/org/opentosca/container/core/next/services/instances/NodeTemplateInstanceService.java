@@ -78,7 +78,7 @@ public class NodeTemplateInstanceService {
                                                             final String nodeTemplateId, final Long id) {
         // We only need to check that the instance belongs to the template, the rest is
         // guaranteed while this is a sub-resource
-        final NodeTemplateInstance instance = getNodeTemplateInstance(id);
+        final NodeTemplateInstance instance = getNodeTemplateInstanceWithServiceInstance(id);
         if (!(instance.getTemplateId().equals(nodeTemplateId)
             && instance.getServiceTemplateInstance().getTemplateId().equals(serviceTemplateName))) {
             logger.error("Node template instance <{}> could not be found", id);
@@ -88,9 +88,21 @@ public class NodeTemplateInstanceService {
         return instance;
     }
 
+    public NodeTemplateInstance getNodeTemplateInstanceWithServiceInstance(final Long id) {
+        logger.debug("Requesting node template instance <{}>...", id);
+        final Optional<NodeTemplateInstance> instance = this.nodeTemplateInstanceRepository.findWithServiceTemplateInstanceById(id);
+
+        if (instance.isPresent()) {
+            return instance.get();
+        }
+
+        logger.debug("Node Template Instance <" + id + "> not found.");
+        throw new NotFoundException("Node Template Instance <" + id + "> not found.");
+    }
+
     public NodeTemplateInstance getNodeTemplateInstance(final Long id) {
         logger.debug("Requesting node template instance <{}>...", id);
-        final Optional<NodeTemplateInstance> instance = this.nodeTemplateInstanceRepository.findById(id);
+        final Optional<NodeTemplateInstance> instance = this.nodeTemplateInstanceRepository.findWithPropertiesById(id);
 
         if (instance.isPresent()) {
             return instance.get();
