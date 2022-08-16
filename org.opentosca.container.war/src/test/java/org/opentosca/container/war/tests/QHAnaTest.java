@@ -12,6 +12,8 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -147,6 +149,23 @@ public class QHAnaTest {
             .join();
 
         assertEquals(200, dataResponse.statusCode());
+
+        String status = "PENDING";
+        for (int i = 0; i < 20; i++) {
+            Thread.sleep(1000);
+            HttpResponse<String> pollResponse = httpClient.sendAsync(
+                    HttpRequest.newBuilder(URI.create("http://localhost:9998/experiments/1/timeline")).build(),
+                    HttpResponse.BodyHandlers.ofString())
+                .join();
+            String body = pollResponse.body();
+            JSONObject jsonObject = (JSONObject) new JSONParser().parse(body);
+            status = jsonObject.get("status").toString();
+            if (!status.equals("PENDING")) {
+                break;
+            }
+        }
+
+        assertEquals("SUCCESS", status);
 
         testUtils.runTerminationPlanExecution(this.planInstanceService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
 
