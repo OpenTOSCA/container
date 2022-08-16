@@ -105,7 +105,7 @@ public class ServiceTemplateInstanceController {
             schema = @Schema(implementation = ServiceTemplateInstanceListDTO.class))}),
         @ApiResponse(responseCode = "200",
             description = "ServiceTemplate Instances",
-            content = {@Content(mediaType = "application/json",
+            content = {@Content(mediaType = "application/xml",
                 schema = @Schema(implementation = ServiceTemplateInstanceListDTO.class))})})
     public Response getServiceTemplateInstances() {
         logger.debug("Invoking getServiceTemplateInstances");
@@ -166,7 +166,7 @@ public class ServiceTemplateInstanceController {
             schema = @Schema(implementation = ServiceTemplateInstanceDTO.class))}),
         @ApiResponse(responseCode = "200",
             description = "ServiceTemplate Instance",
-            content = {@Content(mediaType = "application/json",
+            content = {@Content(mediaType = "application/xml",
                 schema = @Schema(implementation = ServiceTemplateInstanceDTO.class))})})
     public Response getServiceTemplateInstance(@PathParam("id") final Long id) {
         logger.debug("Invoking getServiceTemplateInstance");
@@ -228,7 +228,7 @@ public class ServiceTemplateInstanceController {
             schema = @Schema(implementation = String.class))}),
         @ApiResponse(responseCode = "200",
             description = "State",
-            content = {@Content(mediaType = "application/json",
+            content = {@Content(mediaType = "application/xml",
                 schema = @Schema(implementation = String.class))})})
     public Response getServiceTemplateInstanceState(@PathParam("id") final Long id) {
         logger.debug("Invoking getServiceTemplateInstanceState");
@@ -358,7 +358,7 @@ public class ServiceTemplateInstanceController {
             schema = @Schema(implementation = InterfaceListDTO.class))}),
         @ApiResponse(responseCode = "200",
             description = "ServiceTemplate Instance Interfaces",
-            content = {@Content(mediaType = "application/json",
+            content = {@Content(mediaType = "application/xml",
                 schema = @Schema(implementation = InterfaceListDTO.class))})})
     public Response getInterfaces(@PathParam("id") final Long id) {
         logger.debug("Invoking getInterfaces");

@@ -113,7 +113,7 @@ public class ServiceTemplateController {
             schema = @Schema(implementation = ServiceTemplateListDTO.class))}),
         @ApiResponse(responseCode = "200",
             description = "ServiceTemplate list",
-            content = {@Content(mediaType = "application/json",
+            content = {@Content(mediaType = "application/xml",
                 schema = @Schema(implementation = ServiceTemplateListDTO.class))})})
     public Response getServiceTemplates(@PathParam("csar") final String csarId) {
         logger.info("Loading all service templates for csar [{}]", csarId);
@@ -141,7 +141,7 @@ public class ServiceTemplateController {
             schema = @Schema(implementation = ServiceTemplateDTO.class))}),
         @ApiResponse(responseCode = "200",
             description = "Plan Instance Logs",
-            content = {@Content(mediaType = "application/json",
+            content = {@Content(mediaType = "application/xml",
                 schema = @Schema(implementation = ServiceTemplateDTO.class))})})
     public Response getServiceTemplate(@PathParam("csar") final String csarId,
                                        @PathParam("servicetemplate") final String serviceTemplateId) {
@@ -233,7 +233,7 @@ public class ServiceTemplateController {
             schema = @Schema(implementation = PlanDTO.class))}),
         @ApiResponse(responseCode = "200",
             description = "Transformation Plan",
-            content = {@Content(mediaType = "application/json",
+            content = {@Content(mediaType = "application/xml",
                 schema = @Schema(implementation = PlanDTO.class))})})
     @Consumes( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces( {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
