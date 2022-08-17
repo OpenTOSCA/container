@@ -169,7 +169,7 @@ public class QHAnaTest {
             "\t\"processorLocation\": \"http://localhost:9997/plugins/hello-world%40v0-1-0/\",\n" +
             "\t\"processorName\": \"hello-world\",\n" +
             "\t\"processorVersion\": \"v0.1.0\",\n" +
-            "\t\"resultLocation\": \"http://localhost:9997" + location.get() + "\"\n" +
+            "\t\"resultLocation\": \"" + location.get() + "\"\n" +
             "}";
 
         final HttpRequest requestData = HttpRequest.newBuilder()
