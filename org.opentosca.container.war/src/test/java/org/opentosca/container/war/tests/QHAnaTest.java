@@ -5,6 +5,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
@@ -39,6 +40,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = {Application.class}, properties = "spring.main.allow-bean-definition-overriding=true")
@@ -134,6 +136,32 @@ public class QHAnaTest {
 
         assertEquals(200, experimentResponse.statusCode());
 
+        final String inputData = "-----------------------------1294583022956651503273599773\n" +
+            "Content-Disposition: form-data; name=\"inputStr\"\n" +
+            "\n" +
+            "test input\n" +
+            "-----------------------------1294583022956651503273599773--";
+
+        final HttpRequest pluginRequest = HttpRequest.newBuilder()
+            .uri(URI.create("http://localhost:9997/plugins/hello-world%40v0-1-0/process/"))
+            .header("Content-Type", "multipart/form-data; boundary=---------------------------1294583022956651503273599773")
+            .POST(HttpRequest.BodyPublishers.ofString(inputData))
+            .build();
+
+        final HttpResponse<String> pluginResponse = httpClient.sendAsync(
+                pluginRequest,
+                HttpResponse.BodyHandlers.ofString())
+            .join();
+
+        logger.info("pluginResponse");
+        logger.info(pluginResponse.body());
+        logger.info("pluginResponse headers");
+        logger.info(pluginResponse.headers().toString());
+
+        final Optional<String> location = pluginResponse.headers().firstValue("Location");
+
+        assertTrue(location.isPresent());
+
         String inputJsonData = "{\n" +
             "\t\"inputData\": [],\n" +
             "\t\"parameters\": \"inputStr=test+input\",\n" +
@@ -141,7 +169,7 @@ public class QHAnaTest {
             "\t\"processorLocation\": \"http://localhost:9997/plugins/hello-world%40v0-1-0/\",\n" +
             "\t\"processorName\": \"hello-world\",\n" +
             "\t\"processorVersion\": \"v0.1.0\",\n" +
-            "\t\"resultLocation\": \"http://localhost:9997/tasks/1/\"\n" +
+            "\t\"resultLocation\": \"http://localhost:9997" + location.get() + "\"\n" +
             "}";
 
         final HttpRequest requestData = HttpRequest.newBuilder()
