@@ -116,8 +116,7 @@ public class QHAnaTest {
             .join();
         assertEquals(200, pluginRunnerResponse.statusCode());
 
-        final Logger logger = LoggerFactory.getLogger(QHAnaTest.class);
-
+        // Create experiment
         String inputJsonExperiment = "{ \"name\":\"test-name\", \"description\":\"test\"}";
 
         final HttpRequest requestExperiment = HttpRequest.newBuilder()
@@ -131,11 +130,12 @@ public class QHAnaTest {
                 HttpResponse.BodyHandlers.ofString())
             .join();
 
-        logger.info("ExperimentResponse");
-        logger.info(experimentResponse.body());
+        JSONObject experimentJson = (JSONObject) new JSONParser().parse(experimentResponse.body());
+        final String experimentPath = experimentJson.get("@self").toString();
 
         assertEquals(200, experimentResponse.statusCode());
 
+        // Send request to hello-world plugin
         final String inputData = "-----------------------------1294583022956651503273599773\n" +
             "Content-Disposition: form-data; name=\"inputStr\"\n" +
             "\n" +
@@ -153,15 +153,11 @@ public class QHAnaTest {
                 HttpResponse.BodyHandlers.ofString())
             .join();
 
-        logger.info("pluginResponse");
-        logger.info(pluginResponse.body());
-        logger.info("pluginResponse headers");
-        logger.info(pluginResponse.headers().toString());
-
         final Optional<String> location = pluginResponse.headers().firstValue("Location");
 
         assertTrue(location.isPresent());
 
+        // register plugin execution as task in the created experiment
         String inputJsonData = "{\n" +
             "\t\"inputData\": [],\n" +
             "\t\"parameters\": \"inputStr=test+input\",\n" +
@@ -173,7 +169,7 @@ public class QHAnaTest {
             "}";
 
         final HttpRequest requestData = HttpRequest.newBuilder()
-            .uri(URI.create("http://localhost:9998/experiments/1/timeline"))
+            .uri(URI.create("http://localhost:9998" + experimentPath + "/timeline"))
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(inputJsonData))
             .build();
@@ -185,12 +181,10 @@ public class QHAnaTest {
 
         assertEquals(200, dataResponse.statusCode());
 
-        logger.info("DataResponse");
-        logger.info(dataResponse.body());
-
         JSONObject dataJson = (JSONObject) new JSONParser().parse(dataResponse.body());
         final String pollPath = dataJson.get("@self").toString();
 
+        // poll result status from backend
         String status = "PENDING";
         for (int i = 0; i < 40; i++) {
             Thread.sleep(1500);
@@ -199,8 +193,6 @@ public class QHAnaTest {
                     HttpResponse.BodyHandlers.ofString())
                 .join();
             String body = pollResponse.body();
-            logger.info("PollResponse");
-            logger.info(pollResponse.body());
             JSONObject jsonObject = (JSONObject) new JSONParser().parse(body);
             status = jsonObject.get("status").toString();
             if (!status.equals("PENDING")) {
