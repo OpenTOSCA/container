@@ -32,9 +32,12 @@ public interface NodeTemplateInstanceRepository extends JpaRepository<NodeTempla
     @EntityGraph(attributePaths = {"properties", "outgoingRelations"})
     Optional<NodeTemplateInstance> findWithPropertiesAndOutgoingById(Long id);
 
-    @EntityGraph(attributePaths = {"outgoingRelations"})
+    @EntityGraph(attributePaths = {"properties", "outgoingRelations"})
     Optional<NodeTemplateInstance> findWithOutgoingById(Long id);
 
-    @EntityGraph(attributePaths = {"incomingRelations"})
+    @EntityGraph(attributePaths = {"properties", "incomingRelations"})
     Optional<NodeTemplateInstance> findWithIncomingById(Long id);
+
+    @EntityGraph(attributePaths = {"serviceTemplateInstance", "properties"})
+    Optional<NodeTemplateInstance> findWithServiceTemplateInstanceById(Long id);
 }
