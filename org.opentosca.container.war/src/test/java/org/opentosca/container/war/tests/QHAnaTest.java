@@ -31,6 +31,8 @@ import org.opentosca.container.core.next.services.instances.ServiceTemplateInsta
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -42,6 +44,7 @@ import static org.junit.Assert.assertNotNull;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = {Application.class}, properties = "spring.main.allow-bean-definition-overriding=true")
 @TestPropertySource(properties = "server.port=1337")
 public class QHAnaTest {
+
 
     public static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
 
@@ -65,6 +68,8 @@ public class QHAnaTest {
     @Inject
     public ICoreEndpointService endpointService;
     private TestUtils testUtils = new TestUtils();
+
+
 
     @Test
     public void testDeployment() throws Exception {
@@ -112,6 +117,8 @@ public class QHAnaTest {
             .join();
         assertEquals(200, pluginRunnerResponse.statusCode());
 
+        final Logger logger = LoggerFactory.getLogger(QHAnaTest.class);
+
         String inputJsonExperiment = "{ \"name\":\"test-name\", \"description\":\"test\"}";
 
         final HttpRequest requestExperiment = HttpRequest.newBuilder()
@@ -124,6 +131,9 @@ public class QHAnaTest {
                 requestExperiment,
                 HttpResponse.BodyHandlers.ofString())
             .join();
+
+        logger.info("ExperimentResponse");
+        logger.info(experimentResponse.body());
 
         assertEquals(200, experimentResponse.statusCode());
 
@@ -148,6 +158,9 @@ public class QHAnaTest {
                 HttpResponse.BodyHandlers.ofString())
             .join();
 
+        logger.info("DataResponse");
+        logger.info(dataResponse.body());
+
         assertEquals(200, dataResponse.statusCode());
 
         String status = "PENDING";
@@ -158,6 +171,8 @@ public class QHAnaTest {
                     HttpResponse.BodyHandlers.ofString())
                 .join();
             String body = pollResponse.body();
+            logger.info("PollResponse");
+            logger.info(pollResponse.body());
             JSONObject jsonObject = (JSONObject) new JSONParser().parse(body);
             status = jsonObject.get("status").toString();
             if (!status.equals("PENDING")) {
