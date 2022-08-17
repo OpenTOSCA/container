@@ -31,7 +31,7 @@ public interface ServiceTemplateInstanceRepository extends JpaRepository<Service
     @EntityGraph(attributePaths = {"relationshipTemplateInstances"})
     Optional<ServiceTemplateInstance> findWithRelationshipTemplateInstancesById(Long id);
 
-    @EntityGraph(attributePaths = {"nodeTemplateInstances", "relationshipTemplateInstances"})
+    @EntityGraph(attributePaths = {"nodeTemplateInstances", "relationshipTemplateInstances", "properties"})
     Optional<ServiceTemplateInstance> findWithNodeAndRelationshipTemplateInstancesById(Long id);
 
     @EntityGraph(attributePaths = {"planInstances"})
