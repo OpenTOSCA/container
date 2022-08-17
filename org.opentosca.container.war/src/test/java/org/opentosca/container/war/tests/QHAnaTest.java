@@ -161,13 +161,16 @@ public class QHAnaTest {
         logger.info("DataResponse");
         logger.info(dataResponse.body());
 
+        JSONObject dataJson = (JSONObject) new JSONParser().parse(dataResponse.body());
+        final String pollPath = dataJson.get("@self").toString();
+
         assertEquals(200, dataResponse.statusCode());
 
         String status = "PENDING";
         for (int i = 0; i < 20; i++) {
             Thread.sleep(1000);
             HttpResponse<String> pollResponse = httpClient.sendAsync(
-                    HttpRequest.newBuilder(URI.create("http://localhost:9998/experiments/1/timeline")).build(),
+                    HttpRequest.newBuilder(URI.create("http://localhost:9998"+pollPath)).build(),
                     HttpResponse.BodyHandlers.ofString())
                 .join();
             String body = pollResponse.body();
