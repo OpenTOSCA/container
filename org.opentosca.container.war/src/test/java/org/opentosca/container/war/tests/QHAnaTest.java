@@ -45,7 +45,6 @@ import static org.junit.Assert.assertNotNull;
 @TestPropertySource(properties = "server.port=1337")
 public class QHAnaTest {
 
-
     public static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
 
     public QName csarId = QName.valueOf("{https://ust-quantil.github.io/quantum/applications/servicetemplates}QHAna_w3");
@@ -68,8 +67,6 @@ public class QHAnaTest {
     @Inject
     public ICoreEndpointService endpointService;
     private TestUtils testUtils = new TestUtils();
-
-
 
     @Test
     public void testDeployment() throws Exception {
@@ -158,19 +155,19 @@ public class QHAnaTest {
                 HttpResponse.BodyHandlers.ofString())
             .join();
 
+        assertEquals(200, dataResponse.statusCode());
+
         logger.info("DataResponse");
         logger.info(dataResponse.body());
 
         JSONObject dataJson = (JSONObject) new JSONParser().parse(dataResponse.body());
         final String pollPath = dataJson.get("@self").toString();
 
-        assertEquals(200, dataResponse.statusCode());
-
         String status = "PENDING";
-        for (int i = 0; i < 20; i++) {
-            Thread.sleep(1000);
+        for (int i = 0; i < 40; i++) {
+            Thread.sleep(1500);
             HttpResponse<String> pollResponse = httpClient.sendAsync(
-                    HttpRequest.newBuilder(URI.create("http://localhost:9998"+pollPath)).build(),
+                    HttpRequest.newBuilder(URI.create("http://localhost:9998" + pollPath)).build(),
                     HttpResponse.BodyHandlers.ofString())
                 .join();
             String body = pollResponse.body();
