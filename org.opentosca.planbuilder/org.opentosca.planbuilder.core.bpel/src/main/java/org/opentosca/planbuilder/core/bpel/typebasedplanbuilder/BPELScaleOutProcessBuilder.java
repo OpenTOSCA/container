@@ -277,9 +277,15 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
         for (ScalingPlanDefinition scalingPlanDefinition : scalingPlanDefinitions) {
             boolean isAlreadyAvailable = false;
+            if (serviceTemplate.getPlans() == null) {
+                // there are no plans anyway
+                filteredScalingPlanDefinitions.addAll(scalingPlanDefinitions);
+                break;
+            }
             for (TPlan plan : serviceTemplate.getPlans()) {
                 if (plan.getId().endsWith(scalingPlanDefinition.name)) {
                     isAlreadyAvailable = true;
+                    break;
                 }
             }
             if (!isAlreadyAvailable) {
