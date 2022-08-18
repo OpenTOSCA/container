@@ -275,21 +275,22 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
         final List<ScalingPlanDefinition> filteredScalingPlanDefinitions = Lists.newArrayList();
 
-        for (ScalingPlanDefinition scalingPlanDefinition : scalingPlanDefinitions) {
-            boolean isAlreadyAvailable = false;
-            if (serviceTemplate.getPlans() == null) {
-                // there are no plans anyway
-                filteredScalingPlanDefinitions.addAll(scalingPlanDefinitions);
-                break;
-            }
-            for (TPlan plan : serviceTemplate.getPlans()) {
-                if (plan.getId().endsWith(scalingPlanDefinition.name)) {
-                    isAlreadyAvailable = true;
-                    break;
+        if (serviceTemplate.getPlans() == null) {
+            // there are no plans anyway
+            filteredScalingPlanDefinitions.addAll(scalingPlanDefinitions);
+        } else {
+            for (ScalingPlanDefinition scalingPlanDefinition : scalingPlanDefinitions) {
+                boolean isAlreadyAvailable = false;
+
+                for (TPlan plan : serviceTemplate.getPlans()) {
+                    if (plan.getId().endsWith(scalingPlanDefinition.name)) {
+                        isAlreadyAvailable = true;
+                        break;
+                    }
                 }
-            }
-            if (!isAlreadyAvailable) {
-                filteredScalingPlanDefinitions.add(scalingPlanDefinition);
+                if (!isAlreadyAvailable) {
+                    filteredScalingPlanDefinitions.add(scalingPlanDefinition);
+                }
             }
         }
 
