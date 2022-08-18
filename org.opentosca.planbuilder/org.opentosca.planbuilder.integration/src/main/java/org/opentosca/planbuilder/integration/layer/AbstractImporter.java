@@ -174,7 +174,7 @@ public abstract class AbstractImporter {
             plans.addAll(testPlanBuilder.buildPlans(csar, defs));
         }
 
-        // hard to check honestly, TODO check if there are scaling plan definitions and if they are already available in the TOSCA interface of the service template
+        // the check whether plans have to be generated is inside the plan builder as it is highly contextual
         plans.addAll(scalingPlanBuilder.buildPlans(csar, defs));
 
         return plans;
