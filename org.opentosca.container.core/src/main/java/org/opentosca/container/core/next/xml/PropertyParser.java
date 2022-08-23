@@ -58,6 +58,14 @@ public final class PropertyParser {
             final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
             final DocumentBuilder builder = factory.newDocumentBuilder();
+            if (!xml.contains("<Properties") && !xml.contains("<tosca:Properties")) {
+                // some NodeTemplate may have no Properties defined meaning
+                // we have an empty XML document (only <?xml... inside)
+                // which breaks the parser as there is no root element defined
+                Document doc = builder.newDocument();
+                doc.appendChild(doc.createElement("Properties"));
+                return doc;
+            }
             return builder.parse(new InputSource(new StringReader(xml)));
         } catch (final Exception e) {
             logger.error("Error parsing XML string", e);

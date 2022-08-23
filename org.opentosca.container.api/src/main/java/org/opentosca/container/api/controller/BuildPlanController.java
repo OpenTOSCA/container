@@ -160,6 +160,10 @@ public class BuildPlanController {
         LOGGER.debug("Invoking getBuildPlanInstance");
         PlanInstance pi = planInstanceService.getPlanInstanceByCorrelationIdWithConnectedEntities(instance);
 
+        if (pi == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+
         final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
         // Add service template instance link
         if (pi.getServiceTemplateInstance() != null) {
