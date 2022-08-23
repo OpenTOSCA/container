@@ -1,11 +1,13 @@
 package org.opentosca.container.core.next.xml;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -15,6 +17,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Parser to parse the properties from XML into a Map<String, String> structure.
@@ -58,16 +61,23 @@ public final class PropertyParser {
             final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
             final DocumentBuilder builder = factory.newDocumentBuilder();
-            if (!xml.contains("<Properties") && !xml.contains("<tosca:Properties")) {
+            try {
+                return builder.parse(new InputSource(new StringReader(xml)));
+            } catch (SAXException e) {
                 // some NodeTemplate may have no Properties defined meaning
-                // we have an empty XML document (only <?xml... inside)
+                //
+                // we have (probably) an empty XML document (only <?xml... inside)
                 // which breaks the parser as there is no root element defined
+                // we need the catch clause to be nested as the Docbuilder may be null otherwise
+                logger.error("Error parsing XML string", e);
                 Document doc = builder.newDocument();
                 doc.appendChild(doc.createElement("Properties"));
                 return doc;
             }
-            return builder.parse(new InputSource(new StringReader(xml)));
-        } catch (final Exception e) {
+        } catch (IOException e) {
+            logger.error("Error parsing XML string", e);
+            throw new IllegalArgumentException(e);
+        } catch (ParserConfigurationException e) {
             logger.error("Error parsing XML string", e);
             throw new IllegalArgumentException(e);
         }
