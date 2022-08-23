@@ -12,6 +12,8 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderBPMNPrePhaseDAPlugin;
+import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderBPMNPrePhaseIAPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderPrePhaseIAPlugin;
 import org.opentosca.planbuilder.core.plugins.artifactbased.IPlanBuilderProvPhaseOperationPlugin;
@@ -61,6 +63,8 @@ public class PluginRegistry {
     private final List<IPlanBuilderChoreographyPlugin<?>> choreographyPlugins = new ArrayList<>();
 
     private final List<IPlanBuilderBPMNPrePhasePlugin<?>> prePhaseBPMNPlugins = new ArrayList<>();
+    private final List<IPlanBuilderBPMNPrePhaseIAPlugin<?>> iaBPMNPlugins = new ArrayList<>();
+    private final List<IPlanBuilderBPMNPrePhaseDAPlugin<?>> daBPMNPlugins = new ArrayList<>();
     private final List<IPlanBuilderBPMNPostPhasePlugin<?>> postBPMNPlugins = new ArrayList<>();
     private final List<IPlanBuilderBPMNTypePlugin<?>> genericBPMNPlugins = new ArrayList<>();
 
@@ -125,6 +129,14 @@ public class PluginRegistry {
             roles.add(IPlanBuilderBPMNPrePhasePlugin.class.getSimpleName());
             prePhaseBPMNPlugins.add((IPlanBuilderBPMNPrePhasePlugin<?>) plugin);
         }
+        if (plugin instanceof IPlanBuilderBPMNPrePhaseIAPlugin<?>) {
+            roles.add(IPlanBuilderBPMNPrePhaseIAPlugin.class.getSimpleName());
+            iaBPMNPlugins.add((IPlanBuilderBPMNPrePhaseIAPlugin<?>) plugin);
+        }
+        if (plugin instanceof IPlanBuilderBPMNPrePhaseDAPlugin<?>) {
+            roles.add(IPlanBuilderBPMNPrePhaseDAPlugin.class.getSimpleName());
+            daBPMNPlugins.add((IPlanBuilderBPMNPrePhaseDAPlugin<?>) plugin);
+        }
         if (plugin instanceof IPlanBuilderBPMNTypePlugin<?>) {
             roles.add(IPlanBuilderBPMNTypePlugin.class.getSimpleName());
             genericBPMNPlugins.add((IPlanBuilderBPMNTypePlugin<?>) plugin);
@@ -180,6 +192,10 @@ public class PluginRegistry {
         return iaPlugins;
     }
 
+    public List<IPlanBuilderBPMNPrePhaseIAPlugin<?>> getBPMNIaPlugins() {
+        return iaBPMNPlugins;
+    }
+
     /**
      * Returns all registered PrePhaseDAPlugins
      *
@@ -187,6 +203,10 @@ public class PluginRegistry {
      */
     public List<IPlanBuilderPrePhaseDAPlugin<?>> getDaPlugins() {
         return daPlugins;
+    }
+
+    public List<IPlanBuilderBPMNPrePhaseDAPlugin<?>> getBPMNDaPlugins() {
+        return daBPMNPlugins;
     }
 
     /**

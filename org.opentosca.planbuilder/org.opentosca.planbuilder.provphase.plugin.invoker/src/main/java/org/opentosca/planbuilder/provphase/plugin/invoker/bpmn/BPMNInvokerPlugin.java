@@ -101,7 +101,7 @@ public class BPMNInvokerPlugin implements IPlanBuilderProvPhaseOperationBPMNPlug
     }
 
     /**
-     * Adds bpel code to the given templateContext, which uploads the given ArtifactReference ref to the
+     * Adds bpmn code to the given templateContext, which uploads the given ArtifactReference ref to the
      * given server ip. The destination of the artifact will be a replica of the given csar on the home
      * folder of the selected user. The file must be available from the openTosca container api.
      *

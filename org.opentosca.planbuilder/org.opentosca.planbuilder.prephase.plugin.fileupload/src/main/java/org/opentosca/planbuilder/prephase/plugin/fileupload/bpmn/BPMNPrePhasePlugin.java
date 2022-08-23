@@ -43,7 +43,7 @@ public class BPMNPrePhasePlugin implements IPlanBuilderBPMNPrePhasePlugin<BPMNPl
 
     private final static Logger LOG = LoggerFactory.getLogger(BPMNPrePhasePlugin.class);
 
-    private static final String PLUGIN_ID = "openTOSCA DA/IA On Linux Plugin v0.1";
+    private static final String PLUGIN_ID = "openTOSCA DA/IA On Linux BPMNPlugin v0.1";
 
     private static final QName scriptArtifactType =
         new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ScriptArtifact");
@@ -264,6 +264,7 @@ public class BPMNPrePhasePlugin implements IPlanBuilderBPMNPrePhasePlugin<BPMNPl
         return false;
     }
 
+    //todo need to be checked if the priority in comparison to the other plugins is correct
     @Override
     public int getPriority() {
         return 1;
