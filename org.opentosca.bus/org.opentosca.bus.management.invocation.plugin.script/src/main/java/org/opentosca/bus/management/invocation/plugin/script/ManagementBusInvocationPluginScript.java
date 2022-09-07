@@ -145,9 +145,11 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
         final URI serviceInstanceID = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
         LOG.debug("ServiceInstanceID: {}", serviceInstanceID);
         // search operating system IA to upload files and run scripts on target machine
-        long serviceTemplateInstanceId = Long.parseLong(serviceInstanceID.toString());
+        long serviceTemplateInstanceId = 0;
         if (serviceInstanceID.toString().contains("/")) {
             serviceTemplateInstanceId = Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/"));
+        } else {
+            serviceTemplateInstanceId = Long.parseLong(serviceInstanceID.toString());
         }
         TNodeTemplate osNodeTemplate = mbUtils.getOperatingSystemNodeTemplate(csar, serviceTemplate, nodeTemplate, true,
             serviceTemplateInstanceId);

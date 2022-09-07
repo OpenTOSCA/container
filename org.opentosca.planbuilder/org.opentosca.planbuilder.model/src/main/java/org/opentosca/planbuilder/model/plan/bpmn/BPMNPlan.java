@@ -27,6 +27,7 @@ public class BPMNPlan extends AbstractPlan {
     private int innerFlowCounter = 0;
     private int errorOuterFlowCounter = 0;
     private int errorInnerFlowCounter = 0;
+    private ArrayList<BPMNSubprocess> errorFlowElements = new ArrayList<>();
     // to be very specific every subprocess is associated with a data object but the properties are globally visible
     // that's why they are added here
     private List<BPMNDataObject> dataObjectsList = new ArrayList<>();
@@ -49,8 +50,6 @@ public class BPMNPlan extends AbstractPlan {
     public void setFlowElements(ArrayList<BPMNSubprocess> flow) {
         this.flowElements = flow;
     }
-
-    private ArrayList<BPMNSubprocess> errorFlowElements = new ArrayList<>();
 
     public ArrayList<BPMNSubprocess> getErrorFlowElements() {
         return errorFlowElements;

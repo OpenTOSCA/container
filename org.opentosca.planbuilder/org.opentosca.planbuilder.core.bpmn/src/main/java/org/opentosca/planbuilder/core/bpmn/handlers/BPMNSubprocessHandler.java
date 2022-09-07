@@ -1,16 +1,12 @@
 package org.opentosca.planbuilder.core.bpmn.handlers;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
 import org.opentosca.container.core.engine.ToscaEngine;
-import org.opentosca.planbuilder.core.bpmn.fragments.BPMNProcessFragments;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
@@ -24,7 +20,6 @@ import org.w3c.dom.Document;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 /**
  * This class is part of the Facade to handle actions on BuildPlans. This particular class handle XML related operations
@@ -33,12 +28,6 @@ import org.xml.sax.SAXException;
 public class BPMNSubprocessHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPMNSubprocessHandler.class);
-
-    private final BPMNProcessFragments processFragments;
-
-    public BPMNSubprocessHandler() throws ParserConfigurationException {
-        this.processFragments = new BPMNProcessFragments();
-    }
 
     /**
      * Generates an empty subprocess for the given activity and adds a data object to the buildPlan which can be used
@@ -105,9 +94,9 @@ public class BPMNSubprocessHandler {
 
     /**
      * Creates a set state task inside a subprocess. But this method is only called if we didn't apply any pattern based
-     * plugin. Per default, we set then the node template to CREATED.
+     * plugin. Per default, we set then the node template to 'CREATED'.
      */
-    public void createSetStateTaskInsideSubprocess(final BPMNPlan buildPlan, final BPMNSubprocess bpmnSubprocess) throws IOException, SAXException {
+    public void createSetStateTaskInsideSubprocess(final BPMNPlan buildPlan, final BPMNSubprocess bpmnSubprocess) {
         String idPrefix = BPMNSubprocessType.TASK.toString();
         final BPMNSubprocess setState = new BPMNSubprocess(BPMNSubprocessType.SET_ST_STATE, idPrefix + "_" + buildPlan.getIdForNamesAndIncrement());
         setState.setParentProcess(bpmnSubprocess);

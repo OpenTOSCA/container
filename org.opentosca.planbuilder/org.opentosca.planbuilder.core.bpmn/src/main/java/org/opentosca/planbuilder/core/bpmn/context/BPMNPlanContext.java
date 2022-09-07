@@ -30,8 +30,6 @@ import org.w3c.dom.Node;
  */
 public class BPMNPlanContext extends PlanContext {
 
-    private final static Logger LOG = LoggerFactory.getLogger(BPMNPlanContext.class);
-
     private BPMNSubprocess bpmnSubprocess;
 
     public BPMNPlanContext(final BPMNPlan plan, final BPMNSubprocess templateBuildPlan, final Property2VariableMapping map,

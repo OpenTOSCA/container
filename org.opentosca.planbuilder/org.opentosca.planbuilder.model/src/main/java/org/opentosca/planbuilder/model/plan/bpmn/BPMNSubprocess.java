@@ -58,7 +58,6 @@ public class BPMNSubprocess {
 
     private BPMNSubprocess subProCreateNodeInstanceTask;
     private BPMNSubprocess subProSetStateTask;
-    private BPMNSubprocess subProCallOperationTask;
     private BPMNSubprocess subProSetNodePropertyTask;
 
     private String instanceState;
@@ -114,10 +113,6 @@ public class BPMNSubprocess {
 
     public void setDeploymentArtifactString(String deploymentArtifactString) {
         this.deploymentArtifactString = deploymentArtifactString;
-    }
-
-    public BPMNSubprocess(String name) {
-        this.activity = null;
     }
 
     public BPMNSubprocess(AbstractActivity activity, BPMNSubprocessType subprocessType, String id) {
@@ -294,7 +289,6 @@ public class BPMNSubprocess {
     }
 
     public void setSubProCallOperationTask(BPMNSubprocess subProCallOperationTask) {
-        this.subProCallOperationTask = subProCallOperationTask;
     }
 
     public BPMNSubprocess getSubProSetNodePropertyTask() {

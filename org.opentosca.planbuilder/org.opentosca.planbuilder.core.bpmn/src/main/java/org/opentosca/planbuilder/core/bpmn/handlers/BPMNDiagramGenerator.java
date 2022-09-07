@@ -308,6 +308,8 @@ public class BPMNDiagramGenerator {
                                         plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x + 30, (yLane + 180 + 200) + y * 200, 80, 100, false);
                                         refPoints.put(sElement.getAttribute("id"), new SequenceReferencePoints(xLane + x + 30, ((220 + 200 + yLane) + y * 200), (xLane + x + 100), ((yLane + 220 + 200) + y * 200)));
                                         break;
+                                    default:
+                                        break;
                                 }
                             }
                         }

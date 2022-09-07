@@ -84,7 +84,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             e.printStackTrace();
         }
 
-        this.propertyInitializer = new BPMNPropertyVariableHandler(this.planHandler);
+        this.propertyInitializer = new BPMNPropertyVariableHandler();
         //this.propertyOutputInitializer = new ServiceTemplateBoundaryPropertyMappingsToOutputHandler();
         try {
             this.serviceInstanceInitializer = new SimplePlanBuilderBPMNServiceInstanceHandler();

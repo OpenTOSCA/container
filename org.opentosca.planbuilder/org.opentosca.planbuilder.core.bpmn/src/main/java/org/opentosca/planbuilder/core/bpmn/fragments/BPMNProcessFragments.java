@@ -103,7 +103,6 @@ public class BPMNProcessFragments {
      * @return createNodeOperation Node
      */
     public String createNodeOperation(BPMNSubprocess bpmnSubprocess) throws IOException {
-        BPMNDataObject dataObject = bpmnSubprocess.getParentProcess().getDataObject();
         String callNodeOperation = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateNodeOperationScriptTask.xml"));
         callNodeOperation = callNodeOperation.replaceAll("CallNodeOperation_IdToReplace", bpmnSubprocess.getId());
         callNodeOperation = callNodeOperation.replace("NamespaceToSet", bpmnSubprocess.getBuildPlan().getServiceTemplate().getTargetNamespace());
@@ -153,14 +152,8 @@ public class BPMNProcessFragments {
                 if (inputParameterName.equals("DockerEngineURL")) {
                     inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append("String!${" + inputParameterName + "}").append("</camunda:inputParameter>");
                 } else if (inputParameterName.equals("ContainerPorts")) {
-                    LOG.info("CONTainerPorts");
-                    LOG.info(inputParameterValue);
-                    String containerPortValue = "";
                     inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append("String!" + inputParameterValue).append("</camunda:inputParameter>");
                 } else if (inputParameterName.equals("Script")) {
-                    LOG.info("CONTainerPorts");
-                    LOG.info(inputParameterValue);
-                    String containerPortValue = "";
                     inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append("String!" + inputParameterValue).append("</camunda:inputParameter>");
                 } else if (inputParameterName.equals("ImageLocation") && (bpmnSubprocess.getParentProcess().getDeploymentArtifactString() != null)) {
                     inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append(bpmnSubprocess.getParentProcess().getDeploymentArtifactString()).append("</camunda:inputParameter>");

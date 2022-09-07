@@ -75,6 +75,9 @@ public class BPMNPluginHandler {
                 break;
             case UPDATE:
                 //handleUpdateActivity(context, bpelScope, nodeTemplate);
+                break;
+            default:
+                break;
         }
 
         return result;
@@ -122,7 +125,6 @@ public class BPMNPluginHandler {
                 if (prePlugin.canHandleCreate(context, nodeTemplate)) {
                     LOG.debug("Handling NodeTemplate {} with pre plugin {}", nodeTemplate.getId(), prePlugin.getID());
                     result &= prePlugin.handleCreate(context, nodeTemplate);
-                    BPMNSubprocess createNodeInstanceTask = bpmnSubprocess.getSubProCreateNodeInstanceTask();
                 }
             }
 
@@ -133,9 +135,8 @@ public class BPMNPluginHandler {
             if (plugin != null) {
                 LOG.info("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
                 result &= plugin.handleCreate(context, nodeTemplate);
-                BPMNSubprocess callNodeOperationTask = bpmnSubprocess.getSubProCreateNodeInstanceTask();
             } else {
-                // if it is empty we didnt applied the invoker plugin, so no operation is called -> State is STARTED
+                // if it is empty we didn't apply the invoker plugin, so no operation is called -> State is STARTED
                 subprocessHandler.createSetStateTaskInsideSubprocess(bpmnSubprocess.getBuildPlan(), bpmnSubprocess);
                 LOG.info("Couldn't handle provisioning code generation of NodeTemplate {} with type plugin", nodeTemplate.getId());
             }

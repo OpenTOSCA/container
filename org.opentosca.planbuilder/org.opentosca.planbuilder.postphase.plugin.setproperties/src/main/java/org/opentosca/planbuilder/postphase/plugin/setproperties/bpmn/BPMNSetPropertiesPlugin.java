@@ -1,34 +1,25 @@
 package org.opentosca.planbuilder.postphase.plugin.setproperties.bpmn;
 
-import javax.xml.namespace.QName;
-
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderBPMNPostPhasePlugin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.stereotype.Component;
 
 /**
- *
  * This class represents a POST-Phase Plugin to set the Properties of the NodeTemplate
- *
  */
 @Component
 public class BPMNSetPropertiesPlugin implements IPlanBuilderBPMNPostPhasePlugin<BPMNPlanContext> {
 
-    private static Logger LOG = LoggerFactory.getLogger(BPMNSetPropertiesPlugin.class);
     private static final String PLAN_ID = "BPMN OpenTOSCA SetProperties Post Phase Plugin";
     private final BPMNSetPropertiesHandler handler = new BPMNSetPropertiesHandler();
-    private final QName securePasswordPolicyType =
-        new QName("http://opentosca.org/policytypes", "SecurePasswordPolicyType");
 
     @Override
     public boolean handleCreate(BPMNPlanContext context, TNodeTemplate nodeTemplate) {
         return this.handler.handleCreate(context, nodeTemplate);
-        //return false;
     }
 
     @Override
@@ -38,7 +29,7 @@ public class BPMNSetPropertiesPlugin implements IPlanBuilderBPMNPostPhasePlugin<
 
     @Override
     public boolean canHandleCreate(BPMNPlanContext context, TNodeTemplate nodeTemplate) {
-       return true;
+        return true;
     }
 
     @Override

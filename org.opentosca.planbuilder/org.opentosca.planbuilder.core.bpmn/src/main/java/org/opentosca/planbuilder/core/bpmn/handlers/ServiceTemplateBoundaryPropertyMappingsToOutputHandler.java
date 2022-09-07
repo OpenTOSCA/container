@@ -58,7 +58,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
             ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.warn("Couldn't generate mapping, BuildPlan Output may be empty");
             return propertyOutput;
         }
-        propertyOutput = initializeAssignOutput(buildPlan, propMap, mapping, serviceTemplate);
+        propertyOutput = initializeAssignOutput(propMap, mapping, serviceTemplate);
         return propertyOutput;
     }
 
@@ -66,11 +66,10 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
      * Generates a copy with a literal value to the outputmessage of the given BuildPlan. The literal consists of the
      * mappings given, where the propertyMap is used identify the propertyVariables inside the buildPlan
      *
-     * @param buildPlan the BuildPlan to add the copy to
      * @param propMap   a PropertyMap containing the variable names of the properties
      * @param mapping   the mappings from serviceTemplate Properties to template properties
      */
-    private HashMap<String,String> initializeAssignOutput(final BPMNPlan buildPlan, final Property2VariableMapping propMap,
+    private HashMap<String,String> initializeAssignOutput(final Property2VariableMapping propMap,
                                                      final ServiceTemplatePropertyToPropertyMapping mapping,
                                                      TServiceTemplate serviceTemplate) {
         HashMap<String, String> propertyOutput = new HashMap<>();

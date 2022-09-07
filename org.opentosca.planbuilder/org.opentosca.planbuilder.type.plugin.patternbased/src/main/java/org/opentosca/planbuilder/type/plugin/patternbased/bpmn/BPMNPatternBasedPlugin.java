@@ -85,8 +85,6 @@ public class BPMNPatternBasedPlugin implements IPlanBuilderBPMNTypePlugin<BPMNPl
             TOperation installOp = null;
             TOperation configureOp = null;
             TOperation startOp = null;
-            TOperation uninstallOp = null;
-            TOperation stopOp = null;
 
             check &= lifecyclePatternHandler.handleCreate(templateContext, nodeTemplate,
                 templateContext.getSubprocessElement().getBpmnSubprocessElement());
@@ -133,7 +131,7 @@ public class BPMNPatternBasedPlugin implements IPlanBuilderBPMNTypePlugin<BPMNPl
             LOG.info("Handling by remote manager pattern");
             check &= remoteMgrHandler.handleCreate(templateContext, nodeTemplate, templateContext.getSubprocessElement().getBpmnSubprocessElement());
 
-            if (check == true) {
+            if (check) {
                 TOperation installOp = remoteMgrHandler.getRemoteManagerPatternInstallMethod(nodeTemplate, templateContext.getCsar());
                 TOperation resetOp = remoteMgrHandler.getRemoteManagerPatternResetMethod(nodeTemplate, templateContext.getCsar());
 
@@ -221,7 +219,7 @@ public class BPMNPatternBasedPlugin implements IPlanBuilderBPMNTypePlugin<BPMNPl
 
     @Override
     public Collection<TNodeTemplate> getTerminateDependencies(TNodeTemplate nodeTemplate, Csar csar) {
-        Collection<TNodeTemplate> deps = new HashSet<TNodeTemplate>();
+        Collection<TNodeTemplate> deps = new HashSet<>();
         LOG.debug("Checking nodeTemplate {} dependencies", nodeTemplate.getId());
         if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate, csar)) {
             LOG.debug("Can be handled by container pattern");

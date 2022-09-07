@@ -12,7 +12,6 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
-import org.hibernate.Hibernate;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,11 +21,9 @@ import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.control.plan.PlanGenerationService;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
-import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
-import org.opentosca.container.core.next.model.ServiceTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.next.services.instances.NodeTemplateInstanceService;
 import org.opentosca.container.core.next.services.instances.PlanInstanceService;
@@ -149,7 +146,7 @@ public class MyTinyToDoPlanGeneratorTest {
                 for (String property : properties.keySet()) {
                     if (inputParameter.getName().equals(property)) {
                         String propertyValue = properties.get(property);
-                        Assert.assertEquals(inputParameter.getValue(), propertyValue);
+                        assertEquals(inputParameter.getValue(), propertyValue);
                     }
                 }
             }
@@ -159,16 +156,16 @@ public class MyTinyToDoPlanGeneratorTest {
                 for (org.opentosca.container.core.extension.TParameter inputParameter : inputParameters) {
                     if (property.equals("Port") && inputParameter.getName().equals("ApplicationPort")) {
                         String propertyValue = properties.get(property);
-                        Assert.assertEquals(inputParameter.getValue(), propertyValue);
+                        assertEquals(inputParameter.getValue(), propertyValue);
                     }
                 }
                 if (property.equals("ContainerIP")) {
                     String propertyValue = properties.get(property);
-                    Assert.assertEquals(testUtils.getDockerHost(), propertyValue);
+                    assertEquals(testUtils.getDockerHost(), propertyValue);
                 }
                 if (property.equals("ContainerPort")) {
                     String propertyValue = properties.get(property);
-                    Assert.assertNotNull(propertyValue);
+                    assertNotNull(propertyValue);
                 }
             }
         }

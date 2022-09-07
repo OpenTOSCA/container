@@ -165,7 +165,6 @@ public class PluginRegistry {
         return genericBPMNPlugins;
     }
 
-
     public List<IPlanBuilderPrePhasePlugin<?>> getPrePlugins() {
         return prePhasePlugins;
     }
@@ -221,6 +220,7 @@ public class PluginRegistry {
     public List<IPlanBuilderBPMNPostPhasePlugin<?>> getPostBPMNPlugins() {
         return postBPMNPlugins;
     }
+
     /**
      * Returns all registered SelectionPlugins
      *
