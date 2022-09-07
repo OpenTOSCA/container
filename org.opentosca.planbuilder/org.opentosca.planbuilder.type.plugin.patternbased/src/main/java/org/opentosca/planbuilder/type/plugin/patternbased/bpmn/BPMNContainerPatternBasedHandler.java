@@ -141,7 +141,7 @@ public class BPMNContainerPatternBasedHandler extends BPMNPatternBasedHandler {
     }
 
     protected TNodeTemplate getHostingNode(final TNodeTemplate nodeTemplate, Csar csar) {
-        System.out.println("get hosting node: " + nodeTemplate);
+        System.out.println("get hosting node: " + nodeTemplate.getId());
         for (final TRelationshipTemplate rel : ModelUtils.getOutgoingRelations(nodeTemplate, csar)) {
             for (final QName typeInHierarchy : ModelUtils.getRelationshipTypeHierarchy(ModelUtils.findRelationshipType(rel, csar), csar)) {
                 if (ModelUtils.isInfrastructureRelationshipType(typeInHierarchy)) {

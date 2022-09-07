@@ -161,22 +161,48 @@ public class BPMNInvokerPluginHandler {
             }
 
             String preState = InstanceStates.getOperationPreState(operationName);
+
             final BPMNSubprocess createNodeOperationTask = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
+            createNodeOperationTask.setOperation(operationName);
             final BPMNSubprocess setPreState = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.SET_ST_STATE);
             setPreState.setInstanceState(preState);
             subprocess.addTaskToSubprocess(setPreState);
+            LOG.info("###############################");
+            LOG.info(templateId.getId());
+            if (templateId.getId().contains("ApacheApp")) {
+                LOG.info("ERSTELLE transfert");
+                final BPMNSubprocess runScript = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
+                final BPMNSubprocess transferFile = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
+                runScript.setInterfaceVariable("ContainerManagementInterface");
+                runScript.setOperation("runScript");
+                runScript.setInputParameterNames("Script");
+                runScript.setInputParameterValues("mkdir -p ~/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files");
+                runScript.setOutputParameterNames("");
+                runScript.setOutputParameterValues("");
+                subprocess.addTaskToSubprocess(runScript);
+                //transferFile.setHostingNodeTemplate("DockerContainer_w1_0");
+                transferFile.setInterfaceVariable("ContainerManagementInterface");
+                transferFile.setOperation("transferFile");
+                transferFile.setInputParameterNames("TargetAbsolutePath,SourceURLorLocalPath");
+                transferFile.setInputParameterValues("~/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files/HelloUwe.zip, ");
+                transferFile.setOutputParameterNames("");
+                transferFile.setOutputParameterValues("");
+                subprocess.addTaskToSubprocess(transferFile);
+            }
             subprocess.addTaskToSubprocess(createNodeOperationTask);
             boolean hasNodeOperation = false;
 
             for (BPMNSubprocess sub : context.getSubprocessElement().getSubprocessBPMNSubprocess()) {
                 if (sub.getSubprocessType() == (BPMNSubprocessType.CALL_NODE_OPERATION_TASK)) {
-                    sub.setInterfaceVariable(interfaceName);
-                    sub.setOperation(operationName);
-                    sub.setInputParameterNames(inputParamNames.toString());
+                    if (!sub.getOperation().equals("runScript") && !sub.getOperation().equals("transferFile")) {
+                        sub.setInterfaceVariable(interfaceName);
+                        sub.setOperation(operationName);
+                        sub.setInputParameterNames(inputParamNames.toString());
 
-                    sub.setInputParameterValues(inputParamValues.toString());
-                    sub.setOutputParameterNames(outputParamNames.toString());
-                    sub.setOutputParameterValues(outputParamValues.toString());
+                        sub.setInputParameterValues(inputParamValues.toString());
+                        sub.setOutputParameterNames(outputParamNames.toString());
+                        sub.setOutputParameterValues(outputParamValues.toString());
+                    }
                     for (BPMNDataObject dataObject : buildPlan.getDataObjectsList()) {
                         if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_ST) {
                             for (String property : dataObject.getProperties()) {
@@ -209,10 +235,9 @@ public class BPMNInvokerPluginHandler {
     }
 
     /**
-     *  add support for BPMN PrePhase plugin, currently not used / functional
-     *  all important information gets conveyed to the invoker plugin handle method via the inputparameter map,
-     *  may clash with current implementation due to differences compared to the current usage!!!
-     *  case handling might be necessary ...
+     * add support for BPMN PrePhase plugin, currently not used / functional all important information gets conveyed to
+     * the invoker plugin handle method via the inputparameter map, may clash with current implementation due to
+     * differences compared to the current usage!!! case handling might be necessary ...
      */
     public boolean handleArtifactReferenceUpload(final TArtifactReference ref,
                                                  final BPMNPlanContext templateContext, final PropertyVariable serverIp,
@@ -235,7 +260,7 @@ public class BPMNInvokerPluginHandler {
 
         //final String ubuntuFilePathVarName = "ubuntuFilePathVar" + templateContext.getIdForNames();
         final Variable ubuntuFilePathVar = new Variable(ubuntuFilePath);
-            //templateContext.createGlobalStringVariable(ubuntuFilePathVarName, ubuntuFilePath);
+        //templateContext.createGlobalStringVariable(ubuntuFilePathVarName, ubuntuFilePath);
         // the folder which has to be created on the ubuntu vm
         final String ubuntuFolderPathScript = "sleep 1 && mkdir -p " + fileReferenceToFolder(ubuntuFilePath);
 
@@ -275,7 +300,7 @@ public class BPMNInvokerPluginHandler {
         // create the folder the file must be uploaded into and upload the file afterwards
         //final String mkdirScriptVarName = "mkdirScript" + templateContext.getIdForNames();
         final Variable mkdirScriptVar = new Variable(ubuntuFolderPathScript);
-            //templateContext.createGlobalStringVariable(mkdirScriptVarName, ubuntuFolderPathScript);
+        //templateContext.createGlobalStringVariable(mkdirScriptVarName, ubuntuFolderPathScript);
         final Map<String, Variable> runScriptRequestInputParams = new HashMap<>();
         runScriptRequestInputParams.put("Script", mkdirScriptVar);
         final List<String> runScriptInputParams = getRunScriptParams(infraTemplate, templateContext.getCsar());

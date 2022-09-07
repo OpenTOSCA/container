@@ -3,7 +3,7 @@
         <camunda:inputOutput>
             <camunda:inputParameter name="ServiceInstanceURL">${ServiceInstanceURLToSet}</camunda:inputParameter>
             <camunda:inputParameter name="CsarID">CsarToSet</camunda:inputParameter>
-            <camunda:inputParameter name="ServiceTemplateID">{http://opentosca.org/servicetemplates}CsarToSet</camunda:inputParameter>
+            <camunda:inputParameter name="ServiceTemplateID">{NamespaceToSet}ServiceTemplateNameToSet</camunda:inputParameter>
             <camunda:inputParameter name="NodeTemplate">NodeTemplateToSet</camunda:inputParameter>
             <camunda:inputParameter name="Interface">InterfaceToSet</camunda:inputParameter>
             <camunda:inputParameter name="Operation">OperationToSet</camunda:inputParameter>

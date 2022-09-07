@@ -129,14 +129,15 @@ public class BPMNPluginHandler {
             // generate code for the provisioning, e.g., call install, start or create
             // methods
             final IPlanBuilderBPMNTypePlugin plugin = this.pluginRegistry.findBPMNTypePluginForCreation(nodeTemplate, context.getCsar());
+            LOG.info("PLUGINTEST NodeTemplate {}", nodeTemplate.getId());
             if (plugin != null) {
-                LOG.debug("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
+                LOG.info("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());
                 result &= plugin.handleCreate(context, nodeTemplate);
                 BPMNSubprocess callNodeOperationTask = bpmnSubprocess.getSubProCreateNodeInstanceTask();
             } else {
                 // if it is empty we didnt applied the invoker plugin, so no operation is called -> State is STARTED
                 subprocessHandler.createSetStateTaskInsideSubprocess(bpmnSubprocess.getBuildPlan(), bpmnSubprocess);
-                LOG.debug("Couldn't handle provisioning code generation of NodeTemplate {} with type plugin", nodeTemplate.getId());
+                LOG.info("Couldn't handle provisioning code generation of NodeTemplate {} with type plugin", nodeTemplate.getId());
             }
         }
         // generate code the post handling, e.g., set properties

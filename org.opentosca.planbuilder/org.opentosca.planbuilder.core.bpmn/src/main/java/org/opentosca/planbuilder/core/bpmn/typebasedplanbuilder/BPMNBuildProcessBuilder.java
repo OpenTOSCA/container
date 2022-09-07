@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.core.bpmn.typebasedplanbuilder;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,6 +8,10 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -34,6 +39,7 @@ import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocess;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocessType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_BuildPlanOperation;
@@ -144,7 +150,8 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             bpmnPlan.setCsarName(csar.id().csarName());
             bpmnPlan.setInputParameters(inputParameters);
             bpmnPlan.setTOSCAInterfaceName(OpenTOSCA_LifecycleInterface);
-            bpmnPlan.setTOSCAOperationname(OpenTOSCA_BuildPlanOperation);
+            // temporary solution otherwise boundary definitions are overwritten
+            bpmnPlan.setTOSCAOperationname("BPMN" + OpenTOSCA_BuildPlanOperation);
 
             // this step can be skipped in management plans
             this.serviceInstanceInitializer.appendCreateServiceInstanceVarsAndInitializeWithInstanceDataAPI(bpmnPlan);
@@ -172,11 +179,28 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             } catch (IOException | SAXException e) {
                 e.printStackTrace();
             }
+            writeXML(bpmnPlan.getBpmnDocument());
             return bpmnPlan;
         }
         LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
             serviceTemplateQname, definitions.getId(), csar.id().csarName());
         return null;
+    }
+
+    public void writeXML(Document s) {
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = null;
+        try {
+            transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(s);
+            StreamResult result = new StreamResult(new File("C://Users//livia//Downloads//result.xml"));
+            transformer.transform(source, result);
+            // Output to console for testing
+            StreamResult consoleResult = new StreamResult(System.out);
+            transformer.transform(source, consoleResult);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -203,7 +227,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 // extended check for OperatingSystem node type
                 if (isRunning(nodeTemplate)
                     /*|| ModelUtils.findNodeType(nodeTemplate, csar).getName().equals(Types.abstractOperatingSystemNodeType.getLocalPart())*/) {
-                    LOG.debug("Skipping the provisioning of NodeTemplate "
+                    LOG.info("Skipping the provisioning of NodeTemplate "
                         + bpmnSubprocess.getNodeTemplate().getId() + "  because state=running is set.");
                     for (final IPlanBuilderBPMNPrePhasePlugin prePhasePlugin : this.pluginRegistry.getPreBPMNPlugins()) {
                         if (prePhasePlugin.canHandleCreate(context, bpmnSubprocess.getNodeTemplate())) {

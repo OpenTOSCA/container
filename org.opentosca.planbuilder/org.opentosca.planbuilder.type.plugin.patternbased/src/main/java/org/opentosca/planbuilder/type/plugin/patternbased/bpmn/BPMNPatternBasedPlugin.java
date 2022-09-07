@@ -90,17 +90,22 @@ public class BPMNPatternBasedPlugin implements IPlanBuilderBPMNTypePlugin<BPMNPl
 
             check &= lifecyclePatternHandler.handleCreate(templateContext, nodeTemplate,
                 templateContext.getSubprocessElement().getBpmnSubprocessElement());
+            System.out.println("DASISTDERCHECK VON NODETEMPLATE" + nodeTemplate.getId());
+            System.out.println(check);
 
             installOp = lifecyclePatternHandler.getLifecyclePatternInstallMethod(nodeTemplate, templateContext.getCsar());
             configureOp = lifecyclePatternHandler.getLifecyclePatternConfigureMethod(nodeTemplate, templateContext.getCsar());
             startOp = lifecyclePatternHandler.getLifecyclePatternStartMethod(nodeTemplate, templateContext.getCsar());
             if (installOp != null) {
+                System.out.println("INSTALLNICHTLEER");
                 usedOps.put(installOp, null);
             }
             if (configureOp != null) {
+                System.out.println("CONFIGURENICHTLEER");
                 usedOps.put(configureOp, null);
             }
             if (startOp != null) {
+                System.out.println("STARTOPNICHTLEER");
                 usedOps.put(startOp, null);
             }
 
@@ -154,7 +159,7 @@ public class BPMNPatternBasedPlugin implements IPlanBuilderBPMNTypePlugin<BPMNPl
 
     @Override
     public boolean canHandleCreate(Csar csar, final TNodeTemplate nodeTemplate) {
-        LOG.debug("Checking if nodeTemplate {} can be handled by container or lifecycle pattern", nodeTemplate.getId());
+        LOG.info("Checking if nodeTemplate {} can be handled by container or lifecycle pattern", nodeTemplate.getId());
         if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate, csar)) {
             LOG.debug("Can be handled by container pattern");
             LOG.info("Can be handled by lifecycle pattern");

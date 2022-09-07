@@ -106,7 +106,12 @@ public class BPMNProcessFragments {
         BPMNDataObject dataObject = bpmnSubprocess.getParentProcess().getDataObject();
         String callNodeOperation = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNCreateNodeOperationScriptTask.xml"));
         callNodeOperation = callNodeOperation.replaceAll("CallNodeOperation_IdToReplace", bpmnSubprocess.getId());
+        callNodeOperation = callNodeOperation.replace("NamespaceToSet", bpmnSubprocess.getBuildPlan().getServiceTemplate().getTargetNamespace());
         callNodeOperation = callNodeOperation.replaceAll("CsarToSet", bpmnSubprocess.getBuildPlan().getCsarName());
+        callNodeOperation = callNodeOperation.replaceAll("ServiceTemplateNameToSet", bpmnSubprocess.getBuildPlan().getServiceTemplate().getId().trim());
+        if (bpmnSubprocess.getOperation().contains("transferFile") || bpmnSubprocess.getOperation().contains("runScript")) {
+            callNodeOperation = callNodeOperation.replaceAll("NodeTemplateToSet", "DockerContainer_w1_0");
+        }
         callNodeOperation = callNodeOperation.replaceAll("NodeTemplateToSet", bpmnSubprocess.getHostingNodeTemplate().getId());
         String parentId = bpmnSubprocess.getParentProcess().getId();
         String prefix = BPMNSubprocessType.DATA_OBJECT_REFERENCE + "_" + BPMNSubprocessType.DATA_OBJECT;
@@ -148,6 +153,11 @@ public class BPMNProcessFragments {
                 if (inputParameterName.equals("DockerEngineURL")) {
                     inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append("String!${" + inputParameterName + "}").append("</camunda:inputParameter>");
                 } else if (inputParameterName.equals("ContainerPorts")) {
+                    LOG.info("CONTainerPorts");
+                    LOG.info(inputParameterValue);
+                    String containerPortValue = "";
+                    inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append("String!" + inputParameterValue).append("</camunda:inputParameter>");
+                } else if (inputParameterName.equals("Script")) {
                     LOG.info("CONTainerPorts");
                     LOG.info(inputParameterValue);
                     String containerPortValue = "";

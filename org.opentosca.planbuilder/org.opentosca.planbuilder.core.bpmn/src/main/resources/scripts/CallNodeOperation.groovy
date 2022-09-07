@@ -9,7 +9,6 @@ def ip = serviceInstanceURL.substring(7).split("/")[0].split(":")[0];
 
 // Host <-- Target, operation is on Host while property on target
 def hostNodeTemplateID = execution.getVariable("NodeTemplate");
-def targetNodeTemplateID = "MyTinyToDoDockerContainer";
 def nodeInterface = execution.getVariable("Interface");
 def operation = execution.getVariable("Operation");
 
@@ -31,6 +30,9 @@ if (inputParamNames != null) {
                 def type = paramValue.split("!")[0];
                 if (type == 'String') {
                     paramValue = paramValue.split("!")[1];
+                    if (paramName.contains("Script")) {
+                        paramValue = "sleep 1 && " + paramValue;
+                    }
                     paramValue = paramValue.replace('->', ',');
                 }
 
@@ -85,7 +87,7 @@ if (status != 202) {
 }
 
 def taskURL = post.getHeaderField("Location")
-
+println "taskURL: $taskURL"
 def dataObject = execution.getVariable("DataObject")
 final String PROPERTIES = '.Properties.'
 // Polling until invocation task is finished and set output variable
@@ -96,27 +98,29 @@ while (true) {
         execution.setVariable("ErrorDescription", "Received status code " + status + " while polling for NodeTemplate operation result!");
         throw new org.camunda.bpm.engine.delegate.BpmnError("InvalidStatusCode")
     }
-    def pollingResult = get.getInputStream().getText();
-    def slurper = new JsonSlurper();
-    def pollingResultJSON = slurper.parseText(pollingResult);
+    if (get.getResponseCode() == 200) {
+        def pollingResult = get.getInputStream().getText();
+        def slurper = new JsonSlurper();
+        def pollingResultJSON = slurper.parseText(pollingResult);
 
-    if (!pollingResultJSON.status.equals("PENDING")) {
-        def responseJSON = pollingResultJSON.response;
+        if (!pollingResultJSON.status.equals("PENDING")) {
+            def responseJSON = pollingResultJSON.response;
 
-        println "Response of polling:"
-        println responseJSON
-        // in this step we write the output parameter of the operation back to the corresponding data object
-        // this is necessary to build the output parameter of the plan
-        if (outputParamNames != null) {
-            outputParamNames = outputParamNames.split(",");
-            outputParamNames.each { outputParam ->
-                String name = dataObject + PROPERTIES + outputParam
-                String value = responseJSON.get(outputParam)
-                execution.setVariable(name, value);
-                println "Set variable $name: $value"
+            println "Response of polling:"
+            println responseJSON
+            // in this step we write the output parameter of the operation back to the corresponding data object
+            // this is necessary to build the output parameter of the plan
+            if (outputParamNames != null) {
+                outputParamNames = outputParamNames.split(",");
+                outputParamNames.each { outputParam ->
+                    String name = dataObject + PROPERTIES + outputParam
+                    String value = responseJSON.get(outputParam)
+                    execution.setVariable(name, value);
+                    println "Set variable $name: $value"
+                }
             }
+            return;
         }
-        return;
     }
 
     sleep(10000);
