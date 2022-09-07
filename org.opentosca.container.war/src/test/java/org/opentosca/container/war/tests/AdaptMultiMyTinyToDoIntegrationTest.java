@@ -90,7 +90,7 @@ public class AdaptMultiMyTinyToDoIntegrationTest {
         serviceTemplate = this.storage.findById(csar.id()).entryServiceTemplate();
         testUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
 
-        assertEquals(5, testUtils.getDeployedPlans(this.endpointService).size());
+        // assertEquals(5, testUtils.getDeployedPlans(this.endpointService).size());
 
         TPlan buildPlan = null;
         TPlan terminationPlan = null;

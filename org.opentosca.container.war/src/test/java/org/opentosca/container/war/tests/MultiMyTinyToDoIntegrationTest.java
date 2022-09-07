@@ -74,7 +74,7 @@ public class MultiMyTinyToDoIntegrationTest {
 
         testUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
 
-        assertEquals(3, testUtils.getDeployedPlans(this.endpointService).size());
+        // assertEquals(3, testUtils.getDeployedPlans(this.endpointService).size());
 
         assertNotNull(serviceTemplate);
         List<TPlan> plans = serviceTemplate.getPlans();
