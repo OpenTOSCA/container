@@ -39,6 +39,7 @@ import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_St
 import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_TerminationPlanOperation;
 import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_TestPlanOperation;
 import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_UpdatePlanOperation;
+import static org.opentosca.container.core.common.Settings.BUILD_PLANLANGUAGE;
 
 /**
  * <p>
@@ -113,12 +114,12 @@ public abstract class AbstractImporter {
             return plans;
         }
 
-        AbstractSimplePlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder(pluginRegistry);
+        AbstractSimplePlanBuilder bpelBuildPlanBuilder = new BPELBuildProcessBuilder(pluginRegistry);
         AbstractSimplePlanBuilder bpmnBuildPlanBuilder = new BPMNBuildProcessBuilder(pluginRegistry);
         final BPELSituationAwareBuildProcessBuilder sitAwareBuilder = new BPELSituationAwareBuildProcessBuilder(pluginRegistry);
 
         if (!sitAwareBuilder.buildPlans(csar, defs).isEmpty()) {
-            buildPlanBuilder = sitAwareBuilder;
+            bpelBuildPlanBuilder = sitAwareBuilder;
         }
 
         // FIXME: This does not work for me (Michael W. - 2018-02-19)
@@ -129,9 +130,9 @@ public abstract class AbstractImporter {
         // work for you
         //
         // if (!this.hasPolicies(defs)) {
-        // buildPlanBuilder = new BPELBuildProcessBuilder();
+        // bpelBuildPlanBuilder = new BPELBuildProcessBuilder();
         // } else {
-        // buildPlanBuilder = new BPELPolicyAwareBuildProcessBuilder();
+        // bpelBuildPlanBuilder = new BPELPolicyAwareBuildProcessBuilder();
         // }
 
         final AbstractSimplePlanBuilder terminationPlanBuilder = new BPELTerminationProcessBuilder(pluginRegistry);
@@ -146,8 +147,11 @@ public abstract class AbstractImporter {
         final AbstractSimplePlanBuilder updatePlanBuilder = new BPELUpdateProcessBuilder(pluginRegistry);
 
         if (ModelUtils.findServiceTemplateOperation(defs, OpenTOSCA_LifecycleInterface, OpenTOSCA_BuildPlanOperation) == null) {
-            plans.addAll(buildPlanBuilder.buildPlans(csar, defs));
-            plans.addAll(bpmnBuildPlanBuilder.buildPlans(csar, defs));
+            if (BUILD_PLANLANGUAGE.contains("BPEL")) {
+                plans.addAll(bpelBuildPlanBuilder.buildPlans(csar, defs));
+            } else {
+                plans.addAll(bpmnBuildPlanBuilder.buildPlans(csar, defs));
+            }
         }
 
         if (ModelUtils.findServiceTemplateOperation(defs, OpenTOSCA_LifecycleInterface, OpenTOSCA_TerminationPlanOperation) == null) {

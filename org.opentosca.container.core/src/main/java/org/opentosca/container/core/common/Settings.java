@@ -77,7 +77,8 @@ public class Settings {
     // Container Capabilities
     public final static String containerCapabilities = "http://opentosca/planportabilityapi/rest, http://opentosca/containerapi";
     public static final String TOSCA_META_FILE_REL_PATH = "TOSCA-Metadata" + File.separator + "TOSCA.meta";
-
+    // enable bpmn / bpel build plans
+    public static final String BUILD_PLANLANGUAGE = settings.getProperty("org.opentosca.planbuilder.buildplan.language", "BPEL");
     /**
      * @param setting - name of the setting
      * @return the value of setting with name <code>setting</code>
