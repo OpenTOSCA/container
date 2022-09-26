@@ -44,14 +44,9 @@ public class BPMNInvokerPluginHandler {
     private static final String suffixActivity = "_provisioning_activity";
 
     public BPMNInvokerPluginHandler() {
-        try {
-            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-            docFactory.setNamespaceAware(true);
-            this.bpmnSubprocessHandler = new BPMNSubprocessHandler();
-        } catch (final ParserConfigurationException e) {
-            LOG.error("Couldn't initialize ResourceHandler", e);
-            throw new RuntimeException(e);
-        }
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        docFactory.setNamespaceAware(true);
+        this.bpmnSubprocessHandler = new BPMNSubprocessHandler();
     }
 
     /**
@@ -175,16 +170,28 @@ public class BPMNInvokerPluginHandler {
                 final BPMNSubprocess transferFile = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
                 runScript.setInterfaceVariable("ContainerManagementInterface");
                 runScript.setOperation("runScript");
-                runScript.setInputParameterNames("Script");
-                runScript.setInputParameterValues("mkdir -p ~/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files");
+                runScript.setInputParameterNames("Script,DockerEngineURL,DockerEngineCertificate,ContainerID");
+                String containerIP = "VALUE!DataObjectReference_DataObject_DockerContainer_w1_0_provisioning_activity.Properties.ContainerID";
+                for (BPMNDataObject dataObject : buildPlan.getDataObjectsList()) {
+                    if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_ST) {
+                        for (String property : dataObject.getProperties()) {
+                            if (property.contains("ContainerID")) {
+                                LOG.info("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
+                                LOG.info(property);
+                                containerIP = property;
+                            }
+                        }
+                    }
+                }
+                runScript.setInputParameterValues("mkdir -p ~/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files,tcp://dind:2375,LEER," +containerIP);
                 runScript.setOutputParameterNames("");
                 runScript.setOutputParameterValues("");
                 subprocess.addTaskToSubprocess(runScript);
                 //transferFile.setHostingNodeTemplate("DockerContainer_w1_0");
                 transferFile.setInterfaceVariable("ContainerManagementInterface");
                 transferFile.setOperation("transferFile");
-                transferFile.setInputParameterNames("TargetAbsolutePath,SourceURLorLocalPath");
-                transferFile.setInputParameterValues("~/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files/HelloUwe.zip, ");
+                transferFile.setInputParameterNames("TargetAbsolutePath,SourceURLorLocalPath,DockerEngineURL,DockerEngineCertificate,ContainerID");
+                transferFile.setInputParameterValues("~/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files/HelloUwe.zip,LEER,tcp://dind:2375,LEER,"+containerIP);
                 transferFile.setOutputParameterNames("");
                 transferFile.setOutputParameterValues("");
                 subprocess.addTaskToSubprocess(transferFile);

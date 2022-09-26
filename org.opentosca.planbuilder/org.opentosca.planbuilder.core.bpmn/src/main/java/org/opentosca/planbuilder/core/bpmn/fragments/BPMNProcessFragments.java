@@ -133,12 +133,12 @@ public class BPMNProcessFragments {
         if (bpmnSubprocess.getInputParameterValues() != null) {
             callNodeOperation = callNodeOperation.replace("InputParamValuesToSet", bpmnSubprocess.getInputParameterValues());
         }
-        LOG.info("INPUTNUMAEA3:" + bpmnSubprocess.getOutputParameterNames());
+        LOG.info("INPUTNUMAEA3:");
         if (bpmnSubprocess.getOutputParameterNames() != null) {
-            callNodeOperation = callNodeOperation.replaceAll("OutputParamNamesToSet", bpmnSubprocess.getOutputParameterNames());
+            callNodeOperation = callNodeOperation.replace("OutputParamNamesToSet", bpmnSubprocess.getOutputParameterNames());
         }
         if (bpmnSubprocess.getOutputParameterValues() != null) {
-            callNodeOperation = callNodeOperation.replaceAll("OutputParamValuesToSet", bpmnSubprocess.getOutputParameterValues());
+            callNodeOperation = callNodeOperation.replace("OutputParamValuesToSet", bpmnSubprocess.getOutputParameterValues());
         }
 
         String[] original = callNodeOperation.split("</camunda:inputOutput>");

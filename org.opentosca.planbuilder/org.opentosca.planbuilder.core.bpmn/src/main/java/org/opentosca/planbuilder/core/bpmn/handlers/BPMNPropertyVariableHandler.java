@@ -25,15 +25,10 @@ public class BPMNPropertyVariableHandler {
 
     private final static String TOSCAPROPERTYSUFFIX = "toscaProperty";
 
-    private final BPMNPlanHandler planHandler;
-
     /**
      * Constructor
-     *
-     * @param planHandler a BuildPlanHandler for the class
      */
-    public BPMNPropertyVariableHandler(final BPMNPlanHandler planHandler) {
-        this.planHandler = planHandler;
+    public BPMNPropertyVariableHandler() {
     }
 
     /**
@@ -76,7 +71,7 @@ public class BPMNPropertyVariableHandler {
     public void initializePropertiesAsVariables(final Property2VariableMapping map, final BPMNSubprocess templatePlan,
                                                 final TServiceTemplate serviceTemplate) {
         if (templatePlan.getRelationshipTemplate() != null) {
-            // template corresponds to a relationshiptemplate
+            // template corresponds to a relationship template
             initPropsAsVarsInRelationship(map, templatePlan, serviceTemplate);
         } else {
             initPropsAsVarsInNode(map, templatePlan, serviceTemplate);

@@ -23,11 +23,7 @@ public class Handler {
     private BPMNSubprocessHandler bpmnSubprocessHandler;
 
     public Handler() {
-        try {
-            this.bpmnSubprocessHandler = new BPMNSubprocessHandler();
-        } catch (final ParserConfigurationException e) {
-            e.printStackTrace();
-        }
+        this.bpmnSubprocessHandler = new BPMNSubprocessHandler();
     }
 
     /**

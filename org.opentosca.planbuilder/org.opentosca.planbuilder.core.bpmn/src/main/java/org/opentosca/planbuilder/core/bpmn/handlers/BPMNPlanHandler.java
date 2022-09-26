@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder.core.bpmn.handlers;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -132,17 +133,36 @@ public class BPMNPlanHandler {
         ArrayList<String> visitedNodeIds = new ArrayList<>();
         BPMNSubprocess subprocess;
         for (final AbstractActivity activity : plan.getActivites()) {
+            LOG.debug("Generate empty subprocess for {}", activity.getId());
+            Collection<AbstractActivity> relationshipTemplateActivities = plan.getActivites();
             if (activity instanceof NodeTemplateActivity) {
                 subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(activity, plan);
-                visitedNodeIds.add(activity.getId());
                 LOG.debug("Generate empty subprocess for {}", activity.getId());
                 plan.addSubprocess(subprocess);
+
+                for (String nodeID : visitedNodeIds) {
+                    for (AbstractActivity activities : relationshipTemplateActivities) {
+                        if (activities instanceof RelationshipTemplateActivity) {
+                            String sourceID = ((RelationshipTemplateActivity) activities).getRelationshipTemplate().getSourceElement().getRef().getName();
+                            String targetID = ((RelationshipTemplateActivity) activities).getRelationshipTemplate().getTargetElement().getRef().getName();
+                            if (activity.getId().contains(sourceID) && nodeID.contains(targetID)) {
+                                //((RelationshipTemplateActivity) activity).getRelationshipTemplate().getSourceElement()
+                                subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(activities, plan);
+                                LOG.info("Generate empty subprocess for {}", activities.getId());
+                                plan.addSubprocess(subprocess);
+
+                            }
+                        }
+                    }
+                }
+                visitedNodeIds.add(activity.getId());
             }
-            if (activity instanceof RelationshipTemplateActivity) {
-                subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(activity, plan);
-                LOG.debug("Generate empty subprocess for {}", activity);
-                plan.addSubprocess(subprocess);
-            }
+            //if (activity instanceof RelationshipTemplateActivity) {
+            //((RelationshipTemplateActivity) activity).getRelationshipTemplate().getSourceElement()
+            //  subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(activity, plan);
+            // LOG.debug("Generate empty subprocess for {}", activity);
+            //    plan.addSubprocess(subprocess);
+            //}
         }
         /**
          for (final AbstractPlan.Link links : plan.getLinks()) {
