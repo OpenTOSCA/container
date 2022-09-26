@@ -576,7 +576,7 @@ public class TestUtils {
         for (TPlan plan : plans) {
             if (PlanType.fromString(plan.getPlanType()).equals(PlanType.BUILD)
                 && !plan.getId().toLowerCase().contains(OpenTOSCA_DefrostPlanOperation)
-                && plan.getId().toLowerCase().contains("buildplan") && plan.getPlanLanguage().contains("BPEL")) {
+                && plan.getId().toLowerCase().contains("buildplan") & plan.getPlanLanguage().contains("bpel")) {
                 return plan;
             }
         }

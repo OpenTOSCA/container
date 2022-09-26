@@ -108,8 +108,8 @@ public class ApacheWebAppIntegrationTest {
     }
 
     private void checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance) throws IOException {
-        Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
-        Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
+        Collection<NodeTemplateInstance> nodeTemplateInstances = this.serviceTemplateInstanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false).getNodeTemplateInstances();
+        Collection<RelationshipTemplateInstance> relationshipTemplateInstances = this.serviceTemplateInstanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false).getRelationshipTemplateInstances();
 
         assertEquals(4, nodeTemplateInstances.size());
         assertEquals(3, relationshipTemplateInstances.size());
