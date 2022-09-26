@@ -59,11 +59,14 @@ if (inputParamNames != null) {
 
 invokeParams = invokeParams + '}'
 invokeParams = invokeParams.replace(',}', '}')
+dataObjectOfNodeTemplate = 'ResultVariable' + hostNodeTemplateID + '_provisioning_activity'
+nodeInstanceURL = execution.getVariable(dataObjectOfNodeTemplate)
+nodeInstanceID = nodeInstanceURL.substring(nodeInstanceURL.lastIndexOf("/") + 1)
 
 println "invokeParams: $invokeParams"
 
-def template = '{"invocation-information" : {"csarID" : "$csarID", "serviceTemplateID" : "$serviceTemplateID", "serviceInstanceID" : "$serviceInstanceID", "nodeTemplateID" : "$nodeTemplateID", "interface" : "$nodeInterface", "operation" : "$operation"} , "params" : $params}'
-def binding = ["csarID": csarID, "serviceTemplateID": serviceTemplateID, "serviceInstanceID": serviceInstanceID, "nodeTemplateID": hostNodeTemplateID, "nodeInterface": nodeInterface, "operation": operation, "params": invokeParams]
+def template = '{"invocation-information" : {"csarID" : "$csarID", "serviceTemplateID" : "$serviceTemplateID", "serviceInstanceID" : "$serviceInstanceID", "nodeInstanceID" : "$nodeInstanceID", "nodeTemplateID" : "$nodeTemplateID", "interface" : "$nodeInterface", "operation" : "$operation"} , "params" : $params}'
+def binding = ["csarID": csarID, "serviceTemplateID": serviceTemplateID, "serviceInstanceID": serviceInstanceURL, "nodeInstanceID": nodeInstanceID, "nodeTemplateID": hostNodeTemplateID, "nodeInterface": nodeInterface, "operation": operation, "params": invokeParams]
 def engine = new groovy.text.SimpleTemplateEngine()
 def message = engine.createTemplate(template).make(binding).toString()
 
