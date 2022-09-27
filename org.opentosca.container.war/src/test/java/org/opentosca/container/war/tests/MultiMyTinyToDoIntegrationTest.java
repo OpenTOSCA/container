@@ -80,7 +80,7 @@ public class MultiMyTinyToDoIntegrationTest {
         List<TPlan> plans = serviceTemplate.getPlans();
         assertNotNull(plans);
 
-        TPlan buildPlan = testUtils.getBuildPlan(plans);
+        TPlan buildPlan = testUtils.getBPELBuildPlan(plans);
         TPlan scaleOutPlan = testUtils.getScaleOutPlan(plans);
         TPlan terminationPlan = testUtils.getTerminationPlan(plans);
 

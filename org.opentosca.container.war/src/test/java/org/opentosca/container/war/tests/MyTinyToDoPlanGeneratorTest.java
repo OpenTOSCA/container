@@ -85,14 +85,13 @@ public class MyTinyToDoPlanGeneratorTest {
         List<TPlan> plans = serviceTemplate.getPlans();
         assertNotNull(plans);
 
-        List<TPlan> buildPlans = testUtils.getBuildPlans(plans);
+        TPlan buildPlans = testUtils.getBuildPlan(plans);
         TPlan terminationPlan = testUtils.getTerminationPlan(plans);
         //assertEquals(2, buildPlans.size());
         assertNotNull("BPMN BuildPlan not found", buildPlans);
         assertNotNull("TerminationPlan not found", terminationPlan);
 
-        TPlan bpmnBuildPlan = buildPlans.stream().filter(tPlan -> tPlan.getPlanLanguage().equals(PlanLanguage.BPMN.toString())).findFirst().get();
-        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planInstanceService, this.planInvokerService, this.serviceTemplateInstanceService, csar, serviceTemplate, bpmnBuildPlan, this.getBuildPlanInputParameters());
+        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planInstanceService, this.planInvokerService, this.serviceTemplateInstanceService, csar, serviceTemplate, buildPlans, this.getBuildPlanInputParameters());
         assertNotNull(serviceTemplateInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
         this.checkStateAfterBuild(serviceTemplateInstance);

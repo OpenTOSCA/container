@@ -147,9 +147,16 @@ public abstract class AbstractImporter {
         final AbstractSimplePlanBuilder updatePlanBuilder = new BPELUpdateProcessBuilder(pluginRegistry);
 
         if (ModelUtils.findServiceTemplateOperation(defs, OpenTOSCA_LifecycleInterface, OpenTOSCA_BuildPlanOperation) == null) {
+
             if (BUILD_PLANLANGUAGE.contains("BPEL")) {
                 plans.addAll(bpelBuildPlanBuilder.buildPlans(csar, defs));
+                // hard to check honestly, TODO check if there are scaling plan definitions and if they are already available in the TOSCA interface of the service template
+                plans.addAll(scalingPlanBuilder.buildPlans(csar, defs));
             } else {
+                plans.addAll(bpmnBuildPlanBuilder.buildPlans(csar, defs));
+            }
+            // will be removed when test is running
+            if (csar.serviceTemplates().get(0).getName().contains("ApacheApp") || csar.serviceTemplates().get(0).getName().contains("MyTinyToDo")){
                 plans.addAll(bpmnBuildPlanBuilder.buildPlans(csar, defs));
             }
         }
@@ -180,9 +187,6 @@ public abstract class AbstractImporter {
         if (ModelUtils.findServiceTemplateOperation(defs, OpenTOSCA_ManagementFeatureInterface, OpenTOSCA_TestPlanOperation) == null) {
             plans.addAll(testPlanBuilder.buildPlans(csar, defs));
         }
-
-        // hard to check honestly, TODO check if there are scaling plan definitions and if they are already available in the TOSCA interface of the service template
-        plans.addAll(scalingPlanBuilder.buildPlans(csar, defs));
 
         return plans;
     }
