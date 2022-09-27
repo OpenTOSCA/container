@@ -16,11 +16,13 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTag;
 import org.eclipse.winery.model.tosca.TTopologyTemplate;
 
+import com.google.common.collect.Lists;
 import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
@@ -271,8 +273,28 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         final List<ScalingPlanDefinition> scalingPlanDefinitions =
             fetchScalingPlansDefinitions(serviceTemplate.getTopologyTemplate(), tagMap, csar);
 
-        for (final ScalingPlanDefinition scalingPlanDefinition : scalingPlanDefinitions) {
+        final List<ScalingPlanDefinition> filteredScalingPlanDefinitions = Lists.newArrayList();
 
+        if (serviceTemplate.getPlans() == null) {
+            // there are no plans anyway
+            filteredScalingPlanDefinitions.addAll(scalingPlanDefinitions);
+        } else {
+            for (ScalingPlanDefinition scalingPlanDefinition : scalingPlanDefinitions) {
+                boolean isAlreadyAvailable = false;
+
+                for (TPlan plan : serviceTemplate.getPlans()) {
+                    if (plan.getId().endsWith(scalingPlanDefinition.name)) {
+                        isAlreadyAvailable = true;
+                        break;
+                    }
+                }
+                if (!isAlreadyAvailable) {
+                    filteredScalingPlanDefinitions.add(scalingPlanDefinition);
+                }
+            }
+        }
+
+        for (final ScalingPlanDefinition scalingPlanDefinition : filteredScalingPlanDefinitions) {
             final BPELPlan bpelScaleOutProcess = this.createScalingPlan(csar, definitions, serviceTemplate, scalingPlanDefinition);
 
             scalingPlans.add(bpelScaleOutProcess);

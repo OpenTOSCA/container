@@ -187,7 +187,7 @@ public abstract class AbstractImporter {
         if (ModelUtils.findServiceTemplateOperation(defs, OpenTOSCA_ManagementFeatureInterface, OpenTOSCA_TestPlanOperation) == null) {
             plans.addAll(testPlanBuilder.buildPlans(csar, defs));
         }
-
+        
         return plans;
     }
 }

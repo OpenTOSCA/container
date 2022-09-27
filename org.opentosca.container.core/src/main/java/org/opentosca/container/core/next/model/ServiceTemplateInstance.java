@@ -34,7 +34,8 @@ import org.w3c.dom.Document;
     @NamedEntityGraph(name = "nodeTemplateInstances", includeAllAttributes = true, attributeNodes = {
         @NamedAttributeNode("nodeTemplateInstances"),
         @NamedAttributeNode("relationshipTemplateInstances"),
-        @NamedAttributeNode("planInstances")
+        @NamedAttributeNode("planInstances"),
+        @NamedAttributeNode("properties")
     })
 })
 public class ServiceTemplateInstance extends PersistenceObject {

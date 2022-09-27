@@ -34,7 +34,8 @@ import org.opentosca.container.core.next.xml.PropertyParser;
     @NamedEntityGraph(name = "propertiesAndOutgoing", includeAllAttributes = true, attributeNodes = {
         @NamedAttributeNode("properties"),
         @NamedAttributeNode("outgoingRelations"),
-        @NamedAttributeNode("incomingRelations")
+        @NamedAttributeNode("incomingRelations"),
+        @NamedAttributeNode("serviceTemplateInstance")
     })
 })
 public class NodeTemplateInstance extends PersistenceObject {
