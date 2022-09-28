@@ -80,7 +80,7 @@ public class MultiMyTinyToDoIntegrationTest {
         List<TPlan> plans = serviceTemplate.getPlans();
         assertNotNull(plans);
 
-        TPlan buildPlan = testUtils.getBPELBuildPlan(plans);
+        TPlan buildPlan = testUtils.getBuildPlan(plans);
         TPlan scaleOutPlan = testUtils.getScaleOutPlan(plans);
         TPlan terminationPlan = testUtils.getTerminationPlan(plans);
 
@@ -115,8 +115,8 @@ public class MultiMyTinyToDoIntegrationTest {
 
     private void checkStateAfterScaleOut(ServiceTemplateInstance serviceTemplateInstance) throws IOException {
         ServiceTemplateInstance serviceTemplateInstanceUpdated = this.serviceTemplateInstanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false);
-        Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstanceUpdated.getNodeTemplateInstances();
-        Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstanceUpdated.getRelationshipTemplateInstances();
+        Collection<NodeTemplateInstance> nodeTemplateInstances = this.serviceTemplateInstanceService.getServiceTemplateInstance(serviceTemplateInstanceUpdated.getId(), false).getNodeTemplateInstances();
+        Collection<RelationshipTemplateInstance> relationshipTemplateInstances = this.serviceTemplateInstanceService.getServiceTemplateInstance(serviceTemplateInstanceUpdated.getId(), false).getRelationshipTemplateInstances();
 
         assertEquals(5, nodeTemplateInstances.size());
         assertEquals(4, relationshipTemplateInstances.size());
@@ -139,8 +139,8 @@ public class MultiMyTinyToDoIntegrationTest {
     }
 
     private void checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance) throws IOException {
-        Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
-        Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
+        Collection<NodeTemplateInstance> nodeTemplateInstances = this.serviceTemplateInstanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false).getNodeTemplateInstances();
+        Collection<RelationshipTemplateInstance> relationshipTemplateInstances = this.serviceTemplateInstanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false).getRelationshipTemplateInstances();
 
         assertEquals(4, nodeTemplateInstances.size());
         assertEquals(3, relationshipTemplateInstances.size());

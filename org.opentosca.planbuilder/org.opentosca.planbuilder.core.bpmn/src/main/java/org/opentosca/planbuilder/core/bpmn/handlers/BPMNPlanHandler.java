@@ -1,7 +1,7 @@
 package org.opentosca.planbuilder.core.bpmn.handlers;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.Objects;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -130,80 +130,43 @@ public class BPMNPlanHandler {
      * DATA_OBJECT_REL. The fault subprocess is added in the BPMNFinalizer.
      */
     public void initializeBPMNSkeleton(final BPMNPlan plan) {
-        ArrayList<String> visitedNodeIds = new ArrayList<>();
+        ArrayList<String> visitedNodesID = new ArrayList<>();
         BPMNSubprocess subprocess;
+        HashMap<String, Integer> relationshipVisitedMap = new HashMap<>();
         for (final AbstractActivity activity : plan.getActivites()) {
             LOG.debug("Generate empty subprocess for {}", activity.getId());
-            Collection<AbstractActivity> relationshipTemplateActivities = plan.getActivites();
             if (activity instanceof NodeTemplateActivity) {
                 subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(activity, plan);
-                LOG.debug("Generate empty subprocess for {}", activity.getId());
+                LOG.debug("Generate empty node template subprocess for {}", activity.getId());
                 plan.addSubprocess(subprocess);
-
-                for (String nodeID : visitedNodeIds) {
-                    for (AbstractActivity activities : relationshipTemplateActivities) {
-                        if (activities instanceof RelationshipTemplateActivity) {
-                            String sourceID = ((RelationshipTemplateActivity) activities).getRelationshipTemplate().getSourceElement().getRef().getName();
-                            String targetID = ((RelationshipTemplateActivity) activities).getRelationshipTemplate().getTargetElement().getRef().getName();
-                            if (activity.getId().contains(sourceID) && nodeID.contains(targetID)) {
-                                //((RelationshipTemplateActivity) activity).getRelationshipTemplate().getSourceElement()
-                                subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(activities, plan);
-                                LOG.info("Generate empty subprocess for {}", activities.getId());
-                                plan.addSubprocess(subprocess);
-
-                            }
-                        }
-                    }
+                visitedNodesID.add(activity.getId());
+                for (final AbstractPlan.Link links : plan.getLinks()) {
+                    AbstractActivity source = links.getSrcActiv();
+                    AbstractActivity target = links.getTrgActiv();
+                    handleRelationshipTemplate(plan, visitedNodesID, relationshipVisitedMap, activity, source, target);
+                    handleRelationshipTemplate(plan, visitedNodesID, relationshipVisitedMap, activity, target, source);
                 }
-                visitedNodeIds.add(activity.getId());
             }
-            //if (activity instanceof RelationshipTemplateActivity) {
-            //((RelationshipTemplateActivity) activity).getRelationshipTemplate().getSourceElement()
-            //  subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(activity, plan);
-            // LOG.debug("Generate empty subprocess for {}", activity);
-            //    plan.addSubprocess(subprocess);
-            //}
         }
-        /**
-         for (final AbstractPlan.Link links : plan.getLinks()) {
-         AbstractActivity source = links.getSrcActiv();
-         AbstractActivity target = links.getTrgActiv();
-         BPMNSubprocess subprocess;
-         if (source instanceof NodeTemplateActivity) {
-         ((RelationshipTemplateActivity) target).setVisitedCounter();
-         if (!visitedNodeIds.contains(source.getId())) {
-         subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(source, plan);
-         visitedNodeIds.add(source.getId());
-         LOG.debug("Generate empty subprocess for {}", source);
-         plan.addSubprocess(subprocess);
-         }
-         // each relationship template must be visited twice after that
-         // we can add it otherwise one of the instance url is unknown
-         if (((RelationshipTemplateActivity) target).getVisitedCounter() == 2) {
-         subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(target, plan);
-         LOG.debug("Generate empty subprocess for {}", target);
-         plan.addSubprocess(subprocess);
-         }
-         }
-         if (source instanceof RelationshipTemplateActivity) {
-         ((RelationshipTemplateActivity) source).setVisitedCounter();
-         if (!visitedNodeIds.contains(target.getId())) {
-         subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(target, plan);
-         visitedNodeIds.add(target.getId());
-         LOG.debug("Generate empty subprocess for target node {}", target);
-         plan.addSubprocess(subprocess);
-         }
+    }
 
-         // each relationship template must be visited twice after that
-         // we can add it otherwise one of the instance url is unknown
-         if (((RelationshipTemplateActivity) source).getVisitedCounter() == 2) {
-         subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(source, plan);
-         LOG.debug("Generate empty subprocess for {}", source);
-         plan.addSubprocess(subprocess);
-         }
-         }
-         }
-         */
+    /**
+     * Adds the subprocess to the plan if both node templates are already in the plan
+     */
+    public void handleRelationshipTemplate(BPMNPlan plan, ArrayList<String> visitedNodeIds, HashMap<String, Integer> relationshipVisitedMap, AbstractActivity activity, AbstractActivity source, AbstractActivity target) {
+        BPMNSubprocess subprocess;
+        if (source instanceof RelationshipTemplateActivity && visitedNodeIds.contains(target.getId()) && target.getId().contains(activity.getId())) {
+            if (relationshipVisitedMap.containsKey(source.getId())) {
+                if (relationshipVisitedMap.get(source.getId()) == 0) {
+                    LOG.debug("Generate empty relationship template subprocess for {}", source.getId());
+                    relationshipVisitedMap.put(source.getId(), relationshipVisitedMap.get(source.getId()) + 1);
+                    subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(source, plan);
+                    plan.addSubprocess(subprocess);
+                }
+            } else {
+                relationshipVisitedMap.put(source.getId(), 0);
+            }
+        }
     }
 
     /**
