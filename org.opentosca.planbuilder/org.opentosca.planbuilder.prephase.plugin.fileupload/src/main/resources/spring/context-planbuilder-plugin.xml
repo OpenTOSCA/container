@@ -3,9 +3,8 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <description>
-    Register the beans within the planbuilder monitoring prephase plugin
+    Register the beans within the planbuilder monitoring postphase plugin
   </description>
 
   <bean class="org.opentosca.planbuilder.prephase.plugin.fileupload.bpel.BPELPrePhasePlugin" />
-    <bean class="org.opentosca.planbuilder.prephase.plugin.fileupload.bpmn.BPMNPrePhasePlugin" />
 </beans>
