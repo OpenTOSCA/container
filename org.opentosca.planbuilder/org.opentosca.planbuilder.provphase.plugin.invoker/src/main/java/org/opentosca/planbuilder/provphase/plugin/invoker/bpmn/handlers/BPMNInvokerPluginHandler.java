@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TArtifactReference;
 import org.eclipse.winery.model.tosca.TInterface;
@@ -20,7 +19,7 @@ import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Properties;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
-import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
+
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNSubprocessHandler;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
@@ -32,7 +31,6 @@ import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocessType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 public class BPMNInvokerPluginHandler {
@@ -68,7 +66,7 @@ public class BPMNInvokerPluginHandler {
 
         // Main execution of provisioning function inside this method
         if (isNodeTemplate) {
-
+            LOG.debug("Create node operation task inside subprocess for operation {}", operationName);
             // build param inputs for node operation
             StringBuilder inputParamNames = new StringBuilder();
             StringBuilder inputParamValues = new StringBuilder();
@@ -78,23 +76,13 @@ public class BPMNInvokerPluginHandler {
             subprocess.setHostingNodeTemplate(templateId);
             BPMNPlan buildPlan = subprocess.getBuildPlan();
             // set input param names and values
-            System.out.println("INVOKER" + templateId.getId());
             for (Map.Entry<String, Variable> entry : internalExternalPropsInput.entrySet()) {
-                LOG.info(entry.getValue().getVariableName());
-                System.out.println(entry.getKey());
                 String parameterValue = entry.getValue().getVariableName();
                 if (entry.getValue().getVariableName().contains("toscaProperty")) {
                     String removeToscaProperty = parameterValue.split("_toscaProperty")[0];
-                    //LOG.info("removeToscaProperty: {}", removeToscaProperty);
-                    //LOG.info("lastIndexCSAR: {}", parameterValue.lastIndexOf(context.getCSARFileName()) + 1);
-                    //LOG.info("SeervicetemplateName: {}", context.getSubprocessElement().getBuildPlan().getServiceTemplate().getName());
                     String serviceTemplateName = context.getSubprocessElement().getBuildPlan().getServiceTemplate().getName();
-                    //LOG.info("CSAR NAME {}", context.getCSARFileName());
                     String propertyToSearchFromDataObject = removeToscaProperty.substring(0, parameterValue.lastIndexOf(context.getSubprocessElement().getBuildPlan().getServiceTemplate().getName()) + serviceTemplateName.length() + 1);
-                    // LOG.info("propertyToSearchFromDataObject: {}", propertyToSearchFromDataObject);
                     removeToscaProperty = removeToscaProperty.split(propertyToSearchFromDataObject)[1];
-                    //LOG.info("split after CSAR: {}", removeToscaProperty);
-                    //LOG.info("lastIndexOfUnderScore: {}", removeToscaProperty.lastIndexOf("_"));
                     String nodeTemplateIdToFetchDataObject = removeToscaProperty.substring(0, removeToscaProperty.lastIndexOf("_"));
                     LOG.info("nodeTemplateIdToFetchDataObject: {}", nodeTemplateIdToFetchDataObject);
                     String propertyOfDataObject = removeToscaProperty.substring(removeToscaProperty.lastIndexOf("_") + 1).trim();
@@ -108,25 +96,14 @@ public class BPMNInvokerPluginHandler {
                             if (lastSuffixCut.equals(suffixActivity)) {
                                 for (String property : nodeDataObject.getProperties()) {
                                     String propertyName = property.split("#")[0];
-                                    LOG.info("propertyName {}", propertyName);
-                                    LOG.info("propertyName Size {}", propertyName.length());
-                                    LOG.info("propertyOfDataObject {}", propertyOfDataObject);
-                                    LOG.info("pD Size {}", propertyOfDataObject.length());
                                     if (propertyName.equals(propertyOfDataObject)) {
-                                        LOG.info("GEHT HIER REIN");
                                         String propertyValue = property.split("#")[1];
-                                        if (propertyValue.startsWith("G")) {
-                                            LOG.info("GEHT HIER REING");
-                                            propertyValue = propertyValue.replaceFirst("G", "");
-                                        }
                                         // propertyValue = "String!" + propertyValue;
                                         propertyValue = "VALUE!" + "DataObjectReference_" + nodeDataObject.getId() + ".Properties." + propertyName;
                                         if (inputParamNames.toString().equals("") && inputParamValues.toString().equals("")) {
-                                            LOG.info("GEHT HIER REIN3");
                                             inputParamNames.append(entry.getKey());
                                             inputParamValues.append(propertyValue);
                                         } else {
-                                            LOG.info("GEHT HIER REIN4");
                                             inputParamNames.append(",").append(entry.getKey());
                                             inputParamValues.append(",").append(propertyValue);
                                         }
@@ -162,10 +139,8 @@ public class BPMNInvokerPluginHandler {
             final BPMNSubprocess setPreState = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.SET_ST_STATE);
             setPreState.setInstanceState(preState);
             subprocess.addTaskToSubprocess(setPreState);
-            LOG.info("###############################");
-            LOG.info(templateId.getId());
+            // will be removed by pre phase plugin
             if (templateId.getId().contains("ApacheApp")) {
-                LOG.info("ERSTELLE transfert");
                 final BPMNSubprocess runScript = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
                 final BPMNSubprocess transferFile = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
                 runScript.setInterfaceVariable("ContainerManagementInterface");
@@ -176,14 +151,12 @@ public class BPMNInvokerPluginHandler {
                     if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_ST) {
                         for (String property : dataObject.getProperties()) {
                             if (property.contains("ContainerID")) {
-                                LOG.info("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
-                                LOG.info(property);
                                 containerIP = property;
                             }
                         }
                     }
                 }
-                runScript.setInputParameterValues("mkdir -p ~/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files,tcp://dind:2375,LEER," +containerIP);
+                runScript.setInputParameterValues("mkdir -p ~/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files,tcp://dind:2375,LEER," + containerIP);
                 runScript.setOutputParameterNames("");
                 runScript.setOutputParameterValues("");
                 subprocess.addTaskToSubprocess(runScript);
@@ -191,25 +164,21 @@ public class BPMNInvokerPluginHandler {
                 transferFile.setInterfaceVariable("ContainerManagementInterface");
                 transferFile.setOperation("transferFile");
                 transferFile.setInputParameterNames("TargetAbsolutePath,SourceURLorLocalPath,DockerEngineURL,DockerEngineCertificate,ContainerID");
-                transferFile.setInputParameterValues("~/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files/HelloUwe.zip,LEER,tcp://dind:2375,LEER,"+containerIP);
+                transferFile.setInputParameterValues("~/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files/HelloUwe.zip,/csars/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/content/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files/HelloUwe.zip,tcp://dind:2375,LEER," + containerIP);
                 transferFile.setOutputParameterNames("");
                 transferFile.setOutputParameterValues("");
                 subprocess.addTaskToSubprocess(transferFile);
             }
+            createNodeOperationTask.setInterfaceVariable(interfaceName);
+            createNodeOperationTask.setInputParameterNames(inputParamNames.toString());
+            createNodeOperationTask.setInputParameterValues(inputParamValues.toString());
+            createNodeOperationTask.setOutputParameterNames(outputParamNames.toString());
+            createNodeOperationTask.setOutputParameterValues(outputParamValues.toString());
             subprocess.addTaskToSubprocess(createNodeOperationTask);
             boolean hasNodeOperation = false;
 
             for (BPMNSubprocess sub : context.getSubprocessElement().getSubprocessBPMNSubprocess()) {
                 if (sub.getSubprocessType() == (BPMNSubprocessType.CALL_NODE_OPERATION_TASK)) {
-                    if (!sub.getOperation().equals("runScript") && !sub.getOperation().equals("transferFile")) {
-                        sub.setInterfaceVariable(interfaceName);
-                        sub.setOperation(operationName);
-                        sub.setInputParameterNames(inputParamNames.toString());
-
-                        sub.setInputParameterValues(inputParamValues.toString());
-                        sub.setOutputParameterNames(outputParamNames.toString());
-                        sub.setOutputParameterValues(outputParamValues.toString());
-                    }
                     for (BPMNDataObject dataObject : buildPlan.getDataObjectsList()) {
                         if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_ST) {
                             for (String property : dataObject.getProperties()) {
@@ -251,7 +220,7 @@ public class BPMNInvokerPluginHandler {
                                                  final PropertyVariable sshUser, final PropertyVariable sshKey,
                                                  final TNodeTemplate infraTemplate,
                                                  final Element elementToAppendTo) throws Exception {
-        LOG.debug("Handling DA " + ref.getReference());
+        LOG.info("Handling DA with reference {}", ref.getReference());
 
         if (Objects.isNull(serverIp)) {
             LOG.error("Unable to upload artifact with server IP equal to null.");
@@ -285,25 +254,6 @@ public class BPMNInvokerPluginHandler {
         final Variable containerAPIAbsoluteURIVar = new Variable(containerAPIAbsoluteURIXPathQuery);
 
         //    templateContext.createGlobalStringVariable(containerAPIAbsoluteURIVarName, "");
-
-        /*
-        try {
-            Node assignNode =
-                loadAssignXpathQueryToStringVarFragmentAsNode("assign" + templateContext.getIdForNames(),
-                    containerAPIAbsoluteURIXPathQuery,
-                    containerAPIAbsoluteURIVar.getVariableName());
-            assignNode = templateContext.importNode(assignNode);
-
-            elementToAppendTo.appendChild(assignNode);
-        } catch (final IOException e) {
-            LOG.error("Couldn't read internal file", e);
-            return false;
-        } catch (final SAXException e) {
-            LOG.error("Couldn't parse internal xml file");
-            return false;
-        }
-         */
-
         // create the folder the file must be uploaded into and upload the file afterwards
         //final String mkdirScriptVarName = "mkdirScript" + templateContext.getIdForNames();
         final Variable mkdirScriptVar = new Variable(ubuntuFolderPathScript);
@@ -325,7 +275,7 @@ public class BPMNInvokerPluginHandler {
                     runScriptRequestInputParams.put(serverIp.getPropertyName(), serverIp);
                 }
                 this.handle(templateContext, infraTemplate, true, "runScript", "ContainerManagementInterface",
-                    runScriptRequestInputParams, new HashMap<String, Variable>(), elementToAppendTo);
+                    runScriptRequestInputParams, new HashMap<>(), elementToAppendTo);
 
                 // transfer the file
                 if (transferFileInputParams.contains(serverIp.getPropertyName())) {
