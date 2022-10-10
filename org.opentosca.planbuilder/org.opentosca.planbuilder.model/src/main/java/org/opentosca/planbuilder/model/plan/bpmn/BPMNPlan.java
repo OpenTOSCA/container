@@ -22,7 +22,6 @@ import org.w3c.dom.Element;
 public class BPMNPlan extends AbstractPlan {
     public static final String bpmnNamespace = "http://www.omg.org/spec/BPMN/20100524/MODEL";
     // xml document
-
     private int outerFlowCounter = 0;
     private int innerFlowCounter = 0;
     private int errorOuterFlowCounter = 0;
@@ -43,6 +42,10 @@ public class BPMNPlan extends AbstractPlan {
     private HashMap<String, String> propertiesOutputParameter = new HashMap<>();
     private ArrayList<BPMNSubprocess> flowElements = new ArrayList<>();
 
+    public BPMNPlan(String id, PlanType type, TDefinitions definitions, TServiceTemplate serviceTemplate, Collection<AbstractActivity> activities, Collection<AbstractPlan.Link> links) {
+        super(id, type, definitions, serviceTemplate, activities, links);
+    }
+
     public ArrayList<BPMNSubprocess> getFlowElements() {
         return flowElements;
     }
@@ -57,10 +60,6 @@ public class BPMNPlan extends AbstractPlan {
 
     public void setErrorFlowElements(ArrayList<BPMNSubprocess> flow) {
         this.errorFlowElements = flow;
-    }
-
-    public BPMNPlan(String id, PlanType type, TDefinitions definitions, TServiceTemplate serviceTemplate, Collection<AbstractActivity> activities, Collection<AbstractPlan.Link> links) {
-        super(id, type, definitions, serviceTemplate, activities, links);
     }
 
     public void setBpmnDocument(final Document bpmnProcessDocument) {

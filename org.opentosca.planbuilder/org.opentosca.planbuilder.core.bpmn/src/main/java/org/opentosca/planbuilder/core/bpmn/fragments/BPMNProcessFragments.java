@@ -34,7 +34,7 @@ public class BPMNProcessFragments {
     private final static Logger LOG = LoggerFactory.getLogger(BPMNProcessFragments.class);
 
     private final DocumentBuilder docBuilder;
-    protected static final String ServiceInstanceURLVarKeyword = "ServiceInstanceURL";
+    protected final String ServiceInstanceURLVarKeyword = "ServiceInstanceURL";
 
     /**
      * Constructor
@@ -157,8 +157,10 @@ public class BPMNProcessFragments {
                     inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append("String!" + inputParameterValue).append("</camunda:inputParameter>");
                 } else if (inputParameterName.equals("ImageLocation") && (bpmnSubprocess.getParentProcess().getDeploymentArtifactString() != null)) {
                     inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append(bpmnSubprocess.getParentProcess().getDeploymentArtifactString()).append("</camunda:inputParameter>");
-                } else {
+                } else if (inputParameterValue.startsWith("VALUE")) {
                     inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append(inputParameterValue).append("</camunda:inputParameter>");
+                } else {
+                    inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append("String!" + inputParameterValue).append("</camunda:inputParameter>");
                 }
                 counter++;
             }

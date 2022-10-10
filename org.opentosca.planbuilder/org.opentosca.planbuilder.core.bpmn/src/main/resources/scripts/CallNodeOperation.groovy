@@ -25,15 +25,17 @@ if (inputParamNames != null) {
         if (inputParamNames[i] != null) {
             def paramName = 'Input_' + inputParamNames[i]
             def paramValue = execution.getVariable(paramName)
-
+            def compositeParameterValue = ""
             if (paramValue != null) {
                 def type = paramValue.split("!")[0]
+                if (paramValue.contains("#")) {
+                    def compositeParameterType = paramValue.split("#")[1].split("!")[0]
+                    compositeParameterValue = paramValue.split("#")[1].split("!")[1]
+                    type = type.split("#")[0]
+                }
                 if (type == 'String') {
                     paramValue = paramValue.split("!")[1]
-                    if (paramName.contains("Script")) {
-                        paramValue = "sleep 1 && " + paramValue
-                    }
-                    paramValue = paramValue.replaceAll('\u0026', '&')
+                    paramValue = paramValue.replaceAll('u0026', '&')
                     paramValue = paramValue.replace('->', ',')
                 }
 
@@ -45,13 +47,13 @@ if (inputParamNames != null) {
                 }
 
                 if (type == 'VALUE') {
-                    def propertyValue = paramValue.split("!")[1]
+                    def propertyValue = paramValue.split("!")[1].split("#")[0]
                     paramValue = execution.getVariable(propertyValue)
                 }
                 println "Parameter ${inputParamNames[i]} is (maybe) assigned with value $paramValue from $paramName: "
                 if (paramValue != "LEER" && paramValue != null) {
                     println "Parameter ${inputParamNames[i]} is assigned with value $paramValue from $paramName: "
-                    invokeParams = invokeParams + '"' + inputParamNames[i] + '" : "' + paramValue + '",'
+                    invokeParams = invokeParams + '"' + inputParamNames[i] + '" : "' + paramValue + compositeParameterValue + '",'
                 }
             }
         }

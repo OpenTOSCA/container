@@ -184,6 +184,7 @@ public class BPMNSubprocessHandler {
     public ArrayList<String> computeInputParametersBasedTopology(TTopologyTemplate topologyTemplate) {
         ArrayList<String> inputParameters = new ArrayList<>();
         inputParameters.add("instanceDataAPIUrl");
+        inputParameters.add("containerApiAddress");
         inputParameters.add("OpenTOSCAContainerAPIServiceInstanceURL");
         inputParameters.add("CorrelationID");
         for (TNodeTemplate nodeTemplate : topologyTemplate.getNodeTemplates()) {

@@ -67,6 +67,18 @@ public class BPMNSubprocess {
     private double x;
     private double y;
 
+    public BPMNSubprocess(AbstractActivity activity, BPMNSubprocessType subprocessType, String id) {
+        this.activity = activity;
+        this.bpmnSubprocessType = subprocessType;
+        this.id = id;
+    }
+
+    public BPMNSubprocess(BPMNSubprocessType subprocessType, String id) {
+        this.activity = null;
+        this.bpmnSubprocessType = subprocessType;
+        this.id = id;
+    }
+
     public ArrayList<BPMNSubprocess> getFlowElements() {
         return flowElements;
     }
@@ -113,18 +125,6 @@ public class BPMNSubprocess {
 
     public void setDeploymentArtifactString(String deploymentArtifactString) {
         this.deploymentArtifactString = deploymentArtifactString;
-    }
-
-    public BPMNSubprocess(AbstractActivity activity, BPMNSubprocessType subprocessType, String id) {
-        this.activity = activity;
-        this.bpmnSubprocessType = subprocessType;
-        this.id = id;
-    }
-
-    public BPMNSubprocess(BPMNSubprocessType subprocessType, String id) {
-        this.activity = null;
-        this.bpmnSubprocessType = subprocessType;
-        this.id = id;
     }
 
     @Override

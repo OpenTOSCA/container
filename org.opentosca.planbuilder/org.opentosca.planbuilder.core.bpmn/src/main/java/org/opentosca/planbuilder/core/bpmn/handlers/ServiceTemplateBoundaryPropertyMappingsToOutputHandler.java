@@ -49,10 +49,10 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
      * @param propMap     a PropMap which contains the names of the different template property variables inside the
      *                    plan
      */
-    public HashMap<String,String> initializeBuildPlanOutput(final TDefinitions definitions, final BPMNPlan buildPlan,
-                                                       final Property2VariableMapping propMap,
-                                                       TServiceTemplate serviceTemplate) {
-        HashMap<String,String> propertyOutput = new HashMap<>();
+    public HashMap<String, String> initializeBuildPlanOutput(final TDefinitions definitions, final BPMNPlan buildPlan,
+                                                             final Property2VariableMapping propMap,
+                                                             TServiceTemplate serviceTemplate) {
+        HashMap<String, String> propertyOutput = new HashMap<>();
         final ServiceTemplatePropertyToPropertyMapping mapping = getMappings(serviceTemplate, propMap);
         if (mapping == null) {
             ServiceTemplateBoundaryPropertyMappingsToOutputHandler.LOG.warn("Couldn't generate mapping, BuildPlan Output may be empty");
@@ -66,12 +66,12 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
      * Generates a copy with a literal value to the outputmessage of the given BuildPlan. The literal consists of the
      * mappings given, where the propertyMap is used identify the propertyVariables inside the buildPlan
      *
-     * @param propMap   a PropertyMap containing the variable names of the properties
-     * @param mapping   the mappings from serviceTemplate Properties to template properties
+     * @param propMap a PropertyMap containing the variable names of the properties
+     * @param mapping the mappings from serviceTemplate Properties to template properties
      */
-    private HashMap<String,String> initializeAssignOutput(final Property2VariableMapping propMap,
-                                                     final ServiceTemplatePropertyToPropertyMapping mapping,
-                                                     TServiceTemplate serviceTemplate) {
+    private HashMap<String, String> initializeAssignOutput(final Property2VariableMapping propMap,
+                                                           final ServiceTemplatePropertyToPropertyMapping mapping,
+                                                           TServiceTemplate serviceTemplate) {
         HashMap<String, String> propertyOutput = new HashMap<>();
 
         final List<String> failedServiceTemplateProperties = new ArrayList<>();
@@ -517,7 +517,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
             return null;
         }
 
-        protected String getTargetPropertyRef(final String serviceTemplateLocalName){
+        protected String getTargetPropertyRef(final String serviceTemplateLocalName) {
             for (final String[] element : this.internalArray) {
                 if (element[0] != null && element[0].equals(serviceTemplateLocalName)) {
                     return element[3];

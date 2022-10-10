@@ -38,8 +38,8 @@ public class BPMNInvokerPluginHandler {
     private final static Logger LOG = LoggerFactory.getLogger(org.opentosca.planbuilder.provphase.plugin.invoker.bpmn.handlers.BPMNInvokerPluginHandler.class);
 
     private final BPMNSubprocessHandler bpmnSubprocessHandler;
-    protected static final String ServiceInstanceURLVarKeyword = "ServiceInstanceURL";
-    private static final String suffixActivity = "_provisioning_activity";
+    private final String ServiceInstanceURLVarKeyword = "ServiceInstanceURL";
+    private final String suffixActivity = "_provisioning_activity";
 
     public BPMNInvokerPluginHandler() {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -79,7 +79,8 @@ public class BPMNInvokerPluginHandler {
             for (Map.Entry<String, Variable> entry : internalExternalPropsInput.entrySet()) {
 
                 String parameterValue = entry.getValue().getVariableName();
-                parameterValue = parameterValue.replace("&", "\u0026");
+                parameterValue = parameterValue.replace("&", "u0026");
+                LOG.info("parameterName {}", entry.getKey());
                 LOG.info("parameterValue: {}", parameterValue);
                 if (entry.getValue().getVariableName().contains("toscaProperty")) {
                     String removeToscaProperty = parameterValue.split("_toscaProperty")[0];
@@ -117,10 +118,10 @@ public class BPMNInvokerPluginHandler {
                     }
                 } else if (inputParamNames.toString().equals("") && inputParamValues.toString().equals("")) {
                     inputParamNames.append(entry.getKey());
-                    inputParamValues.append(entry.getValue().getVariableName());
+                    inputParamValues.append(parameterValue);
                 } else {
                     inputParamNames.append(",").append(entry.getKey());
-                    inputParamValues.append(",").append(entry.getValue().getVariableName());
+                    inputParamValues.append(",").append(parameterValue);
                 }
             }
 
@@ -142,37 +143,7 @@ public class BPMNInvokerPluginHandler {
             final BPMNSubprocess setPreState = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.SET_ST_STATE);
             setPreState.setInstanceState(preState);
             subprocess.addTaskToSubprocess(setPreState);
-            // will be removed by pre phase plugin
-            
-            if (templateId.getId().contains("ApacheApp")) {
-                final BPMNSubprocess runScript = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
-                final BPMNSubprocess transferFile = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
-                runScript.setInterfaceVariable("ContainerManagementInterface");
-                runScript.setOperation("runScript");
-                runScript.setInputParameterNames("Script,DockerEngineURL,DockerEngineCertificate,ContainerID");
-                String containerIP = "VALUE!DataObjectReference_DataObject_DockerContainer_w1_0_provisioning_activity.Properties.ContainerID";
-                for (BPMNDataObject dataObject : buildPlan.getDataObjectsList()) {
-                    if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_ST) {
-                        for (String property : dataObject.getProperties()) {
-                            if (property.contains("ContainerID")) {
-                                containerIP = property;
-                            }
-                        }
-                    }
-                }
-                runScript.setInputParameterValues("mkdir -p ~/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files,tcp://dind:2375,LEER," + containerIP);
-                runScript.setOutputParameterNames("");
-                runScript.setOutputParameterValues("");
-                subprocess.addTaskToSubprocess(runScript);
-                //transferFile.setHostingNodeTemplate("DockerContainer_w1_0");
-                transferFile.setInterfaceVariable("ContainerManagementInterface");
-                transferFile.setOperation("transferFile");
-                transferFile.setInputParameterNames("TargetAbsolutePath,SourceURLorLocalPath,DockerEngineURL,DockerEngineCertificate,ContainerID");
-                transferFile.setInputParameterValues("~/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files/HelloUwe.zip,http://IP:1337/csars/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/content/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files/HelloUwe.zip,tcp://dind:2375,LEER," + containerIP);
-                transferFile.setOutputParameterNames("");
-                transferFile.setOutputParameterValues("");
-                subprocess.addTaskToSubprocess(transferFile);
-            }
+
             createNodeOperationTask.setInterfaceVariable(interfaceName);
             createNodeOperationTask.setInputParameterNames(inputParamNames.toString());
             createNodeOperationTask.setInputParameterValues(inputParamValues.toString());
@@ -243,13 +214,17 @@ public class BPMNInvokerPluginHandler {
         //templateContext.createGlobalStringVariable(ubuntuFilePathVarName, ubuntuFilePath);
         // the folder which has to be created on the ubuntu vm
         final String ubuntuFolderPathScript = "sleep 1 && mkdir -p " + fileReferenceToFolder(ubuntuFilePath);
-
-        //final String containerAPIAbsoluteURIXPathQuery =
+        String containerApi = "VALUE!";
+        // final String containerAPIAbsoluteURIXPathQuery =
         //    this.bpelFrags.createXPathQueryForURLRemoteFilePath(ref.getReference());
         //final String containerAPIAbsoluteURIVarName = "containerApiFileURL" + templateContext.getIdForNames();
-
-        final String containerAPIAbsoluteURIXPathQuery = "string(concat(substring-before($input.payload//*[local-name()='instanceDataAPIUrl']/text(),'/servicetemplates'),'/content/"
-            + ref.getReference() + "'))";
+        for (BPMNDataObject dataObject : templateContext.getSubprocessElement().getBuildPlan().getDataObjectsList()) {
+            if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_INOUT) {
+                containerApi += "DataObjectReference_" + dataObject.getId() + ".Properties.containerApiAddress";
+            }
+        }
+        final String containerAPIAbsoluteURIXPathQuery = containerApi + "#String!/csars/" + templateContext.getCsar().id() + "/content/"
+            + ref.getReference();
         /*
          * create a string variable with a complete URL to the file we want to upload
          */

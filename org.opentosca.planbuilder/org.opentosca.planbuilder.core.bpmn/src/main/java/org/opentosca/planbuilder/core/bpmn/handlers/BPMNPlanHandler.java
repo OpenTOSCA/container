@@ -31,8 +31,8 @@ public class BPMNPlanHandler {
     private final DocumentBuilder documentBuilder;
     private final BPMNSubprocessHandler bpmnSubprocessHandler;
     private final BPMNProcessFragments processFragments;
-    final static String xmlns = "http://www.w3.org/2000/xmlns/";
-    final static String[][] namespaces = {
+    final String xmlns = "http://www.w3.org/2000/xmlns/";
+    final String[][] namespaces = {
         {"xmlns:bpmn", "http://www.omg.org/spec/BPMN/20100524/MODEL"},
         {"xmlns:bpmndi", "http://www.omg.org/spec/BPMN/20100524/DI"},
         {"xmlns:dc", "http://www.omg.org/spec/DD/20100524/DC"},
@@ -42,7 +42,7 @@ public class BPMNPlanHandler {
         {"xmlns:qa", "http://some-company/schema/bpmn/qa"},
     };
 
-    public static final String[] BPMN_SCRIPT_NAMES = {"CreateServiceInstance",
+    public final String[] BPMN_SCRIPT_NAMES = {"CreateServiceInstance",
         "CreateNodeInstance",
         "CreateRelationshipInstance",
         "CallNodeOperation",

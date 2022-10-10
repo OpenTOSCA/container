@@ -8,6 +8,13 @@ for (int i in 0..propertiesNames.size() - 1) {
     if (!propertiesNames[i].contains('PropertiesNamesToSet')) {
         def property = PROPERTIES + propertiesNames[i]
         def value = execution.getVariable(property)
+        if (propertiesNames[i].equals("instanceDataAPIUrl") || propertiesNames[i].equals("CorrelationID")) {
+            value = execution.getVariable(propertiesNames[i])
+        }
+        if (propertiesNames[i].equals("containerApiAddress")) {
+            value = execution.getVariable("instanceDataAPIUrl").split('/csars')[0]
+        }
+        println "======== Property " + property + "has value " + value
         // schema: DataObjectReferenceId.Properties.PropertyName
         property = dataObject + "." + property;
         execution.setVariable(property, value)

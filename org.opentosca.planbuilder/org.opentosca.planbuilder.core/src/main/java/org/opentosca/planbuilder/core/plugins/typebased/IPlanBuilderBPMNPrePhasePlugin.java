@@ -5,7 +5,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 
-public interface IPlanBuilderBPMNPrePhasePlugin<T extends PlanContext> extends IPlanBuilderPlugin{
+public interface IPlanBuilderBPMNPrePhasePlugin<T extends PlanContext> extends IPlanBuilderPlugin {
     boolean canHandleCreate(T context, TNodeTemplate nodeTemplate);
 
     boolean handleCreate(T context, TNodeTemplate nodeTemplate);

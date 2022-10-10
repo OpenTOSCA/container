@@ -168,7 +168,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             HashMap<String, String> propertyOutput = this.propertyOutputInitializer.initializeBuildPlanOutput(definitions, bpmnPlan, propMap,
                 serviceTemplate);
 
-            String correlationId = "CorrelationID";
+            final String correlationId = "CorrelationID";
             propertyOutput.put(correlationId, correlationId);
             bpmnPlan.setOutputParameters(propertyOutput);
 

@@ -13,7 +13,6 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TParameter;
 
-import org.apache.commons.logging.Log;
 import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
@@ -50,8 +49,6 @@ public abstract class BPMNPatternBasedHandler {
             throw new RuntimeException("Couldn't fetch required variables to enable DA upload with the Remote Manager pattern");
         }
 
-        //return invoker.handleArtifactReferenceUpload(ref, context, ip, user, key, infraNode, context.getPrePhaseElement());
-        // @todo hier fehlt was
         return false;
     }
 
@@ -166,7 +163,7 @@ public abstract class BPMNPatternBasedHandler {
 
                 for (final TNodeTemplate nodeForMatching : nodesForMatching) {
                     for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
-                       // as discussed we replace it with Utils
+                        // as discussed we replace it with Utils
                         if (param.getName().equals("IP") && propName.equals("ContainerIP")) {
                             matching.inputMatching.put(param, param.getName());
                             matched = true;

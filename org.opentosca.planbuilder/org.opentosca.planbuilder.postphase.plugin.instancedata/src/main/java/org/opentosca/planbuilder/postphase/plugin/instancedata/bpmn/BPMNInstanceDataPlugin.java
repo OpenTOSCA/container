@@ -1,37 +1,25 @@
 package org.opentosca.planbuilder.postphase.plugin.instancedata.bpmn;
 
 import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
-import org.eclipse.winery.model.tosca.TPolicy;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
-import org.opentosca.container.core.model.ModelUtils;
-import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
-import org.opentosca.planbuilder.core.bpmn.handlers.BPMNSubprocessHandler;
 import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderBPMNPrePhasePlugin;
-import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPolicyAwarePrePhasePlugin;
-import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderPostPhasePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- *
  * This class represents a POST-Phase Plugin which sends runtime values of NodeTemplate Instances to the OpenTOSCA
  * Container InstanceData API
- *
  */
 @Component
 public class BPMNInstanceDataPlugin implements IPlanBuilderBPMNPrePhasePlugin<BPMNPlanContext> {
 
-    private static Logger LOG = LoggerFactory.getLogger(BPMNInstanceDataPlugin.class);
     private static final String PLAN_ID = "BPMN OpenTOSCA InstanceData Pre Phase Plugin";
     private final Handler handler = new Handler();
-    private final QName securePasswordPolicyType =
-        new QName("http://opentosca.org/policytypes", "SecurePasswordPolicyType");
 
     @Override
     public boolean canHandleCreate(BPMNPlanContext context, final TNodeTemplate nodeTemplate) {

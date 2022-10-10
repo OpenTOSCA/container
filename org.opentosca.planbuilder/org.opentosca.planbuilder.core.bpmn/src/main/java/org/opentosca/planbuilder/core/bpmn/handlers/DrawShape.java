@@ -12,7 +12,7 @@ import org.camunda.bpm.model.xml.ModelInstance;
  */
 public class DrawShape {
 
-    public static BpmnPlane drawShape(BpmnPlane plane, ModelInstance modelInstance, BpmnModelElementInstance element, double x, double y, double height, double width, boolean setHorizontal){
+    public static BpmnPlane drawShape(BpmnPlane plane, ModelInstance modelInstance, BpmnModelElementInstance element, double x, double y, double height, double width, boolean setHorizontal) {
         BpmnShape bpmnShape = modelInstance.newInstance(BpmnShape.class);
         bpmnShape.setBpmnElement((BaseElement) element);
 

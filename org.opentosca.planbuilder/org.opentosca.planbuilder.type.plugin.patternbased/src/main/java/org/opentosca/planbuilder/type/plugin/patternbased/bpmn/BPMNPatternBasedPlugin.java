@@ -88,44 +88,19 @@ public class BPMNPatternBasedPlugin implements IPlanBuilderBPMNTypePlugin<BPMNPl
 
             check &= lifecyclePatternHandler.handleCreate(templateContext, nodeTemplate,
                 templateContext.getSubprocessElement().getBpmnSubprocessElement());
-            System.out.println("DASISTDERCHECK VON NODETEMPLATE" + nodeTemplate.getId());
-            System.out.println(check);
 
             installOp = lifecyclePatternHandler.getLifecyclePatternInstallMethod(nodeTemplate, templateContext.getCsar());
             configureOp = lifecyclePatternHandler.getLifecyclePatternConfigureMethod(nodeTemplate, templateContext.getCsar());
             startOp = lifecyclePatternHandler.getLifecyclePatternStartMethod(nodeTemplate, templateContext.getCsar());
             if (installOp != null) {
-                System.out.println("INSTALLNICHTLEER");
                 usedOps.put(installOp, null);
             }
             if (configureOp != null) {
-                System.out.println("CONFIGURENICHTLEER");
                 usedOps.put(configureOp, null);
             }
             if (startOp != null) {
-                System.out.println("STARTOPNICHTLEER");
                 usedOps.put(startOp, null);
             }
-
-            /*
-            if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate, templateContext.getCsar())) {
-                LOG.debug("Adding lifecycle pattern compensation logic");
-                check &=
-                    lifecyclePatternHandler.handleTerminate(templateContext, nodeTemplate,
-                        templateContext.getProvisioningCompensationPhaseElement());
-                stopOp = lifecyclePatternHandler.getLifecyclePatternStopMethod(nodeTemplate, templateContext.getCsar());
-                uninstallOp = lifecyclePatternHandler.getLifecyclePatternUninstallMethod(nodeTemplate, templateContext.getCsar());
-                if (installOp != null & uninstallOp != null) {
-                    usedOps.put(installOp, uninstallOp);
-                }
-                if (startOp != null & stopOp != null) {
-                    usedOps.put(startOp, stopOp);
-                }
-            }
-
-             */
-
-            // erstmal nicht so wichtig, sollte aber trotzdem gehen
         } else if (remoteMgrHandler.isProvisionableByRemoteManagerPattern(nodeTemplate, templateContext.getCsar())) {
             LOG.debug("Handling by remote manager pattern");
             LOG.info("Handling by remote manager pattern");
@@ -143,15 +118,6 @@ public class BPMNPatternBasedPlugin implements IPlanBuilderBPMNTypePlugin<BPMNPl
             LOG.info("plugin funktioniert nicht");
             return false;
         }
-
-        // wird das gebraucht?
-        /*
-        for (TOperation op : usedOps.keySet()) {
-            templateContext.addUsedOperation(op, usedOps.get(op));
-        }
-
-         */
-
         return check;
     }
 
@@ -244,104 +210,8 @@ public class BPMNPatternBasedPlugin implements IPlanBuilderBPMNTypePlugin<BPMNPl
 
     @Override
     public boolean handleTerminate(BPMNPlanContext templateContext, TNodeTemplate nodeTemplate) {
-
         LOG.debug("Handling nodeTemplate {} by pattern", nodeTemplate.getId());
-        boolean check = true;
-        /*
-        Map<TOperation, TOperation> usedOps = new HashMap<TOperation, TOperation>();
-        Csar csar = templateContext.getCsar();
-        if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate, templateContext.getCsar())) {
-            LOG.debug("Handling by container pattern");
-
-            TOperation createOp = null;
-            TOperation terminateOp = null;
-
-            check &= containerPatternHandler.handleTerminate(templateContext, nodeTemplate,
-                templateContext.getProvisioningPhaseElement(), templateContext.getCsar());
-            terminateOp = containerPatternHandler.getContainerPatternTerminateMethod(nodeTemplate, csar);
-            usedOps.put(terminateOp, null);
-
-            if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate, templateContext.getCsar())) {
-                LOG.debug("Adding container pattern compensation logic");
-                check &=
-                    containerPatternHandler.handleCreate(templateContext, nodeTemplate,
-                        templateContext.getProvisioningCompensationPhaseElement(), templateContext.getCsar());
-                createOp = containerPatternHandler.getContainerPatternCreateMethod(nodeTemplate, csar);
-                usedOps.put(terminateOp, createOp);
-            }
-        } else if (lifecyclePatternHandler.isDeprovisionableByLifecyclePattern(nodeTemplate, templateContext.getCsar())) {
-            LOG.debug("Handling by lifecycle pattern");
-            check &= lifecyclePatternHandler.handleTerminate(templateContext, nodeTemplate,
-                templateContext.getProvisioningPhaseElement());
-
-            TOperation installOp = null;
-            TOperation configureOp = null;
-            TOperation startOp = null;
-            TOperation uninstallOp = null;
-            TOperation stopOp = null;
-
-            stopOp = lifecyclePatternHandler.getLifecyclePatternStopMethod(nodeTemplate, csar);
-            uninstallOp = lifecyclePatternHandler.getLifecyclePatternUninstallMethod(nodeTemplate, csar);
-
-            if (stopOp != null) {
-                usedOps.put(stopOp, null);
-            }
-
-            if (uninstallOp != null) {
-                usedOps.put(uninstallOp, null);
-            }
-
-            if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate, templateContext.getCsar())) {
-                LOG.debug("Adding lifecycle pattern compensation logic");
-                check &=
-                    lifecyclePatternHandler.handleCreate(templateContext, nodeTemplate,
-                        templateContext.getProvisioningCompensationPhaseElement());
-
-                installOp = lifecyclePatternHandler.getLifecyclePatternInstallMethod(nodeTemplate, csar);
-                configureOp = lifecyclePatternHandler.getLifecyclePatternConfigureMethod(nodeTemplate, csar);
-                startOp = lifecyclePatternHandler.getLifecyclePatternStartMethod(nodeTemplate, csar);
-
-                if (installOp != null & uninstallOp != null) {
-                    usedOps.put(uninstallOp, installOp);
-                }
-                if (startOp != null & stopOp != null) {
-                    usedOps.put(stopOp, startOp);
-                }
-                if (configureOp != null) {
-                    usedOps.put(null, configureOp);
-                }
-            }
-        } else if (remoteManagerPatternHandler.isDeprovisionableByRemoteManagerPattern(nodeTemplate)) {
-            check &= remoteManagerPatternHandler.handleTerminate(templateContext, nodeTemplate,
-                templateContext.getProvisioningPhaseElement());
-
-            TOperation installOp = null;
-            TOperation resetOp = null;
-
-            resetOp = remoteManagerPatternHandler.getRemoteManagerPatternResetMethod(nodeTemplate, csar);
-            installOp = remoteManagerPatternHandler.getRemoteManagerPatternInstallMethod(nodeTemplate, csar);
-
-            if (remoteManagerPatternHandler.isProvisionableByRemoteManagerPattern(nodeTemplate, csar)) {
-                LOG.debug("Adding compensation logic for remote manager pattern");
-                check &=
-                    remoteManagerPatternHandler.handleCreate(templateContext, nodeTemplate,
-                        templateContext.getProvisioningCompensationPhaseElement());
-
-                if (installOp != null & resetOp != null) {
-                    usedOps.put(resetOp, installOp);
-                }
-            }
-        } else {
-            return false;
-        }
-
-        for (TOperation op : usedOps.keySet()) {
-            templateContext.addUsedOperation(op, usedOps.get(op));
-        }
-
-
-         */
-        return check;
+        return false;
     }
 
     public boolean handleTerminate(BPELPlanContext templateContext, TRelationshipTemplate relationshipTemplate) {

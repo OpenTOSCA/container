@@ -1,7 +1,5 @@
 package org.opentosca.planbuilder.postphase.plugin.instancedata.bpmn;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 

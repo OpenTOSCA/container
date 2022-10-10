@@ -88,11 +88,12 @@ public class InstanceStates {
                 case "CONFIGURING":
                     return "CONFIGURED";
                 case "STARTING":
+                case "PENDING":
                     return "STARTED";
                 case "STOPPING":
                     return "STOPPED";
-                case "PENDING":
-                    return "STARTED";
+                default:
+                    throw new IllegalStateException("Unexpected value: " + state);
             }
         } else if (operationPostStates.containsValue(state)) {
             // given state is stable
@@ -102,11 +103,12 @@ public class InstanceStates {
                 case "CREATED":
                     return "CONFIGURED";
                 case "CONFIGURED":
-                    return "STARTED";
                 case "STARTED":
                     return "STARTED";
                 case "STOPPED":
                     return "STOPPED";
+                default:
+                    throw new IllegalStateException("Unexpected value: " + state);
             }
         }
 

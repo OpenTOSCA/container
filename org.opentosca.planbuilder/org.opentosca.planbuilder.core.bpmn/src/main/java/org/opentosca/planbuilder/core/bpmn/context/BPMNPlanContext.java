@@ -20,8 +20,6 @@ import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocess;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 /**
@@ -35,7 +33,7 @@ public class BPMNPlanContext extends PlanContext {
     public BPMNPlanContext(final BPMNPlan plan, final BPMNSubprocess templateBuildPlan, final Property2VariableMapping map,
                            final TServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
                            String serviceInstanceIDVarName, String serviceTemplateURLVarName, Csar csar) {
-        super(plan, serviceTemplate, map,null, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, "", csar);
+        super(plan, serviceTemplate, map, null, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, "", csar);
 
         this.bpmnSubprocess = templateBuildPlan;
     }

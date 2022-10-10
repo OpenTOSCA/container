@@ -22,14 +22,7 @@ import org.slf4j.LoggerFactory;
 public class BPMNPropertyVariableHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPMNPropertyVariableHandler.class);
-
     private final static String TOSCAPROPERTYSUFFIX = "toscaProperty";
-
-    /**
-     * Constructor
-     */
-    public BPMNPropertyVariableHandler() {
-    }
 
     /**
      * Initializes the BuildPlan with variables for Template Properties and returns the Mappings for the Properties and

@@ -184,7 +184,7 @@ public abstract class AbstractImporter {
         }
 
         // will be removed when test is running
-        if (csar.serviceTemplates().get(0).getName().contains("ApacheWebApp") || csar.serviceTemplates().get(0).getName().contains("MyTinyToDo") || csar.serviceTemplates().get(0).getName().contains("MultiMyTinyToDo")){
+        if (csar.serviceTemplates().get(0).getName().contains("ApacheWebApp") || csar.serviceTemplates().get(0).getName().contains("MyTinyToDo") || csar.serviceTemplates().get(0).getName().contains("MultiMyTinyToDo")) {
             plans.addAll(bpmnBuildPlanBuilder.buildPlans(csar, defs));
         }
         return plans;
