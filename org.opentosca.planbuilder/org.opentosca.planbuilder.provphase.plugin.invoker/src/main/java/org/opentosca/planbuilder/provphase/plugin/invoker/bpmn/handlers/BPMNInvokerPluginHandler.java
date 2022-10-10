@@ -77,7 +77,10 @@ public class BPMNInvokerPluginHandler {
             BPMNPlan buildPlan = subprocess.getBuildPlan();
             // set input param names and values
             for (Map.Entry<String, Variable> entry : internalExternalPropsInput.entrySet()) {
+
                 String parameterValue = entry.getValue().getVariableName();
+                parameterValue = parameterValue.replace("&", "\u0026");
+                LOG.info("parameterValue: {}", parameterValue);
                 if (entry.getValue().getVariableName().contains("toscaProperty")) {
                     String removeToscaProperty = parameterValue.split("_toscaProperty")[0];
                     String serviceTemplateName = context.getSubprocessElement().getBuildPlan().getServiceTemplate().getName();
@@ -140,6 +143,7 @@ public class BPMNInvokerPluginHandler {
             setPreState.setInstanceState(preState);
             subprocess.addTaskToSubprocess(setPreState);
             // will be removed by pre phase plugin
+            
             if (templateId.getId().contains("ApacheApp")) {
                 final BPMNSubprocess runScript = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
                 final BPMNSubprocess transferFile = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
@@ -164,7 +168,7 @@ public class BPMNInvokerPluginHandler {
                 transferFile.setInterfaceVariable("ContainerManagementInterface");
                 transferFile.setOperation("transferFile");
                 transferFile.setInputParameterNames("TargetAbsolutePath,SourceURLorLocalPath,DockerEngineURL,DockerEngineCertificate,ContainerID");
-                transferFile.setInputParameterValues("~/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files/HelloUwe.zip,/csars/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/content/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files/HelloUwe.zip,tcp://dind:2375,LEER," + containerIP);
+                transferFile.setInputParameterValues("~/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files/HelloUwe.zip,http://IP:1337/csars/ApacheWebApp-Ubuntu-Docker-Test_w1-wip1.csar/content/artifacttemplates/http%253A%252F%252Fopentosca.org%252Ftest%252Fapplications%252Fartifacttemplates/HelloUweApacheAT/files/HelloUwe.zip,tcp://dind:2375,LEER," + containerIP);
                 transferFile.setOutputParameterNames("");
                 transferFile.setOutputParameterValues("");
                 subprocess.addTaskToSubprocess(transferFile);

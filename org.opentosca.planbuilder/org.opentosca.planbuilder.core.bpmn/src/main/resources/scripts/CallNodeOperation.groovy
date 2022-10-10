@@ -33,6 +33,7 @@ if (inputParamNames != null) {
                     if (paramName.contains("Script")) {
                         paramValue = "sleep 1 && " + paramValue
                     }
+                    paramValue = paramValue.replaceAll('\u0026', '&')
                     paramValue = paramValue.replace('->', ',')
                 }
 
