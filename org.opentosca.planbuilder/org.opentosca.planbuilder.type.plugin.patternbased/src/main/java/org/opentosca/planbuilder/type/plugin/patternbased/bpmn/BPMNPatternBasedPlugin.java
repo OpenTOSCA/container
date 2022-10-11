@@ -59,25 +59,13 @@ public class BPMNPatternBasedPlugin implements IPlanBuilderBPMNTypePlugin<BPMNPl
         // genau eins drunter ( geht die hosted on kante runter)
         if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate, templateContext.getCsar())) {
             TOperation createOp = null;
-            TOperation terminateOp = null;
+            // TOperation terminateOp = null;
             LOG.debug("Handling by container pattern");
             LOG.info("Handling by container pattern");
             check &= containerPatternHandler.handleCreate(templateContext, nodeTemplate,
                 templateContext.getSubprocessElement().getBpmnSubprocessElement(), templateContext.getCsar());
             createOp = containerPatternHandler.getContainerPatternCreateMethod(nodeTemplate, templateContext.getCsar());
             usedOps.put(createOp, null);
-
-            // erstmal nur provisioning
-            /*
-            if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate, templateContext.getCsar())) {
-                LOG.debug("Adding container pattern compensation logic");
-                check &=
-                    containerPatternHandler.handleTerminate(templateContext, nodeTemplate,
-                        templateContext.getProvisioningCompensationPhaseElement(), templateContext.getCsar());
-                terminateOp = containerPatternHandler.getContainerPatternTerminateMethod(nodeTemplate, templateContext.getCsar());
-                usedOps.put(createOp, terminateOp);
-            }
-            */
         } else if (lifecyclePatternHandler.isProvisionableByLifecyclePattern(nodeTemplate, templateContext.getCsar())) {
             LOG.debug("Handling by lifecycle pattern");
             LOG.info("Handling by lifecycle pattern");

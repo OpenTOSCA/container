@@ -108,6 +108,8 @@ public class InstanceStates {
                     return "STARTED";
                 case "STOPPED":
                     return "STOPPED";
+                default:
+                    throw new IllegalStateException("Unexpected value: " + state);
             }
         }
 

@@ -288,9 +288,6 @@ public class BPMNSubprocess {
         this.subProServiceInstanceTask = subProServiceInstanceTask;
     }
 
-    public void setSubProCallOperationTask(BPMNSubprocess subProCallOperationTask) {
-    }
-
     public BPMNSubprocess getSubProSetNodePropertyTask() {
         return subProSetNodePropertyTask;
     }

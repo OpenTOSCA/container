@@ -108,9 +108,6 @@ public class BPMNProcessFragments {
         callNodeOperation = callNodeOperation.replace("NamespaceToSet", bpmnSubprocess.getBuildPlan().getServiceTemplate().getTargetNamespace());
         callNodeOperation = callNodeOperation.replaceAll("CsarToSet", bpmnSubprocess.getBuildPlan().getCsarName());
         callNodeOperation = callNodeOperation.replaceAll("ServiceTemplateNameToSet", bpmnSubprocess.getBuildPlan().getServiceTemplate().getId().trim());
-        if (bpmnSubprocess.getOperation().contains("transferFile") || bpmnSubprocess.getOperation().contains("runScript")) {
-            callNodeOperation = callNodeOperation.replaceAll("NodeTemplateToSet", "DockerContainer_w1_0");
-        }
         callNodeOperation = callNodeOperation.replaceAll("NodeTemplateToSet", bpmnSubprocess.getHostingNodeTemplate().getId());
         String parentId = bpmnSubprocess.getParentProcess().getId();
         String prefix = BPMNSubprocessType.DATA_OBJECT_REFERENCE + "_" + BPMNSubprocessType.DATA_OBJECT;

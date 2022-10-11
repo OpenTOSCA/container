@@ -68,7 +68,6 @@ public class BPMNPrePhasePluginHandler {
             + ")");
 
         // fetch server ip of the vm this artefact will be deployed on
-
         PropertyVariable serverIpPropWrapper = null;
         for (final String serverIpName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
             serverIpPropWrapper = templateContext.getPropertyVariable(infraTemplate, serverIpName);
@@ -99,25 +98,12 @@ public class BPMNPrePhasePluginHandler {
             }
         }
 
-        // adds field into plan input message to give the plan it's own address
-        // for the invoker PortType (callback etc.). This is needed as WSO2 BPS
-        // 2.x can't give that at runtime (bug)
-        LOG.debug("Adding plan callback address field to plan input");
-        //templateContext.addStringValueToPlanRequest("planCallbackAddress_invoker");
-
-        // add csarEntryPoint to plan input message
-        LOG.debug("Adding csarEntryPoint field to plan input");
-        //templateContext.addStringValueToPlanRequest("csarEntrypoint");
-
         LOG.debug("Handling DA references:");
-        //todo element to append is actually never used in bpmn, maybe removable in the future
-        // global variables above may need to be added as input parameters too
         for (final TArtifactReference ref : refs) {
             // upload da ref and unzip it
             this.invokerPlugin.handleArtifactReferenceUpload(ref, templateContext, serverIpPropWrapper, sshUserVariable,
                 sshKeyVariable, infraTemplate, templateContext.getSubprocessElement().getBpmnSubprocessElement());
         }
-
         return true;
     }
 }

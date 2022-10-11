@@ -93,6 +93,8 @@ public class BPMNPluginHandler {
             case TERMINATION:
                 //result = this.handleTerminationActivity(context, relationshipTemplate);
                 break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + bpmnSubprocess.getActivity().getType());
         }
         return result;
     }

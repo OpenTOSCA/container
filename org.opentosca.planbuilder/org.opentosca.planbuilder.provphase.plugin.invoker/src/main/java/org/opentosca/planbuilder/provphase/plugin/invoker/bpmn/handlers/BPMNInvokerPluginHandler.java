@@ -35,7 +35,7 @@ import org.xml.sax.SAXException;
 
 public class BPMNInvokerPluginHandler {
 
-    private final static Logger LOG = LoggerFactory.getLogger(org.opentosca.planbuilder.provphase.plugin.invoker.bpmn.handlers.BPMNInvokerPluginHandler.class);
+    private final static Logger LOG = LoggerFactory.getLogger(BPMNInvokerPluginHandler.class);
 
     private final BPMNSubprocessHandler bpmnSubprocessHandler;
     private final String ServiceInstanceURLVarKeyword = "ServiceInstanceURL";

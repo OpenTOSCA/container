@@ -141,7 +141,7 @@ public class BPMNSubprocessHandler {
                 createdScope.setBuildPlan(buildPlan);
                 return createdScope;
             } else if (type == BPMNSubprocessType.CALL_NODE_OPERATION_TASK) {
-                parentSubprocess.setSubProCallOperationTask(createdScope);
+                //parentSubprocess.setSubProCallOperationTask(createdScope);
                 createdScope.setNodeTemplate(parentSubprocess.getNodeTemplate());
                 createdScope.setHostingNodeTemplate(parentSubprocess.getHostingNodeTemplate());
                 createdScope.setParentProcess(parentSubprocess);
@@ -183,6 +183,7 @@ public class BPMNSubprocessHandler {
      */
     public ArrayList<String> computeInputParametersBasedTopology(TTopologyTemplate topologyTemplate) {
         ArrayList<String> inputParameters = new ArrayList<>();
+        inputParameters.add("csarEntrypoint");
         inputParameters.add("instanceDataAPIUrl");
         inputParameters.add("containerApiAddress");
         inputParameters.add("OpenTOSCAContainerAPIServiceInstanceURL");

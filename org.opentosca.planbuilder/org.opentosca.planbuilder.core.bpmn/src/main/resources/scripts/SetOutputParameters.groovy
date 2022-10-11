@@ -1,4 +1,7 @@
-println "======== Executing SetOutputParameters.groovy with exec ID: ${execution.getId()} ========"
+import java.util.logging.Logger
+
+Logger logger = Logger.getLogger("SetOutputParameters")
+logger.info("======== Executing SetOutputParameters.groovy with exec ID: ${execution.id} ========")
 
 def outputParameterNames = execution.getVariable('OutputParameterNames').split(",")
 final String OUTPUT = "Output."
@@ -24,10 +27,10 @@ for (int i in 0..outputParameterNames.size() - 1) {
                     outputParameterValue += part
                 }
             }
-            println "Set outputparameter " + outputParameterNames[i] + " to " + outputParameterValue
+            logger.info("Set outputparameter " + outputParameterNames[i] + " to " + outputParameterValue)
             execution.setVariable(outputParameterNames[i], outputParameterValue)
         } else {
-            println "Set outputparameter " + outputParameterNames[i] + " to " + value
+            logger.info("Set outputparameter " + outputParameterNames[i] + " to " + value)
             execution.setVariable(outputParameterNames[i], value)
         }
     }

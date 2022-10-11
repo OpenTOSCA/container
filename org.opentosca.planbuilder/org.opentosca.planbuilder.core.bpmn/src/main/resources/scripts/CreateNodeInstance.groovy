@@ -1,7 +1,9 @@
 import groovy.json.*
+import java.util.logging.Logger
 
+Logger logger = Logger.getLogger("CreateNodeInstance")
 def template = execution.getVariable("NodeTemplate")
-println "======== Executing CreateNodeInstance.groovy with exec ID: ${execution.getId()} for NodeTemplate ${template} ========"
+logger.info("======== Executing CreateNodeInstance.groovy with exec ID: ${execution.id} for NodeTemplate ${template} ========")
 def resultVariableName = execution.getVariable("ResultVariableName")
 // create TemplateInstance URL from instance data API URL
 def url = execution.getVariable("instanceDataAPIUrl").minus("instances")
@@ -18,12 +20,12 @@ post.setRequestMethod("POST")
 post.setDoOutput(true)
 post.setRequestProperty("Content-Type", "text/plain")
 post.setRequestProperty("accept", "application/json")
-post.getOutputStream().write(message.getBytes("UTF-8"))
+post.outputStream.write(message.getBytes("UTF-8"))
 
 println "message: $message"
-def status = post.getResponseCode()
+def status = post.responseCode
 if (status == 200) {
-    def resultText = post.getInputStream().getText()
+    def resultText = post.getInputStream().text
     def slurper = new JsonSlurper()
     def json = slurper.parseText(resultText)
     def message2 = execution.getVariable("State")
@@ -34,15 +36,15 @@ if (status == 200) {
         put.setRequestMethod("PUT")
         put.setDoOutput(true)
         put.setRequestProperty("Content-Type", "text/plain")
-        put.getOutputStream().write(message2.getBytes("UTF-8"))
+        put.outputStream.write(message2.getBytes("UTF-8"))
 
-        def status2 = put.getResponseCode()
+        def status2 = put.responseCode
         if (status2 != 200) {
             execution.setVariable("ErrorDescription", "Received status code " + status2 + " while updating state of Instance with URL: " + url);
             throw new org.camunda.bpm.engine.delegate.BpmnError("InvalidStatusCode")
         }
     }
-    println "ResultVariable: $json"
+    logger.info("ResultVariable: ${json}")
     execution.setVariable(resultVariableName, json)
     return json
 } else {

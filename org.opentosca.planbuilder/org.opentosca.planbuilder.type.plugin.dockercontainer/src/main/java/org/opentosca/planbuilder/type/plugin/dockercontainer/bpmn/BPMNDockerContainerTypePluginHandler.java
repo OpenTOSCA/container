@@ -375,7 +375,7 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
      * @param context contains subprocess for current task
      * @return String containing the DA for processing inside callNodeOperation groovy script
      */
-    public String createDAinput(TDeploymentArtifact da, BPMNPlanContext context) {
+    public String createDAReference(TDeploymentArtifact da, BPMNPlanContext context) {
         final TArtifactTemplate artifactTemplate = ModelUtils.findArtifactTemplate(da.getArtifactRef(), context.getCsar());
         String reference = artifactTemplate.getArtifactReferences().get(0).getReference();
         String[] directories = reference.split("/");
@@ -398,8 +398,6 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
                                    final Variable deviceMappingVar, final Variable containerMountPath,
                                    final Variable remoteVolumeDataVariable, final Variable hostVolumeDataVariable,
                                    final Variable vmIpVariable, final Variable vmPrivateKeyVariable) {
-
-        //context.addStringValueToPlanRequest("containerApiAddress");
         Map<String, String> containerPropMap = ModelUtils.asMap(context.getNodeTemplate().getProperties());
         Map<String, String> propMap = containerPropMap;
         // fetch properties
@@ -429,7 +427,7 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
         }
 
         // create and set input for Input_DA
-        final String deploymentArtifactReference = createDAinput(da, context);
+        final String deploymentArtifactReference = createDAReference(da, context);
         context.getSubprocessElement().setDeploymentArtifactString(deploymentArtifactReference);
 
         final String artefactVarName = "dockerContainerFile" + System.currentTimeMillis();
