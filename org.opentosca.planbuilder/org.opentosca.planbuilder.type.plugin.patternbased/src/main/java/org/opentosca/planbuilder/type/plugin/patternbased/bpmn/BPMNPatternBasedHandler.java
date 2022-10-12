@@ -46,7 +46,7 @@ public abstract class BPMNPatternBasedHandler {
         PropertyVariable key = this.getKeyProperty(context, infraNode);
 
         if (!(Objects.nonNull(ip) && Objects.nonNull(user) && Objects.nonNull(key))) {
-            throw new RuntimeException("Couldn't fetch required variables to enable DA upload with the Remote Manager pattern");
+            throw new NullPointerException("Couldn't fetch required variables to enable DA upload with the Remote Manager pattern");
         }
 
         return false;

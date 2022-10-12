@@ -4,13 +4,13 @@ import java.util.logging.Logger
 Logger logger = Logger.getLogger("CreateRelationshipInstance")
 def template = execution.getVariable("RelationshipTemplate")
 def sourceUrlVar = execution.getVariable("SourceURL")
-def sourceUrl = sourceUrlVar.substring(sourceUrlVar.lastIndexOf('/') + 1)
+def sourceUrl = sourceUrlVar[sourceUrlVar.lastIndexOf('/') + 1, -1]
 def targetUrlVar = execution.getVariable("TargetURL")
-def targetUrl = targetUrlVar.substring(targetUrlVar.lastIndexOf('/') + 1)
+def targetUrl = targetUrlVar[targetUrlVar.lastIndexOf('/') + 1, -1]
 logger.info("======== Executing CreateRelationshipInstance.groovy with exec ID: ${execution.id} for RelationshipTemplate ${template} with SourceURL ${sourceUrlVar} and TargetURL ${targetUrlVar} ========")
 
 // create TemplateInstance URL from instance data API URL
-def url = execution.getVariable("instanceDataAPIUrl").minus("instances")
+def url = execution.getVariable("instanceDataAPIUrl") - "instances"
 url = url + "relationshiptemplates/" + template + "/instances"
 def post = new URL(url).openConnection()
 
@@ -29,7 +29,7 @@ post.outputStream.write(message.getBytes("UTF-8"))
 logger.info("message: ${message}")
 def status = post.responseCode
 if (status == 200) {
-    def resultText = post.getInputStream().text
+    def resultText = post.inputStream.text
     def slurper = new JsonSlurper()
     def json = slurper.parseText(resultText)
     def message2 = execution.getVariable("State")

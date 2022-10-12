@@ -4,23 +4,23 @@ Logger logger = Logger.getLogger("SetOutputParameters")
 logger.info("======== Executing SetOutputParameters.groovy with exec ID: ${execution.id} ========")
 
 def outputParameterNames = execution.getVariable('OutputParameterNames').split(",")
-final String OUTPUT = "Output."
-final String DATAOBJECTREFERENCE = "DataObjectReference_"
+final String outputParameterAccessPrefix = "Output."
+final String dataObjectAccessPrefix = "DataObjectReference_"
 
 for (int i in 0..outputParameterNames.size() - 1) {
     // to skip the case when no output parameter exists
     if (!outputParameterNames[i].contains('OutputParameterNamesToSet')) {
-        def outputParamName = OUTPUT + outputParameterNames[i]
+        def outputParamName = outputParameterAccessPrefix + outputParameterNames[i]
         def value = execution.getVariable(outputParamName)
         def outputParameterValue = ""
         // this is a property mapping output parameter
-        if (value.contains(DATAOBJECTREFERENCE) && value.contains("+")) {
+        if (value.contains(dataObjectAccessPrefix) && value.contains("+")) {
             String[] parts = value.split("\\+")
             for (String part : parts) {
                 String valueOfPart = ""
                 part = part.replace("'", "")
                 part = part.trim()
-                if (part.contains(DATAOBJECTREFERENCE)) {
+                if (part.contains(dataObjectAccessPrefix)) {
                     valueOfPart = execution.getVariable(part)
                     outputParameterValue += valueOfPart
                 } else {

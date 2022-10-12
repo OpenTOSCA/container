@@ -85,7 +85,7 @@ public class BPMNDiagramGenerator {
                     // Search for process instead of a collaboration and set plane bpmn element to the process
                     ArrayList<Process> processes = (ArrayList<Process>) modelInstance.getModelElementsByType(Process.class);
                     if (processes.size() == 0) {
-                        throw new Exception("Exception - neither collaboration nor process was found");
+                        throw new IllegalArgumentException("Exception - neither collaboration nor process was found");
                     } else {
                         plane.setBpmnElement(processes.get(0));
                     }
@@ -96,7 +96,7 @@ public class BPMNDiagramGenerator {
                     break;
 
                 default:
-                    throw new Exception("Exception - more than one collaboration in BPMN input which is not allowed");
+                    throw new IllegalArgumentException("Exception - more than one collaboration in BPMN input which is not allowed");
             }
 
             // Create a map of Pool and Lane reference points in order to draw the correct shapes in the correct lane

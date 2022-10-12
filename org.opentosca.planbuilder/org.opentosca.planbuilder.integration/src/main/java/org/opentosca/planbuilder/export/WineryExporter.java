@@ -148,6 +148,7 @@ public class WineryExporter extends AbstractExporter {
 
             for (final AbstractPlan plan : plans) {
                 if (plan instanceof BPELPlan) {
+                    LOG.info("Processing BPEL a plan id {}", plan.getId());
                     if (new QName(plan.getServiceTemplate().getTargetNamespace(), plan.getServiceTemplate().getId()).equals(buildQName(defs, serviceTemplate))) {
                         final TPlan generatedPlanElement = generateTPlanElement((BPELPlan) plan, repository, new ServiceTemplateId(new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId())));
                         exportedBpelPlanIds.add(generatedPlanElement.getId());
@@ -171,10 +172,8 @@ public class WineryExporter extends AbstractExporter {
                         boolean alreadySpecified = false;
                         for (final TExportedOperation op : exportedIface.getOperation()) {
 
-                            if (op.getName() != null) {
-                                if (op.getName().equals(((BPELPlan) plan).getTOSCAOperationName())) {
-                                    alreadySpecified = true;
-                                }
+                            if (op.getName() != null && op.getName().equals(((BPELPlan) plan).getTOSCAOperationName())) {
+                                alreadySpecified = true;
                             }
                         }
                         if (!alreadySpecified) {
@@ -364,12 +363,7 @@ public class WineryExporter extends AbstractExporter {
                     for (final AbstractPlan planToExport : plansToExport) {
                         if (planToExport instanceof BPMNPlan) {
                             final ApplicationOption option = createApplicationOption(planToExport, optionCounter);
-
-                            writeBPMNPlanInputParameter((BPMNPlan) planToExport,
-                                selfServiceDir.resolve("plan.input.default." + optionCounter + ".xml").toFile());
-
                             optionCounter++;
-
                             options.getOption().add(option);
                         }
                     }
@@ -442,7 +436,7 @@ public class WineryExporter extends AbstractExporter {
      * @param generatedPlan a Plan
      * @return a JAXB TPlan Object which represents the given BuildPlan
      */
-    private org.eclipse.winery.model.tosca.TPlan generateTPlanElement(final AbstractPlan generatedPlan, IRepository repo, ServiceTemplateId servId) throws IOException, JAXBException {
+    private TPlan generateTPlanElement(final AbstractPlan generatedPlan, IRepository repo, ServiceTemplateId servId) throws IOException, JAXBException {
         final TPlan plan = new TPlan();
         final TPlan.PlanModelReference ref = new TPlan.PlanModelReference();
         final List<TParameter> inputParams = new ArrayList<>();
@@ -557,15 +551,6 @@ public class WineryExporter extends AbstractExporter {
             }
         }
         return null;
-    }
-
-    // TODO: implement method
-
-    /**
-     *
-     */
-    private void writeBPMNPlanInputParameter(final BPMNPlan buildPlan, final File xmlFile) {
-
     }
 
     private void writePlanInputMessageInstance(final BPELPlan buildPlan, final File xmlFile) throws IOException {

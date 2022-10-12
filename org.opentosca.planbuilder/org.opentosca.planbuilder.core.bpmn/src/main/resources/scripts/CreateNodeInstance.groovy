@@ -6,14 +6,14 @@ def template = execution.getVariable("NodeTemplate")
 logger.info("======== Executing CreateNodeInstance.groovy with exec ID: ${execution.id} for NodeTemplate ${template} ========")
 def resultVariableName = execution.getVariable("ResultVariableName")
 // create TemplateInstance URL from instance data API URL
-def url = execution.getVariable("instanceDataAPIUrl").minus("instances")
+def url = execution.getVariable("instanceDataAPIUrl") - "instances"
 url = url + "nodetemplates/" + template + "/instances"
 def post = new URL(url).openConnection()
 
 // get ServiceTemplateInstance ID and add it to the request body
 def serviceInstanceURL = execution.getVariable("ServiceInstanceURL")
 def valueOfServiceInstanceURL = execution.getVariable(serviceInstanceURL)
-def message = valueOfServiceInstanceURL.substring(valueOfServiceInstanceURL.lastIndexOf('/') + 1)
+def message = valueOfServiceInstanceURL[valueOfServiceInstanceURL.lastIndexOf('/') + 1, -1]
 
 // send Post to instance data API
 post.setRequestMethod("POST")
@@ -22,10 +22,9 @@ post.setRequestProperty("Content-Type", "text/plain")
 post.setRequestProperty("accept", "application/json")
 post.outputStream.write(message.getBytes("UTF-8"))
 
-println "message: $message"
 def status = post.responseCode
 if (status == 200) {
-    def resultText = post.getInputStream().text
+    def resultText = post.inputStream.text
     def slurper = new JsonSlurper()
     def json = slurper.parseText(resultText)
     def message2 = execution.getVariable("State")
@@ -40,7 +39,7 @@ if (status == 200) {
 
         def status2 = put.responseCode
         if (status2 != 200) {
-            execution.setVariable("ErrorDescription", "Received status code " + status2 + " while updating state of Instance with URL: " + url);
+            execution.setVariable("ErrorDescription", "Received status code " + status2 + " while updating state of Instance with URL: " + url)
             throw new org.camunda.bpm.engine.delegate.BpmnError("InvalidStatusCode")
         }
     }

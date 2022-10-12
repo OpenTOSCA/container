@@ -27,34 +27,23 @@ public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
 
         Set<TNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate, context.getCsar());
         //nodesForMatching = this.filterForNodesInCreation(context, nodesForMatching);
-        System.out.println("DIENODEMATCHESFUER" + nodeTemplate.getId());
-        for (TNodeTemplate n : nodesForMatching) {
-            System.out.println(n.getId());
-        }
         TOperation op;
         boolean result = true;
 
         if (((op = this.getLifecyclePatternInstallMethod(nodeTemplate, context.getCsar())) != null)
             && hasCompleteMatching(nodesForMatching, iface, op)) {
-            System.out.println("INSTALLMETHODE");
             result = invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
-            System.out.println("INSTALLMETHODEERG");
         }
 
         if (((op = this.getLifecyclePatternConfigureMethod(nodeTemplate, context.getCsar())) != null)
             && hasCompleteMatching(nodesForMatching, iface, op)) {
-            System.out.println("CONFIGUREMETHODE");
             result = result & invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
-            System.out.println("CONFIGUREMETHODEERG");
         }
 
         if (((op = this.getLifecyclePatternStartMethod(nodeTemplate, context.getCsar())) != null)
             && hasCompleteMatching(nodesForMatching, iface, op)) {
-            System.out.println("STARTMETHODE");
             result = result & invokeWithMatching(context, nodeTemplate, iface, op, nodesForMatching, elementToAppendTo);
-            System.out.println("STARTMETHODEERG");
         }
-
         return result;
     }
 
@@ -103,10 +92,8 @@ public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
         for (TNodeTypeImplementation impl : ModelUtils.findNodeTypeImplementation(nodeTemplate, csar)) {
             if (impl.getImplementationArtifacts() != null) {
                 for (TImplementationArtifact implArtifact : impl.getImplementationArtifacts()) {
-                    if (implArtifact.getInterfaceName().equals(iface.getName())) {
-                        if (implArtifact.getArtifactType().equals(Types.scriptArtifactType)) {
-                            return true;
-                        }
+                    if (implArtifact.getInterfaceName().equals(iface.getName()) && implArtifact.getArtifactType().equals(Types.scriptArtifactType)) {
+                        return true;
                     }
                 }
             }
@@ -123,15 +110,10 @@ public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
         boolean foundRunScript = false;
         boolean foundTransferFile = false;
         for (TNodeTemplate node : nodeTemplates) {
-            System.out.println("NODES FOR MATCHING");
-            System.out.println(node.getId());
             List<TInterface> interfaces = ModelUtils.findNodeType(node, csar).getInterfaces();
             if (interfaces != null) {
                 for (TInterface iface : interfaces) {
-                    System.out.println("NODE " + node.getId() + "IFACE" + iface.getName());
-                    System.out.println(iface.getName());
                     for (TOperation op : iface.getOperations()) {
-                        System.out.println("NODE " + node.getId() + "IFACE" + iface.getName() + "OPNAME" + op.getName());
                         if (op.getName().equals("runScript")) {
                             foundRunScript = true;
                         }
@@ -148,35 +130,13 @@ public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
 
     private Set<TNodeTemplate> getNodesForMatching(TNodeTemplate nodeTemplate, Csar csar) {
         Set<TNodeTemplate> nodesForMatching = new HashSet<>();
-        System.out.println("NODESFORMATCHINGFUER" + nodeTemplate.getId());
-
         nodesForMatching.add(nodeTemplate);
         ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.dependsOnRelationType, nodesForMatching, csar);
         ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.hostedOnRelationType, nodesForMatching, csar);
-        for (TNodeTemplate n : nodesForMatching) {
-            System.out.println("ERGEBNISFUEr" + nodeTemplate.getId());
-            System.out.println(n.getId());
-        }
         return nodesForMatching;
     }
 
-    private Set<TNodeTemplate> filterForNodesInCreation(BPMNPlanContext context, Set<TNodeTemplate> nodes) {
-        Set<TNodeTemplate> result = new HashSet<>();
-        // alle NodeTemplates aus dem buildplan mit provisioning activity type!
-        Collection<TNodeTemplate> nodesInCreation = context.getNodesInCreation();
-
-        for (TNodeTemplate node : nodes) {
-            if (nodesInCreation.contains(node)) {
-                result.add(node);
-            }
-        }
-
-        return result;
-    }
-
     public boolean isProvisionableByLifecyclePattern(final TNodeTemplate nodeTemplate, Csar csar) {
-
-        System.out.println("inside isprovisionablebylifecyclepattern");
         if (!hasLifecycleProvisioningMethods(nodeTemplate, csar)) {
             return false;
         }
@@ -193,15 +153,12 @@ public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
             && !hasCompleteMatching(nodesForMatching, iface, op)) {
             return false;
         }
-        System.out.println("check 1 passed");
-
         hasScriptImplementation = this.isImplementedAsScript(iface, nodeTemplate, csar);
 
         if (((op = this.getLifecyclePatternConfigureMethod(nodeTemplate, csar)) != null)
             && !hasCompleteMatching(nodesForMatching, iface, op)) {
             return false;
         }
-        System.out.println("check 2 passed");
 
         hasScriptImplementation |= this.isImplementedAsScript(iface, nodeTemplate, csar);
 
@@ -209,18 +166,11 @@ public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
             && !hasCompleteMatching(nodesForMatching, iface, op)) {
             return false;
         }
-        System.out.println("check 3 passed");
 
         hasScriptImplementation |= this.isImplementedAsScript(iface, nodeTemplate, csar);
-        System.out.println("checkHasScriptImplementation");
-        System.out.println(hasScriptImplementation);
         if (hasScriptImplementation) {
-            System.out.println("hateinescriptimplementation");
             return this.checkForRunScriptAndTransferFile(nodeTemplate, csar);
         }
-        System.out.println("check 4 passed");
-        System.out.println("passed all checks");
-
         return true;
     }
 

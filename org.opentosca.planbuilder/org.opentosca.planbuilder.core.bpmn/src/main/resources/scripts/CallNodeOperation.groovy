@@ -1,10 +1,11 @@
 import groovy.json.*
+import java.util.logging.Logger
 
-println "======== Executing CallNodeOperation.groovy with exec ID: ${execution.getId()} ========"
+Logger logger = Logger.getLogger("CallNodeOperation")
+logger.info("======== Executing CallNodeOperation.groovy with exec ID: ${execution.id} ========")
 def csarID = execution.getVariable("CsarID")
 def serviceTemplateID = execution.getVariable("ServiceTemplateID")
 def serviceInstanceURL = execution.getVariable("ServiceInstanceURL")
-def serviceInstanceID = serviceInstanceURL.split("/")[serviceInstanceURL.split("/").length - 1]
 def ip = serviceInstanceURL.substring(7).split("/")[0].split(":")[0]
 
 // Host <-- Target, operation is on Host while property on target
@@ -12,7 +13,7 @@ def hostNodeTemplateID = execution.getVariable("NodeTemplate")
 def nodeInterface = execution.getVariable("Interface")
 def operation = execution.getVariable("Operation")
 
-println "Service Instance $serviceInstanceURL of $serviceTemplateID in CSAR $csarID"
+//logger.info("Service Instance ${serviceInstanceURL} of ${serviceTemplateID} in CSAR ${csarID}")
 
 def inputParamNames = execution.getVariable("InputParamNames")
 def outputParamNames = execution.getVariable("OutputParamNames")
@@ -29,7 +30,6 @@ if (inputParamNames != null) {
             if (paramValue != null) {
                 def type = paramValue.split("!")[0]
                 if (paramValue.contains("#")) {
-                    def compositeParameterType = paramValue.split("#")[1].split("!")[0]
                     compositeParameterValue = paramValue.split("#")[1].split("!")[1]
                     type = type.split("#")[0]
                 }
@@ -50,9 +50,9 @@ if (inputParamNames != null) {
                     def propertyValue = paramValue.split("!")[1].split("#")[0]
                     paramValue = execution.getVariable(propertyValue)
                 }
-                println "Parameter ${inputParamNames[i]} is (maybe) assigned with value $paramValue from $paramName: "
+                //logger.info("Parameter ${inputParamNames[i]} is (maybe) assigned with value ${paramValue} from ${paramName}: ")
                 if (paramValue != "LEER" && paramValue != null) {
-                    println "Parameter ${inputParamNames[i]} is assigned with value $paramValue from $paramName: "
+                    //logger.info("Parameter ${inputParamNames[i]} is assigned with value ${paramValue} from ${paramName}: ")
                     invokeParams = invokeParams + '"' + inputParamNames[i] + '" : "' + paramValue + compositeParameterValue + '",'
                 }
             }
@@ -64,28 +64,25 @@ invokeParams = invokeParams + '}'
 invokeParams = invokeParams.replace(',}', '}')
 dataObjectOfNodeTemplate = 'ResultVariable' + hostNodeTemplateID + '_provisioning_activity'
 nodeInstanceURL = execution.getVariable(dataObjectOfNodeTemplate)
-nodeInstanceID = nodeInstanceURL.substring(nodeInstanceURL.lastIndexOf("/") + 1)
+nodeInstanceID = nodeInstanceURL[nodeInstanceURL.lastIndexOf("/") + 1, -1]
 
-println "invokeParams: $invokeParams"
+//logger.info("invokeParams: ${invokeParams}")
 
 def template = '{"invocation-information" : {"csarID" : "$csarID", "serviceTemplateID" : "$serviceTemplateID", "serviceInstanceID" : "$serviceInstanceID", "nodeInstanceID" : "$nodeInstanceID", "nodeTemplateID" : "$nodeTemplateID", "interface" : "$nodeInterface", "operation" : "$operation"} , "params" : $params}'
 def binding = ["csarID": csarID, "serviceTemplateID": serviceTemplateID, "serviceInstanceID": serviceInstanceURL, "nodeInstanceID": nodeInstanceID, "nodeTemplateID": hostNodeTemplateID, "nodeInterface": nodeInterface, "operation": operation, "params": invokeParams]
 def engine = new groovy.text.SimpleTemplateEngine()
 def message = engine.createTemplate(template).make(binding).toString()
 
-println "message: $message"
+//logger.info("message: ${message}")
 def url = "http://" + ip + ":8086/ManagementBus/v1/invoker"
-
-println "url: $url"
-
 def post = new URL(url).openConnection()
 post.setRequestMethod("POST")
 post.setDoOutput(true)
 post.setRequestProperty("Content-Type", "application/xml")
 post.setRequestProperty("accept", "application/xml")
-post.getOutputStream().write(message.getBytes("UTF-8"))
+post.outputStream.write(message.getBytes("UTF-8"))
 
-def status = post.getResponseCode()
+def status = post.responseCode
 
 if (status != 202) {
     execution.setVariable("ErrorDescription", "Received status code " + status + " while invoking interface: " + nodeInterface + " operation: " + operation + " on NodeTemplate with ID: " + hostNodeTemplateID + "ip: " + ip)
@@ -93,41 +90,38 @@ if (status != 202) {
 }
 
 def taskURL = post.getHeaderField("Location")
-println "taskURL: $taskURL"
 def dataObject = execution.getVariable("DataObject")
-final String PROPERTIES = '.Properties.'
+final String propertiesAccess = '.Properties.'
 // Polling until invocation task is finished and set output variable
 while (true) {
     def get = new URL(taskURL).openConnection()
 
-    if (get.getResponseCode() != 200) {
+    if (get.responseCode != 200) {
         execution.setVariable("ErrorDescription", "Received status code " + status + " while polling for NodeTemplate operation result!")
         throw new org.camunda.bpm.engine.delegate.BpmnError("InvalidStatusCode")
     }
-    if (get.getResponseCode() == 200) {
-        def pollingResult = get.getInputStream().getText()
+    if (get.responseCode == 200) {
+        def pollingResult = get.inputStream.text
         def slurper = new JsonSlurper()
         def pollingResultJSON = slurper.parseText(pollingResult)
 
-        if (!pollingResultJSON.status.equals("PENDING")) {
+        if (pollingResultJSON.status != "PENDING") {
             def responseJSON = pollingResultJSON.response
 
-            println "Response of polling:"
-            println responseJSON
+            //logger.info("Response of polling: ${responseJSON}")
             // in this step we write the output parameter of the operation back to the corresponding data object
             // this is necessary to build the output parameter of the plan
             if (outputParamNames != null) {
                 outputParamNames = outputParamNames.split(",")
                 outputParamNames.each { outputParam ->
-                    String name = dataObject + PROPERTIES + outputParam
+                    String name = dataObject + propertiesAccess + outputParam
                     String value = responseJSON.get(outputParam)
                     execution.setVariable(name, value)
-                    println "Set variable $name: $value"
+                    logger.info("Set variable ${name}: ${value}")
                 }
             }
             return
         }
     }
-
     sleep(10000)
 }

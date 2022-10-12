@@ -14,8 +14,7 @@ def resultVariableName = execution.getVariable('ResultVariableName')
 
 def status = post.responseCode
 if (status == 200) {
-    logger.info("ERFOLGREICH")
-    def resultText = post.getInputStream().text
+    def resultText = post.inputStream.text
     def slurper = new JsonSlurper()
     def json = slurper.parseText(resultText)
     def message2 = execution.getVariable("State")
@@ -34,7 +33,7 @@ if (status == 200) {
             throw new org.camunda.bpm.engine.delegate.BpmnError("InvalidStatusCode")
         }
     }
-    logger.info ("ServiceInstanceURL: ${json}")
+    logger.info("ServiceInstanceURL: ${json}")
     execution.setVariable(resultVariableName, json)
     return json
 } else {

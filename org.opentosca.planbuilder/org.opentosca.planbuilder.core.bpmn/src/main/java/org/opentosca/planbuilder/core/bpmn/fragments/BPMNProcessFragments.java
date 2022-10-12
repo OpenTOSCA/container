@@ -32,9 +32,8 @@ import org.xml.sax.SAXException;
 public class BPMNProcessFragments {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPMNProcessFragments.class);
-
     private final DocumentBuilder docBuilder;
-    protected final String ServiceInstanceURLVarKeyword = "ServiceInstanceURL";
+    private final String ServiceInstanceURLVarKeyword = "ServiceInstanceURL";
 
     /**
      * Constructor

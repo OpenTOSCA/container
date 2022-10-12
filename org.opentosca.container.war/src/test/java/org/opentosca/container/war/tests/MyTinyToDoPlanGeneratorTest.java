@@ -13,7 +13,6 @@ import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opentosca.container.api.service.PlanInvokerService;
@@ -21,7 +20,6 @@ import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.control.plan.PlanGenerationService;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
-import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
@@ -160,7 +158,7 @@ public class MyTinyToDoPlanGeneratorTest {
                 }
                 if (property.equals("ContainerIP")) {
                     String propertyValue = properties.get(property);
-                    assertEquals(testUtils.getDockerHost(), propertyValue);
+                    assertEquals("dind", propertyValue);
                 }
                 if (property.equals("ContainerPort")) {
                     String propertyValue = properties.get(property);
@@ -177,7 +175,7 @@ public class MyTinyToDoPlanGeneratorTest {
         dockerEngineUrl.setName("DockerEngineURL");
         dockerEngineUrl.setRequired(true);
         dockerEngineUrl.setType("String");
-        dockerEngineUrl.setValue("tcp://" + testUtils.getDockerHost() + ":2375");
+        dockerEngineUrl.setValue("tcp://" + "dind" + ":2375");
 
         org.opentosca.container.core.extension.TParameter applicationPort = new org.opentosca.container.core.extension.TParameter();
         applicationPort.setName("ApplicationPort");

@@ -116,7 +116,7 @@ public class BPMNInvokerPluginHandler {
                             }
                         }
                     }
-                } else if (inputParamNames.toString().equals("") && inputParamValues.toString().equals("")) {
+                } else if (inputParamNames.length() == 0 && inputParamValues.length() == 0) {
                     inputParamNames.append(entry.getKey());
                     inputParamValues.append(parameterValue);
                 } else {
@@ -127,7 +127,7 @@ public class BPMNInvokerPluginHandler {
 
             //set output param names and values
             for (Map.Entry<String, Variable> entry : internalExternalPropsOutput.entrySet()) {
-                if (outputParamNames.toString().equals("") && outputParamValues.toString().equals("")) {
+                if (outputParamNames.length() == 0 && outputParamValues.length() == 0) {
                     outputParamNames.append(entry.getKey());
                     outputParamValues.append(entry.getValue().getVariableName());
                 } else {

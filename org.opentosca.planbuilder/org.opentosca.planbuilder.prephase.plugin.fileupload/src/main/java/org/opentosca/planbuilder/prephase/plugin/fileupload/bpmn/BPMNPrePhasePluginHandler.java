@@ -71,13 +71,10 @@ public class BPMNPrePhasePluginHandler {
         PropertyVariable serverIpPropWrapper = null;
         for (final String serverIpName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
             serverIpPropWrapper = templateContext.getPropertyVariable(infraTemplate, serverIpName);
-            if (serverIpPropWrapper != null) {
-                break;
-            }
         }
 
         if (serverIpPropWrapper == null) {
-            BPMNPrePhasePluginHandler.LOG.warn("No Infrastructure Node available with ServerIp property");
+            LOG.warn("No Infrastructure Node available with ServerIp property");
             return false;
         }
 
@@ -85,17 +82,11 @@ public class BPMNPrePhasePluginHandler {
         PropertyVariable sshUserVariable = null;
         for (final String vmLoginName : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
             sshUserVariable = templateContext.getPropertyVariable(infraTemplate, vmLoginName);
-            if (sshUserVariable != null) {
-                break;
-            }
         }
 
         PropertyVariable sshKeyVariable = null;
         for (final String vmLoginPassword : org.opentosca.container.core.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             sshKeyVariable = templateContext.getPropertyVariable(infraTemplate, vmLoginPassword);
-            if (sshKeyVariable != null) {
-                break;
-            }
         }
 
         LOG.debug("Handling DA references:");
