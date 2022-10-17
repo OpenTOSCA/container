@@ -62,7 +62,8 @@ if (inputParamNames != null) {
 
 invokeParams = invokeParams + '}'
 invokeParams = invokeParams.replace(',}', '}')
-dataObjectOfNodeTemplate = 'ResultVariable' + hostNodeTemplateID + '_provisioning_activity'
+hostNodeTemplate = hostNodeTemplateID.replace('-', '_').replace('.', '_')
+dataObjectOfNodeTemplate = 'ResultVariable' + hostNodeTemplate + '_provisioning_activity'
 nodeInstanceURL = execution.getVariable(dataObjectOfNodeTemplate)
 nodeInstanceID = nodeInstanceURL[nodeInstanceURL.lastIndexOf("/") + 1, -1]
 
@@ -74,6 +75,7 @@ def engine = new groovy.text.SimpleTemplateEngine()
 def message = engine.createTemplate(template).make(binding).toString()
 
 //logger.info("message: ${message}")
+print "message: $message"
 def url = "http://" + ip + ":8086/ManagementBus/v1/invoker"
 def post = new URL(url).openConnection()
 post.setRequestMethod("POST")

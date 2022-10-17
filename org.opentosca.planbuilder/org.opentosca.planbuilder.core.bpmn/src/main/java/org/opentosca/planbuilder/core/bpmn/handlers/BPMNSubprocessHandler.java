@@ -38,10 +38,11 @@ public class BPMNSubprocessHandler {
         String idPrefix;
         final BPMNSubprocess bpmnSubprocess;
         final String resultVariablePrefix = "ResultVariable";
-        String id = replaceDotByHyphen(activity.getId());
+        String id = replaceDotByUnderscore(activity.getId());
 
         if (activity instanceof NodeTemplateActivity) {
             NodeTemplateActivity ntActivity = (NodeTemplateActivity) activity;
+            idPrefix = BPMNSubprocessType.SUBPROCESS.toString();
             idPrefix = BPMNSubprocessType.SUBPROCESS.toString();
             bpmnSubprocess = new BPMNSubprocess(ntActivity, BPMNSubprocessType.SUBPROCESS, idPrefix + "_" + id);
             bpmnSubprocess.setBuildPlan(buildPlan);
@@ -49,7 +50,7 @@ public class BPMNSubprocessHandler {
 
             // with each subprocess a node data object is associated to enable fast access to node instance url & maybe properties
             BPMNDataObject dataObject = new BPMNDataObject(BPMNSubprocessType.DATA_OBJECT_NODE, "DataObject_" + id);
-            String resultVariable = resultVariablePrefix + id;
+            String resultVariable = resultVariablePrefix + id.replace("-", "_");
             dataObject.setNodeInstanceURL(resultVariable);
             dataObject.setNodeTemplate(((NodeTemplateActivity) activity).getNodeTemplate().getId());
 
@@ -64,8 +65,8 @@ public class BPMNSubprocessHandler {
             bpmnSubprocess.setBuildPlan(buildPlan);
             bpmnSubprocess.setRelationshipTemplate(((RelationshipTemplateActivity) activity).getRelationshipTemplate());
 
-            String source = replaceDotByHyphen(relActivity.getRelationshipTemplate().getSourceElement().getRef().getId());
-            String target = replaceDotByHyphen(relActivity.getRelationshipTemplate().getTargetElement().getRef().getId());
+            String source = replaceDotByUnderscore(relActivity.getRelationshipTemplate().getSourceElement().getRef().getId()).replace("-", "_");
+            String target = replaceDotByUnderscore(relActivity.getRelationshipTemplate().getTargetElement().getRef().getId()).replace("-", "_");
             // with each subprocess a relationship data object is associated to enable fast access to relationship instance url & maybe properties
             BPMNDataObject dataObject = new BPMNDataObject(BPMNSubprocessType.DATA_OBJECT_REL, "DataObject_" + id);
             dataObject.setRelationshipTemplate(((RelationshipTemplateActivity) activity).getRelationshipTemplate().getId());
@@ -88,8 +89,8 @@ public class BPMNSubprocessHandler {
      * The dot must be replaced by the hyphen otherwise the Camunda Engine throws an exception because the result
      * variable contains the activity id
      */
-    public String replaceDotByHyphen(String activityId) {
-        return activityId.replace(".", "-");
+    public String replaceDotByUnderscore(String activityId) {
+        return activityId.replace(".", "_");
     }
 
     /**

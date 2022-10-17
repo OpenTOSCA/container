@@ -434,7 +434,7 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
 
         //value = xpath query for DA artifact
         final Variable dockerContainerFileRefVar = new Variable(artefactVarName);
-        Variable dockerEngineURLVar = new Variable(DockerContainerTypePluginPluginConstants.PROPERTY_DOCKER_ENGINE_URL);
+        Variable dockerEngineURLVar = new Variable(propMap.get(DockerContainerTypePluginPluginConstants.PROPERTY_DOCKER_ENGINE_URL));
         createDEInternalExternalPropsInput.put("ImageLocation", dockerContainerFileRefVar);
         createDEInternalExternalPropsInput.put("DockerEngineURL", dockerEngineURLVar);
         Variable containerPortsVariable = new Variable(propMap.get(DockerContainerTypePluginPluginConstants.PROPERTY_CONTAINER_PORT) + "->" + propMap.get(DockerContainerTypePluginPluginConstants.PROPERTY_PORT) + ";");

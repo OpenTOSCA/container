@@ -88,7 +88,7 @@ public class BPMNProcessFragments {
         createNodeInstance = createNodeInstance.replaceAll("NodeTemplateInstance_IdToReplace", bpmnSubprocess.getId());
         createNodeInstance = createNodeInstance.replaceAll("NodeTemplateToSet", bpmnSubprocess.getNodeTemplate().getId());
         String parentId = bpmnSubprocess.getParentProcess().getId().replace("Subprocess_", "ResultVariable");
-        createNodeInstance = createNodeInstance.replaceAll("ResultVariableToSet", parentId);
+        createNodeInstance = createNodeInstance.replaceAll("ResultVariableToSet", parentId.replace("-", "_"));
         createNodeInstance = createNodeInstance.replaceAll("NodeTemplateToSet", nodeTemplateId);
         createNodeInstance = createNodeInstance.replaceAll("StateToSet", "INITIAL");
         createNodeInstance = getServiceInstanceURLFromDataObject(bpmnSubprocess, createNodeInstance);
@@ -145,9 +145,7 @@ public class BPMNProcessFragments {
             int counter = 0;
             for (String inputParameterName : bpmnSubprocess.getInputParameterNames().split(",")) {
                 String inputParameterValue = bpmnSubprocess.getInputParameterValues().split(",")[counter];
-                if (inputParameterName.equals("DockerEngineURL")) {
-                    inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append("String!${" + inputParameterName + "}").append("</camunda:inputParameter>");
-                } else if (inputParameterName.equals("ContainerPorts")) {
+                if (inputParameterName.equals("ContainerPorts")) {
                     inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append("String!" + inputParameterValue).append("</camunda:inputParameter>");
                 } else if (inputParameterName.equals("Script")) {
                     inputParameterBuilder.append("<camunda:inputParameter name=\"Input_").append(inputParameterName).append("\">").append("String!" + inputParameterValue).append("</camunda:inputParameter>");
@@ -512,7 +510,7 @@ public class BPMNProcessFragments {
         }
 
         String parentId = bpmnSubprocess.getParentProcess().getId();
-        setNodeProperties = setNodeProperties.replace("NodeInstanceURLToSet", "${" + nodeInstanceURL + "}");
+        setNodeProperties = setNodeProperties.replace("NodeInstanceURLToSet", "${" + nodeInstanceURL.replace("-", "_") + "}");
         setNodeProperties = setNodeProperties.replaceAll("NodeTemplateToSet", nodeTemplateId);
         String prefix = BPMNSubprocessType.DATA_OBJECT_REFERENCE + "_" + BPMNSubprocessType.DATA_OBJECT;
         String dataObjectReferenceId = parentId.replace("Subprocess", prefix);

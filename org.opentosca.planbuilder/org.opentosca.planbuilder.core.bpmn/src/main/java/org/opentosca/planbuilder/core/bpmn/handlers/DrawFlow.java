@@ -17,8 +17,6 @@ public class DrawFlow {
     public static BpmnPlane drawFlow(BpmnPlane plane, ModelInstance modelInstance, Element sfElement, HashMap<String, SequenceReferencePoints> refPoints) {
 
         String sourceRef = sfElement.getAttribute("sourceRef");
-        System.out.println("SOURCEREF");
-        System.out.println(sourceRef);
         String targetRef = sfElement.getAttribute("targetRef");
         SequenceReferencePoints srp = refPoints.get(sourceRef);
 
@@ -38,8 +36,6 @@ public class DrawFlow {
         wp.setY(yExitWaypoint);
         bpmnEdge.addChildElement(wp);
 
-        System.out.println("TYPENAME");
-        System.out.println(refPoints.keySet());
         if (sourceRef.contains("Boundary")) {
             double xEdgeWaypoint = new Double(xExit);
             double yEdgeWaypoint = new Double(yEntry);

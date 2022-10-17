@@ -37,7 +37,7 @@ public class Handler {
         BPMNSubprocess subprocess = context.getSubprocessElement();
         String idPrefix = BPMNSubprocessType.SUBPROCESS.toString();
         final BPMNSubprocess createNodeInstanceTask = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CREATE_NODE_INSTANCE_TASK);
-        createNodeInstanceTask.setResultVariableName(idPrefix + nodeTemplate.getId());
+        createNodeInstanceTask.setResultVariableName(idPrefix + nodeTemplate.getId().replace("-", "_"));
         subprocess.addTaskToSubprocess(createNodeInstanceTask);
         return true;
     }
