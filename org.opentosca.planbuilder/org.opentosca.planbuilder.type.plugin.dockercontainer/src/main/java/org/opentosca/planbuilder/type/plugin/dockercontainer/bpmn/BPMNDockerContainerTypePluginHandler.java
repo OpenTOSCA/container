@@ -20,6 +20,7 @@ import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.core.plugins.utils.PluginUtils;
 import org.opentosca.container.core.model.ModelUtils;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNDataObject;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpmn.BPMNInvokerPlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContainerTypePlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContainerTypePluginPluginConstants;
@@ -42,11 +43,11 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
 
     private final BPMNInvokerPlugin invokerPlugin = new BPMNInvokerPlugin();
 
-    public static TDeploymentArtifact fetchFirstDockerContainerDA(final TNodeTemplate nodeTemplate, Csar csar) {
+    public static TDeploymentArtifact fetchFirstDockerContainerDA(final TNodeTemplate nodeTemplate, final Csar csar) {
         return getTDeploymentArtifact(nodeTemplate, csar);
     }
 
-    public static List<TDeploymentArtifact> fetchVolumeDeploymentArtifacts(final TNodeTemplate nodeTemplate, Csar csar) {
+    public static List<TDeploymentArtifact> fetchVolumeDeploymentArtifacts(final TNodeTemplate nodeTemplate, final Csar csar) {
         final List<TDeploymentArtifact> das = new ArrayList<>();
 
         for (final TDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
@@ -66,7 +67,7 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
         return das;
     }
 
-    public static void addProperties(Variable sshPortVar, Variable containerIpVar, Variable containerIdVar, Variable envMappingVar, Variable linksVar, Variable deviceMappingVar, Map<String, Variable> createDEInternalExternalPropsInput, Map<String, Variable> createDEInternalExternalPropsOutput) {
+    public static void addProperties(final Variable sshPortVar, final Variable containerIpVar, final Variable containerIdVar, final Variable envMappingVar, final Variable linksVar, final Variable deviceMappingVar, final Map<String, Variable> createDEInternalExternalPropsInput, final Map<String, Variable> createDEInternalExternalPropsOutput) {
         if (envMappingVar != null) {
             createDEInternalExternalPropsInput.put("ContainerEnv", envMappingVar);
         }
@@ -94,11 +95,11 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
         }
     }
 
-    private boolean handleTerminate(final BPMNPlanContext context, Element elementToAppendTo) {
+    private boolean handleTerminate(final BPMNPlanContext context, final Element elementToAppendTo) {
         final List<TNodeTemplate> nodes = new ArrayList<>();
         ModelUtils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes, context.getCsar());
 
-        for (TNodeTemplate node : nodes) {
+        for (final TNodeTemplate node : nodes) {
             if (org.opentosca.container.core.convention.Utils.isSupportedDockerEngineNodeType(node.getType())) {
 
                 final Map<String, Variable> createDEInternalExternalPropsInput = new HashMap<>();
@@ -375,7 +376,7 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
      * @param context contains subprocess for current task
      * @return String containing the DA for processing inside callNodeOperation groovy script
      */
-    public String createDAReference(TDeploymentArtifact da, BPMNPlanContext context) {
+    public String createDAReference(final TDeploymentArtifact da, final BPMNPlanContext context) {
         final TArtifactTemplate artifactTemplate = ModelUtils.findArtifactTemplate(da.getArtifactRef(), context.getCsar());
         String reference = artifactTemplate.getArtifactReferences().get(0).getReference();
         String[] directories = reference.split("/");
@@ -410,11 +411,16 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
         // map properties to input and output parameters
         final Map<String, Variable> createDEInternalExternalPropsInput = new HashMap<>();
         final Map<String, Variable> createDEInternalExternalPropsOutput = new HashMap<>();
-
+        String dockerEngineVar = "";
+        //2022-10-23 21:27:01.241 INFO  [main] o.o.p.t.p.d.b.BPMNDockerContainerTypePluginHandler:416  : DockerEngine_w1_0
+        //2022-10-23 21:27:01.241 INFO  [main] o.o.p.t.p.d.b.BPMNDockerContainerTypePluginHandler:417  : DockerEngine_w1
+        //2022-10-23 21:27:01.241 INFO  [main] o.o.p.t.p.d.b.BPMNDockerContainerTypePluginHandler:418  : DataObject_con_HostedOn_0_provisioning_activity
         // set value by data object
-        for (String property : context.getSubprocessElement().getDataObject().getProperties()) {
+        for (final String property : context.getSubprocessElement().getDataObject().getProperties()) {
             String propertyName = property.split("#")[0];
+            LOG.info("DOCER propertyName {}", propertyName);
             String propertyValue = property.split("#")[1];
+            LOG.info("DOCER propertyValue {}", propertyValue);
             // either we have something like DockerEngine#GDockerEngineURL or
             // Port#GApplicationPort these values have to be in the dollar brackets otherwise we get an error
             if (propertyValue.startsWith("G")) {
@@ -426,6 +432,23 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
             }
         }
 
+        for (final BPMNDataObject d : context.getSubprocessElement().getBuildPlan().getDataObjectsList()) {
+            String dataObjectId = d.getId();
+            int nodeTemplate = dataObjectId.indexOf("_");
+            int suffix = dataObjectId.lastIndexOf("_");
+            LOG.info(d.getId());
+            if (suffix > -1) {
+                int secondLastOccurence = dataObjectId.lastIndexOf('_', suffix - 1);
+                if (secondLastOccurence > -1) {
+                    String nodeTemplateId = dataObjectId.substring(nodeTemplate + 1, secondLastOccurence);
+                    LOG.info("NDOCKER {}", nodeTemplateId);
+                    LOG.info(dockerEngineNode.getId());
+                    if (nodeTemplateId.equals(dockerEngineNode.getId())) {
+                        dockerEngineVar = "VALUE!DataObjectReference_" + d.getId() + ".Properties.DockerEngineURL";
+                    }
+                }
+            }
+        }
         // create and set input for Input_DA
         final String deploymentArtifactReference = createDAReference(da, context);
         context.getSubprocessElement().setDeploymentArtifactString(deploymentArtifactReference);
@@ -434,8 +457,8 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
 
         //value = xpath query for DA artifact
         final Variable dockerContainerFileRefVar = new Variable(artefactVarName);
-        Variable dockerEngineURLVar = new Variable(propMap.get(DockerContainerTypePluginPluginConstants.PROPERTY_DOCKER_ENGINE_URL));
         createDEInternalExternalPropsInput.put("ImageLocation", dockerContainerFileRefVar);
+        Variable dockerEngineURLVar = new Variable(dockerEngineVar);
         createDEInternalExternalPropsInput.put("DockerEngineURL", dockerEngineURLVar);
         Variable containerPortsVariable = new Variable(propMap.get(DockerContainerTypePluginPluginConstants.PROPERTY_CONTAINER_PORT) + "->" + propMap.get(DockerContainerTypePluginPluginConstants.PROPERTY_PORT) + ";");
         createDEInternalExternalPropsInput.put("ContainerPorts", containerPortsVariable);
@@ -463,7 +486,7 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
         final Map<String, Variable> createDEInternalExternalPropsOutput = new HashMap<>();
         Map<String, String> containerPropMap = ModelUtils.asMap(context.getNodeTemplate().getProperties());
         Map<String, String> propMap = containerPropMap;
-        for (String property : context.getSubprocessElement().getDataObject().getProperties()) {
+        for (final String property : context.getSubprocessElement().getDataObject().getProperties()) {
             String propertyName = property.split("#")[0];
             String propertyValue = property.split("#")[1];
             // either we have something like DockerEngine#GDockerEngineURL or
@@ -509,7 +532,7 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
             context.getSubprocessElement().getBpmnSubprocessElement());
     }
 
-    private void createPropertiesMapping(Variable containerMountPath, Variable remoteVolumeDataVariable, Variable hostVolumeDataVariable, Variable vmIpVariable, Variable vmPrivateKeyVariable, Map<String, Variable> createDEInternalExternalPropsInput) {
+    private void createPropertiesMapping(final Variable containerMountPath, final Variable remoteVolumeDataVariable, final Variable hostVolumeDataVariable, final Variable vmIpVariable, final Variable vmPrivateKeyVariable, final Map<String, Variable> createDEInternalExternalPropsInput) {
         if (containerMountPath != null) {
             if (remoteVolumeDataVariable != null) {
                 createDEInternalExternalPropsInput.put("RemoteVolumeData", remoteVolumeDataVariable);

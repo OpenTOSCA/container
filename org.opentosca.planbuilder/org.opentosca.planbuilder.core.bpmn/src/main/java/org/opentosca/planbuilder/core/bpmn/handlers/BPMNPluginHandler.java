@@ -34,7 +34,7 @@ public class BPMNPluginHandler {
     private BPMNSubprocessHandler subprocessHandler;
 
     @Inject
-    public BPMNPluginHandler(PluginRegistry pluginRegistry) throws ParserConfigurationException {
+    public BPMNPluginHandler(final PluginRegistry pluginRegistry) throws ParserConfigurationException {
         this.pluginRegistry = pluginRegistry;
         this.subprocessHandler = new BPMNSubprocessHandler();
     }

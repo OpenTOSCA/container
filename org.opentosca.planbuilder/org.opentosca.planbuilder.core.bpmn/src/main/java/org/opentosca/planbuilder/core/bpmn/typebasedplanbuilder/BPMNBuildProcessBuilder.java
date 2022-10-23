@@ -69,10 +69,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
     private BPMNFinalizer bpmnFinalizer;
     private BPMNSubprocessHandler bpmnSubprocessHandler;
 
-    /**
-     * Default Constructor
-     */
-    public BPMNBuildProcessBuilder(PluginRegistry pluginRegistry) {
+    public BPMNBuildProcessBuilder(final PluginRegistry pluginRegistry) {
         super(pluginRegistry);
         try {
             this.bpmnPluginHandler = new BPMNPluginHandler(pluginRegistry);
@@ -94,7 +91,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(Csar csar, TDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
             if (ModelUtils.findServiceTemplateOperation(definitions, OpenTOSCA_LifecycleInterface, OpenTOSCA_BuildPlanOperation) == null) {
@@ -134,8 +131,8 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
         if (namespace.equals(serviceTemplateQname.getNamespaceURI())
             && serviceTemplate.getId().equals(serviceTemplateQname.getLocalPart())) {
 
-            final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_buildPlan2");
-            final String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan2";
+            final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_bpmnBuildPlan");
+            final String processNamespace = serviceTemplate.getTargetNamespace() + "_bpmnBuildPlan";
 
             AbstractPlan buildPlan =
                 AbstractBuildPlanBuilder.generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate, csar);
@@ -179,7 +176,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             } catch (IOException | SAXException e) {
                 e.printStackTrace();
             }
-            // writeXML(bpmnPlan.getBpmnDocument());
+            writeXML(bpmnPlan.getBpmnDocument());
             return bpmnPlan;
         }
         LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
@@ -187,7 +184,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
         return null;
     }
 
-    public void writeXML(Document s) {
+    public void writeXML(final Document s) {
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transformer = null;
         try {
@@ -204,10 +201,10 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
     }
 
     /**
-     * <p>
-     * This method assigns plugins to the already initialized BuildPlan and its TemplateBuildPlans. First there will be
-     * checked if any generic plugin can handle a template of the TopologyTemplate
-     * </p>
+     *
+     * This method assigns plugins to the already initialized build plan and its subprocesses. First there will be
+     * checked if any generic plugin can handle a template of the TopologyTemplate.
+     *
      *
      * @param buildPlan a BuildPlan which is already initialized
      * @param map       a PropertyMap which contains mappings from Template to Property and to variable name of inside
@@ -225,8 +222,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 // if this nodeTemplate has the label running (Property: State=Running), skip
                 // provisioning and just generate instance data handling
                 // extended check for OperatingSystem node type
-                if (isRunning(nodeTemplate)
-                    /*|| ModelUtils.findNodeType(nodeTemplate, csar).getName().equals(Types.abstractOperatingSystemNodeType.getLocalPart())*/) {
+                if (isRunning(nodeTemplate)) {
                     LOG.info("Skipping the provisioning of NodeTemplate "
                         + bpmnSubprocess.getNodeTemplate().getId() + "  because state=running is set.");
                     for (final IPlanBuilderBPMNPrePhasePlugin prePhasePlugin : this.pluginRegistry.getPreBPMNPlugins()) {

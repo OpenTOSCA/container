@@ -83,7 +83,7 @@ public class BPMNPlanHandler {
         ArrayList<String> scriptNames = new ArrayList<>();
         String script;
         try {
-            for (String name : BPMN_SCRIPT_NAMES) {
+            for (final String name : BPMN_SCRIPT_NAMES) {
                 script = processFragments.createScript(name);
                 scripts.add(script);
                 scriptNames.add(name);
@@ -106,7 +106,7 @@ public class BPMNPlanHandler {
             "bpmn:definitions"));
         bpmnPlan.getBpmnDocument().appendChild(bpmnPlan.getBpmnDefinitionElement());
         // declare xml schema namespace
-        for (String[] namespace : namespaces) {
+        for (final String[] namespace : namespaces) {
             bpmnPlan.getBpmnDefinitionElement().setAttributeNS(xmlns, namespace[0], namespace[1]);
         }
 
@@ -152,7 +152,7 @@ public class BPMNPlanHandler {
     /**
      * Adds the subprocess to the plan if both node templates are already in the plan
      */
-    public void handleRelationshipTemplate(BPMNPlan plan, ArrayList<String> visitedNodeIds, HashMap<String, Integer> relationshipVisitedMap, AbstractActivity activity, AbstractActivity source, AbstractActivity target) {
+    public void handleRelationshipTemplate(final BPMNPlan plan, final ArrayList<String> visitedNodeIds, final HashMap<String, Integer> relationshipVisitedMap, final AbstractActivity activity, final AbstractActivity source, final AbstractActivity target) {
         BPMNSubprocess subprocess;
         if (source instanceof RelationshipTemplateActivity && visitedNodeIds.contains(target.getId()) && target.getId().contains(activity.getId())) {
             if (relationshipVisitedMap.containsKey(source.getId())) {
@@ -172,8 +172,8 @@ public class BPMNPlanHandler {
      * In the BPMNBuildProcessBuilder we already created a subprocess which is now filled with activate data object
      * tasks to make use of the data objects.
      */
-    public void addActivateDataObjectTaskToSubprocess(BPMNSubprocess dataObjectSubprocess, BPMNPlan bpmnPlan) {
-        for (BPMNDataObject bpmnDataObject : bpmnPlan.getDataObjectsList()) {
+    public void addActivateDataObjectTaskToSubprocess(final BPMNSubprocess dataObjectSubprocess, final BPMNPlan bpmnPlan) {
+        for (final BPMNDataObject bpmnDataObject : bpmnPlan.getDataObjectsList()) {
             BPMNSubprocess activateDataObjectTask = new BPMNSubprocess(BPMNSubprocessType.ACTIVATE_DATA_OBJECT_TASK, bpmnDataObject.getId() + "_DataObjectActivateTask");
             activateDataObjectTask.setBuildPlan(bpmnPlan);
             TNodeTemplate dataObjectNodeTemplate = null;

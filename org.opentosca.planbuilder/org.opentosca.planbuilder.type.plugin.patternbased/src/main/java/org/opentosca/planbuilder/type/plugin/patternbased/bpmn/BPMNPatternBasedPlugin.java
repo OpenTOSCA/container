@@ -50,7 +50,7 @@ public class BPMNPatternBasedPlugin implements IPlanBuilderBPMNTypePlugin<BPMNPl
     }
 
     @Override
-    public boolean handleCreate(final BPMNPlanContext templateContext, TNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPMNPlanContext templateContext, final TNodeTemplate nodeTemplate) {
         LOG.debug("Handling nodeTemplate {} by pattern", nodeTemplate.getId());
         LOG.info("im patternbased plugin (handle create)");
         LOG.info("nodeTemplate: " + nodeTemplate.getName());
@@ -110,7 +110,7 @@ public class BPMNPatternBasedPlugin implements IPlanBuilderBPMNTypePlugin<BPMNPl
     }
 
     @Override
-    public boolean canHandleCreate(Csar csar, final TNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(final Csar csar, final TNodeTemplate nodeTemplate) {
         LOG.info("Checking if nodeTemplate {} can be handled by container or lifecycle pattern", nodeTemplate.getId());
         if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate, csar)) {
             LOG.debug("Can be handled by container pattern");
@@ -132,24 +132,24 @@ public class BPMNPatternBasedPlugin implements IPlanBuilderBPMNTypePlugin<BPMNPl
     }
 
     @Override
-    public boolean canHandleCreate(Csar csar, final TRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(final Csar csar, final TRelationshipTemplate relationshipTemplate) {
         // can only handle node templates
         return false;
     }
 
     @Override
-    public boolean handleCreate(BPMNPlanContext templateContext, TRelationshipTemplate relationshipTemplate) {
+    public boolean handleCreate(final BPMNPlanContext templateContext, final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean handleTerminate(BPMNPlanContext templateContext, TRelationshipTemplate relationshipTemplate) {
+    public boolean handleTerminate(final BPMNPlanContext templateContext, final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
     // gets used by hardware plugin
     @Override
-    public Collection<TNodeTemplate> getCreateDependencies(TNodeTemplate nodeTemplate, Csar csar) {
+    public Collection<TNodeTemplate> getCreateDependencies(final TNodeTemplate nodeTemplate, final Csar csar) {
         Collection<TNodeTemplate> deps = new HashSet<TNodeTemplate>();
         LOG.debug("Checking nodeTemplate {} dependencies", nodeTemplate.getId());
         if (containerPatternHandler.isProvisionableByContainerPattern(nodeTemplate, csar)) {
@@ -172,7 +172,7 @@ public class BPMNPatternBasedPlugin implements IPlanBuilderBPMNTypePlugin<BPMNPl
     }
 
     @Override
-    public Collection<TNodeTemplate> getTerminateDependencies(TNodeTemplate nodeTemplate, Csar csar) {
+    public Collection<TNodeTemplate> getTerminateDependencies(final TNodeTemplate nodeTemplate, final Csar csar) {
         Collection<TNodeTemplate> deps = new HashSet<>();
         LOG.debug("Checking nodeTemplate {} dependencies", nodeTemplate.getId());
         if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate, csar)) {
@@ -197,18 +197,18 @@ public class BPMNPatternBasedPlugin implements IPlanBuilderBPMNTypePlugin<BPMNPl
     }
 
     @Override
-    public boolean handleTerminate(BPMNPlanContext templateContext, TNodeTemplate nodeTemplate) {
+    public boolean handleTerminate(final BPMNPlanContext templateContext, final TNodeTemplate nodeTemplate) {
         LOG.debug("Handling nodeTemplate {} by pattern", nodeTemplate.getId());
         return false;
     }
 
-    public boolean handleTerminate(BPELPlanContext templateContext, TRelationshipTemplate relationshipTemplate) {
+    public boolean handleTerminate(final BPELPlanContext templateContext, final TRelationshipTemplate relationshipTemplate) {
         // never handles relationshipTemplates
         return false;
     }
 
     @Override
-    public boolean canHandleTerminate(Csar csar, TNodeTemplate nodeTemplate) {
+    public boolean canHandleTerminate(final Csar csar, final TNodeTemplate nodeTemplate) {
         LOG.debug("Checking if nodeTemplate {} can be handled by container or lifecycle pattern", nodeTemplate.getId());
         if (containerPatternHandler.isDeprovisionableByContainerPattern(nodeTemplate, csar)) {
             LOG.debug("Can be handled by container pattern");
@@ -226,18 +226,18 @@ public class BPMNPatternBasedPlugin implements IPlanBuilderBPMNTypePlugin<BPMNPl
     }
 
     @Override
-    public boolean canHandleTerminate(Csar csar, TRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(final Csar csar, final TRelationshipTemplate relationshipTemplate) {
         // never handles relationshipTemplates
         return false;
     }
 
     @Override
-    public boolean canHandleUpdate(Csar csar, TNodeTemplate nodeTemplate) {
+    public boolean canHandleUpdate(final Csar csar, final TNodeTemplate nodeTemplate) {
         return true;
     }
 
     @Override
-    public boolean handleUpdate(BPMNPlanContext templateContext, TNodeTemplate nodeTemplate) {
+    public boolean handleUpdate(final BPMNPlanContext templateContext, final TNodeTemplate nodeTemplate) {
         return lifecyclePatternHandler.handleUpdate(templateContext, nodeTemplate,
             templateContext.getSubprocessElement().getBpmnSubprocessElement(), templateContext.getCsar());
     }

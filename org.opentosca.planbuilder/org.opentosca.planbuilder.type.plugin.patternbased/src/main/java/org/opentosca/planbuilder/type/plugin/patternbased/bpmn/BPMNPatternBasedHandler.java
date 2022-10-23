@@ -27,7 +27,7 @@ public abstract class BPMNPatternBasedHandler {
     protected static final BPMNInvokerPlugin invoker = new BPMNInvokerPlugin();
 
     protected boolean invokeOperation(final BPMNPlanContext context, final ConcreteOperationMatching matching,
-                                      final TNodeTemplate hostingContainer, Element elementToAppendTo) {
+                                      final TNodeTemplate hostingContainer, final Element elementToAppendTo) {
 
         return invoker.handle(context, hostingContainer, true, matching.operationName.getName(),
             matching.interfaceName.getName(), transformForInvoker(matching.inputMatching),
@@ -40,20 +40,20 @@ public abstract class BPMNPatternBasedHandler {
         return newMap;
     }
 
-    protected boolean invokeArtifactReferenceUpload(BPMNPlanContext context, TArtifactReference ref, TNodeTemplate infraNode) {
+    protected boolean invokeArtifactReferenceUpload(final BPMNPlanContext context, final TArtifactReference ref, final TNodeTemplate infraNode) {
         PropertyVariable ip = this.getIpProperty(context, infraNode);
         PropertyVariable user = this.getUserProperty(context, infraNode);
         PropertyVariable key = this.getKeyProperty(context, infraNode);
 
         if (!(Objects.nonNull(ip) && Objects.nonNull(user) && Objects.nonNull(key))) {
-            throw new NullPointerException("Couldn't fetch required variables to enable DA upload with the Remote Manager pattern");
+            throw new IllegalArgumentException("Couldn't fetch required variables to enable DA upload with the Remote Manager pattern");
         }
 
         return false;
     }
 
-    protected PropertyVariable getIpProperty(BPMNPlanContext context, TNodeTemplate node) {
-        for (String propName : Utils.getSupportedVirtualMachineIPPropertyNames()) {
+    protected PropertyVariable getIpProperty(final BPMNPlanContext context, final TNodeTemplate node) {
+        for (final String propName : Utils.getSupportedVirtualMachineIPPropertyNames()) {
             PropertyVariable propVar = context.getPropertyVariable(propName);
             if (propVar != null) {
                 return propVar;
@@ -62,8 +62,8 @@ public abstract class BPMNPatternBasedHandler {
         return null;
     }
 
-    protected PropertyVariable getUserProperty(BPMNPlanContext context, TNodeTemplate node) {
-        for (String propName : Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+    protected PropertyVariable getUserProperty(final BPMNPlanContext context, final TNodeTemplate node) {
+        for (final String propName : Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
             PropertyVariable propVar = context.getPropertyVariable(propName);
             if (propVar != null) {
                 return propVar;
@@ -72,8 +72,8 @@ public abstract class BPMNPatternBasedHandler {
         return null;
     }
 
-    protected PropertyVariable getKeyProperty(BPMNPlanContext context, TNodeTemplate node) {
-        for (String propName : Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+    protected PropertyVariable getKeyProperty(final BPMNPlanContext context, final TNodeTemplate node) {
+        for (final String propName : Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
             PropertyVariable propVar = context.getPropertyVariable(propName);
             if (propVar != null) {
                 return propVar;
@@ -84,7 +84,7 @@ public abstract class BPMNPatternBasedHandler {
 
     protected boolean invokeWithMatching(final BPMNPlanContext context, final TNodeTemplate nodeTemplate,
                                          final TInterface iface, final TOperation op,
-                                         final Set<TNodeTemplate> nodesForMatching, Element elementToAppendTo) {
+                                         final Set<TNodeTemplate> nodesForMatching, final Element elementToAppendTo) {
         final ConcreteOperationMatching matching =
             createConcreteOperationMatching(context, createPropertyToParameterMatching(nodesForMatching, iface, op));
         return invokeOperation(context, matching, nodeTemplate, elementToAppendTo);
@@ -231,8 +231,8 @@ public abstract class BPMNPatternBasedHandler {
 
         TInterface interfaceName;
         TOperation operationName;
-        Map<TParameter, Variable> inputMatching = new HashMap<>();
-        Map<TParameter, Variable> outputMatching = new HashMap<>();
+        Map<TParameter, Variable> inputMatching;
+        Map<TParameter, Variable> outputMatching;
         Set<TNodeTemplate> matchedNodes;
 
         public ConcreteOperationMatching(final TInterface iface, final TOperation op) {

@@ -150,7 +150,7 @@ public class BPMNConnectsToPluginHandler implements ConnectsToBPMNPluginHandler<
         HashMap<String, Variable> inputParamsForInvoker = new HashMap<String, Variable>();
 
         // convert param to String for use in invoker
-        for (Map.Entry<TParameter, Variable> param2propertyMapEntry : param2propertyMapping.entrySet()) {
+        for (final Map.Entry<TParameter, Variable> param2propertyMapEntry : param2propertyMapping.entrySet()) {
             inputParamsForInvoker.put(param2propertyMapEntry.getKey().getName(), param2propertyMapEntry.getValue());
         }
         final Boolean result = invoker.handle(templateContext, connectToNode, false, connectsToOp.getName(),
@@ -179,7 +179,7 @@ public class BPMNConnectsToPluginHandler implements ConnectsToBPMNPluginHandler<
                                        final TNodeTemplate connectToNode,
                                        final TNodeTemplate sourceParameterNode,
                                        final TNodeTemplate targetParameterNode,
-                                       Map<TParameter, Variable> param2propertyMapping, TParameter param) {
+                                       final Map<TParameter, Variable> param2propertyMapping, final TParameter param) {
         // search matching property  in the RelationshipTemplate properties
         final Variable var =
             templateContext.getPropertyVariable(templateContext.getRelationshipTemplate(), param.getName());
@@ -225,7 +225,7 @@ public class BPMNConnectsToPluginHandler implements ConnectsToBPMNPluginHandler<
     private boolean findInputPrefixedParameter(final BPMNPlanContext templateContext,
                                                final TNodeTemplate sourceParameterNode,
                                                final TNodeTemplate targetParameterNode,
-                                               Map<TParameter, Variable> param2propertyMapping, TParameter param) {
+                                               final Map<TParameter, Variable> param2propertyMapping, final TParameter param) {
         String unprefixedParam = null;
         boolean isSource = false;
 
@@ -315,7 +315,7 @@ public class BPMNConnectsToPluginHandler implements ConnectsToBPMNPluginHandler<
                                         final String paramName,
                                         final TParameter param,
                                         final Map<TParameter, Variable> param2propertyMapping, final TNodeTemplate... parametersRootNodes) {
-        for (TNodeTemplate paramRootNode : parametersRootNodes) {
+        for (final TNodeTemplate paramRootNode : parametersRootNodes) {
             if (this.searchAndAddIfFound(templateContext, paramRootNode, paramName, param, param2propertyMapping)) {
                 return true;
             }
@@ -323,7 +323,7 @@ public class BPMNConnectsToPluginHandler implements ConnectsToBPMNPluginHandler<
         return false;
     }
 
-    private boolean isPrefixedParam(TParameter param) {
+    private boolean isPrefixedParam(final TParameter param) {
         return param.getName().startsWith("SOURCE_") || param.getName().startsWith("TARGET_");
     }
 
@@ -370,7 +370,7 @@ public class BPMNConnectsToPluginHandler implements ConnectsToBPMNPluginHandler<
      * @return an TNodeTemplate which is a target of an hostedOn relation. Null if the given nodeTemplate isn't
      * connected to as a source to a hostedOn relation
      */
-    private TNodeTemplate fetchNodeConnectedWithHostedOn(final TNodeTemplate nodeTemplate, Csar csar) {
+    private TNodeTemplate fetchNodeConnectedWithHostedOn(final TNodeTemplate nodeTemplate, final Csar csar) {
         for (final TRelationshipTemplate relation : ModelUtils.getOutgoingRelations(nodeTemplate, csar)) {
             if (ModelUtils.getRelationshipTypeHierarchy(ModelUtils.findRelationshipType(relation, csar), csar)
                 .contains(Types.hostedOnRelationType)) {
@@ -380,7 +380,7 @@ public class BPMNConnectsToPluginHandler implements ConnectsToBPMNPluginHandler<
         return null;
     }
 
-    private String getInterface(final TNodeTemplate nodeTemplate, final String operationName, Csar csar) {
+    private String getInterface(final TNodeTemplate nodeTemplate, final String operationName, final Csar csar) {
         List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
         if (interfaces != null) {
             for (final TInterface iface : interfaces) {
@@ -394,12 +394,12 @@ public class BPMNConnectsToPluginHandler implements ConnectsToBPMNPluginHandler<
         return null;
     }
 
-    private boolean startAndStopAvailable(final TNodeTemplate nodeTemplate, Csar csar) {
+    private boolean startAndStopAvailable(final TNodeTemplate nodeTemplate, final Csar csar) {
         return hasOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, csar)
             & hasOperation(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, csar);
     }
 
-    private boolean hasOperation(final TNodeTemplate nodeTemplate, final String operationName, Csar csar) {
+    private boolean hasOperation(final TNodeTemplate nodeTemplate, final String operationName, final Csar csar) {
         TNodeType nodeType = ModelUtils.findNodeType(nodeTemplate, csar);
         if (Objects.isNull(nodeType.getInterfaces())) {
             return false;

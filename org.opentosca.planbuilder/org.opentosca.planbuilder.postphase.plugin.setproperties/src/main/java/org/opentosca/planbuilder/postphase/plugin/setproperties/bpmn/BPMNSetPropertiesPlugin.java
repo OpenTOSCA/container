@@ -18,82 +18,82 @@ public class BPMNSetPropertiesPlugin implements IPlanBuilderBPMNPostPhasePlugin<
     private final BPMNSetPropertiesHandler handler = new BPMNSetPropertiesHandler();
 
     @Override
-    public boolean handleCreate(BPMNPlanContext context, TNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate) {
         return this.handler.handleCreate(context, nodeTemplate);
     }
 
     @Override
-    public boolean handleCreate(BPMNPlanContext context, TRelationshipTemplate relationshipTemplate) {
+    public boolean handleCreate(final BPMNPlanContext context, final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandleCreate(BPMNPlanContext context, TNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate) {
         return true;
     }
 
     @Override
-    public boolean canHandleCreate(BPMNPlanContext context, TRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(final BPMNPlanContext context, final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean handleTerminate(BPMNPlanContext context, TNodeTemplate nodeTemplate) {
+    public boolean handleTerminate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate) {
         return false;
     }
 
     @Override
-    public boolean handleTerminate(BPMNPlanContext context, TRelationshipTemplate relationshipTemplate) {
+    public boolean handleTerminate(final BPMNPlanContext context, final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandleTerminate(BPMNPlanContext context, TNodeTemplate nodeTemplate) {
+    public boolean canHandleTerminate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandleTerminate(BPMNPlanContext context, TRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(final BPMNPlanContext context, final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean handleUpdate(BPMNPlanContext sourceContext, BPMNPlanContext targetContext, TNodeTemplate sourceNodeTemplate, TNodeTemplate targetNodeTemplate) {
+    public boolean handleUpdate(final BPMNPlanContext sourceContext, final BPMNPlanContext targetContext, final TNodeTemplate sourceNodeTemplate, final TNodeTemplate targetNodeTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandleUpdate(TNodeTemplate sourceNodeTemplate, TNodeTemplate targetNodeTemplate) {
+    public boolean canHandleUpdate(final TNodeTemplate sourceNodeTemplate, final TNodeTemplate targetNodeTemplate) {
         return false;
     }
 
     @Override
-    public boolean handleUpdate(BPMNPlanContext sourceContext, BPMNPlanContext targetContext, TRelationshipTemplate sourceRelationshipTemplate, TRelationshipTemplate targetRelationshipTemplate) {
+    public boolean handleUpdate(final BPMNPlanContext sourceContext, final BPMNPlanContext targetContext, final TRelationshipTemplate sourceRelationshipTemplate, final TRelationshipTemplate targetRelationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandleUpdate(TRelationshipTemplate sourceRelationshipTemplate, TRelationshipTemplate targetRelationshipTemplate) {
+    public boolean canHandleUpdate(final TRelationshipTemplate sourceRelationshipTemplate, final TRelationshipTemplate targetRelationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean handleUpgrade(BPMNPlanContext context, TNodeTemplate nodeTemplate) {
+    public boolean handleUpgrade(final BPMNPlanContext context, final TNodeTemplate nodeTemplate) {
         return false;
     }
 
     @Override
-    public boolean handleUpgrade(BPMNPlanContext context, TRelationshipTemplate relationshipTemplate) {
+    public boolean handleUpgrade(final BPMNPlanContext context, final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandleUpgrade(BPMNPlanContext context, TNodeTemplate nodeTemplate) {
+    public boolean canHandleUpgrade(final BPMNPlanContext context, final TNodeTemplate nodeTemplate) {
         return false;
     }
 
     @Override
-    public boolean canHandleUpgrade(BPMNPlanContext context, TRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleUpgrade(final BPMNPlanContext context, final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 

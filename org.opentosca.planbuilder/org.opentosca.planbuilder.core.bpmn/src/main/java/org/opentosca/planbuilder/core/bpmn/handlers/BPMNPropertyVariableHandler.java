@@ -84,7 +84,7 @@ public class BPMNPropertyVariableHandler {
 
             Map<String, String> propMap = ModelUtils.asMap(relationshipTemplate.getProperties());
 
-            for (String propName : propMap.keySet()) {
+            for (final String propName : propMap.keySet()) {
 
                 String propVarName = this.createPropertyVariableName(serviceTemplate, relationshipTemplate, propName);
 
@@ -137,7 +137,7 @@ public class BPMNPropertyVariableHandler {
         final TNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
         if (nodeTemplate.getProperties() != null) {
             Map<String, String> propMap = ModelUtils.asMap(nodeTemplate.getProperties());
-            for (String propName : propMap.keySet()) {
+            for (final String propName : propMap.keySet()) {
                 String propVarName = this.createPropertyVariableName(serviceTemplate, nodeTemplate, propName);
 
                 /*

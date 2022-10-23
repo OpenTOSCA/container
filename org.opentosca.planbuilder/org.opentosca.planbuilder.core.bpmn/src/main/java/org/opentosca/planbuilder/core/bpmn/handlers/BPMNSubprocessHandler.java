@@ -89,7 +89,7 @@ public class BPMNSubprocessHandler {
      * The dot must be replaced by the hyphen otherwise the Camunda Engine throws an exception because the result
      * variable contains the activity id
      */
-    public String replaceDotByUnderscore(String activityId) {
+    public String replaceDotByUnderscore(final String activityId) {
         return activityId.replace(".", "_");
     }
 
@@ -126,7 +126,7 @@ public class BPMNSubprocessHandler {
         templateBuildPlan.getBpmnSubprocessElement().setAttribute("name", name + "_subprocess");
     }
 
-    public BPMNSubprocess createBPMNSubprocessWithinSubprocess(BPMNSubprocess parentSubprocess, BPMNSubprocessType type) {
+    public BPMNSubprocess createBPMNSubprocessWithinSubprocess(final BPMNSubprocess parentSubprocess, final BPMNSubprocessType type) {
         LOG.debug("Create BPMN Subprocess with SubprocessType {} within subprocess {}", type.name(), parentSubprocess.getId());
         BPMNPlan buildPlan = parentSubprocess.getBuildPlan();
         AbstractActivity activity = parentSubprocess.getActivity();
@@ -182,14 +182,14 @@ public class BPMNSubprocessHandler {
     /**
      * Computes the input parameters based on the topology, e.g. the properties value which starts with get_input.
      */
-    public ArrayList<String> computeInputParametersBasedTopology(TTopologyTemplate topologyTemplate) {
+    public ArrayList<String> computeInputParametersBasedTopology(final TTopologyTemplate topologyTemplate) {
         ArrayList<String> inputParameters = new ArrayList<>();
         inputParameters.add("csarEntrypoint");
         inputParameters.add("instanceDataAPIUrl");
         inputParameters.add("containerApiAddress");
         inputParameters.add("OpenTOSCAContainerAPIServiceInstanceURL");
         inputParameters.add("CorrelationID");
-        for (TNodeTemplate nodeTemplate : topologyTemplate.getNodeTemplates()) {
+        for (final TNodeTemplate nodeTemplate : topologyTemplate.getNodeTemplates()) {
             Document document = ToscaEngine.getEntityTemplateProperties(nodeTemplate);
             NodeList nodeList = Objects.requireNonNull(document).getDocumentElement().getChildNodes();
             for (int i = 0; i < nodeList.getLength(); i++) {
@@ -208,7 +208,7 @@ public class BPMNSubprocessHandler {
     /**
      * Computes the properties of the given nodeTemplate.
      */
-    public ArrayList<String> computePropertiesOfNodeTemplate(TNodeTemplate nodeTemplate) {
+    public ArrayList<String> computePropertiesOfNodeTemplate(final TNodeTemplate nodeTemplate) {
         ArrayList<String> properties = new ArrayList<>();
 
         Document document = ToscaEngine.getEntityTemplateProperties(nodeTemplate);

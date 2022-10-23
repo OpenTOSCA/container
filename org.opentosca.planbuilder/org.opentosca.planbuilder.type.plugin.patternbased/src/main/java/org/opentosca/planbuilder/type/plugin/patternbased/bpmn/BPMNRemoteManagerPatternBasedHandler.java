@@ -19,7 +19,7 @@ import org.w3c.dom.Element;
 
 public class BPMNRemoteManagerPatternBasedHandler extends BPMNPatternBasedHandler {
 
-    public boolean handleCreate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate, Element elementToAppendTo) {
+    public boolean handleCreate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate, final Element elementToAppendTo) {
         final TInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_INTERFACE_REMOTE_MANAGER, context.getCsar());
         final TOperation createOperation = getRemoteManagerInstallOperation(nodeTemplate, context.getCsar());
 
@@ -35,7 +35,7 @@ public class BPMNRemoteManagerPatternBasedHandler extends BPMNPatternBasedHandle
         return invokeWithMatching(context, nodeTemplate, iface, createOperation, nodesForMatching, elementToAppendTo);
     }
 
-    public boolean isProvisionableByRemoteManagerPattern(TNodeTemplate node, Csar csar) {
+    public boolean isProvisionableByRemoteManagerPattern(final TNodeTemplate node, final Csar csar) {
 
         if (this.getRemoteManagerInstallOperation(node, csar) == null) {
             return false;
@@ -44,17 +44,17 @@ public class BPMNRemoteManagerPatternBasedHandler extends BPMNPatternBasedHandle
         return this.getRemoteManagerNode(node, csar) != null;
     }
 
-    public Set<TNodeTemplate> getNodeDependencies(TNodeTemplate nodeTemplate, Csar csar) {
+    public Set<TNodeTemplate> getNodeDependencies(final TNodeTemplate nodeTemplate, final Csar csar) {
         return this.calculateNodesForMatching(nodeTemplate, csar);
     }
 
-    private Set<TNodeTemplate> calculateNodesForMatching(final TNodeTemplate nodeTemplate, Csar csar) {
+    private Set<TNodeTemplate> calculateNodesForMatching(final TNodeTemplate nodeTemplate, final Csar csar) {
         final Set<TNodeTemplate> nodesForMatching = new HashSet<>();
         nodesForMatching.add(nodeTemplate);
 
         TNodeTemplate mngrNode = getRemoteManagerNode(nodeTemplate, csar);
 
-        for (TRelationshipTemplate relation : ModelUtils.getOutgoingRelations(nodeTemplate, csar)) {
+        for (final TRelationshipTemplate relation : ModelUtils.getOutgoingRelations(nodeTemplate, csar)) {
             nodesForMatching.add(ModelUtils.getTarget(relation, csar));
         }
 
@@ -63,9 +63,9 @@ public class BPMNRemoteManagerPatternBasedHandler extends BPMNPatternBasedHandle
         return nodesForMatching;
     }
 
-    private TNodeTemplate getRemoteManagerNode(TNodeTemplate node, Csar csar) {
+    private TNodeTemplate getRemoteManagerNode(final TNodeTemplate node, final Csar csar) {
 
-        for (TRelationshipTemplate relation : ModelUtils.getOutgoingRelations(node, csar)) {
+        for (final TRelationshipTemplate relation : ModelUtils.getOutgoingRelations(node, csar)) {
             if (relation.getType().equals(Types.dependsOnRelationType)) {
                 TNodeTemplate remoteMngrNode = ModelUtils.getTarget(relation, csar);
                 if (Utils.isSupportedOSNodeType(remoteMngrNode.getType())) {
@@ -77,10 +77,10 @@ public class BPMNRemoteManagerPatternBasedHandler extends BPMNPatternBasedHandle
         return null;
     }
 
-    private TOperation getRemoteManagerInstallOperation(TNodeTemplate node, Csar csar) {
+    private TOperation getRemoteManagerInstallOperation(final TNodeTemplate node, final Csar csar) {
         TInterface iface = ModelUtils.getInterfaceOfNode(node, Interfaces.OPENTOSCA_INTERFACE_REMOTE_MANAGER, csar);
         if (iface != null) {
-            for (TOperation op : iface.getOperations()) {
+            for (final TOperation op : iface.getOperations()) {
                 if (op.getName().equals("install")) {
                     return op;
                 }
@@ -89,10 +89,10 @@ public class BPMNRemoteManagerPatternBasedHandler extends BPMNPatternBasedHandle
         return null;
     }
 
-    private TOperation getRemoteManagerResetOperation(TNodeTemplate node, Csar csar) {
+    private TOperation getRemoteManagerResetOperation(final TNodeTemplate node, final Csar csar) {
         TInterface iface = ModelUtils.getInterfaceOfNode(node, Interfaces.OPENTOSCA_INTERFACE_REMOTE_MANAGER, csar);
         if (iface != null) {
-            for (TOperation op : iface.getOperations()) {
+            for (final TOperation op : iface.getOperations()) {
                 if (op.getName().equals("reset")) {
                     return op;
                 }
@@ -101,27 +101,27 @@ public class BPMNRemoteManagerPatternBasedHandler extends BPMNPatternBasedHandle
         return null;
     }
 
-    public boolean isDeprovisionableByRemoteManagerPattern(TNodeTemplate nodeTemplate) {
+    public boolean isDeprovisionableByRemoteManagerPattern(final TNodeTemplate nodeTemplate) {
         // TODO Auto-generated method stub
         return false;
     }
 
-    public Collection<? extends TNodeTemplate> getMatchedNodesForDeprovisioning(TNodeTemplate nodeTemplate) {
+    public Collection<? extends TNodeTemplate> getMatchedNodesForDeprovisioning(final TNodeTemplate nodeTemplate) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public boolean handleTerminate(BPMNPlanContext templateContext, TNodeTemplate nodeTemplate,
-                                   Element provisioningPhaseElement) {
+    public boolean handleTerminate(final BPMNPlanContext templateContext, final TNodeTemplate nodeTemplate,
+                                   final Element provisioningPhaseElement) {
         // TODO Auto-generated method stub
         return false;
     }
 
-    public TOperation getRemoteManagerPatternResetMethod(TNodeTemplate nodeTemplate, Csar csar) {
+    public TOperation getRemoteManagerPatternResetMethod(final TNodeTemplate nodeTemplate, final Csar csar) {
         return this.getRemoteManagerResetOperation(nodeTemplate, csar);
     }
 
-    public TOperation getRemoteManagerPatternInstallMethod(TNodeTemplate nodeTemplate, Csar csar) {
+    public TOperation getRemoteManagerPatternInstallMethod(final TNodeTemplate nodeTemplate, final Csar csar) {
         return this.getRemoteManagerInstallOperation(nodeTemplate, csar);
     }
 }

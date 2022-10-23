@@ -19,26 +19,26 @@ public class BPMNInstanceDataPlugin implements IPlanBuilderBPMNPrePhasePlugin<BP
     private final Handler handler = new Handler();
 
     @Override
-    public boolean canHandleCreate(BPMNPlanContext context, final TNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate) {
         // we can handle nodes
         return true;
     }
 
     @Override
-    public boolean canHandleCreate(BPMNPlanContext context, final TRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(final BPMNPlanContext context, final TRelationshipTemplate relationshipTemplate) {
         // we can handle relations
         return true;
     }
 
-    public boolean canHandleTerminate(BPMNPlanContext context, TNodeTemplate nodeTemplate) {
+    public boolean canHandleTerminate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate) {
         return false;
     }
 
-    public boolean canHandleTerminate(BPMNPlanContext context, TRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(final BPMNPlanContext context, final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
-    public boolean handleUpdate(BPMNPlanContext sourceContext, BPMNPlanContext targetContext, TNodeTemplate sourceNodeTemplate, TNodeTemplate targetNodeTemplate) {
+    public boolean handleUpdate(final BPMNPlanContext sourceContext, final BPMNPlanContext targetContext, final TNodeTemplate sourceNodeTemplate, final TNodeTemplate targetNodeTemplate) {
         return false;
     }
 
@@ -60,11 +60,11 @@ public class BPMNInstanceDataPlugin implements IPlanBuilderBPMNPrePhasePlugin<BP
         return this.handler.handleCreate(context, relationshipTemplate);
     }
 
-    public boolean handleTerminate(BPMNPlanContext context, TNodeTemplate nodeTemplate) {
+    public boolean handleTerminate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate) {
         return false;
     }
 
-    public boolean handleTerminate(BPMNPlanContext context, TRelationshipTemplate relationshipTemplate) {
+    public boolean handleTerminate(final BPMNPlanContext context, final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
@@ -73,32 +73,32 @@ public class BPMNInstanceDataPlugin implements IPlanBuilderBPMNPrePhasePlugin<BP
         return 1;
     }
 
-    public boolean canHandleUpdate(TNodeTemplate sourceNodeTemplate, TNodeTemplate targetNodeTemplate) {
+    public boolean canHandleUpdate(final TNodeTemplate sourceNodeTemplate, final TNodeTemplate targetNodeTemplate) {
         return false;
     }
 
-    public boolean handleUpdate(BPMNPlanContext sourceContext, BPMNPlanContext targetContext, TRelationshipTemplate sourceRelationshipTemplate, TRelationshipTemplate targetRelationshipTemplate) {
+    public boolean handleUpdate(final BPMNPlanContext sourceContext, final BPMNPlanContext targetContext, final TRelationshipTemplate sourceRelationshipTemplate, final TRelationshipTemplate targetRelationshipTemplate) {
         return false;
     }
 
-    public boolean canHandleUpdate(TRelationshipTemplate sourceRelationshipTemplate,
-                                   TRelationshipTemplate targetRelationshipTemplate) {
+    public boolean canHandleUpdate(final TRelationshipTemplate sourceRelationshipTemplate,
+                                   final TRelationshipTemplate targetRelationshipTemplate) {
         return false;
     }
 
-    public boolean handleUpgrade(BPMNPlanContext context, TNodeTemplate nodeTemplate) {
+    public boolean handleUpgrade(final BPMNPlanContext context, final TNodeTemplate nodeTemplate) {
         return false;
     }
 
-    public boolean handleUpgrade(BPMNPlanContext context, TRelationshipTemplate relationshipTemplate) {
+    public boolean handleUpgrade(final BPMNPlanContext context, final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
-    public boolean canHandleUpgrade(BPMNPlanContext context, TNodeTemplate nodeTemplate) {
+    public boolean canHandleUpgrade(final BPMNPlanContext context, final TNodeTemplate nodeTemplate) {
         return false;
     }
 
-    public boolean canHandleUpgrade(BPMNPlanContext context, TRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleUpgrade(final BPMNPlanContext context, final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 }

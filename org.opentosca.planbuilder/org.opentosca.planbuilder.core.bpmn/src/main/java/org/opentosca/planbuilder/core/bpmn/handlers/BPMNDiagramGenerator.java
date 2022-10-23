@@ -33,7 +33,7 @@ import java.util.HashMap;
  * Creates the diagram elements for the given xml.
  */
 public class BPMNDiagramGenerator {
-    public static String generateDiagram(BPMNPlan bpmnPlan) {
+    public static String generateDiagram(final BPMNPlan bpmnPlan) {
         try {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
@@ -119,13 +119,13 @@ public class BPMNDiagramGenerator {
                     // Get process and then the lane sets
                     int counter = 0;
                     Collection<LaneSet> laneSets = participants.get(i).getProcess().getLaneSets();
-                    for (LaneSet ls : laneSets) {
+                    for (final LaneSet ls : laneSets) {
                         Collection<Lane> lanes = ls.getLanes();
-                        for (Lane lane : lanes) {
+                        for (final Lane lane : lanes) {
                             element = lane;
                             // Get flow nodes in lane and create map entries
                             Collection<FlowNode> flowNodes = lane.getFlowNodeRefs();
-                            for (FlowNode fn : flowNodes) {
+                            for (final FlowNode fn : flowNodes) {
                                 laneElementContent.put(fn.getId(), lane.getId());
                             }
                             // Draw lane
@@ -138,14 +138,14 @@ public class BPMNDiagramGenerator {
             } else { // If no collaboration defined then check for processes, lane sets, and lanes
                 int counter = 0;
                 ArrayList<Process> processes = (ArrayList<Process>) modelInstance.getModelElementsByType(Process.class);
-                for (Process process : processes) {
+                for (final Process process : processes) {
                     Collection<LaneSet> laneSets = process.getLaneSets();
-                    for (LaneSet laneSet : laneSets) {
+                    for (final LaneSet laneSet : laneSets) {
                         Collection<Lane> lanes = laneSet.getLanes();
-                        for (Lane lane : lanes) {
+                        for (final Lane lane : lanes) {
                             // Get flow nodes in lane and create map entries
                             Collection<FlowNode> flowNodes = lane.getFlowNodeRefs();
-                            for (FlowNode fn : flowNodes) {
+                            for (final FlowNode fn : flowNodes) {
                                 laneElementContent.put(fn.getId(), lane.getId());
                             }
                             // Draw lane
@@ -195,7 +195,7 @@ public class BPMNDiagramGenerator {
                 int yOffset = 0;
                 int yEndOffset;
 
-                for (String sourceRef : sourceRefs) {
+                for (final String sourceRef : sourceRefs) {
                     searchRequest = xpath.compile("//*[@sourceRef='" + sourceRef + "']");
                     NodeList nextShapes = (NodeList) searchRequest.evaluate(doc, XPathConstants.NODESET);
 
@@ -239,7 +239,7 @@ public class BPMNDiagramGenerator {
                                         plane = DrawShape.drawShape(plane, modelInstance, element, xLane + x, (yLane + 180 + yOffset) + y * 200, 80, 100, true);
                                         refPoints.put(sElement.getAttribute("id"), new SequenceReferencePoints(xLane + x, ((220 + yOffset + yLane) + y * 200), (xLane + x + 100), ((yLane + 220 + yOffset) + y * 200)));
 
-                                        for (BPMNSubprocess bpmnSubprocess : bpmnPlan.getSubprocess()) {
+                                        for (final BPMNSubprocess bpmnSubprocess : bpmnPlan.getSubprocess()) {
                                             if (idSubprocess.contains(bpmnSubprocess.getId())) {
                                                 bpmnSubprocess.setX(xLane + x);
                                                 bpmnSubprocess.setY((yLane + 180 + yOffset));
@@ -347,7 +347,7 @@ public class BPMNDiagramGenerator {
         return null;
     }
 
-    private static double getLaneXOffset(HashMap<String, String> laneElementContent, HashMap<String, LanePoolReferencePoints> laneRefPoints, String id) {
+    private static double getLaneXOffset(final HashMap<String, String> laneElementContent, final HashMap<String, LanePoolReferencePoints> laneRefPoints, final String id) {
         double x = 0;
         String laneId = laneElementContent.get(id);
         if (laneId != null) {
@@ -356,7 +356,7 @@ public class BPMNDiagramGenerator {
         return x;
     }
 
-    private static double getLaneYOffset(HashMap<String, String> laneElementContent, HashMap<String, LanePoolReferencePoints> laneRefPoints, String id) {
+    private static double getLaneYOffset(final HashMap<String, String> laneElementContent, final HashMap<String, LanePoolReferencePoints> laneRefPoints, final String id) {
         double y = 0;
         String laneId = laneElementContent.get(id);
         if (laneId != null) {

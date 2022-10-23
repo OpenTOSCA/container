@@ -24,7 +24,7 @@ public class BPMNDataObject {
     private double x;
     private double y;
 
-    public BPMNDataObject(BPMNSubprocessType dataObjectType, String id) {
+    public BPMNDataObject(final BPMNSubprocessType dataObjectType, final String id) {
         this.dataObjectType = dataObjectType;
         this.id = id;
     }
@@ -33,7 +33,7 @@ public class BPMNDataObject {
         return this.id;
     }
 
-    public void setId(String id) {
+    public void setId(final String id) {
         this.id = id;
     }
 
@@ -41,7 +41,7 @@ public class BPMNDataObject {
         return dataObjectType;
     }
 
-    public void setDataObjectType(BPMNSubprocessType dataObjectType) {
+    public void setDataObjectType(final BPMNSubprocessType dataObjectType) {
         this.dataObjectType = dataObjectType;
     }
 
@@ -49,7 +49,7 @@ public class BPMNDataObject {
         return properties;
     }
 
-    public void setProperties(List<String> properties) {
+    public void setProperties(final List<String> properties) {
         this.properties = properties;
     }
 
@@ -57,7 +57,7 @@ public class BPMNDataObject {
         return serviceInstanceURL;
     }
 
-    public void setServiceInstanceURL(String serviceInstanceURL) {
+    public void setServiceInstanceURL(final String serviceInstanceURL) {
         this.serviceInstanceURL = serviceInstanceURL;
     }
 
@@ -65,7 +65,7 @@ public class BPMNDataObject {
         return sourceInstanceURL;
     }
 
-    public void setSourceInstanceURL(String sourceInstanceURL) {
+    public void setSourceInstanceURL(final String sourceInstanceURL) {
         this.sourceInstanceURL = sourceInstanceURL;
     }
 
@@ -73,7 +73,7 @@ public class BPMNDataObject {
         return targetInstanceURL;
     }
 
-    public void setTargetInstanceURL(String targetInstanceURL) {
+    public void setTargetInstanceURL(final String targetInstanceURL) {
         this.targetInstanceURL = targetInstanceURL;
     }
 
@@ -81,7 +81,7 @@ public class BPMNDataObject {
         return nodeInstanceURL;
     }
 
-    public void setNodeInstanceURL(String nodeInstanceURL) {
+    public void setNodeInstanceURL(final String nodeInstanceURL) {
         this.nodeInstanceURL = nodeInstanceURL;
     }
 
@@ -89,7 +89,7 @@ public class BPMNDataObject {
         return nodeTemplate;
     }
 
-    public void setNodeTemplate(String nodeTemplate) {
+    public void setNodeTemplate(final String nodeTemplate) {
         this.nodeTemplate = nodeTemplate;
     }
 
@@ -97,7 +97,7 @@ public class BPMNDataObject {
         return relationshipTemplate;
     }
 
-    public void setRelationshipTemplate(String relationshipTemplate) {
+    public void setRelationshipTemplate(final String relationshipTemplate) {
         this.relationshipTemplate = relationshipTemplate;
     }
 
@@ -105,7 +105,7 @@ public class BPMNDataObject {
         return relationshipInstanceURL;
     }
 
-    public void setRelationshipInstanceURL(String relationshipInstanceURL) {
+    public void setRelationshipInstanceURL(final String relationshipInstanceURL) {
         this.relationshipInstanceURL = relationshipInstanceURL;
     }
 
@@ -113,7 +113,7 @@ public class BPMNDataObject {
         return x;
     }
 
-    public void setX(double x) {
+    public void setX(final double x) {
         this.x = x;
     }
 
@@ -121,7 +121,7 @@ public class BPMNDataObject {
         return y;
     }
 
-    public void setY(double y) {
+    public void setY(final double y) {
         this.y = y;
     }
 }

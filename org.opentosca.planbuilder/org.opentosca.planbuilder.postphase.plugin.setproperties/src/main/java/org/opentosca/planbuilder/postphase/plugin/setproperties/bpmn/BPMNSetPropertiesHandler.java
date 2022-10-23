@@ -16,13 +16,13 @@ public class BPMNSetPropertiesHandler {
         this.bpmnSubprocessHandler = new BPMNSubprocessHandler();
     }
 
-    public boolean handleCreate(BPMNPlanContext context, TNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate) {
         BPMNSubprocess subprocess = context.getSubprocessElement();
         bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.SET_NODE_PROPERTY_TASK);
         return true;
     }
 
-    public boolean handleCreate(BPMNPlanContext context, TRelationshipTemplate relationshipTemplate) {
+    public boolean handleCreate(final BPMNPlanContext context, final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 }

@@ -21,7 +21,7 @@ import org.w3c.dom.Element;
 
 public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
 
-    public boolean handleCreate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate, Element elementToAppendTo) {
+    public boolean handleCreate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate, final Element elementToAppendTo) {
 
         TInterface iface = this.getLifecyclePatternInterface(nodeTemplate, context.getCsar());
 
@@ -47,7 +47,7 @@ public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
         return result;
     }
 
-    public boolean handleTerminate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate, Element elementToAppendTo) {
+    public boolean handleTerminate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate, final Element elementToAppendTo) {
 
         TInterface iface = this.getLifecyclePatternInterface(nodeTemplate, context.getCsar());
 
@@ -69,7 +69,7 @@ public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
         return result;
     }
 
-    public boolean handleUpdate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate, Element elementToAppendTo, Csar csar) {
+    public boolean handleUpdate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate, final Element elementToAppendTo, final Csar csar) {
 
         TInterface iface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_UPDATE, csar);
         if (iface == null) return false;
@@ -88,10 +88,10 @@ public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
         return invokeWithMatching(context, nodeTemplate, iface, updateOperation, nodesForMatching, elementToAppendTo);
     }
 
-    private boolean isImplementedAsScript(TInterface iface, TNodeTemplate nodeTemplate, Csar csar) {
-        for (TNodeTypeImplementation impl : ModelUtils.findNodeTypeImplementation(nodeTemplate, csar)) {
+    private boolean isImplementedAsScript(final TInterface iface, final TNodeTemplate nodeTemplate, final Csar csar) {
+        for (final TNodeTypeImplementation impl : ModelUtils.findNodeTypeImplementation(nodeTemplate, csar)) {
             if (impl.getImplementationArtifacts() != null) {
-                for (TImplementationArtifact implArtifact : impl.getImplementationArtifacts()) {
+                for (final TImplementationArtifact implArtifact : impl.getImplementationArtifacts()) {
                     if (implArtifact.getInterfaceName().equals(iface.getName()) && implArtifact.getArtifactType().equals(Types.scriptArtifactType)) {
                         return true;
                     }
@@ -103,17 +103,17 @@ public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
     }
 
     // This method looks for runScript and transferFile operation on the hosting infrastructure
-    private boolean checkForRunScriptAndTransferFile(TNodeTemplate nodeTemplate, Csar csar) {
+    private boolean checkForRunScriptAndTransferFile(final TNodeTemplate nodeTemplate, final Csar csar) {
 
         Set<TNodeTemplate> nodeTemplates = this.getNodesForMatching(nodeTemplate, csar);
 
         boolean foundRunScript = false;
         boolean foundTransferFile = false;
-        for (TNodeTemplate node : nodeTemplates) {
+        for (final TNodeTemplate node : nodeTemplates) {
             List<TInterface> interfaces = ModelUtils.findNodeType(node, csar).getInterfaces();
             if (interfaces != null) {
-                for (TInterface iface : interfaces) {
-                    for (TOperation op : iface.getOperations()) {
+                for (final TInterface iface : interfaces) {
+                    for (final TOperation op : iface.getOperations()) {
                         if (op.getName().equals("runScript")) {
                             foundRunScript = true;
                         }
@@ -128,7 +128,7 @@ public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
         return foundRunScript & foundTransferFile;
     }
 
-    private Set<TNodeTemplate> getNodesForMatching(TNodeTemplate nodeTemplate, Csar csar) {
+    private Set<TNodeTemplate> getNodesForMatching(final TNodeTemplate nodeTemplate, final Csar csar) {
         Set<TNodeTemplate> nodesForMatching = new HashSet<>();
         nodesForMatching.add(nodeTemplate);
         ModelUtils.getNodesFromNodeToSink(nodeTemplate, Types.dependsOnRelationType, nodesForMatching, csar);
@@ -136,7 +136,7 @@ public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
         return nodesForMatching;
     }
 
-    public boolean isProvisionableByLifecyclePattern(final TNodeTemplate nodeTemplate, Csar csar) {
+    public boolean isProvisionableByLifecyclePattern(final TNodeTemplate nodeTemplate, final Csar csar) {
         if (!hasLifecycleProvisioningMethods(nodeTemplate, csar)) {
             return false;
         }
@@ -174,7 +174,7 @@ public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
         return true;
     }
 
-    public boolean isDeprovisionableByLifecyclePattern(final TNodeTemplate nodeTemplate, Csar csar) {
+    public boolean isDeprovisionableByLifecyclePattern(final TNodeTemplate nodeTemplate, final Csar csar) {
 
         if (!hasLifecycleProvisioningMethods(nodeTemplate, csar)) {
             return false;
@@ -210,7 +210,7 @@ public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
     }
 
     // -> für hardware plugin?
-    public Collection<TNodeTemplate> getMatchedNodesForProvisioning(TNodeTemplate nodeTemplate, Csar csar) {
+    public Collection<TNodeTemplate> getMatchedNodesForProvisioning(final TNodeTemplate nodeTemplate, final Csar csar) {
 
         if (!hasLifecycleProvisioningMethods(nodeTemplate, csar)) {
             return null;
@@ -241,7 +241,7 @@ public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
         return nodesForMatching;
     }
 
-    public Collection<TNodeTemplate> getMatchedNodesForDeprovisioning(TNodeTemplate nodeTemplate, Csar csar) {
+    public Collection<TNodeTemplate> getMatchedNodesForDeprovisioning(final TNodeTemplate nodeTemplate, final Csar csar) {
 
         if (!hasLifecycleProvisioningMethods(nodeTemplate, csar)) {
             return null;
@@ -267,13 +267,13 @@ public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
         return nodesForMatching;
     }
 
-    private boolean hasLifecycleProvisioningMethods(TNodeTemplate nodeTemplate, Csar csar) {
+    private boolean hasLifecycleProvisioningMethods(final TNodeTemplate nodeTemplate, final Csar csar) {
         return this.getLifecyclePatternInstallMethod(nodeTemplate, csar) != null
             || this.getLifecyclePatternConfigureMethod(nodeTemplate, csar) != null
             || this.getLifecyclePatternStartMethod(nodeTemplate, csar) != null;
     }
 
-    protected TInterface getLifecyclePatternInterface(final TNodeTemplate nodeTemplate, Csar csar) {
+    protected TInterface getLifecyclePatternInterface(final TNodeTemplate nodeTemplate, final Csar csar) {
 
         // search for all three possible lifecycle interfaces within the NodeType hierarchy
         TInterface lifecycleInterface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE, csar);
@@ -289,30 +289,30 @@ public class BPMNLifecyclePatternBasedHandler extends BPMNPatternBasedHandler {
         return ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE3, csar);
     }
 
-    protected TOperation getLifecyclePatternStartMethod(final TNodeTemplate nodeTemplate, Csar csar) {
+    protected TOperation getLifecyclePatternStartMethod(final TNodeTemplate nodeTemplate, final Csar csar) {
         return this.getLifecyclePatternMethod(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, csar);
     }
 
-    protected TOperation getLifecyclePatternInstallMethod(final TNodeTemplate nodeTemplate, Csar csar) {
+    protected TOperation getLifecyclePatternInstallMethod(final TNodeTemplate nodeTemplate, final Csar csar) {
         return this.getLifecyclePatternMethod(nodeTemplate,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_INSTALL, csar);
     }
 
-    protected TOperation getLifecyclePatternConfigureMethod(final TNodeTemplate nodeTemplate, Csar csar) {
+    protected TOperation getLifecyclePatternConfigureMethod(final TNodeTemplate nodeTemplate, final Csar csar) {
         return this.getLifecyclePatternMethod(nodeTemplate,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_CONFIGURE, csar);
     }
 
-    protected TOperation getLifecyclePatternStopMethod(final TNodeTemplate nodeTemplate, Csar csar) {
+    protected TOperation getLifecyclePatternStopMethod(final TNodeTemplate nodeTemplate, final Csar csar) {
         return this.getLifecyclePatternMethod(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, csar);
     }
 
-    protected TOperation getLifecyclePatternUninstallMethod(final TNodeTemplate nodeTemplate, Csar csar) {
+    protected TOperation getLifecyclePatternUninstallMethod(final TNodeTemplate nodeTemplate, final Csar csar) {
         return this.getLifecyclePatternMethod(nodeTemplate,
             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_UNINSTALL, csar);
     }
 
-    private TOperation getLifecyclePatternMethod(TNodeTemplate nodeTemplate, String lifecycleMethod, Csar csar) {
+    private TOperation getLifecyclePatternMethod(final TNodeTemplate nodeTemplate, final String lifecycleMethod, final Csar csar) {
         TInterface iface = this.getLifecyclePatternInterface(nodeTemplate, csar);
         if (iface != null) {
             for (final TOperation op : iface.getOperations()) {

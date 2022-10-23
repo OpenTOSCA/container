@@ -23,7 +23,7 @@ public class BPMNDockerContainerTypePlugin extends DockerContainerBPMNTypePlugin
     private final BPMNDockerContainerTypePluginHandler handler = new BPMNDockerContainerTypePluginHandler();
 
     @Override
-    public boolean handleCreate(final BPMNPlanContext templateContext, TNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPMNPlanContext templateContext, final TNodeTemplate nodeTemplate) {
         boolean check = false;
         if (this.canHandleCreate(templateContext.getCsar(), nodeTemplate)) {
             check = this.handler.handleCreate(templateContext);
@@ -32,24 +32,24 @@ public class BPMNDockerContainerTypePlugin extends DockerContainerBPMNTypePlugin
     }
 
     @Override
-    public boolean handleCreate(BPMNPlanContext templateContext, TRelationshipTemplate relationshipTemplate) {
+    public boolean handleCreate(final BPMNPlanContext templateContext, final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 
     @Override
-    public Collection<TNodeTemplate> getCreateDependencies(TNodeTemplate nodeTemplate, Csar csar) {
+    public Collection<TNodeTemplate> getCreateDependencies(final TNodeTemplate nodeTemplate, final Csar csar) {
         Collection<TNodeTemplate> deps = new HashSet<>();
         deps.add(getDockerEngineNode(nodeTemplate, csar));
         return deps;
     }
 
     @Override
-    public Collection<TNodeTemplate> getTerminateDependencies(TNodeTemplate nodeTemplate, Csar csar) {
+    public Collection<TNodeTemplate> getTerminateDependencies(final TNodeTemplate nodeTemplate, final Csar csar) {
         return null;
     }
 
     @Override
-    public boolean handleTerminate(BPMNPlanContext templateContext, TNodeTemplate nodeTemplate) {
+    public boolean handleTerminate(final BPMNPlanContext templateContext, final TNodeTemplate nodeTemplate) {
         boolean check = false;
         if (this.canHandleTerminate(templateContext.getCsar(), nodeTemplate)) {
             check = this.handler.handleTerminate(templateContext);
@@ -58,13 +58,13 @@ public class BPMNDockerContainerTypePlugin extends DockerContainerBPMNTypePlugin
     }
 
     @Override
-    public boolean handleTerminate(BPMNPlanContext templateContext, TRelationshipTemplate relationshipTemplate) {
+    public boolean handleTerminate(final BPMNPlanContext templateContext, final TRelationshipTemplate relationshipTemplate) {
         // never handles relationshipTemplates
         return false;
     }
 
     @Override
-    public boolean canHandleTerminate(Csar csar, TRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleTerminate(final Csar csar, final TRelationshipTemplate relationshipTemplate) {
         // never handles relationshipTemplates
         return false;
     }

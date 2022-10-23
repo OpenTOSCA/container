@@ -33,7 +33,7 @@ public class BPMNConnectsToPlugin extends ConnectsToBPMNPlugin<BPMNPlanContext> 
      * opentosca.planbuilder.plugins.context.BPMNPlanContext)
      */
     @Override
-    public boolean handleCreate(final BPMNPlanContext templateContext, TNodeTemplate nodeTemplate) {
+    public boolean handleCreate(final BPMNPlanContext templateContext, final TNodeTemplate nodeTemplate) {
         return false;
     }
 
@@ -45,18 +45,18 @@ public class BPMNConnectsToPlugin extends ConnectsToBPMNPlugin<BPMNPlanContext> 
      */
     @Override
     public boolean handleCreate(final BPMNPlanContext templateContext,
-                                TRelationshipTemplate relationshipTemplate) {
+                                final TRelationshipTemplate relationshipTemplate) {
         return this.handler.handle(templateContext);
     }
 
     @Override
-    public boolean handleTerminate(BPMNPlanContext templateContext, TNodeTemplate nodeTemplate) {
+    public boolean handleTerminate(final BPMNPlanContext templateContext, final TNodeTemplate nodeTemplate) {
         // we never handle a terminate on nodeTemplates here
         return false;
     }
 
     @Override
-    public boolean handleTerminate(BPMNPlanContext templateContext, TRelationshipTemplate relationshipTemplate) {
+    public boolean handleTerminate(final BPMNPlanContext templateContext, final TRelationshipTemplate relationshipTemplate) {
         // TODO we have to define the semantics of a disconnect first
         return false;
     }

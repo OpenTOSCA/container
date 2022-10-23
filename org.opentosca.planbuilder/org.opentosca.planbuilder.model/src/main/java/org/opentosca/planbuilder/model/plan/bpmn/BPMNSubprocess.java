@@ -67,13 +67,13 @@ public class BPMNSubprocess {
     private double x;
     private double y;
 
-    public BPMNSubprocess(AbstractActivity activity, BPMNSubprocessType subprocessType, String id) {
+    public BPMNSubprocess(final AbstractActivity activity, final BPMNSubprocessType subprocessType, final String id) {
         this.activity = activity;
         this.bpmnSubprocessType = subprocessType;
         this.id = id;
     }
 
-    public BPMNSubprocess(BPMNSubprocessType subprocessType, String id) {
+    public BPMNSubprocess(final BPMNSubprocessType subprocessType, final String id) {
         this.activity = null;
         this.bpmnSubprocessType = subprocessType;
         this.id = id;
@@ -83,7 +83,7 @@ public class BPMNSubprocess {
         return flowElements;
     }
 
-    public void setFlowElements(ArrayList<BPMNSubprocess> flow) {
+    public void setFlowElements(final ArrayList<BPMNSubprocess> flow) {
         this.flowElements = flow;
     }
 
@@ -91,7 +91,7 @@ public class BPMNSubprocess {
         return errorFlowElements;
     }
 
-    public void setErrorFlowElements(ArrayList<BPMNSubprocess> flow) {
+    public void setErrorFlowElements(final ArrayList<BPMNSubprocess> flow) {
         this.errorFlowElements = flow;
     }
 
@@ -103,7 +103,7 @@ public class BPMNSubprocess {
         return outgoingFlowElements;
     }
 
-    public void setOutgoingFlow(BPMNSubprocess outgoingSubprocess) {
+    public void setOutgoingFlow(final BPMNSubprocess outgoingSubprocess) {
         this.outgoingFlowElements.add(outgoingSubprocess);
     }
 
@@ -111,11 +111,11 @@ public class BPMNSubprocess {
         return this.incomingFlowElements;
     }
 
-    public void setIncomingFlowElements(BPMNSubprocess incomingTestScopeflow) {
+    public void setIncomingFlowElements(final BPMNSubprocess incomingTestScopeflow) {
         this.incomingFlowElements.add(incomingTestScopeflow);
     }
 
-    public void setId(String id) {
+    public void setId(final String id) {
         this.id = id;
     }
 
@@ -123,7 +123,7 @@ public class BPMNSubprocess {
         return deploymentArtifactString;
     }
 
-    public void setDeploymentArtifactString(String deploymentArtifactString) {
+    public void setDeploymentArtifactString(final String deploymentArtifactString) {
         this.deploymentArtifactString = deploymentArtifactString;
     }
 
@@ -180,7 +180,7 @@ public class BPMNSubprocess {
         return this.resultVariableName;
     }
 
-    public void setResultVariableName(String resultVariableName) {
+    public void setResultVariableName(final String resultVariableName) {
         this.resultVariableName = resultVariableName;
     }
 
@@ -252,11 +252,11 @@ public class BPMNSubprocess {
         return this.bpmnSubprocessType;
     }
 
-    public void setIncomingSubprocess(Collection<BPMNSubprocess> incoming) {
+    public void setIncomingSubprocess(final Collection<BPMNSubprocess> incoming) {
         this.incomingScope = incoming;
     }
 
-    public void addTaskToSubprocess(BPMNSubprocess scope) {
+    public void addTaskToSubprocess(final BPMNSubprocess scope) {
         this.subprocessBPMNScopes.add(scope);
     }
 
@@ -272,7 +272,7 @@ public class BPMNSubprocess {
         return parentProcess;
     }
 
-    public void setParentProcess(BPMNSubprocess parentProcess) {
+    public void setParentProcess(final BPMNSubprocess parentProcess) {
         this.parentProcess = parentProcess;
     }
 
@@ -284,7 +284,7 @@ public class BPMNSubprocess {
         return subProServiceInstanceTask;
     }
 
-    public void setSubProServiceInstanceTask(BPMNSubprocess subProServiceInstanceTask) {
+    public void setSubProServiceInstanceTask(final BPMNSubprocess subProServiceInstanceTask) {
         this.subProServiceInstanceTask = subProServiceInstanceTask;
     }
 
@@ -292,7 +292,7 @@ public class BPMNSubprocess {
         return subProSetNodePropertyTask;
     }
 
-    public void setSubProSetNodePropertyTask(BPMNSubprocess subProSetNodePropertyTask) {
+    public void setSubProSetNodePropertyTask(final BPMNSubprocess subProSetNodePropertyTask) {
         this.subProSetNodePropertyTask = subProSetNodePropertyTask;
     }
 
@@ -300,7 +300,7 @@ public class BPMNSubprocess {
         return subProCreateNodeInstanceTask;
     }
 
-    public void setSubProCreateNodeInstanceTask(BPMNSubprocess subProCreateNodeInstanceTask) {
+    public void setSubProCreateNodeInstanceTask(final BPMNSubprocess subProCreateNodeInstanceTask) {
         this.subProCreateNodeInstanceTask = subProCreateNodeInstanceTask;
     }
 
@@ -308,7 +308,7 @@ public class BPMNSubprocess {
         return subProSetStateTask;
     }
 
-    public void setSubProSetStateTask(BPMNSubprocess subProSetStateTask) {
+    public void setSubProSetStateTask(final BPMNSubprocess subProSetStateTask) {
         this.subProSetStateTask = subProSetStateTask;
     }
 
@@ -316,7 +316,7 @@ public class BPMNSubprocess {
         return instanceState;
     }
 
-    public void setInstanceState(String state) {
+    public void setInstanceState(final String state) {
         instanceState = state;
     }
 
@@ -324,7 +324,7 @@ public class BPMNSubprocess {
         return instanceState;
     }
 
-    public void setServiceInstanceURL(String serviceInstanceURL) {
+    public void setServiceInstanceURL(final String serviceInstanceURL) {
         this.serviceInstanceURL = serviceInstanceURL;
     }
 
@@ -336,7 +336,7 @@ public class BPMNSubprocess {
         return interfaceVariable;
     }
 
-    public void setInterfaceVariable(String interfaceVariable) {
+    public void setInterfaceVariable(final String interfaceVariable) {
         this.interfaceVariable = interfaceVariable;
     }
 
@@ -344,7 +344,7 @@ public class BPMNSubprocess {
         return operation;
     }
 
-    public void setOperation(String operation) {
+    public void setOperation(final String operation) {
         this.operation = operation;
     }
 
@@ -352,7 +352,7 @@ public class BPMNSubprocess {
         return inputParameterNames;
     }
 
-    public void setInputParameterNames(String inputParameterName) {
+    public void setInputParameterNames(final String inputParameterName) {
         this.inputParameterNames = inputParameterName;
     }
 
@@ -360,7 +360,7 @@ public class BPMNSubprocess {
         return inputParameterValues;
     }
 
-    public void setInputParameterValues(String inputparamvalues) {
+    public void setInputParameterValues(final String inputparamvalues) {
         this.inputParameterValues = inputparamvalues;
     }
 
@@ -368,7 +368,7 @@ public class BPMNSubprocess {
         return outputParameterNames;
     }
 
-    public void setOutputParameterNames(String outputParameterNames) {
+    public void setOutputParameterNames(final String outputParameterNames) {
         this.outputParameterNames = outputParameterNames;
     }
 
@@ -376,7 +376,7 @@ public class BPMNSubprocess {
         return outputParameterValues;
     }
 
-    public void setOutputParameterValues(String outputParameterValues) {
+    public void setOutputParameterValues(final String outputParameterValues) {
         this.outputParameterValues = outputParameterValues;
     }
 
@@ -384,7 +384,7 @@ public class BPMNSubprocess {
         return this.sourceInstanceURL;
     }
 
-    public void setSourceInstanceURL(String sourceInstanceURL) {
+    public void setSourceInstanceURL(final String sourceInstanceURL) {
         this.sourceInstanceURL = sourceInstanceURL;
     }
 
@@ -392,7 +392,7 @@ public class BPMNSubprocess {
         return targetInstanceURL;
     }
 
-    public void setTargetInstanceURL(String targetInstanceURL) {
+    public void setTargetInstanceURL(final String targetInstanceURL) {
         this.targetInstanceURL = targetInstanceURL;
     }
 
@@ -400,7 +400,7 @@ public class BPMNSubprocess {
         return errorEventIds;
     }
 
-    public void setErrorEventIds(ArrayList<Integer> errorEventIds) {
+    public void setErrorEventIds(final ArrayList<Integer> errorEventIds) {
         this.errorEventIds = errorEventIds;
     }
 
@@ -408,7 +408,7 @@ public class BPMNSubprocess {
         return dataObject;
     }
 
-    public void setDataObject(BPMNDataObject dataObject) {
+    public void setDataObject(final BPMNDataObject dataObject) {
         this.dataObject = dataObject;
     }
 
@@ -416,7 +416,7 @@ public class BPMNSubprocess {
         return x;
     }
 
-    public void setX(double x) {
+    public void setX(final double x) {
         this.x = x;
     }
 
@@ -424,7 +424,7 @@ public class BPMNSubprocess {
         return y;
     }
 
-    public void setY(double y) {
+    public void setY(final double y) {
         this.y = y;
     }
 }

@@ -42,7 +42,7 @@ public class BPMNPlan extends AbstractPlan {
     private HashMap<String, String> propertiesOutputParameter = new HashMap<>();
     private ArrayList<BPMNSubprocess> flowElements = new ArrayList<>();
 
-    public BPMNPlan(String id, PlanType type, TDefinitions definitions, TServiceTemplate serviceTemplate, Collection<AbstractActivity> activities, Collection<AbstractPlan.Link> links) {
+    public BPMNPlan(final String id, final PlanType type, final TDefinitions definitions, final TServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities, final Collection<AbstractPlan.Link> links) {
         super(id, type, definitions, serviceTemplate, activities, links);
     }
 
@@ -50,7 +50,7 @@ public class BPMNPlan extends AbstractPlan {
         return flowElements;
     }
 
-    public void setFlowElements(ArrayList<BPMNSubprocess> flow) {
+    public void setFlowElements(final ArrayList<BPMNSubprocess> flow) {
         this.flowElements = flow;
     }
 
@@ -58,7 +58,7 @@ public class BPMNPlan extends AbstractPlan {
         return errorFlowElements;
     }
 
-    public void setErrorFlowElements(ArrayList<BPMNSubprocess> flow) {
+    public void setErrorFlowElements(final ArrayList<BPMNSubprocess> flow) {
         this.errorFlowElements = flow;
     }
 
@@ -98,11 +98,11 @@ public class BPMNPlan extends AbstractPlan {
         return this.scriptNames;
     }
 
-    public void setScriptNames(ArrayList<String> scriptNames) {
+    public void setScriptNames(final ArrayList<String> scriptNames) {
         this.scriptNames = scriptNames;
     }
 
-    public void setInputParameters(ArrayList<String> inputParameters) {
+    public void setInputParameters(final ArrayList<String> inputParameters) {
         this.inputParameters = inputParameters;
     }
 
@@ -118,8 +118,8 @@ public class BPMNPlan extends AbstractPlan {
         return this.templateBuildPlans;
     }
 
-    public BPMNSubprocess getTemplateBuildPlan(TNodeTemplate nodeTemplate) {
-        for (BPMNSubprocess subprocess : this.getTemplateBuildPlans()) {
+    public BPMNSubprocess getTemplateBuildPlan(final TNodeTemplate nodeTemplate) {
+        for (final BPMNSubprocess subprocess : this.getTemplateBuildPlans()) {
             if (subprocess.getNodeTemplate() != null && subprocess.getNodeTemplate().equals(nodeTemplate)) {
                 return subprocess;
             }
@@ -127,8 +127,8 @@ public class BPMNPlan extends AbstractPlan {
         return null;
     }
 
-    public BPMNSubprocess getTemplateBuildPlan(TRelationshipTemplate relationshipTemplate) {
-        for (BPMNSubprocess subprocess : this.getTemplateBuildPlans()) {
+    public BPMNSubprocess getTemplateBuildPlan(final TRelationshipTemplate relationshipTemplate) {
+        for (final BPMNSubprocess subprocess : this.getTemplateBuildPlans()) {
             if (subprocess.getRelationshipTemplate() != null
                 && subprocess.getRelationshipTemplate().equals(relationshipTemplate)) {
                 return subprocess;
@@ -159,7 +159,7 @@ public class BPMNPlan extends AbstractPlan {
         return this.dataObjectsList;
     }
 
-    public void setDataObjectsList(List<BPMNDataObject> dataObjectsList) {
+    public void setDataObjectsList(final List<BPMNDataObject> dataObjectsList) {
         this.dataObjectsList = dataObjectsList;
     }
 
@@ -167,7 +167,7 @@ public class BPMNPlan extends AbstractPlan {
         return propertiesOutputParameter;
     }
 
-    public void setOutputParameters(HashMap<String, String> propertiesOutputParameter) {
+    public void setOutputParameters(final HashMap<String, String> propertiesOutputParameter) {
         this.propertiesOutputParameter = propertiesOutputParameter;
     }
 

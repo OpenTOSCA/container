@@ -45,7 +45,7 @@ public class BPMNInvokerPlugin implements IPlanBuilderProvPhaseOperationBPMNPlug
     public boolean handle(final BPMNPlanContext context, final TNodeTemplate templateId, final boolean isNodeTemplate,
                           final String operationName, final String interfaceName,
                           final Map<String, Variable> internalExternalPropsInput,
-                          final Map<String, Variable> internalExternalPropsOutput, Element elementToAppendTo) {
+                          final Map<String, Variable> internalExternalPropsOutput, final Element elementToAppendTo) {
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operationName, interfaceName,
                 internalExternalPropsInput, internalExternalPropsOutput, elementToAppendTo);
@@ -70,7 +70,7 @@ public class BPMNInvokerPlugin implements IPlanBuilderProvPhaseOperationBPMNPlug
     }
 
     @Override
-    public boolean handle(BPMNPlanContext context, TOperation operation, TImplementationArtifact ia) {
+    public boolean handle(final BPMNPlanContext context, final TOperation operation, final TImplementationArtifact ia) {
         return false;
     }
 
@@ -80,22 +80,22 @@ public class BPMNInvokerPlugin implements IPlanBuilderProvPhaseOperationBPMNPlug
     }
 
     @Override
-    public boolean handle(BPMNPlanContext context, TOperation operation, TImplementationArtifact ia, Map<TParameter, Variable> param2propertyMapping) {
+    public boolean handle(final BPMNPlanContext context, final TOperation operation, final TImplementationArtifact ia, final Map<TParameter, Variable> param2propertyMapping) {
         return false;
     }
 
     @Override
-    public boolean handle(BPMNPlanContext context, TOperation operation, TImplementationArtifact ia, Map<TParameter, Variable> param2propertyMapping, Element elementToAppendTo) {
+    public boolean handle(final BPMNPlanContext context, final TOperation operation, final TImplementationArtifact ia, final Map<TParameter, Variable> param2propertyMapping, final Element elementToAppendTo) {
         return false;
     }
 
     @Override
-    public boolean handle(BPMNPlanContext context, TOperation operation, TImplementationArtifact ia, Map<TParameter, Variable> param2propertyMapping, Map<TParameter, Variable> param2PropertyOutputMapping) {
+    public boolean handle(final BPMNPlanContext context, final TOperation operation, final TImplementationArtifact ia, final Map<TParameter, Variable> param2propertyMapping, final Map<TParameter, Variable> param2PropertyOutputMapping) {
         return false;
     }
 
     @Override
-    public boolean handle(BPMNPlanContext context, TOperation operation, TImplementationArtifact ia, Map<TParameter, Variable> param2propertyMapping, Map<TParameter, Variable> param2PropertyOutputMapping, Element elementToAppendTo) {
+    public boolean handle(final BPMNPlanContext context, final TOperation operation, final TImplementationArtifact ia, final Map<TParameter, Variable> param2propertyMapping, final Map<TParameter, Variable> param2PropertyOutputMapping, final Element elementToAppendTo) {
         return false;
     }
 
@@ -117,7 +117,7 @@ public class BPMNInvokerPlugin implements IPlanBuilderProvPhaseOperationBPMNPlug
     public boolean handleArtifactReferenceUpload(final TArtifactReference ref,
                                                  final BPMNPlanContext templateContext, final PropertyVariable serverIp,
                                                  final PropertyVariable sshUser, final PropertyVariable sshKey,
-                                                 final TNodeTemplate infraTemplate, Element elementToAppendTo) {
+                                                 final TNodeTemplate infraTemplate, final Element elementToAppendTo) {
         try {
             return this.handler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser, sshKey,
                 infraTemplate, elementToAppendTo);

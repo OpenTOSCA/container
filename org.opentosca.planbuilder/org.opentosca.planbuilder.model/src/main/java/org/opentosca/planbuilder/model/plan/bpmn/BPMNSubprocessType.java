@@ -33,7 +33,7 @@ public enum BPMNSubprocessType {
 
     String name;
 
-    BPMNSubprocessType(String name) {
+    BPMNSubprocessType(final String name) {
         this.name = name;
     }
 

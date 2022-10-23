@@ -62,11 +62,11 @@ public class BPMNInvokerPluginHandler {
                           final String operationName, final String interfaceName,
                           final Map<String, Variable> internalExternalPropsInput,
                           final Map<String, Variable> internalExternalPropsOutput,
-                          Element elementToAppendTo) throws IOException, SAXException {
+                          final Element elementToAppendTo) throws IOException, SAXException {
 
         // Main execution of provisioning function inside this method
         if (isNodeTemplate) {
-            LOG.debug("Create node operation task inside subprocess for operation {}", operationName);
+            LOG.info("Create node operation task inside subprocess for operation {}", operationName);
             // build param inputs for node operation
             StringBuilder inputParamNames = new StringBuilder();
             StringBuilder inputParamValues = new StringBuilder();
@@ -76,57 +76,59 @@ public class BPMNInvokerPluginHandler {
             subprocess.setHostingNodeTemplate(templateId);
             BPMNPlan buildPlan = subprocess.getBuildPlan();
             // set input param names and values
-            for (Map.Entry<String, Variable> entry : internalExternalPropsInput.entrySet()) {
-
+            for (final Map.Entry<String, Variable> entry : internalExternalPropsInput.entrySet()) {
                 String parameterValue = entry.getValue().getVariableName();
-                parameterValue = parameterValue.replace("&", "u0026");
                 LOG.info("parameterName {}", entry.getKey());
                 LOG.info("parameterValue: {}", parameterValue);
-                if (entry.getValue().getVariableName().contains("toscaProperty")) {
-                    String removeToscaProperty = parameterValue.split("_toscaProperty")[0];
-                    String serviceTemplateName = context.getSubprocessElement().getBuildPlan().getServiceTemplate().getName();
-                    String propertyToSearchFromDataObject = removeToscaProperty.substring(0, parameterValue.lastIndexOf(context.getSubprocessElement().getBuildPlan().getServiceTemplate().getName()) + serviceTemplateName.length() + 1);
-                    removeToscaProperty = removeToscaProperty.split(propertyToSearchFromDataObject)[1];
-                    String nodeTemplateIdToFetchDataObject = removeToscaProperty.substring(0, removeToscaProperty.lastIndexOf("_"));
-                    LOG.info("nodeTemplateIdToFetchDataObject: {}", nodeTemplateIdToFetchDataObject);
-                    String propertyOfDataObject = removeToscaProperty.substring(removeToscaProperty.lastIndexOf("_") + 1).trim();
-                    LOG.info("propertyOfDataObject : {}", propertyOfDataObject);
-                    for (BPMNDataObject nodeDataObject : buildPlan.getDataObjectsList()) {
-                        LOG.info("DATAOBJECT ID");
-                        LOG.info(nodeDataObject.getId());
-                        if (nodeDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_NODE && nodeDataObject.getId().contains(nodeTemplateIdToFetchDataObject)) {
-                            String lastSuffixCut = nodeDataObject.getId().split(nodeTemplateIdToFetchDataObject)[1];
-                            LOG.info("lastSuffixCut : {}", lastSuffixCut);
-                            if (lastSuffixCut.equals(suffixActivity)) {
-                                for (String property : nodeDataObject.getProperties()) {
-                                    String propertyName = property.split("#")[0];
-                                    if (propertyName.equals(propertyOfDataObject)) {
-                                        String propertyValue = property.split("#")[1];
-                                        // propertyValue = "String!" + propertyValue;
-                                        propertyValue = "VALUE!" + "DataObjectReference_" + nodeDataObject.getId() + ".Properties." + propertyName;
-                                        if (inputParamNames.toString().equals("") && inputParamValues.toString().equals("")) {
-                                            inputParamNames.append(entry.getKey());
-                                            inputParamValues.append(propertyValue);
-                                        } else {
-                                            inputParamNames.append(",").append(entry.getKey());
-                                            inputParamValues.append(",").append(propertyValue);
+                if (parameterValue != null) {
+                    parameterValue = parameterValue.replace("&", "u0026");
+
+                    if (entry.getValue().getVariableName().contains("toscaProperty")) {
+                        String removeToscaProperty = parameterValue.split("_toscaProperty")[0];
+                        String serviceTemplateName = context.getSubprocessElement().getBuildPlan().getServiceTemplate().getName();
+                        String propertyToSearchFromDataObject = removeToscaProperty.substring(0, parameterValue.lastIndexOf(context.getSubprocessElement().getBuildPlan().getServiceTemplate().getName()) + serviceTemplateName.length() + 1);
+                        removeToscaProperty = removeToscaProperty.split(propertyToSearchFromDataObject)[1];
+                        String nodeTemplateIdToFetchDataObject = removeToscaProperty.substring(0, removeToscaProperty.lastIndexOf("_"));
+                        LOG.info("nodeTemplateIdToFetchDataObject: {}", nodeTemplateIdToFetchDataObject);
+                        String propertyOfDataObject = removeToscaProperty.substring(removeToscaProperty.lastIndexOf("_") + 1).trim();
+                        LOG.info("propertyOfDataObject : {}", propertyOfDataObject);
+                        for (final BPMNDataObject nodeDataObject : buildPlan.getDataObjectsList()) {
+                            LOG.info("DATAOBJECT ID");
+                            LOG.info(nodeDataObject.getId());
+                            if (nodeDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_NODE && nodeDataObject.getId().contains(nodeTemplateIdToFetchDataObject)) {
+                                String lastSuffixCut = nodeDataObject.getId().split(nodeTemplateIdToFetchDataObject)[1];
+                                LOG.info("lastSuffixCut : {}", lastSuffixCut);
+                                if (lastSuffixCut.equals(suffixActivity)) {
+                                    for (final String property : nodeDataObject.getProperties()) {
+                                        String propertyName = property.split("#")[0];
+                                        if (propertyName.equals(propertyOfDataObject)) {
+                                            String propertyValue = property.split("#")[1];
+                                            // propertyValue = "String!" + propertyValue;
+                                            propertyValue = "VALUE!" + "DataObjectReference_" + nodeDataObject.getId() + ".Properties." + propertyName;
+                                            if (inputParamNames.toString().equals("") && inputParamValues.toString().equals("")) {
+                                                inputParamNames.append(entry.getKey());
+                                                inputParamValues.append(propertyValue);
+                                            } else {
+                                                inputParamNames.append(",").append(entry.getKey());
+                                                inputParamValues.append(",").append(propertyValue);
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
+                    } else if (inputParamNames.length() == 0 && inputParamValues.length() == 0) {
+                        inputParamNames.append(entry.getKey());
+                        inputParamValues.append(parameterValue);
+                    } else {
+                        inputParamNames.append(",").append(entry.getKey());
+                        inputParamValues.append(",").append(parameterValue);
                     }
-                } else if (inputParamNames.length() == 0 && inputParamValues.length() == 0) {
-                    inputParamNames.append(entry.getKey());
-                    inputParamValues.append(parameterValue);
-                } else {
-                    inputParamNames.append(",").append(entry.getKey());
-                    inputParamValues.append(",").append(parameterValue);
                 }
             }
 
             //set output param names and values
-            for (Map.Entry<String, Variable> entry : internalExternalPropsOutput.entrySet()) {
+            for (final Map.Entry<String, Variable> entry : internalExternalPropsOutput.entrySet()) {
                 if (outputParamNames.length() == 0 && outputParamValues.length() == 0) {
                     outputParamNames.append(entry.getKey());
                     outputParamValues.append(entry.getValue().getVariableName());
@@ -152,11 +154,11 @@ public class BPMNInvokerPluginHandler {
             subprocess.addTaskToSubprocess(createNodeOperationTask);
             boolean hasNodeOperation = false;
 
-            for (BPMNSubprocess sub : context.getSubprocessElement().getSubprocessBPMNSubprocess()) {
+            for (final BPMNSubprocess sub : context.getSubprocessElement().getSubprocessBPMNSubprocess()) {
                 if (sub.getSubprocessType() == (BPMNSubprocessType.CALL_NODE_OPERATION_TASK)) {
-                    for (BPMNDataObject dataObject : buildPlan.getDataObjectsList()) {
+                    for (final BPMNDataObject dataObject : buildPlan.getDataObjectsList()) {
                         if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_ST) {
-                            for (String property : dataObject.getProperties()) {
+                            for (final String property : dataObject.getProperties()) {
                                 if (property.contains(ServiceInstanceURLVarKeyword)) {
                                     sub.setServiceInstanceURL(property);
                                 }
@@ -218,7 +220,7 @@ public class BPMNInvokerPluginHandler {
         // final String containerAPIAbsoluteURIXPathQuery =
         //    this.bpelFrags.createXPathQueryForURLRemoteFilePath(ref.getReference());
         //final String containerAPIAbsoluteURIVarName = "containerApiFileURL" + templateContext.getIdForNames();
-        for (BPMNDataObject dataObject : templateContext.getSubprocessElement().getBuildPlan().getDataObjectsList()) {
+        for (final BPMNDataObject dataObject : templateContext.getSubprocessElement().getBuildPlan().getDataObjectsList()) {
             if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_INOUT) {
                 containerApi += "DataObjectReference_" + dataObject.getId() + ".Properties.containerApiAddress";
             }
@@ -321,7 +323,7 @@ public class BPMNInvokerPluginHandler {
         return ref;
     }
 
-    private List<String> getRunScriptParams(final TNodeTemplate nodeTemplate, Csar csar) {
+    private List<String> getRunScriptParams(final TNodeTemplate nodeTemplate, final Csar csar) {
         final List<String> inputParams = new ArrayList<>();
         List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
         if (interfaces != null) {
@@ -339,7 +341,7 @@ public class BPMNInvokerPluginHandler {
         return inputParams;
     }
 
-    private List<String> getTransferFileParams(final TNodeTemplate nodeTemplate, Csar csar) {
+    private List<String> getTransferFileParams(final TNodeTemplate nodeTemplate, final Csar csar) {
         final List<String> inputParams = new ArrayList<>();
         List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
         if (interfaces != null) {

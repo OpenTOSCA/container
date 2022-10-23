@@ -21,7 +21,7 @@ import org.w3c.dom.Element;
 
 public class BPMNContainerPatternBasedHandler extends BPMNPatternBasedHandler {
 
-    public boolean handleCreate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate, Element elementToAppendTo, Csar csar) {
+    public boolean handleCreate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate, final Element elementToAppendTo, final Csar csar) {
 
         final TNodeTemplate hostingContainer = getHostingNode(nodeTemplate, csar);
 
@@ -33,7 +33,7 @@ public class BPMNContainerPatternBasedHandler extends BPMNPatternBasedHandler {
         return invokeWithMatching(context, hostingContainer, iface, createOperation, nodesForMatching, elementToAppendTo);
     }
 
-    public boolean handleTerminate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate, Element elementToAppendTo, Csar csar) {
+    public boolean handleTerminate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate, final Element elementToAppendTo, final Csar csar) {
 
         final TNodeTemplate hostingContainer = getHostingNode(nodeTemplate, csar);
 
@@ -45,7 +45,7 @@ public class BPMNContainerPatternBasedHandler extends BPMNPatternBasedHandler {
         return invokeWithMatching(context, hostingContainer, iface, terminateOperation, nodesForMatching, elementToAppendTo);
     }
 
-    public boolean isProvisionableByContainerPattern(final TNodeTemplate nodeTemplate, Csar csar) {
+    public boolean isProvisionableByContainerPattern(final TNodeTemplate nodeTemplate, final Csar csar) {
         // find hosting node
         System.out.println("inside isprovisionablebycontainerpattern");
         final TNodeTemplate hostingNode = getHostingNode(nodeTemplate, csar);
@@ -66,7 +66,7 @@ public class BPMNContainerPatternBasedHandler extends BPMNPatternBasedHandler {
             getContainerPatternCreateMethod(hostingNode, csar));
     }
 
-    public boolean isDeprovisionableByContainerPattern(final TNodeTemplate nodeTemplate, Csar csar) {
+    public boolean isDeprovisionableByContainerPattern(final TNodeTemplate nodeTemplate, final Csar csar) {
         // find hosting node
         final TNodeTemplate hostingNode = getHostingNode(nodeTemplate, csar);
         if (Objects.isNull(hostingNode)) {
@@ -83,16 +83,16 @@ public class BPMNContainerPatternBasedHandler extends BPMNPatternBasedHandler {
             getContainerPatternTerminateMethod(hostingNode, csar));
     }
 
-    private boolean hasContainerPatternCreateMethod(final TNodeTemplate nodeTemplate, Csar csar) {
+    private boolean hasContainerPatternCreateMethod(final TNodeTemplate nodeTemplate, final Csar csar) {
         System.out.println("has containerpattern create Methode: " + Objects.nonNull(getContainerPatternCreateMethod(nodeTemplate, csar)));
         return Objects.nonNull(getContainerPatternCreateMethod(nodeTemplate, csar));
     }
 
-    private boolean hasContainerPatternTerminateMethod(final TNodeTemplate nodeTemplate, Csar csar) {
+    private boolean hasContainerPatternTerminateMethod(final TNodeTemplate nodeTemplate, final Csar csar) {
         return Objects.nonNull(getContainerPatternTerminateMethod(nodeTemplate, csar));
     }
 
-    protected TOperation getContainerPatternTerminateMethod(final TNodeTemplate nodeTemplate, Csar csar) {
+    protected TOperation getContainerPatternTerminateMethod(final TNodeTemplate nodeTemplate, final Csar csar) {
         TInterface iface = getContainerPatternInterface(nodeTemplate, csar);
         if (Objects.nonNull(iface)) {
             for (final TOperation op : iface.getOperations()) {
@@ -105,13 +105,13 @@ public class BPMNContainerPatternBasedHandler extends BPMNPatternBasedHandler {
         return null;
     }
 
-    protected TOperation getContainerPatternCreateMethod(final TNodeTemplate nodeTemplate, Csar csar) {
+    protected TOperation getContainerPatternCreateMethod(final TNodeTemplate nodeTemplate, final Csar csar) {
         System.out.println("get containerpattern create method");
         System.out.println("returns: " + ModelUtils.getOperationOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_CREATE, csar));
         return ModelUtils.getOperationOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_CREATE, csar);
     }
 
-    private TInterface getContainerPatternInterface(final TNodeTemplate nodeTemplate, Csar csar) {
+    private TInterface getContainerPatternInterface(final TNodeTemplate nodeTemplate, final Csar csar) {
 
         // search for all three possible container pattern interfaces within the NodeType hierarchy
         TInterface containerInterface = ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN, csar);
@@ -127,7 +127,7 @@ public class BPMNContainerPatternBasedHandler extends BPMNPatternBasedHandler {
         return ModelUtils.getInterfaceOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE, csar);
     }
 
-    private Set<TNodeTemplate> calculateNodesForMatching(final TNodeTemplate nodeTemplate, Csar csar) {
+    private Set<TNodeTemplate> calculateNodesForMatching(final TNodeTemplate nodeTemplate, final Csar csar) {
         final Set<TNodeTemplate> nodesForMatching = new HashSet<>();
         nodesForMatching.add(nodeTemplate);
 
@@ -140,7 +140,7 @@ public class BPMNContainerPatternBasedHandler extends BPMNPatternBasedHandler {
         return nodesForMatching;
     }
 
-    protected TNodeTemplate getHostingNode(final TNodeTemplate nodeTemplate, Csar csar) {
+    protected TNodeTemplate getHostingNode(final TNodeTemplate nodeTemplate, final Csar csar) {
         System.out.println("get hosting node: " + nodeTemplate.getId());
         for (final TRelationshipTemplate rel : ModelUtils.getOutgoingRelations(nodeTemplate, csar)) {
             for (final QName typeInHierarchy : ModelUtils.getRelationshipTypeHierarchy(ModelUtils.findRelationshipType(rel, csar), csar)) {

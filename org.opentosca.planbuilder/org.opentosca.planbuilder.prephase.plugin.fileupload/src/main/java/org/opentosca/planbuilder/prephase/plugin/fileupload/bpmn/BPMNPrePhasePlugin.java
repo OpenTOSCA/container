@@ -104,7 +104,7 @@ public class BPMNPrePhasePlugin implements IPlanBuilderBPMNPrePhasePlugin<BPMNPl
      * {@inheritDoc}
      */
     @Override
-    public boolean canHandle(BPMNPlanContext context, final TDeploymentArtifact deploymentArtifact,
+    public boolean canHandle(final BPMNPlanContext context, final TDeploymentArtifact deploymentArtifact,
                              final TNodeType infrastructureNodeType) {
 
         for (final QName artType : ModelUtils.getArtifactTypeHierarchy(ModelUtils.findArtifactTemplate(deploymentArtifact.getArtifactRef(), context.getCsar()), context.getCsar())) {
@@ -122,7 +122,7 @@ public class BPMNPrePhasePlugin implements IPlanBuilderBPMNPrePhasePlugin<BPMNPl
     }
 
     @Override
-    public boolean canHandle(BPMNPlanContext context, final TImplementationArtifact ia, final TNodeType infrastructureNodeType) {
+    public boolean canHandle(final BPMNPlanContext context, final TImplementationArtifact ia, final TNodeType infrastructureNodeType) {
 
         for (final QName artType : ModelUtils.getArtifactTypeHierarchy(ModelUtils.findArtifactTemplate(ia.getArtifactRef(), context.getCsar()), context.getCsar())) {
             for (final QName nodeType : ModelUtils.getNodeTypeHierarchy(infrastructureNodeType, context.getCsar())) {
@@ -155,7 +155,7 @@ public class BPMNPrePhasePlugin implements IPlanBuilderBPMNPrePhasePlugin<BPMNPl
      * @return a Boolean. True if the given pair of QName's denotes a pair which this plugin can handle
      */
     private boolean isSupportedDeploymentPair(final QName artifactType, final QName infrastructureNodeType,
-                                              Map<QName, TArtifactType> artifactTypes, final boolean isDA) {
+                                              final Map<QName, TArtifactType> artifactTypes, final boolean isDA) {
 
         if (Utils.isSupportedDockerEngineNodeType(infrastructureNodeType)) {
             return false;
@@ -200,7 +200,7 @@ public class BPMNPrePhasePlugin implements IPlanBuilderBPMNPrePhasePlugin<BPMNPl
     }
 
     @Override
-    public boolean canHandleCreate(BPMNPlanContext context, final TNodeTemplate nodeTemplate) {
+    public boolean canHandleCreate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate) {
         LOG.debug("Checking if DAs of node template {} can be deployed", nodeTemplate.getId());
         // Find infrastructures of this node and check if we can deploy all of its DA's
         if (nodeTemplate.getDeploymentArtifacts() == null) {
@@ -218,7 +218,7 @@ public class BPMNPrePhasePlugin implements IPlanBuilderBPMNPrePhasePlugin<BPMNPl
     }
 
     public TNodeTemplate getDeployableInfrastructureNode(final TNodeTemplate nodeToDeploy,
-                                                         final TDeploymentArtifact da, Csar csar) {
+                                                         final TDeploymentArtifact da, final Csar csar) {
         final Collection<TNodeTemplate> infraNodes = new HashSet<>();
         ModelUtils.getInfrastructureNodes(nodeToDeploy, infraNodes, csar);
         for (final TNodeTemplate node : infraNodes) {
@@ -243,7 +243,7 @@ public class BPMNPrePhasePlugin implements IPlanBuilderBPMNPrePhasePlugin<BPMNPl
             .filter(implementation -> implementation.getNodeType().equals(nodeTemplate.getType()))
             .collect(Collectors.toList());
 
-        for (TNodeTypeImplementation nodeTypeImplementation : nodeTypeImplementations) {
+        for (final TNodeTypeImplementation nodeTypeImplementation : nodeTypeImplementations) {
             for (final TDeploymentArtifact da : ModelUtils.calculateEffectiveDAs(nodeTemplate, nodeTypeImplementation, context.getCsar())) {
                 final TNodeTemplate infraNode = getDeployableInfrastructureNode(nodeTemplate, da, context.getCsar());
                 handle &= this.handler.handle(context, da, infraNode);
@@ -254,7 +254,7 @@ public class BPMNPrePhasePlugin implements IPlanBuilderBPMNPrePhasePlugin<BPMNPl
     }
 
     @Override
-    public boolean canHandleCreate(BPMNPlanContext context, final TRelationshipTemplate relationshipTemplate) {
+    public boolean canHandleCreate(final BPMNPlanContext context, final TRelationshipTemplate relationshipTemplate) {
         return false;
     }
 

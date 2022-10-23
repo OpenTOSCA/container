@@ -31,14 +31,14 @@ public class BPMNPlanContext extends PlanContext {
     private BPMNSubprocess bpmnSubprocess;
 
     public BPMNPlanContext(final BPMNPlan plan, final BPMNSubprocess templateBuildPlan, final Property2VariableMapping map,
-                           final TServiceTemplate serviceTemplate, String serviceInstanceURLVarName,
-                           String serviceInstanceIDVarName, String serviceTemplateURLVarName, Csar csar) {
+                           final TServiceTemplate serviceTemplate, final String serviceInstanceURLVarName,
+                           final String serviceInstanceIDVarName, final String serviceTemplateURLVarName, final Csar csar) {
         super(plan, serviceTemplate, map, null, serviceInstanceURLVarName, serviceInstanceIDVarName, serviceTemplateURLVarName, "", csar);
 
         this.bpmnSubprocess = templateBuildPlan;
     }
 
-    public static Variable getVariable(String varName) {
+    public static Variable getVariable(final String varName) {
         return new Variable(varName);
     }
 
@@ -74,7 +74,7 @@ public class BPMNPlanContext extends PlanContext {
     public Collection<TNodeTemplate> getNodesInCreation() {
         Collection<AbstractActivity> activities = this.bpmnSubprocess.getBuildPlan().getActivites();
         Collection<TNodeTemplate> result = new HashSet<>();
-        for (AbstractActivity activity : activities) {
+        for (final AbstractActivity activity : activities) {
             if ((activity instanceof NodeTemplateActivity) &&
                 (activity.getType().equals(ActivityType.PROVISIONING) || activity.getType().equals(ActivityType.MIGRATION))) {
                 result.add(((NodeTemplateActivity) activity).getNodeTemplate());
