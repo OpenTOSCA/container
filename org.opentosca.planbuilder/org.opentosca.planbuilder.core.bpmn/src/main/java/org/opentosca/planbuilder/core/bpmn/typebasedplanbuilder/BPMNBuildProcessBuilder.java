@@ -176,7 +176,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             } catch (IOException | SAXException e) {
                 e.printStackTrace();
             }
-            writeXML(bpmnPlan.getBpmnDocument());
+            // writeXML(bpmnPlan.getBpmnDocument());
             return bpmnPlan;
         }
         LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
