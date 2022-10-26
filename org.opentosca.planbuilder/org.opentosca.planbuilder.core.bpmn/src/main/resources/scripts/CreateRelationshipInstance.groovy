@@ -4,9 +4,9 @@ import java.util.logging.Logger
 Logger logger = Logger.getLogger("CreateRelationshipInstance")
 def template = execution.getVariable("RelationshipTemplate")
 def sourceUrlVar = execution.getVariable("SourceURL")
-def sourceUrl = sourceUrlVar[sourceUrlVar.lastIndexOf('/') + 1, -1]
+def sourceUrl = sourceUrlVar.split("/")[-1]
 def targetUrlVar = execution.getVariable("TargetURL")
-def targetUrl = targetUrlVar[targetUrlVar.lastIndexOf('/') + 1, -1]
+def targetUrl = targetUrlVar.split("/")[-1]
 logger.info("======== Executing CreateRelationshipInstance.groovy with exec ID: ${execution.id} for RelationshipTemplate ${template} with SourceURL ${sourceUrlVar} and TargetURL ${targetUrlVar} ========")
 
 // create TemplateInstance URL from instance data API URL
