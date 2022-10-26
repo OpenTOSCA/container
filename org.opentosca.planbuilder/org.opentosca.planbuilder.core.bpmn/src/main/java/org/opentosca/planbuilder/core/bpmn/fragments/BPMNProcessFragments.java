@@ -522,10 +522,8 @@ public class BPMNProcessFragments {
         if (bpmnSubprocess.getBuildPlan().getDataObjectsList() != null) {
             for (final BPMNDataObject dataObject : bpmnSubprocess.getBuildPlan().getDataObjectsList()) {
                 // (dataObject.getDataObjectType() == BPMNComponentType.DATA_OBJECT_NODE) &&
-                if (dataObjectReferenceId.contains(dataObject.getId())) {
-                    if (dataObject.getProperties() != null) {
-                        properties = dataObject.getProperties();
-                    }
+                if (dataObjectReferenceId.contains(dataObject.getId()) && dataObject.getProperties() != null) {
+                    properties = dataObject.getProperties();
                 }
             }
         }
@@ -609,30 +607,28 @@ public class BPMNProcessFragments {
         innerErrorEndEvent.setParentProcess(bpmnSubprocess);
         for (final BPMNSubprocess subSubprocess : bpmnSubprocess.getSubprocessBPMNSubprocess()) {
             subSubprocess.setParentProcess(bpmnSubprocess);
-
-            if (subSubprocess.getBpmnSubprocessType() != BPMNComponentType.SEQUENCE_FLOW2) {
-                //Node child = this.createBPMNSubprocessAndComponentsAsNode(subSubprocess);
-                if (subSubprocess.getSubprocessType() != BPMNComponentType.SEQUENCE_FLOW && subSubprocess.getSubprocessType() != BPMNComponentType.DATA_OBJECT
-                    && subSubprocess.getSubprocessType() != BPMNComponentType.DATA_OBJECT_NODE && subSubprocess.getSubprocessType() != BPMNComponentType.DATA_OBJECT_REL
-                    && subSubprocess.getSubprocessType() != BPMNComponentType.DATA_OBJECT_ST && subSubprocess.getSubprocessType() != BPMNComponentType.INNER_START_EVENT
-                    && subSubprocess.getSubprocessType() != BPMNComponentType.START_EVENT && subSubprocess.getSubprocessType() != BPMNComponentType.END_EVENT) {
-                    for (final Integer errorId : bpmnSubprocess.getErrorEventIds()) {
-                        bpmnSubprocess.getBuildPlan().getIdForErrorInnerFlowAndIncrement();
-                        BPMNSubprocess innerErrorSequenceFlow = new BPMNSubprocess(BPMNComponentType.SEQUENCE_FLOW, "ErrorInnerFlow_" + bpmnSubprocess.getBuildPlan().getIdForInnerFlowTestAndIncrement());
-                        BPMNSubprocess innerBoundaryEvent = new BPMNSubprocess(BPMNComponentType.EVENT, "BoundaryEvent_" + bpmnSubprocess.getBuildPlan().getErrorInnerFlowCounterId());
-                        innerBoundaryEvent.setBuildPlan(bpmnSubprocess.getBuildPlan());
-                        innerErrorSequenceFlow.setBuildPlan(bpmnSubprocess.getBuildPlan());
-                        innerErrorSequenceFlow.setIncomingFlowElements(innerBoundaryEvent);
-                        innerErrorSequenceFlow.setOutgoingFlow(innerErrorEndEvent);
-                        errorFlowElements.add(innerErrorSequenceFlow);
-                        bpmnSubprocess.setFlowElements(flowElements);
-                        bpmnSubprocess.setErrorFlowElements(errorFlowElements);
-                        innerBoundaryEvent.setParentProcess(bpmnSubprocess);
-                        Node errorChild = this.createTaskErrorBoundaryEventAsNode(innerBoundaryEvent, subSubprocess, errorId);
-                        bpmnSubprocess.getBpmnSubprocessElement().appendChild(errorChild);
-                    }
+            //Node child = this.createBPMNSubprocessAndComponentsAsNode(subSubprocess);
+            if (subSubprocess.getSubprocessType() != BPMNComponentType.SEQUENCE_FLOW && subSubprocess.getSubprocessType() != BPMNComponentType.DATA_OBJECT
+                && subSubprocess.getSubprocessType() != BPMNComponentType.DATA_OBJECT_NODE && subSubprocess.getSubprocessType() != BPMNComponentType.DATA_OBJECT_REL
+                && subSubprocess.getSubprocessType() != BPMNComponentType.DATA_OBJECT_ST && subSubprocess.getSubprocessType() != BPMNComponentType.INNER_START_EVENT
+                && subSubprocess.getSubprocessType() != BPMNComponentType.START_EVENT && subSubprocess.getSubprocessType() != BPMNComponentType.END_EVENT) {
+                for (final Integer errorId : bpmnSubprocess.getErrorEventIds()) {
+                    bpmnSubprocess.getBuildPlan().getIdForErrorInnerFlowAndIncrement();
+                    BPMNSubprocess innerErrorSequenceFlow = new BPMNSubprocess(BPMNComponentType.SEQUENCE_FLOW, "ErrorInnerFlow_" + bpmnSubprocess.getBuildPlan().getIdForInnerFlowTestAndIncrement());
+                    BPMNSubprocess innerBoundaryEvent = new BPMNSubprocess(BPMNComponentType.EVENT, "BoundaryEvent_" + bpmnSubprocess.getBuildPlan().getErrorInnerFlowCounterId());
+                    innerBoundaryEvent.setBuildPlan(bpmnSubprocess.getBuildPlan());
+                    innerErrorSequenceFlow.setBuildPlan(bpmnSubprocess.getBuildPlan());
+                    innerErrorSequenceFlow.setIncomingFlowElements(innerBoundaryEvent);
+                    innerErrorSequenceFlow.setOutgoingFlow(innerErrorEndEvent);
+                    errorFlowElements.add(innerErrorSequenceFlow);
+                    bpmnSubprocess.setFlowElements(flowElements);
+                    bpmnSubprocess.setErrorFlowElements(errorFlowElements);
+                    innerBoundaryEvent.setParentProcess(bpmnSubprocess);
+                    Node errorChild = this.createTaskErrorBoundaryEventAsNode(innerBoundaryEvent, subSubprocess, errorId);
+                    bpmnSubprocess.getBpmnSubprocessElement().appendChild(errorChild);
                 }
             }
+
             Node child = this.createBPMNSubprocessAndComponentsAsNode(subSubprocess);
             bpmnSubprocess.getBpmnSubprocessElement().appendChild(child);
         }
@@ -708,9 +704,9 @@ public class BPMNProcessFragments {
             }
             return getResultCreateNode(bpmnSubprocess, s, doc, begin, closingTag, end, result);
         }
-        if (!bpmnSubprocess.getId().contains("firstStartEvent") && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.ERROR_END_EVENT && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.SEQUENCE_FLOW2 && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.SEQUENCE_FLOW
+        if (!bpmnSubprocess.getId().contains("firstStartEvent") && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.ERROR_END_EVENT && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.SEQUENCE_FLOW
             && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.SUBPROCESS && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.EVENT && bpmnSubprocess.getSubprocessType() != BPMNComponentType.SUBPROCESS_ERROR_BOUNDARY
-            && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.USER_TASK && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.SEQUENCE_FLOW2 && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.START_EVENT && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.ERROR_END_EVENT && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.INNER_START_EVENT) {
+            && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.USER_TASK && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.START_EVENT && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.ERROR_END_EVENT && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.INNER_START_EVENT) {
 
             // make sure all elements belongs to same document
             ///Node importedNode = doc.importNode(transformedNode, true);

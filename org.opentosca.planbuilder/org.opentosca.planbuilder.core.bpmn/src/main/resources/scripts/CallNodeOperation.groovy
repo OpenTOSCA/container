@@ -6,7 +6,7 @@ logger.info("======== Executing CallNodeOperation.groovy with exec ID: ${executi
 def csarID = execution.getVariable("CsarID")
 def serviceTemplateID = execution.getVariable("ServiceTemplateID")
 def serviceInstanceURL = execution.getVariable("ServiceInstanceURL")
-def ip = serviceInstanceURL.substring(7).split("/")[0].split(":")[0]
+def ip = serviceInstanceURL[7..-1].split("/")[0].split(":")[0]
 
 // Host <-- Target, operation is on Host while property on target
 def hostNodeTemplateID = execution.getVariable("NodeTemplate")
@@ -74,8 +74,8 @@ def binding = ["csarID": csarID, "serviceTemplateID": serviceTemplateID, "servic
 def engine = new groovy.text.SimpleTemplateEngine()
 def message = engine.createTemplate(template).make(binding).toString()
 
-//logger.info("message: ${message}")
-print "message: $message"
+// logger.info("message: ${message}")
+
 def url = "http://" + ip + ":8086/ManagementBus/v1/invoker"
 def post = new URL(url).openConnection()
 post.setRequestMethod("POST")
@@ -102,28 +102,27 @@ while (true) {
         execution.setVariable("ErrorDescription", "Received status code " + status + " while polling for NodeTemplate operation result!")
         throw new org.camunda.bpm.engine.delegate.BpmnError("InvalidStatusCode")
     }
-    if (get.responseCode == 200) {
-        def pollingResult = get.inputStream.text
-        def slurper = new JsonSlurper()
-        def pollingResultJSON = slurper.parseText(pollingResult)
+    def pollingResult = get.inputStream.text
+    def slurper = new JsonSlurper()
+    def pollingResultJSON = slurper.parseText(pollingResult)
 
-        if (pollingResultJSON.status != "PENDING") {
-            def responseJSON = pollingResultJSON.response
+    if (pollingResultJSON.status != "PENDING") {
+        def responseJSON = pollingResultJSON.response
 
-            //logger.info("Response of polling: ${responseJSON}")
-            // in this step we write the output parameter of the operation back to the corresponding data object
-            // this is necessary to build the output parameter of the plan
-            if (outputParamNames != null) {
-                outputParamNames = outputParamNames.split(",")
-                outputParamNames.each { outputParam ->
-                    String name = dataObject + propertiesAccess + outputParam
-                    String value = responseJSON.get(outputParam)
-                    execution.setVariable(name, value)
-                    logger.info("Set variable ${name}: ${value}")
-                }
+        // logger.info("Response of polling: ${responseJSON}")
+        // in this step we write the output parameter of the operation back to the corresponding data object
+        // this is necessary to build the output parameter of the plan
+        if (outputParamNames != null) {
+            outputParamNames = outputParamNames.split(",")
+            outputParamNames.each { outputParam ->
+                String name = dataObject + propertiesAccess + outputParam
+                String value = responseJSON.get(outputParam)
+                execution.setVariable(name, value)
+                logger.info("Set variable ${name}: ${value}")
             }
-            return
         }
+        return
     }
+
     sleep(10000)
 }

@@ -1,6 +1,5 @@
 package org.opentosca.planbuilder.core.bpmn.typebasedplanbuilder;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,10 +7,6 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -39,7 +34,6 @@ import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocess;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNComponentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_BuildPlanOperation;
@@ -132,8 +126,7 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 AbstractBuildPlanBuilder.generatePOG(new QName(processNamespace, processName).toString(), definitions,
                     serviceTemplate, csar);
 
-            LOG.debug("Generated the following abstract prov plan: {}");
-            // wozu das?
+            LOG.debug("Generated the following abstract prov plan:");
             LOG.debug(buildPlan.toString());
 
             ArrayList<String> inputParameters =

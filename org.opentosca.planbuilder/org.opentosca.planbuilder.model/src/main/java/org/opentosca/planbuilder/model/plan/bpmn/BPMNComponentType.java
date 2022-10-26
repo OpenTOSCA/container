@@ -28,8 +28,7 @@ public enum BPMNComponentType {
     SUBPROCESS("Subprocess"),
     SUBPROCESS_ERROR_BOUNDARY("Event"),
     SEQUENCE_FLOW("Flow"),
-    ERROR_INNER_FLOW("Flow"),
-    SEQUENCE_FLOW2("Flow");
+    ERROR_INNER_FLOW("Flow");
 
     String name;
 
