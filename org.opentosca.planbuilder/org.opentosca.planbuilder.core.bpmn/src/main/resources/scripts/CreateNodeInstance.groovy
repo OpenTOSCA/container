@@ -13,7 +13,7 @@ def post = new URL(url).openConnection()
 // get ServiceTemplateInstance ID and add it to the request body
 def serviceInstanceURL = execution.getVariable("ServiceInstanceURL")
 def valueOfServiceInstanceURL = execution.getVariable(serviceInstanceURL)
-def message = valueOfServiceInstanceURL[valueOfServiceInstanceURL.lastIndexOf('/') + 1, -1]
+def message = valueOfServiceInstanceURL.split("/")[-1]
 
 // send Post to instance data API
 post.setRequestMethod("POST")
