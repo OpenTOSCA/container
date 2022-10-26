@@ -47,21 +47,17 @@ public class BPMNContainerPatternBasedHandler extends BPMNPatternBasedHandler {
 
     public boolean isProvisionableByContainerPattern(final TNodeTemplate nodeTemplate, final Csar csar) {
         // find hosting node
-        System.out.println("inside isprovisionablebycontainerpattern");
         final TNodeTemplate hostingNode = getHostingNode(nodeTemplate, csar);
         if (Objects.isNull(hostingNode)) {
-            System.out.println("hosting node is null");
             return false;
         }
 
         if (!hasContainerPatternCreateMethod(hostingNode, csar)) {
-            System.out.println("has no containerpattern create method");
             return false;
         }
 
         final Set<TNodeTemplate> nodesForMatching = calculateNodesForMatching(nodeTemplate, csar);
 
-        System.out.println("vor hascompletematching");
         return hasCompleteMatching(nodesForMatching, getContainerPatternInterface(hostingNode, csar),
             getContainerPatternCreateMethod(hostingNode, csar));
     }
@@ -84,7 +80,6 @@ public class BPMNContainerPatternBasedHandler extends BPMNPatternBasedHandler {
     }
 
     private boolean hasContainerPatternCreateMethod(final TNodeTemplate nodeTemplate, final Csar csar) {
-        System.out.println("has containerpattern create Methode: " + Objects.nonNull(getContainerPatternCreateMethod(nodeTemplate, csar)));
         return Objects.nonNull(getContainerPatternCreateMethod(nodeTemplate, csar));
     }
 
@@ -106,8 +101,6 @@ public class BPMNContainerPatternBasedHandler extends BPMNPatternBasedHandler {
     }
 
     protected TOperation getContainerPatternCreateMethod(final TNodeTemplate nodeTemplate, final Csar csar) {
-        System.out.println("get containerpattern create method");
-        System.out.println("returns: " + ModelUtils.getOperationOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_CREATE, csar));
         return ModelUtils.getOperationOfNode(nodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_CREATE, csar);
     }
 
@@ -141,11 +134,9 @@ public class BPMNContainerPatternBasedHandler extends BPMNPatternBasedHandler {
     }
 
     protected TNodeTemplate getHostingNode(final TNodeTemplate nodeTemplate, final Csar csar) {
-        System.out.println("get hosting node: " + nodeTemplate.getId());
         for (final TRelationshipTemplate rel : ModelUtils.getOutgoingRelations(nodeTemplate, csar)) {
             for (final QName typeInHierarchy : ModelUtils.getRelationshipTypeHierarchy(ModelUtils.findRelationshipType(rel, csar), csar)) {
                 if (ModelUtils.isInfrastructureRelationshipType(typeInHierarchy)) {
-                    System.out.println("ist in hierarchie");
                     return ModelUtils.getTarget(rel, csar);
                 }
             }

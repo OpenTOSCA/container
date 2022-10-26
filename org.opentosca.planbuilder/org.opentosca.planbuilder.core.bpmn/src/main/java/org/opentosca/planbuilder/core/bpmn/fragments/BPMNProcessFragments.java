@@ -11,10 +11,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.common.file.ResourceAccess;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNComponentType;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNDataObject;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocess;
-import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocessType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -109,7 +109,7 @@ public class BPMNProcessFragments {
         callNodeOperation = callNodeOperation.replaceAll("ServiceTemplateNameToSet", bpmnSubprocess.getBuildPlan().getServiceTemplate().getId().trim());
         callNodeOperation = callNodeOperation.replaceAll("NodeTemplateToSet", bpmnSubprocess.getHostingNodeTemplate().getId());
         String parentId = bpmnSubprocess.getParentProcess().getId();
-        String prefix = BPMNSubprocessType.DATA_OBJECT_REFERENCE + "_" + BPMNSubprocessType.DATA_OBJECT;
+        String prefix = BPMNComponentType.DATA_OBJECT_REFERENCE + "_" + BPMNComponentType.DATA_OBJECT;
         String dataObjectReferenceId = parentId.replace("Subprocess", prefix);
         callNodeOperation = callNodeOperation.replaceAll("DataObjectToSet", dataObjectReferenceId);
         callNodeOperation = getServiceInstanceURLFromDataObject(bpmnSubprocess, callNodeOperation);
@@ -167,9 +167,9 @@ public class BPMNProcessFragments {
 
     public String getServiceInstanceURLFromDataObject(final BPMNSubprocess bpmnSubprocess, String template) {
         for (final BPMNDataObject bpmnDataObject : bpmnSubprocess.getBuildPlan().getDataObjectsList()) {
-            if (bpmnDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_ST) {
+            if (bpmnDataObject.getDataObjectType() == BPMNComponentType.DATA_OBJECT_ST) {
                 template = template.replaceAll("ServiceInstanceURLToSet", bpmnDataObject.getServiceInstanceURL());
-            } else if (bpmnDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_INOUT) {
+            } else if (bpmnDataObject.getDataObjectType() == BPMNComponentType.DATA_OBJECT_INOUT) {
                 template = template.replaceAll("ServiceInstanceURLToSet", bpmnDataObject.getProperties().stream().filter(property -> property.startsWith(ServiceInstanceURLVarKeyword)).toString());
             }
         }
@@ -298,15 +298,15 @@ public class BPMNProcessFragments {
      * @param d The finalized Document (with diagram elements) without dataObjects
      */
     public void createDataObjectAsNode(final BPMNPlan bpmnPlan, final Document d, final BPMNDataObject dataObject) throws IOException, SAXException {
-        BPMNSubprocessType dataObjectType = dataObject.getDataObjectType();
+        BPMNComponentType dataObjectType = dataObject.getDataObjectType();
         String dataObjectReference = "";
-        if (dataObjectType == BPMNSubprocessType.DATA_OBJECT_ST) {
+        if (dataObjectType == BPMNComponentType.DATA_OBJECT_ST) {
             dataObjectReference = createServiceInstanceDataObjectReference(dataObject, bpmnPlan);
-        } else if (dataObjectType == BPMNSubprocessType.DATA_OBJECT_NODE) {
+        } else if (dataObjectType == BPMNComponentType.DATA_OBJECT_NODE) {
             dataObjectReference = createNodeDataObjectReference(dataObject);
-        } else if (dataObjectType == BPMNSubprocessType.DATA_OBJECT_INOUT) {
+        } else if (dataObjectType == BPMNComponentType.DATA_OBJECT_INOUT) {
             dataObjectReference = createInputOutputDataObjectReference(dataObject, bpmnPlan);
-        } else if (dataObjectType == BPMNSubprocessType.DATA_OBJECT_REL) {
+        } else if (dataObjectType == BPMNComponentType.DATA_OBJECT_REL) {
             dataObjectReference = createRelationDataObjectReference(dataObject);
         }
         this.createImportNodeFromString(bpmnPlan, d, dataObjectReference, false);
@@ -427,13 +427,13 @@ public class BPMNProcessFragments {
         String activateDataObjectTask = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNActivateDataObjectTask.xml"));
         activateDataObjectTask = activateDataObjectTask.replace("ActivateDataObject_IdToReplace", bpmnSubprocess.getId());
         activateDataObjectTask = activateDataObjectTask.replace("NameToSet", "Activate data object " + bpmnSubprocess.getDataObject().getId());
-        activateDataObjectTask = activateDataObjectTask.replace("DataObjectIdToSet", BPMNSubprocessType.DATA_OBJECT_REFERENCE + "_" + bpmnSubprocess.getDataObject().getId());
+        activateDataObjectTask = activateDataObjectTask.replace("DataObjectIdToSet", BPMNComponentType.DATA_OBJECT_REFERENCE + "_" + bpmnSubprocess.getDataObject().getId());
         StringBuilder properties = new StringBuilder();
         StringBuilder propertiesNames = new StringBuilder();
 
         StringBuilder inputParameterNames = new StringBuilder();
         StringBuilder outputParameterNames = new StringBuilder();
-        if (bpmnSubprocess.getDataObject().getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_INOUT) {
+        if (bpmnSubprocess.getDataObject().getDataObjectType() == BPMNComponentType.DATA_OBJECT_INOUT) {
             for (final String inputParameterName : bpmnSubprocess.getBuildPlan().getInputParameters()) {
                 inputParameterNames.append(inputParameterName).append(",");
             }
@@ -512,7 +512,7 @@ public class BPMNProcessFragments {
         String parentId = bpmnSubprocess.getParentProcess().getId();
         setNodeProperties = setNodeProperties.replace("NodeInstanceURLToSet", "${" + nodeInstanceURL.replace("-", "_") + "}");
         setNodeProperties = setNodeProperties.replaceAll("NodeTemplateToSet", nodeTemplateId);
-        String prefix = BPMNSubprocessType.DATA_OBJECT_REFERENCE + "_" + BPMNSubprocessType.DATA_OBJECT;
+        String prefix = BPMNComponentType.DATA_OBJECT_REFERENCE + "_" + BPMNComponentType.DATA_OBJECT;
         String dataObjectReferenceId = parentId.replace("Subprocess", prefix);
         setNodeProperties = setNodeProperties.replaceAll("DataObjectToSet", dataObjectReferenceId);
 
@@ -521,7 +521,7 @@ public class BPMNProcessFragments {
         // find corresponding data object
         if (bpmnSubprocess.getBuildPlan().getDataObjectsList() != null) {
             for (final BPMNDataObject dataObject : bpmnSubprocess.getBuildPlan().getDataObjectsList()) {
-                // (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_NODE) &&
+                // (dataObject.getDataObjectType() == BPMNComponentType.DATA_OBJECT_NODE) &&
                 if (dataObjectReferenceId.contains(dataObject.getId())) {
                     if (dataObject.getProperties() != null) {
                         properties = dataObject.getProperties();
@@ -565,13 +565,13 @@ public class BPMNProcessFragments {
         ArrayList<BPMNSubprocess> flowElements = new ArrayList<>();
         ArrayList<Node> flowNodes = new ArrayList<>();
         // add Start Event inside subprocess
-        BPMNSubprocess innerStartEvent = new BPMNSubprocess(BPMNSubprocessType.INNER_START_EVENT, "StartEvent_" + bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement());
+        BPMNSubprocess innerStartEvent = new BPMNSubprocess(BPMNComponentType.INNER_START_EVENT, "StartEvent_" + bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement());
         innerStartEvent.setBuildPlan(bpmnSubprocess.getBuildPlan());
         innerStartEvent.setParentProcess(bpmnSubprocess);
         BPMNSubprocess previousIncoming = innerStartEvent;
         // compute the sequence flows before components are added to the xml
         for (final BPMNSubprocess subSubprocess : bpmnSubprocess.getSubprocessBPMNSubprocess()) {
-            BPMNSubprocess innerSequenceFlow2 = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "InnerFlow_" + bpmnSubprocess.getBuildPlan().getIdForInnerFlowTestAndIncrement());
+            BPMNSubprocess innerSequenceFlow2 = new BPMNSubprocess(BPMNComponentType.SEQUENCE_FLOW, "InnerFlow_" + bpmnSubprocess.getBuildPlan().getIdForInnerFlowTestAndIncrement());
             innerSequenceFlow2.setBuildPlan(bpmnSubprocess.getBuildPlan());
             innerSequenceFlow2.setIncomingFlowElements(previousIncoming);
             innerSequenceFlow2.setOutgoingFlow(subSubprocess);
@@ -583,11 +583,11 @@ public class BPMNProcessFragments {
             previousIncoming = subSubprocess;
         }
         // add End Event inside subprocess
-        BPMNSubprocess innerEndEvent = new BPMNSubprocess(BPMNSubprocessType.END_EVENT, "EndEvent_" + bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement());
+        BPMNSubprocess innerEndEvent = new BPMNSubprocess(BPMNComponentType.END_EVENT, "EndEvent_" + bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement());
         innerEndEvent.setBuildPlan(bpmnSubprocess.getBuildPlan());
         innerEndEvent.setParentProcess(bpmnSubprocess);
 
-        BPMNSubprocess innerEndEventSequenceFlow = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "InnerFlow_" + bpmnSubprocess.getBuildPlan().getIdForInnerFlowTestAndIncrement());
+        BPMNSubprocess innerEndEventSequenceFlow = new BPMNSubprocess(BPMNComponentType.SEQUENCE_FLOW, "InnerFlow_" + bpmnSubprocess.getBuildPlan().getIdForInnerFlowTestAndIncrement());
         innerEndEventSequenceFlow.setBuildPlan(bpmnSubprocess.getBuildPlan());
         innerEndEventSequenceFlow.setIncomingFlowElements(previousIncoming);
         innerEndEventSequenceFlow.setOutgoingFlow(innerEndEvent);
@@ -604,22 +604,22 @@ public class BPMNProcessFragments {
         ArrayList<BPMNSubprocess> errorFlowElements = new ArrayList<>();
         innerEndEvent.setParentProcess(bpmnSubprocess);
         // add error end event inside subprocess
-        BPMNSubprocess innerErrorEndEvent = new BPMNSubprocess(BPMNSubprocessType.ERROR_END_EVENT, "ErrorEndEvent_" + bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement());
+        BPMNSubprocess innerErrorEndEvent = new BPMNSubprocess(BPMNComponentType.ERROR_END_EVENT, "ErrorEndEvent_" + bpmnSubprocess.getBuildPlan().getIdForNamesAndIncrement());
         innerErrorEndEvent.setBuildPlan(bpmnSubprocess.getBuildPlan());
         innerErrorEndEvent.setParentProcess(bpmnSubprocess);
         for (final BPMNSubprocess subSubprocess : bpmnSubprocess.getSubprocessBPMNSubprocess()) {
             subSubprocess.setParentProcess(bpmnSubprocess);
 
-            if (subSubprocess.getBpmnSubprocessType() != BPMNSubprocessType.SEQUENCE_FLOW2) {
+            if (subSubprocess.getBpmnSubprocessType() != BPMNComponentType.SEQUENCE_FLOW2) {
                 //Node child = this.createBPMNSubprocessAndComponentsAsNode(subSubprocess);
-                if (subSubprocess.getSubprocessType() != BPMNSubprocessType.SEQUENCE_FLOW && subSubprocess.getSubprocessType() != BPMNSubprocessType.DATA_OBJECT
-                    && subSubprocess.getSubprocessType() != BPMNSubprocessType.DATA_OBJECT_NODE && subSubprocess.getSubprocessType() != BPMNSubprocessType.DATA_OBJECT_REL
-                    && subSubprocess.getSubprocessType() != BPMNSubprocessType.DATA_OBJECT_ST && subSubprocess.getSubprocessType() != BPMNSubprocessType.INNER_START_EVENT
-                    && subSubprocess.getSubprocessType() != BPMNSubprocessType.START_EVENT && subSubprocess.getSubprocessType() != BPMNSubprocessType.END_EVENT) {
+                if (subSubprocess.getSubprocessType() != BPMNComponentType.SEQUENCE_FLOW && subSubprocess.getSubprocessType() != BPMNComponentType.DATA_OBJECT
+                    && subSubprocess.getSubprocessType() != BPMNComponentType.DATA_OBJECT_NODE && subSubprocess.getSubprocessType() != BPMNComponentType.DATA_OBJECT_REL
+                    && subSubprocess.getSubprocessType() != BPMNComponentType.DATA_OBJECT_ST && subSubprocess.getSubprocessType() != BPMNComponentType.INNER_START_EVENT
+                    && subSubprocess.getSubprocessType() != BPMNComponentType.START_EVENT && subSubprocess.getSubprocessType() != BPMNComponentType.END_EVENT) {
                     for (final Integer errorId : bpmnSubprocess.getErrorEventIds()) {
                         bpmnSubprocess.getBuildPlan().getIdForErrorInnerFlowAndIncrement();
-                        BPMNSubprocess innerErrorSequenceFlow = new BPMNSubprocess(BPMNSubprocessType.SEQUENCE_FLOW, "ErrorInnerFlow_" + bpmnSubprocess.getBuildPlan().getIdForInnerFlowTestAndIncrement());
-                        BPMNSubprocess innerBoundaryEvent = new BPMNSubprocess(BPMNSubprocessType.EVENT, "BoundaryEvent_" + bpmnSubprocess.getBuildPlan().getErrorInnerFlowCounterId());
+                        BPMNSubprocess innerErrorSequenceFlow = new BPMNSubprocess(BPMNComponentType.SEQUENCE_FLOW, "ErrorInnerFlow_" + bpmnSubprocess.getBuildPlan().getIdForInnerFlowTestAndIncrement());
+                        BPMNSubprocess innerBoundaryEvent = new BPMNSubprocess(BPMNComponentType.EVENT, "BoundaryEvent_" + bpmnSubprocess.getBuildPlan().getErrorInnerFlowCounterId());
                         innerBoundaryEvent.setBuildPlan(bpmnSubprocess.getBuildPlan());
                         innerErrorSequenceFlow.setBuildPlan(bpmnSubprocess.getBuildPlan());
                         innerErrorSequenceFlow.setIncomingFlowElements(innerBoundaryEvent);
@@ -670,7 +670,7 @@ public class BPMNProcessFragments {
         ArrayList<String> outgoingFlowIds;
         LOG.info("DER TYPE {} {}", bpmnSubprocess.getSubprocessType(), bpmnSubprocess.getId());
         Document doc = bpmnSubprocess.getBpmnDocument();
-        if (bpmnSubprocess.getSubprocessType() == BPMNSubprocessType.ERROR_END_EVENT) {
+        if (bpmnSubprocess.getSubprocessType() == BPMNComponentType.ERROR_END_EVENT) {
             outgoingFlowIds = computeErrorOutgoingFlowElements(bpmnSubprocess);
             int begin = s.indexOf("<bpmn:errorEventDefinition");
             String closingTag = "</bpmn:endEvent>";
@@ -681,7 +681,7 @@ public class BPMNProcessFragments {
             }
             return getResultCreateNode(bpmnSubprocess, s, doc, begin, closingTag, end, result);
         }
-        if (bpmnSubprocess.getSubprocessType() == BPMNSubprocessType.END_EVENT) {
+        if (bpmnSubprocess.getSubprocessType() == BPMNComponentType.END_EVENT) {
             outgoingFlowIds = computeOutgoingFlowElements(bpmnSubprocess);
             if (bpmnSubprocess.getId().contains("Error")) {
                 outgoingFlowIds = computeErrorOutgoingFlowElements(bpmnSubprocess);
@@ -697,7 +697,7 @@ public class BPMNProcessFragments {
             bpmnSubprocess.setBpmnSubprocessElement((Element) importedOutgoingNode2);
             return importedOutgoingNode2;
         }
-        if (bpmnSubprocess.getSubprocessType() == BPMNSubprocessType.EVENT) {
+        if (bpmnSubprocess.getSubprocessType() == BPMNComponentType.EVENT) {
             outgoingFlowIds = computeIncomingErrorFlowElements(bpmnSubprocess);
             int begin = s.indexOf("<bpmn:errorEventDefinition");
             String closingTag = "</bpmn:boundaryEvent>";
@@ -708,9 +708,9 @@ public class BPMNProcessFragments {
             }
             return getResultCreateNode(bpmnSubprocess, s, doc, begin, closingTag, end, result);
         }
-        if (!bpmnSubprocess.getId().contains("firstStartEvent") && bpmnSubprocess.getBpmnSubprocessType() != BPMNSubprocessType.ERROR_END_EVENT && bpmnSubprocess.getBpmnSubprocessType() != BPMNSubprocessType.SEQUENCE_FLOW2 && bpmnSubprocess.getBpmnSubprocessType() != BPMNSubprocessType.SEQUENCE_FLOW
-            && bpmnSubprocess.getBpmnSubprocessType() != BPMNSubprocessType.SUBPROCESS && bpmnSubprocess.getBpmnSubprocessType() != BPMNSubprocessType.EVENT && bpmnSubprocess.getSubprocessType() != BPMNSubprocessType.SUBPROCESS_ERROR_BOUNDARY
-            && bpmnSubprocess.getBpmnSubprocessType() != BPMNSubprocessType.USER_TASK && bpmnSubprocess.getBpmnSubprocessType() != BPMNSubprocessType.SEQUENCE_FLOW2 && bpmnSubprocess.getBpmnSubprocessType() != BPMNSubprocessType.START_EVENT && bpmnSubprocess.getBpmnSubprocessType() != BPMNSubprocessType.ERROR_END_EVENT && bpmnSubprocess.getBpmnSubprocessType() != BPMNSubprocessType.INNER_START_EVENT) {
+        if (!bpmnSubprocess.getId().contains("firstStartEvent") && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.ERROR_END_EVENT && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.SEQUENCE_FLOW2 && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.SEQUENCE_FLOW
+            && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.SUBPROCESS && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.EVENT && bpmnSubprocess.getSubprocessType() != BPMNComponentType.SUBPROCESS_ERROR_BOUNDARY
+            && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.USER_TASK && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.SEQUENCE_FLOW2 && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.START_EVENT && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.ERROR_END_EVENT && bpmnSubprocess.getBpmnSubprocessType() != BPMNComponentType.INNER_START_EVENT) {
 
             // make sure all elements belongs to same document
             ///Node importedNode = doc.importNode(transformedNode, true);
@@ -730,7 +730,7 @@ public class BPMNProcessFragments {
             bpmnSubprocess.setBpmnSubprocessElement((Element) importedOutgoingNode2);
             return importedOutgoingNode2;
         }
-        if (bpmnSubprocess.getBpmnSubprocessType() == BPMNSubprocessType.SUBPROCESS) {
+        if (bpmnSubprocess.getBpmnSubprocessType() == BPMNComponentType.SUBPROCESS) {
             incomingFlowIds = computeOutgoingFlowElements(bpmnSubprocess);
             outgoingFlowIds = computeIncomingFlowElements(bpmnSubprocess);
             String[] original = s.split("</bpmn:subProcess>");
@@ -758,7 +758,7 @@ public class BPMNProcessFragments {
             bpmnSubprocess.setBpmnSubprocessElement((Element) importedOutgoingNode2);
             return importedOutgoingNode2;
         }
-        if (bpmnSubprocess.getBpmnSubprocessType() == BPMNSubprocessType.USER_TASK) {
+        if (bpmnSubprocess.getBpmnSubprocessType() == BPMNComponentType.USER_TASK) {
             incomingFlowIds = computeErrorOutgoingFlowElements(bpmnSubprocess);
             outgoingFlowIds = computeIncomingErrorFlowElements(bpmnSubprocess);
             String[] original = s.split("</bpmn:userTask>");
@@ -775,7 +775,7 @@ public class BPMNProcessFragments {
             bpmnSubprocess.setBpmnSubprocessElement((Element) importedOutgoingNode2);
             return importedOutgoingNode2;
         }
-        if (bpmnSubprocess.getBpmnSubprocessType() == BPMNSubprocessType.INNER_START_EVENT || bpmnSubprocess.getBpmnSubprocessType() == BPMNSubprocessType.START_EVENT) {
+        if (bpmnSubprocess.getBpmnSubprocessType() == BPMNComponentType.INNER_START_EVENT || bpmnSubprocess.getBpmnSubprocessType() == BPMNComponentType.START_EVENT) {
             // make sure all elements belongs to same document
             ///Node importedNode = doc.importNode(transformedNode, true);
             outgoingFlowIds = computeIncomingFlowElements(bpmnSubprocess);
@@ -893,7 +893,7 @@ public class BPMNProcessFragments {
      * @return template String
      */
     public String createBPMNErrorEventDefinition(final int id) throws IOException {
-        final String idPrefix = BPMNSubprocessType.EVENT.toString();
+        final String idPrefix = BPMNComponentType.EVENT.toString();
         String bpmnErrorEventDefinition = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNError.xml"));
         bpmnErrorEventDefinition = bpmnErrorEventDefinition.replaceAll("IdToSet", idPrefix + id);
         bpmnErrorEventDefinition = bpmnErrorEventDefinition.replaceAll("NameToSet", "Error Event");
@@ -962,7 +962,7 @@ public class BPMNProcessFragments {
      */
     public String createBPMNTaskErrorBoundaryEvent(final BPMNSubprocess bpmnSubprocess, final int id) throws IOException {
         String bpmnTaskErrorBoundaryEvent = ResourceAccess.readResourceAsString(getClass().getClassLoader().getResource("bpmn-snippets/BPMNTaskErrorBoundaryEvent.xml"));
-        String idPrefix = BPMNSubprocessType.SUBPROCESS_ERROR_BOUNDARY.toString();
+        String idPrefix = BPMNComponentType.SUBPROCESS_ERROR_BOUNDARY.toString();
         bpmnTaskErrorBoundaryEvent = bpmnTaskErrorBoundaryEvent.replaceAll("Event_IdToSet", "BoundaryEvent_" + bpmnSubprocess.getBuildPlan().getErrorInnerFlowCounterId());
         bpmnTaskErrorBoundaryEvent = bpmnTaskErrorBoundaryEvent.replaceAll("Activity_ActIdToSet", bpmnSubprocess.getId());
         bpmnTaskErrorBoundaryEvent = bpmnTaskErrorBoundaryEvent.replaceAll("IdToSet", bpmnSubprocess.getId());
@@ -1111,7 +1111,7 @@ public class BPMNProcessFragments {
 
         bpmnErrorEvent = bpmnErrorEvent.replaceAll("<bpmn:incoming>Flow_Input</bpmn:incoming>", incomingBoundaryLinks.toString());
 
-        final String idPrefix = BPMNSubprocessType.EVENT.toString();
+        final String idPrefix = BPMNComponentType.EVENT.toString();
         bpmnErrorEvent = bpmnErrorEvent.replaceAll("ErrorEventDefinitionIdToSet", "ErrorDefinition_" + idPrefix + id);
         return bpmnErrorEvent;
     }
@@ -1174,11 +1174,11 @@ public class BPMNProcessFragments {
         LOG.info(bpmnSubprocess.getInstanceState());
         for (final BPMNDataObject bpmnDataObject : bpmnSubprocess.getBuildPlan().getDataObjectsList()) {
             if (bpmnSubprocess.getNodeTemplate() != null) {
-                if (bpmnDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_NODE && bpmnDataObject.getNodeTemplate().equals(bpmnSubprocess.getNodeTemplate().getId())) {
+                if (bpmnDataObject.getDataObjectType() == BPMNComponentType.DATA_OBJECT_NODE && bpmnDataObject.getNodeTemplate().equals(bpmnSubprocess.getNodeTemplate().getId())) {
                     setState = setState.replaceAll("InstanceURLToSet", "\\${" + bpmnDataObject.getNodeInstanceURL() + "}");
                 }
             } else if (bpmnSubprocess.getRelationshipTemplate() != null) {
-                if (bpmnDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_REL && bpmnDataObject.getRelationshipTemplate().equals(bpmnSubprocess.getRelationshipTemplate().getId())) {
+                if (bpmnDataObject.getDataObjectType() == BPMNComponentType.DATA_OBJECT_REL && bpmnDataObject.getRelationshipTemplate().equals(bpmnSubprocess.getRelationshipTemplate().getId())) {
                     setState = setState.replaceAll("InstanceURLToSet", "\\${" + bpmnDataObject.getRelationshipInstanceURL() + "}");
                 }
             } else if (bpmnDataObject.getServiceInstanceURL() != null) {
@@ -1229,8 +1229,8 @@ public class BPMNProcessFragments {
         // find data object
         if (bpmnSubprocess.getBuildPlan().getDataObjectsList() != null) {
             for (final BPMNDataObject dataObject : bpmnSubprocess.getBuildPlan().getDataObjectsList()) {
-                if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_INOUT) {
-                    outputParameterTask = outputParameterTask.replaceAll("DataObjectToSet", BPMNSubprocessType.DATA_OBJECT_REFERENCE + "_" + dataObject.getId());
+                if (dataObject.getDataObjectType() == BPMNComponentType.DATA_OBJECT_INOUT) {
+                    outputParameterTask = outputParameterTask.replaceAll("DataObjectToSet", BPMNComponentType.DATA_OBJECT_REFERENCE + "_" + dataObject.getId());
                 }
             }
         }
@@ -1246,7 +1246,7 @@ public class BPMNProcessFragments {
                 // this is the case where we have in the service template some property mapping and each property is associated to a node template.
                 // To find the data object which holds the correct properties we split at the first 'point'
                 for (final BPMNDataObject dataObject : bpmnPlan.getDataObjectsList()) {
-                    if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_NODE) {
+                    if (dataObject.getDataObjectType() == BPMNComponentType.DATA_OBJECT_NODE) {
                         outputParameterValue = bpmnPlan.getPropertiesOutputParameters().get(outputParameterName);
                         // schema: NodeTemplate.Properties.PropertyName
                         String[] outputParameterValueParts = outputParameterValue.split(",");
@@ -1254,7 +1254,7 @@ public class BPMNProcessFragments {
                             if (outputParameterValuePart.contains(".")) {
                                 String nodeTemplate = outputParameterValuePart.split("\\.")[0].trim();
                                 if (dataObject.getNodeTemplate().equals(nodeTemplate)) {
-                                    String outputParameterPartValue = outputParameterValuePart.replaceAll(nodeTemplate, BPMNSubprocessType.DATA_OBJECT_REFERENCE + "_" + dataObject.getId());
+                                    String outputParameterPartValue = outputParameterValuePart.replaceAll(nodeTemplate, BPMNComponentType.DATA_OBJECT_REFERENCE + "_" + dataObject.getId());
                                     if (outputParameterValue.contains(concat)) {
                                         outputParameterValue = outputParameterValue.replaceAll(",", "\\+");
                                         outputParameterValue = outputParameterValue.replace(outputParameterValuePart, outputParameterPartValue);
@@ -1292,8 +1292,8 @@ public class BPMNProcessFragments {
                                 if (childId.contains("StartEvent")) {
                                     Node startEventNode = childNodes.item(j);
                                     Node dataOutputAssociationAsNode = createBPMNDataOutputAssociationAsNode(bpmnSubprocess);
-                                    if (bpmnSubprocess.getDataObject().getDataObjectType() != BPMNSubprocessType.DATA_OBJECT_INOUT &&
-                                        bpmnSubprocess.getDataObject().getDataObjectType() != BPMNSubprocessType.DATA_OBJECT_ST) {
+                                    if (bpmnSubprocess.getDataObject().getDataObjectType() != BPMNComponentType.DATA_OBJECT_INOUT &&
+                                        bpmnSubprocess.getDataObject().getDataObjectType() != BPMNComponentType.DATA_OBJECT_ST) {
                                         Node importedPropertyNode = d.importNode(propertyNode, true);
                                         subprocesses.item(i).insertBefore(importedPropertyNode, startEventNode);
                                         Node importedDataInputNode = d.importNode(dataInputAssociationAsNode, true);

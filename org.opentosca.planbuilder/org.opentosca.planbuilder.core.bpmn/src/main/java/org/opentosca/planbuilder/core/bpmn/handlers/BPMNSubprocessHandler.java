@@ -10,10 +10,10 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNComponentType;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNDataObject;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocess;
-import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocessType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -42,14 +42,14 @@ public class BPMNSubprocessHandler {
 
         if (activity instanceof NodeTemplateActivity) {
             NodeTemplateActivity ntActivity = (NodeTemplateActivity) activity;
-            idPrefix = BPMNSubprocessType.SUBPROCESS.toString();
-            idPrefix = BPMNSubprocessType.SUBPROCESS.toString();
-            bpmnSubprocess = new BPMNSubprocess(ntActivity, BPMNSubprocessType.SUBPROCESS, idPrefix + "_" + id);
+            idPrefix = BPMNComponentType.SUBPROCESS.toString();
+            idPrefix = BPMNComponentType.SUBPROCESS.toString();
+            bpmnSubprocess = new BPMNSubprocess(ntActivity, BPMNComponentType.SUBPROCESS, idPrefix + "_" + id);
             bpmnSubprocess.setBuildPlan(buildPlan);
             bpmnSubprocess.setNodeTemplate(((NodeTemplateActivity) activity).getNodeTemplate());
 
             // with each subprocess a node data object is associated to enable fast access to node instance url & maybe properties
-            BPMNDataObject dataObject = new BPMNDataObject(BPMNSubprocessType.DATA_OBJECT_NODE, "DataObject_" + id);
+            BPMNDataObject dataObject = new BPMNDataObject(BPMNComponentType.DATA_OBJECT_NODE, "DataObject_" + id);
             String resultVariable = resultVariablePrefix + id.replace("-", "_");
             dataObject.setNodeInstanceURL(resultVariable);
             dataObject.setNodeTemplate(((NodeTemplateActivity) activity).getNodeTemplate().getId());
@@ -60,15 +60,15 @@ public class BPMNSubprocessHandler {
             bpmnSubprocess.setDataObject(dataObject);
         } else if (activity instanceof RelationshipTemplateActivity) {
             RelationshipTemplateActivity relActivity = (RelationshipTemplateActivity) activity;
-            idPrefix = BPMNSubprocessType.SUBPROCESS.toString();
-            bpmnSubprocess = new BPMNSubprocess(relActivity, BPMNSubprocessType.SUBPROCESS, idPrefix + "_" + id);
+            idPrefix = BPMNComponentType.SUBPROCESS.toString();
+            bpmnSubprocess = new BPMNSubprocess(relActivity, BPMNComponentType.SUBPROCESS, idPrefix + "_" + id);
             bpmnSubprocess.setBuildPlan(buildPlan);
             bpmnSubprocess.setRelationshipTemplate(((RelationshipTemplateActivity) activity).getRelationshipTemplate());
 
             String source = replaceDotByUnderscore(relActivity.getRelationshipTemplate().getSourceElement().getRef().getId()).replace("-", "_");
             String target = replaceDotByUnderscore(relActivity.getRelationshipTemplate().getTargetElement().getRef().getId()).replace("-", "_");
             // with each subprocess a relationship data object is associated to enable fast access to relationship instance url & maybe properties
-            BPMNDataObject dataObject = new BPMNDataObject(BPMNSubprocessType.DATA_OBJECT_REL, "DataObject_" + id);
+            BPMNDataObject dataObject = new BPMNDataObject(BPMNComponentType.DATA_OBJECT_REL, "DataObject_" + id);
             dataObject.setRelationshipTemplate(((RelationshipTemplateActivity) activity).getRelationshipTemplate().getId());
             String resultVariable = resultVariablePrefix + id;
             dataObject.setSourceInstanceURL(resultVariablePrefix + source + "_provisioning_activity");
@@ -98,8 +98,8 @@ public class BPMNSubprocessHandler {
      * plugin. Per default, we set then the node template to 'CREATED'.
      */
     public void createSetStateTaskInsideSubprocess(final BPMNPlan buildPlan, final BPMNSubprocess bpmnSubprocess) {
-        String idPrefix = BPMNSubprocessType.TASK.toString();
-        final BPMNSubprocess setState = new BPMNSubprocess(BPMNSubprocessType.SET_ST_STATE, idPrefix + "_" + buildPlan.getIdForNamesAndIncrement());
+        String idPrefix = BPMNComponentType.TASK.toString();
+        final BPMNSubprocess setState = new BPMNSubprocess(BPMNComponentType.SET_ST_STATE, idPrefix + "_" + buildPlan.getIdForNamesAndIncrement());
         setState.setParentProcess(bpmnSubprocess);
         setState.setBuildPlan(buildPlan);
         if (bpmnSubprocess.getNodeTemplate() != null) {
@@ -126,7 +126,7 @@ public class BPMNSubprocessHandler {
         templateBuildPlan.getBpmnSubprocessElement().setAttribute("name", name + "_subprocess");
     }
 
-    public BPMNSubprocess createBPMNSubprocessWithinSubprocess(final BPMNSubprocess parentSubprocess, final BPMNSubprocessType type) {
+    public BPMNSubprocess createBPMNSubprocessWithinSubprocess(final BPMNSubprocess parentSubprocess, final BPMNComponentType type) {
         LOG.debug("Create BPMN Subprocess with SubprocessType {} within subprocess {}", type.name(), parentSubprocess.getId());
         BPMNPlan buildPlan = parentSubprocess.getBuildPlan();
         AbstractActivity activity = parentSubprocess.getActivity();
@@ -135,23 +135,23 @@ public class BPMNSubprocessHandler {
             NodeTemplateActivity nodeTemplateActivity = (NodeTemplateActivity) activity;
             BPMNSubprocess createdScope = new BPMNSubprocess(nodeTemplateActivity,
                 type, idPrefix + "_" + buildPlan.getIdForNamesAndIncrement());
-            if (type == BPMNSubprocessType.CREATE_NODE_INSTANCE_TASK) {
+            if (type == BPMNComponentType.CREATE_NODE_INSTANCE_TASK) {
                 parentSubprocess.setSubProCreateNodeInstanceTask(createdScope);
                 createdScope.setNodeTemplate(nodeTemplateActivity.getNodeTemplate());
                 createdScope.setParentProcess(parentSubprocess);
                 createdScope.setBuildPlan(buildPlan);
                 return createdScope;
-            } else if (type == BPMNSubprocessType.CALL_NODE_OPERATION_TASK) {
+            } else if (type == BPMNComponentType.CALL_NODE_OPERATION_TASK) {
                 //parentSubprocess.setSubProCallOperationTask(createdScope);
                 createdScope.setNodeTemplate(parentSubprocess.getNodeTemplate());
                 createdScope.setHostingNodeTemplate(parentSubprocess.getHostingNodeTemplate());
                 createdScope.setParentProcess(parentSubprocess);
                 createdScope.setBuildPlan(buildPlan);
                 return createdScope;
-            } else if (type == BPMNSubprocessType.SET_NODE_PROPERTY_TASK || type == BPMNSubprocessType.ACTIVATE_DATA_OBJECT_TASK) {
+            } else if (type == BPMNComponentType.SET_NODE_PROPERTY_TASK || type == BPMNComponentType.ACTIVATE_DATA_OBJECT_TASK) {
                 parentSubprocess.setSubProSetNodePropertyTask(createdScope);
                 createdScope.setNodeTemplate(nodeTemplateActivity.getNodeTemplate());
-            } else if (type == BPMNSubprocessType.SET_ST_STATE) {
+            } else if (type == BPMNComponentType.SET_ST_STATE) {
                 parentSubprocess.setSubProSetStateTask(createdScope);
                 createdScope.setNodeTemplate(nodeTemplateActivity.getNodeTemplate());
                 createdScope.setParentProcess(parentSubprocess);
@@ -169,9 +169,9 @@ public class BPMNSubprocessHandler {
             createdScope.setRelationshipTemplate(relationshipTemplateActivity.getRelationshipTemplate());
             createdScope.setParentProcess(parentSubprocess);
             createdScope.setBuildPlan(buildPlan);
-            if (type == BPMNSubprocessType.CREATE_RT_INSTANCE) {
+            if (type == BPMNComponentType.CREATE_RT_INSTANCE) {
                 parentSubprocess.setSubProCreateNodeInstanceTask(createdScope);
-            } else if (type == BPMNSubprocessType.SET_ST_STATE) {
+            } else if (type == BPMNComponentType.SET_ST_STATE) {
                 parentSubprocess.setSubProSetStateTask(createdScope);
             }
             return createdScope;

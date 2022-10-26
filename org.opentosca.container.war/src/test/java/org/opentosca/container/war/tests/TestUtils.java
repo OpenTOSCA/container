@@ -565,34 +565,11 @@ public class TestUtils {
         for (TPlan plan : plans) {
             if (PlanType.fromString(plan.getPlanType()).equals(PlanType.BUILD)
                 && !plan.getId().toLowerCase().contains(OpenTOSCA_DefrostPlanOperation)
-                && plan.getId().toLowerCase().contains("buildplan") && plan.getPlanLanguage().contains("BPMN")) {
-                return plan;
-            }
-        }
-        return null;
-    }
-
-    public TPlan getBPELBuildPlan(List<TPlan> plans) {
-        for (TPlan plan : plans) {
-            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.BUILD)
-                && !plan.getId().toLowerCase().contains(OpenTOSCA_DefrostPlanOperation)
-                && plan.getId().toLowerCase().contains("buildplan") && plan.getPlanLanguage().contains("bpel")) {
-                return plan;
-            }
-        }
-        return null;
-    }
-
-    public List<TPlan> getBuildPlans(List<TPlan> plans) {
-        List<TPlan> buildPlans = new ArrayList<>();
-        for (TPlan plan : plans) {
-            if (PlanType.fromString(plan.getPlanType()).equals(PlanType.BUILD)
-                && !plan.getId().toLowerCase().contains(OpenTOSCA_DefrostPlanOperation)
                 && plan.getId().toLowerCase().contains("buildplan")) {
-                buildPlans.add(plan);
+                return plan;
             }
         }
-        return buildPlans;
+        return null;
     }
 
     public TPlan getTerminationPlan(List<TPlan> plans) {

@@ -6,7 +6,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNSubprocessHandler;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocess;
-import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocessType;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNComponentType;
 
 public class BPMNSetPropertiesHandler {
 
@@ -18,7 +18,7 @@ public class BPMNSetPropertiesHandler {
 
     public boolean handleCreate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate) {
         BPMNSubprocess subprocess = context.getSubprocessElement();
-        bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.SET_NODE_PROPERTY_TASK);
+        bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNComponentType.SET_NODE_PROPERTY_TASK);
         return true;
     }
 

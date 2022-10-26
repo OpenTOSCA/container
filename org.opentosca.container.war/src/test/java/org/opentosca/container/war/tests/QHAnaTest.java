@@ -79,7 +79,7 @@ public class QHAnaTest {
         List<TPlan> plans = serviceTemplate.getPlans();
         assertNotNull(plans);
 
-        TPlan buildPlan = testUtils.getBPELBuildPlan(plans);
+        TPlan buildPlan = testUtils.getBuildPlan(plans);
         TPlan terminationPlan = testUtils.getTerminationPlan(plans);
         assertNotNull(buildPlan);
         assertNotNull(terminationPlan);

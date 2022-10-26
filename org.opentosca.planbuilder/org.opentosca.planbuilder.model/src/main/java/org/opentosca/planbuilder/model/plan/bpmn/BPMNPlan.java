@@ -17,30 +17,34 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class represents a bpmn plan and its properties.
+ * This class represents the main model for the BPMN PlanBuilder. The methods on this class mostly
+ * consist of setters/getters, all logic should be made by the handlers.
  */
 public class BPMNPlan extends AbstractPlan {
     public static final String bpmnNamespace = "http://www.omg.org/spec/BPMN/20100524/MODEL";
-    // xml document
+    // flow elements
     private int outerFlowCounter = 0;
     private int innerFlowCounter = 0;
     private int errorOuterFlowCounter = 0;
     private int errorInnerFlowCounter = 0;
     private ArrayList<BPMNSubprocess> errorFlowElements = new ArrayList<>();
+    private ArrayList<BPMNSubprocess> flowElements = new ArrayList<>();
     // to be very specific every subprocess is associated with a data object but the properties are globally visible
     // that's why they are added here
     private List<BPMNDataObject> dataObjectsList = new ArrayList<>();
+    // initialization
     private Document bpmnProcessDocument;
-    private ArrayList<String> bpmnScript;
     private Element bpmnDefinitionElement;
     private Element bpmnProcessElement;
+
+    private ArrayList<String> bpmnScript;
     private ArrayList<String> scriptNames;
+
     private ArrayList<String> inputParameters;
     private String csarName = null;
     private List<BPMNSubprocess> templateBuildPlans = new ArrayList<>();
 
     private HashMap<String, String> propertiesOutputParameter = new HashMap<>();
-    private ArrayList<BPMNSubprocess> flowElements = new ArrayList<>();
 
     public BPMNPlan(final String id, final PlanType type, final TDefinitions definitions, final TServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities, final Collection<AbstractPlan.Link> links) {
         super(id, type, definitions, serviceTemplate, activities, links);
@@ -74,8 +78,8 @@ public class BPMNPlan extends AbstractPlan {
         return this.bpmnScript;
     }
 
-    public void setBpmnScript(final ArrayList<String> bpmnScript) {
-        this.bpmnScript = bpmnScript;
+    public void setBpmnScripts(final ArrayList<String> bpmnScripts) {
+        this.bpmnScript = bpmnScripts;
     }
 
     public void setBpmnProcessElement(final Element bpmnProcessElement) {

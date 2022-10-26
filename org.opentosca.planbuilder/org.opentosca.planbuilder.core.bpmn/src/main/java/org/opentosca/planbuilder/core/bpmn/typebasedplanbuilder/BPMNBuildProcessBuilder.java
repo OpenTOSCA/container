@@ -36,7 +36,7 @@ import org.opentosca.planbuilder.core.plugins.typebased.IPlanBuilderBPMNPrePhase
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocess;
-import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocessType;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNComponentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -46,12 +46,9 @@ import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_Bu
 import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_LifecycleInterface;
 
 /**
- * This class is responsible for generating the Build Plan Skeleton and assign plugins to handle the different templates
- * inside a TopologyTemplate.
- *
- * <p>
- * Copyright 2022 IAAS University of Stuttgart <br>
- * <br>
+ * This class is responsible for creating the build plan. In the first step, the service instance is created, then the
+ * data objects tasks are added. Subsequently, an empty sub-process is inserted for each template, which is filled by
+ * the plugins.
  */
 public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
@@ -82,7 +79,6 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
         }
 
         this.propertyInitializer = new BPMNPropertyVariableHandler();
-        //this.propertyOutputInitializer = new ServiceTemplateBoundaryPropertyMappingsToOutputHandler();
         try {
             this.serviceInstanceInitializer = new SimplePlanBuilderBPMNServiceInstanceHandler();
         } catch (ParserConfigurationException e) {
@@ -94,19 +90,17 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
     public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
-            if (ModelUtils.findServiceTemplateOperation(definitions, OpenTOSCA_LifecycleInterface, OpenTOSCA_BuildPlanOperation) == null) {
-                LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan",
-                    serviceTemplate.getId());
+            if (ModelUtils.findServiceTemplateOperation(definitions, OpenTOSCA_LifecycleInterface,
+                OpenTOSCA_BuildPlanOperation) == null) {
+                LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan", serviceTemplate.getId());
                 final BPMNPlan newBuildPlan = buildPlan(csar, definitions, serviceTemplate);
 
                 if (newBuildPlan != null) {
-                    LOG.debug("Created BuildPlan "
-                        + newBuildPlan.getBpmnProcessElement().getAttribute("id"));
+                    LOG.debug("Created BuildPlan " + newBuildPlan.getBpmnProcessElement().getAttribute("id"));
                     plans.add(newBuildPlan);
                 }
             } else {
-                LOG.debug("ServiceTemplate {} has BuildPlan, no generation needed",
-                    serviceTemplate.getId());
+                LOG.debug("ServiceTemplate {} has BuildPlan, no generation needed", serviceTemplate.getId());
             }
         }
         if (!plans.isEmpty()) {
@@ -128,42 +122,44 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
         }
 
         QName serviceTemplateQname = new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId());
-        if (namespace.equals(serviceTemplateQname.getNamespaceURI())
-            && serviceTemplate.getId().equals(serviceTemplateQname.getLocalPart())) {
+        if (namespace.equals(serviceTemplateQname.getNamespaceURI()) && serviceTemplate.getId().equals(
+            serviceTemplateQname.getLocalPart())) {
 
             final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_bpmnBuildPlan");
             final String processNamespace = serviceTemplate.getTargetNamespace() + "_bpmnBuildPlan";
 
             AbstractPlan buildPlan =
-                AbstractBuildPlanBuilder.generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate, csar);
+                AbstractBuildPlanBuilder.generatePOG(new QName(processNamespace, processName).toString(), definitions,
+                    serviceTemplate, csar);
 
-            LOG.debug("Generated the following abstract prov plan: ");
+            LOG.debug("Generated the following abstract prov plan: {}");
+            // wozu das?
             LOG.debug(buildPlan.toString());
 
-            ArrayList<String> inputParameters = this.bpmnSubprocessHandler.computeInputParametersBasedTopology(serviceTemplate.getTopologyTemplate());
-            final BPMNPlan bpmnPlan =
-                this.planHandler.createEmptyBPMNPlan(buildPlan);
+            ArrayList<String> inputParameters =
+                this.bpmnSubprocessHandler.computeInputParametersBasedTopology(serviceTemplate.getTopologyTemplate());
+            final BPMNPlan bpmnPlan = this.planHandler.createEmptyBPMNPlan(buildPlan);
 
             bpmnPlan.setCsarName(csar.id().csarName());
             bpmnPlan.setInputParameters(inputParameters);
             bpmnPlan.setTOSCAInterfaceName(OpenTOSCA_LifecycleInterface);
-            // temporary solution otherwise boundary definitions are overwritten
-            bpmnPlan.setTOSCAOperationname("BPMN" + OpenTOSCA_BuildPlanOperation);
+            bpmnPlan.setTOSCAOperationname(OpenTOSCA_BuildPlanOperation);
 
             // this step can be skipped in management plans
             this.serviceInstanceInitializer.appendCreateServiceInstanceVarsAndInitializeWithInstanceDataAPI(bpmnPlan);
 
-            BPMNSubprocess dataObjectSubprocess = this.serviceInstanceInitializer.addServiceInstanceHandlingFromInput(bpmnPlan);
+            BPMNSubprocess dataObjectSubprocess =
+                this.serviceInstanceInitializer.addServiceInstanceHandlingFromInput(bpmnPlan);
             this.planHandler.initializeBPMNSkeleton(bpmnPlan);
             this.planHandler.addActivateDataObjectTaskToSubprocess(dataObjectSubprocess, bpmnPlan);
             String serviceInstanceUrl = this.serviceInstanceInitializer.findServiceInstanceUrlVariableName(bpmnPlan);
             String serviceInstanceID = this.serviceInstanceInitializer.findServiceInstanceIdVarName(bpmnPlan);
             String serviceTemplateUrl = this.serviceInstanceInitializer.findServiceTemplateUrlVariableName(bpmnPlan);
-            Property2VariableMapping propMap;
-            propMap = this.propertyInitializer.initializePropertiesAsVariables(bpmnPlan, serviceTemplate);
+            Property2VariableMapping propMap = this.propertyInitializer.initializePropertiesAsVariables(bpmnPlan, serviceTemplate);
             // init output
-            HashMap<String, String> propertyOutput = this.propertyOutputInitializer.initializeBuildPlanOutput(definitions, bpmnPlan, propMap,
-                serviceTemplate);
+            HashMap<String, String> propertyOutput =
+                this.propertyOutputInitializer.initializeBuildPlanOutput(definitions, bpmnPlan, propMap,
+                    serviceTemplate);
 
             final String correlationId = "CorrelationID";
             propertyOutput.put(correlationId, correlationId);
@@ -176,35 +172,16 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             } catch (IOException | SAXException e) {
                 e.printStackTrace();
             }
-            // writeXML(bpmnPlan.getBpmnDocument());
             return bpmnPlan;
         }
-        LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
-            serviceTemplateQname, definitions.getId(), csar.id().csarName());
+        LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}", serviceTemplateQname,
+            definitions.getId(), csar.id().csarName());
         return null;
     }
 
-    public void writeXML(final Document s) {
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = null;
-        try {
-            transformer = transformerFactory.newTransformer();
-            DOMSource source = new DOMSource(s);
-            StreamResult result = new StreamResult(new File("C://Users//livia//Downloads//result.xml"));
-            transformer.transform(source, result);
-            // Output to console for testing
-            StreamResult consoleResult = new StreamResult(System.out);
-            transformer.transform(source, consoleResult);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     /**
-     *
      * This method assigns plugins to the already initialized build plan and its subprocesses. First there will be
      * checked if any generic plugin can handle a template of the TopologyTemplate.
-     *
      *
      * @param buildPlan a BuildPlan which is already initialized
      * @param map       a PropertyMap which contains mappings from Template to Property and to variable name of inside
@@ -215,23 +192,25 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
                             final String serviceTemplateUrl, final Csar csar) {
         LOG.debug("The plugins will be executed now");
         for (final BPMNSubprocess bpmnSubprocess : buildPlan.getTemplateBuildPlans()) {
-            final BPMNPlanContext context = new BPMNPlanContext(buildPlan, bpmnSubprocess, map, buildPlan.getServiceTemplate(),
-                serviceInstanceUrl, serviceInstanceID, serviceTemplateUrl, csar);
+            final BPMNPlanContext context =
+                new BPMNPlanContext(buildPlan, bpmnSubprocess, map, buildPlan.getServiceTemplate(), serviceInstanceUrl,
+                    serviceInstanceID, serviceTemplateUrl, csar);
             if (bpmnSubprocess.getNodeTemplate() != null) {
                 final TNodeTemplate nodeTemplate = bpmnSubprocess.getNodeTemplate();
                 // if this nodeTemplate has the label running (Property: State=Running), skip
                 // provisioning and just generate instance data handling
                 // extended check for OperatingSystem node type
                 if (isRunning(nodeTemplate)) {
-                    LOG.info("Skipping the provisioning of NodeTemplate "
-                        + bpmnSubprocess.getNodeTemplate().getId() + "  because state=running is set.");
+                    LOG.info("Skipping the provisioning of NodeTemplate " + bpmnSubprocess.getNodeTemplate().getId()
+                        + "  because state=running is set.");
                     for (final IPlanBuilderBPMNPrePhasePlugin prePhasePlugin : this.pluginRegistry.getPreBPMNPlugins()) {
                         if (prePhasePlugin.canHandleCreate(context, bpmnSubprocess.getNodeTemplate())) {
                             prePhasePlugin.handleCreate(context, bpmnSubprocess.getNodeTemplate());
                         }
                     }
-                    String prefix = BPMNSubprocessType.SET_ST_STATE.name();
-                    BPMNSubprocess setStateTask = new BPMNSubprocess(BPMNSubprocessType.SET_ST_STATE, prefix + "_" + buildPlan.getIdForNamesAndIncrement());
+                    String prefix = BPMNComponentType.SET_ST_STATE.name();
+                    BPMNSubprocess setStateTask = new BPMNSubprocess(BPMNComponentType.SET_ST_STATE, prefix + "_"
+                        + buildPlan.getIdForNamesAndIncrement());
                     setStateTask.setNodeTemplate(nodeTemplate);
                     setStateTask.setInstanceState("STARTED");
                     setStateTask.setBuildPlan(buildPlan);
@@ -247,10 +226,12 @@ public class BPMNBuildProcessBuilder extends AbstractBuildPlanBuilder {
             } else if (bpmnSubprocess.getRelationshipTemplate() != null) {
                 final TRelationshipTemplate relationshipTemplate = bpmnSubprocess.getRelationshipTemplate();
                 this.bpmnPluginHandler.handleActivity(context, bpmnSubprocess, relationshipTemplate);
-            } else if (bpmnSubprocess.getServiceInstanceURL() != null || bpmnSubprocess.getSubprocessBPMNSubprocess().get(0).getSubprocessType() == BPMNSubprocessType.ACTIVATE_DATA_OBJECT_TASK) {
+            } else if (bpmnSubprocess.getServiceInstanceURL() != null
+                || bpmnSubprocess.getSubprocessBPMNSubprocess().get(0).getSubprocessType()
+                == BPMNComponentType.ACTIVATE_DATA_OBJECT_TASK) {
                 // no plugin is applied if the subprocess is responsible for the service instance creation
-                // the second case is to exclude the subprocess which contains the activateDataObject Task as first child
-                // (currently all activate data object tasks are in the same subprocess)
+                // the second case is to exclude the subprocess which contains the activateDataObject task as first child
+                // currently all activate data object tasks are in the same subprocess
             } else {
                 this.bpmnPluginHandler.handleActivity(context, bpmnSubprocess);
             }

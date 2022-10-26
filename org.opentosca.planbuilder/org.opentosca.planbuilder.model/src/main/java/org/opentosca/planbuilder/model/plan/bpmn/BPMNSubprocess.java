@@ -35,7 +35,7 @@ public class BPMNSubprocess {
     private TRelationshipTemplate relationshipTemplate = null;
 
     private String id;
-    private BPMNSubprocessType bpmnSubprocessType = null;
+    private BPMNComponentType bpmnComponentType = null;
     private String resultVariableName;
 
     //callNodeOperation Variables
@@ -67,15 +67,15 @@ public class BPMNSubprocess {
     private double x;
     private double y;
 
-    public BPMNSubprocess(final AbstractActivity activity, final BPMNSubprocessType subprocessType, final String id) {
+    public BPMNSubprocess(final AbstractActivity activity, final BPMNComponentType subprocessType, final String id) {
         this.activity = activity;
-        this.bpmnSubprocessType = subprocessType;
+        this.bpmnComponentType = subprocessType;
         this.id = id;
     }
 
-    public BPMNSubprocess(final BPMNSubprocessType subprocessType, final String id) {
+    public BPMNSubprocess(final BPMNComponentType subprocessType, final String id) {
         this.activity = null;
-        this.bpmnSubprocessType = subprocessType;
+        this.bpmnComponentType = subprocessType;
         this.id = id;
     }
 
@@ -132,8 +132,8 @@ public class BPMNSubprocess {
         return "BPMNSubprocess Plan: " + buildPlan.getId() + " Activity: " + this.activity + ((this.getNodeTemplate() != null) ? " Node: " + this.nodeTemplate.getId() : " Relation: " + this.relationshipTemplate.getId());
     }
 
-    public BPMNSubprocessType getSubprocessType() {
-        return this.bpmnSubprocessType;
+    public BPMNComponentType getSubprocessType() {
+        return this.bpmnComponentType;
     }
 
     public AbstractActivity getActivity() {
@@ -248,8 +248,8 @@ public class BPMNSubprocess {
         this.relationshipTemplate = relationshipTemplate;
     }
 
-    public BPMNSubprocessType getBpmnSubprocessType() {
-        return this.bpmnSubprocessType;
+    public BPMNComponentType getBpmnSubprocessType() {
+        return this.bpmnComponentType;
     }
 
     public void setIncomingSubprocess(final Collection<BPMNSubprocess> incoming) {

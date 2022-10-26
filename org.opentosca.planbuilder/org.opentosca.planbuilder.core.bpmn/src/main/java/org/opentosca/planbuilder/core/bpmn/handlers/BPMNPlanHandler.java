@@ -10,6 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 
+import org.opentosca.container.core.convention.Types;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.NodeTemplateActivity;
@@ -17,7 +18,7 @@ import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNDataObject;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocess;
-import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocessType;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNComponentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opentosca.planbuilder.core.bpmn.fragments.BPMNProcessFragments;
@@ -79,7 +80,7 @@ public class BPMNPlanHandler {
      */
     public void initializeScriptDocuments(final BPMNPlan newBuildPlan) {
         ArrayList<String> scripts = new ArrayList<>();
-        newBuildPlan.setBpmnScript(scripts);
+        newBuildPlan.setBpmnScripts(scripts);
         ArrayList<String> scriptNames = new ArrayList<>();
         String script;
         try {
@@ -89,7 +90,7 @@ public class BPMNPlanHandler {
                 scriptNames.add(name);
             }
             newBuildPlan.setScriptNames(scriptNames);
-            newBuildPlan.setBpmnScript(scripts);
+            newBuildPlan.setBpmnScripts(scripts);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -124,6 +125,7 @@ public class BPMNPlanHandler {
     }
 
     /**
+     * For each activity it is checked whether it complies with the hosted on relationship. If this is not the case, the activity is moved forward.
      * Creates for each activity an empty subprocess and add a data object of a specific type. For example for
      * NodeTemplateActivity the data object type is DATA_OBJECT_NODE. For RelationshipActivity the data object type is
      * DATA_OBJECT_REL. The fault subprocess is added in the BPMNFinalizer.
@@ -132,7 +134,23 @@ public class BPMNPlanHandler {
         ArrayList<String> visitedNodesID = new ArrayList<>();
         BPMNSubprocess subprocess;
         HashMap<String, Integer> relationshipVisitedMap = new HashMap<>();
-        for (final AbstractActivity activity : plan.getActivites()) {
+        ArrayList<AbstractActivity> sortOfActivities = new ArrayList<>(plan.getActivites());
+        for (final AbstractPlan.Link links : plan.getLinks()) {
+            for (final AbstractActivity activity : plan.getActivites()) {
+                AbstractActivity source = links.getSrcActiv();
+                AbstractActivity target = links.getTrgActiv();
+                AbstractPlan.Link l = new AbstractPlan.Link(activity, source);
+                if (source instanceof RelationshipTemplateActivity && plan.getLinks().contains(l) && !activity.getId().equals(target.getId())) {
+                    // if the inequality holds then the target of the hosted on relationship is before the source of the hosted on that's why we need to move the activities forward
+                    if (((RelationshipTemplateActivity) source).getRelationshipTemplate().getTypeAsQName().equals(Types.hostedOnRelationType) && sortOfActivities.indexOf(activity) > sortOfActivities.indexOf(target)) {
+                        sortOfActivities.remove(activity);
+                        sortOfActivities.add(sortOfActivities.indexOf(target), activity);
+                    }
+                }
+            }
+        }
+
+        for (final AbstractActivity activity : sortOfActivities) {
             LOG.debug("Generate empty subprocess for {}", activity.getId());
             if (activity instanceof NodeTemplateActivity) {
                 subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(activity, plan);
@@ -142,6 +160,12 @@ public class BPMNPlanHandler {
                 for (final AbstractPlan.Link links : plan.getLinks()) {
                     AbstractActivity source = links.getSrcActiv();
                     AbstractActivity target = links.getTrgActiv();
+                    if (target instanceof RelationshipTemplateActivity && source.getId().equals(activity.getId())) {
+                        // special case since connectsTo relationship is only target never source
+                        if (((RelationshipTemplateActivity) target).getRelationshipTemplate().getTypeAsQName().equals(Types.connectsToRelationType)) {
+                            handleRelationshipTemplate(plan, visitedNodesID, relationshipVisitedMap, activity, source, target);
+                        }
+                    }
                     handleRelationshipTemplate(plan, visitedNodesID, relationshipVisitedMap, activity, source, target);
                     handleRelationshipTemplate(plan, visitedNodesID, relationshipVisitedMap, activity, target, source);
                 }
@@ -152,12 +176,14 @@ public class BPMNPlanHandler {
     /**
      * Adds the subprocess to the plan if both node templates are already in the plan
      */
-    public void handleRelationshipTemplate(final BPMNPlan plan, final ArrayList<String> visitedNodeIds, final HashMap<String, Integer> relationshipVisitedMap, final AbstractActivity activity, final AbstractActivity source, final AbstractActivity target) {
+    public void handleRelationshipTemplate(final BPMNPlan plan, final ArrayList<String> visitedNodeIds,
+                                           final HashMap<String, Integer> relationshipVisitedMap, final AbstractActivity activity,
+                                           final AbstractActivity source, final AbstractActivity target) {
         BPMNSubprocess subprocess;
-        if (source instanceof RelationshipTemplateActivity && visitedNodeIds.contains(target.getId()) && target.getId().contains(activity.getId())) {
+        if (source instanceof RelationshipTemplateActivity && visitedNodeIds.contains(target.getId()) && target.getId().startsWith(activity.getId())) {
             if (relationshipVisitedMap.containsKey(source.getId())) {
                 if (relationshipVisitedMap.get(source.getId()) == 0) {
-                    LOG.debug("Generate empty relationship template subprocess for {}", source.getId());
+                    LOG.info("Generate empty relationship template subprocess for {}", source.getId());
                     relationshipVisitedMap.put(source.getId(), relationshipVisitedMap.get(source.getId()) + 1);
                     subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(source, plan);
                     plan.addSubprocess(subprocess);
@@ -170,11 +196,13 @@ public class BPMNPlanHandler {
 
     /**
      * In the BPMNBuildProcessBuilder we already created a subprocess which is now filled with activate data object
-     * tasks to make use of the data objects.
+     * tasks to make use of the data objects. for each template we add a tasks in the corresponding subprocess. This enables to read and write the variables
+     * during runtime. This is the replacement for the variables in bpel.
      */
-    public void addActivateDataObjectTaskToSubprocess(final BPMNSubprocess dataObjectSubprocess, final BPMNPlan bpmnPlan) {
+    public void addActivateDataObjectTaskToSubprocess(final BPMNSubprocess dataObjectSubprocess,
+                                                      final BPMNPlan bpmnPlan) {
         for (final BPMNDataObject bpmnDataObject : bpmnPlan.getDataObjectsList()) {
-            BPMNSubprocess activateDataObjectTask = new BPMNSubprocess(BPMNSubprocessType.ACTIVATE_DATA_OBJECT_TASK, bpmnDataObject.getId() + "_DataObjectActivateTask");
+            BPMNSubprocess activateDataObjectTask = new BPMNSubprocess(BPMNComponentType.ACTIVATE_DATA_OBJECT_TASK, bpmnDataObject.getId() + "_DataObjectActivateTask");
             activateDataObjectTask.setBuildPlan(bpmnPlan);
             TNodeTemplate dataObjectNodeTemplate = null;
             for (int i = 0; i < Objects.requireNonNull(bpmnPlan.getServiceTemplate().getTopologyTemplate()).getNodeTemplates().size(); i++) {

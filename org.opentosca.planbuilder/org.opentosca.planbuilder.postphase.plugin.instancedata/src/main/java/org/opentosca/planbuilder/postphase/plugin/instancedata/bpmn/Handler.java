@@ -5,10 +5,10 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNSubprocessHandler;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNComponentType;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNDataObject;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocess;
-import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocessType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +35,8 @@ public class Handler {
      */
     public boolean handleCreate(final BPMNPlanContext context, final TNodeTemplate nodeTemplate) {
         BPMNSubprocess subprocess = context.getSubprocessElement();
-        String idPrefix = BPMNSubprocessType.SUBPROCESS.toString();
-        final BPMNSubprocess createNodeInstanceTask = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CREATE_NODE_INSTANCE_TASK);
+        String idPrefix = BPMNComponentType.SUBPROCESS.toString();
+        final BPMNSubprocess createNodeInstanceTask = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNComponentType.CREATE_NODE_INSTANCE_TASK);
         createNodeInstanceTask.setResultVariableName(idPrefix + nodeTemplate.getId().replace("-", "_"));
         subprocess.addTaskToSubprocess(createNodeInstanceTask);
         return true;
@@ -56,9 +56,9 @@ public class Handler {
         String subprocessDataObjectId = subprocess.getId().replace("Subprocess", "DataObject");
 
         BPMNPlan buildPlan = subprocess.getBuildPlan();
-        final BPMNSubprocess createRelationshipInstanceTask = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CREATE_RT_INSTANCE);
+        final BPMNSubprocess createRelationshipInstanceTask = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNComponentType.CREATE_RT_INSTANCE);
         for (BPMNDataObject dataObject : buildPlan.getDataObjectsList()) {
-            if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_REL && dataObject.getId().equals(subprocessDataObjectId)) {
+            if (dataObject.getDataObjectType() == BPMNComponentType.DATA_OBJECT_REL && dataObject.getId().equals(subprocessDataObjectId)) {
                 String sourceInstanceURL = dataObject.getSourceInstanceURL();
                 String targetInstanceURL = dataObject.getTargetInstanceURL();
                 createRelationshipInstanceTask.setSourceInstanceURL(sourceInstanceURL);
@@ -70,7 +70,7 @@ public class Handler {
         subprocess.addTaskToSubprocess(createRelationshipInstanceTask);
         // This might not be true for every relationship template
         String state = "CREATED";
-        final BPMNSubprocess setState = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.SET_ST_STATE);
+        final BPMNSubprocess setState = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNComponentType.SET_ST_STATE);
         setState.setInstanceState(state);
         subprocess.addTaskToSubprocess(setState);
         return createRelationshipInstanceTask != null;

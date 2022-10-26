@@ -44,14 +44,8 @@ public class BPMNDiagramGenerator {
 
             File file = new File("result.bpmn");
             try {
-
                 // trying to create a file based on the object
-                boolean value = file.createNewFile();
-                if (value) {
-                    System.out.println("The new file is created.");
-                } else {
-                    System.out.println("The file already exists.");
-                }
+                file.createNewFile();
             } catch (Exception e) {
                 e.getStackTrace();
             }
@@ -59,7 +53,6 @@ public class BPMNDiagramGenerator {
             BpmnModelInstance k = Bpmn.createEmptyModel();
             k.getDefinitions();
 
-            //BpmnModelInstance m = Bpmn.readModelFromStream(targetStream);
             BpmnModelInstance modelInstance = Bpmn.readModelFromFile(file);
             Definitions definitions = modelInstance.getDefinitions();
 

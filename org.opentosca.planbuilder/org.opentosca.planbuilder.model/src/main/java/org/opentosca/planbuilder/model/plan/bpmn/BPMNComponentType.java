@@ -3,7 +3,7 @@ package org.opentosca.planbuilder.model.plan.bpmn;
 /**
  * Represents the different components inside a subprocess.
  */
-public enum BPMNSubprocessType {
+public enum BPMNComponentType {
     START_EVENT("Event"),
     INNER_START_EVENT("Event"),
     EVENT("Event"),
@@ -33,7 +33,7 @@ public enum BPMNSubprocessType {
 
     String name;
 
-    BPMNSubprocessType(final String name) {
+    BPMNComponentType(final String name) {
         this.name = name;
     }
 

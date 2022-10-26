@@ -24,10 +24,10 @@ import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
 import org.opentosca.planbuilder.core.bpmn.handlers.BPMNSubprocessHandler;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
+import org.opentosca.planbuilder.model.plan.bpmn.BPMNComponentType;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNDataObject;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNPlan;
 import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocess;
-import org.opentosca.planbuilder.model.plan.bpmn.BPMNSubprocessType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -95,7 +95,7 @@ public class BPMNInvokerPluginHandler {
                         for (final BPMNDataObject nodeDataObject : buildPlan.getDataObjectsList()) {
                             LOG.info("DATAOBJECT ID");
                             LOG.info(nodeDataObject.getId());
-                            if (nodeDataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_NODE && nodeDataObject.getId().contains(nodeTemplateIdToFetchDataObject)) {
+                            if (nodeDataObject.getDataObjectType() == BPMNComponentType.DATA_OBJECT_NODE && nodeDataObject.getId().contains(nodeTemplateIdToFetchDataObject)) {
                                 String lastSuffixCut = nodeDataObject.getId().split(nodeTemplateIdToFetchDataObject)[1];
                                 LOG.info("lastSuffixCut : {}", lastSuffixCut);
                                 if (lastSuffixCut.equals(suffixActivity)) {
@@ -140,9 +140,9 @@ public class BPMNInvokerPluginHandler {
 
             String preState = InstanceStates.getOperationPreState(operationName);
 
-            final BPMNSubprocess createNodeOperationTask = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
+            final BPMNSubprocess createNodeOperationTask = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNComponentType.CALL_NODE_OPERATION_TASK);
             createNodeOperationTask.setOperation(operationName);
-            final BPMNSubprocess setPreState = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.SET_ST_STATE);
+            final BPMNSubprocess setPreState = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNComponentType.SET_ST_STATE);
             setPreState.setInstanceState(preState);
             subprocess.addTaskToSubprocess(setPreState);
 
@@ -155,9 +155,9 @@ public class BPMNInvokerPluginHandler {
             boolean hasNodeOperation = false;
 
             for (final BPMNSubprocess sub : context.getSubprocessElement().getSubprocessBPMNSubprocess()) {
-                if (sub.getSubprocessType() == (BPMNSubprocessType.CALL_NODE_OPERATION_TASK)) {
+                if (sub.getSubprocessType() == (BPMNComponentType.CALL_NODE_OPERATION_TASK)) {
                     for (final BPMNDataObject dataObject : buildPlan.getDataObjectsList()) {
-                        if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_ST) {
+                        if (dataObject.getDataObjectType() == BPMNComponentType.DATA_OBJECT_ST) {
                             for (final String property : dataObject.getProperties()) {
                                 if (property.contains(ServiceInstanceURLVarKeyword)) {
                                     sub.setServiceInstanceURL(property);
@@ -169,7 +169,7 @@ public class BPMNInvokerPluginHandler {
                 }
             }
             if (!hasNodeOperation) {
-                final BPMNSubprocess createNodeOperationTask2 = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.CALL_NODE_OPERATION_TASK);
+                final BPMNSubprocess createNodeOperationTask2 = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNComponentType.CALL_NODE_OPERATION_TASK);
                 createNodeOperationTask2.setInterfaceVariable(interfaceName);
                 createNodeOperationTask2.setOperation(operationName);
                 createNodeOperationTask2.setInputParameterNames(inputParamNames.toString());
@@ -178,7 +178,7 @@ public class BPMNInvokerPluginHandler {
                 createNodeOperationTask2.setOutputParameterValues(outputParamValues.toString());
             }
 
-            final BPMNSubprocess setPostState = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNSubprocessType.SET_ST_STATE);
+            final BPMNSubprocess setPostState = bpmnSubprocessHandler.createBPMNSubprocessWithinSubprocess(subprocess, BPMNComponentType.SET_ST_STATE);
             String postState = InstanceStates.getOperationPostState(operationName);
             setPostState.setInstanceState(postState);
             subprocess.addTaskToSubprocess(setPostState);
@@ -221,7 +221,7 @@ public class BPMNInvokerPluginHandler {
         //    this.bpelFrags.createXPathQueryForURLRemoteFilePath(ref.getReference());
         //final String containerAPIAbsoluteURIVarName = "containerApiFileURL" + templateContext.getIdForNames();
         for (final BPMNDataObject dataObject : templateContext.getSubprocessElement().getBuildPlan().getDataObjectsList()) {
-            if (dataObject.getDataObjectType() == BPMNSubprocessType.DATA_OBJECT_INOUT) {
+            if (dataObject.getDataObjectType() == BPMNComponentType.DATA_OBJECT_INOUT) {
                 containerApi += "DataObjectReference_" + dataObject.getId() + ".Properties.containerApiAddress";
             }
         }

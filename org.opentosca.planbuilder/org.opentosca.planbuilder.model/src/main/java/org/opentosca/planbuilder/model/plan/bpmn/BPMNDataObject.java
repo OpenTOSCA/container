@@ -4,27 +4,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class represents a data object which is the bpmn equivalent of a bpel variable. In bowie there are three
- * different types of data objects(service, node, relation).
+ * This class represents a data object which is the bpmn equivalent of a bpel variable. The methods on this class
+ * mostly consist of setters/getters, all logic should be made by the handlers.
  */
 public class BPMNDataObject {
     private String id;
-    private BPMNSubprocessType dataObjectType;
-    private List<String> properties = new ArrayList<>();
+    private final BPMNComponentType dataObjectType;
 
     private String serviceInstanceURL;
+    private String nodeInstanceURL;
+    // only service instance, node and input/output data objects have properties
+    private List<String> properties = new ArrayList<>();
+
+    private String relationshipInstanceURL;
     private String sourceInstanceURL;
     private String targetInstanceURL;
-    private String nodeInstanceURL;
-    private String relationshipInstanceURL;
 
     private String nodeTemplate;
     private String relationshipTemplate;
 
+    // for building diagram
     private double x;
     private double y;
 
-    public BPMNDataObject(final BPMNSubprocessType dataObjectType, final String id) {
+    public BPMNDataObject(final BPMNComponentType dataObjectType, final String id) {
         this.dataObjectType = dataObjectType;
         this.id = id;
     }
@@ -37,12 +40,8 @@ public class BPMNDataObject {
         this.id = id;
     }
 
-    public BPMNSubprocessType getDataObjectType() {
+    public BPMNComponentType getDataObjectType() {
         return dataObjectType;
-    }
-
-    public void setDataObjectType(final BPMNSubprocessType dataObjectType) {
-        this.dataObjectType = dataObjectType;
     }
 
     public List<String> getProperties() {

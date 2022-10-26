@@ -93,7 +93,7 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
         List<TPlan> multiMyTinyToDoPlans = multiMyTinyToDoServiceTemplate.getPlans();
 
         assertNotNull(myTinyToDoPlans);
-        TPlan myTinyToDoBuildPlan = testUtils.getBPELBuildPlan(myTinyToDoPlans);
+        TPlan myTinyToDoBuildPlan = testUtils.getBuildPlan(myTinyToDoPlans);
         TPlan myTinyToMultiTinyTransformationPlan = testUtils.getTransformationPlan(myTinyToDoPlans);
 
         assertNotNull(multiMyTinyToDoPlans);
@@ -143,8 +143,9 @@ public class MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest {
     }
 
     private void checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance) throws IOException {
-        Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
-        Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
+        ServiceTemplateInstance serviceTemplateInstanceUpdated = this.serviceTemplateInstanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false);
+        Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstanceUpdated.getNodeTemplateInstances();
+        Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstanceUpdated.getRelationshipTemplateInstances();
 
         assertEquals(2, nodeTemplateInstances.size());
         assertEquals(1, relationshipTemplateInstances.size());

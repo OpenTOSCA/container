@@ -182,11 +182,6 @@ public abstract class AbstractImporter {
         if (ModelUtils.findServiceTemplateOperation(defs, OpenTOSCA_ManagementFeatureInterface, OpenTOSCA_TestPlanOperation) == null) {
             plans.addAll(testPlanBuilder.buildPlans(csar, defs));
         }
-
-        // will be removed when test is running
-        if (csar.serviceTemplates().get(0).getName().contains("ApacheWebApp") || csar.serviceTemplates().get(0).getName().contains("MyTinyToDo") || csar.serviceTemplates().get(0).getName().contains("MultiMyTinyToDo")) {
-            plans.addAll(bpmnBuildPlanBuilder.buildPlans(csar, defs));
-        }
         return plans;
     }
 }
