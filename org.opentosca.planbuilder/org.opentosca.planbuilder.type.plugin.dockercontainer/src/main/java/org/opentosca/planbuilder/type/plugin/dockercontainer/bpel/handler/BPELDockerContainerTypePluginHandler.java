@@ -15,6 +15,7 @@ import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
@@ -68,16 +69,20 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
     public static List<TDeploymentArtifact> fetchVolumeDeploymentArtifacts(final TNodeTemplate nodeTemplate, Csar csar) {
         final List<TDeploymentArtifact> das = new ArrayList<>();
 
-        for (final TDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
-            if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_VOLUME_ARTIFACTTYPE)) {
-                das.add(da);
+        if (nodeTemplate.getDeploymentArtifacts() != null) {
+            for (final TDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
+                if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_VOLUME_ARTIFACTTYPE)) {
+                    das.add(da);
+                }
             }
         }
 
         for (final TNodeTypeImplementation nodeTypeImpl : ModelUtils.findNodeTypeImplementation(nodeTemplate, csar)) {
-            for (final TDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
-                if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_VOLUME_ARTIFACTTYPE)) {
-                    das.add(da);
+            if (nodeTypeImpl.getDeploymentArtifacts() != null) {
+                for (final TDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
+                    if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_VOLUME_ARTIFACTTYPE)) {
+                        das.add(da);
+                    }
                 }
             }
         }
@@ -260,7 +265,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes, context.getCsar());
 
         for (final TNodeTemplate infraNode : infraNodes) {
-            if (!infraNode.getId().equals(nodeTemplate.getId()) & ModelUtils.getPropertyNames(infraNode).contains("VMIP")) {
+            if (!infraNode.getId().equals(nodeTemplate.getId()) & Utils.isSupportedInfrastructureNodeType(infraNode.getType())) {
                 // fetch the first which is not a dockercontainer
                 return infraNode;
             }
