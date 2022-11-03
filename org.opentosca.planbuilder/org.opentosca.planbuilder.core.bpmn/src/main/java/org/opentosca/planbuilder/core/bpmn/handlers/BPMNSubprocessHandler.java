@@ -191,6 +191,9 @@ public class BPMNSubprocessHandler {
         inputParameters.add("CorrelationID");
         for (final TNodeTemplate nodeTemplate : topologyTemplate.getNodeTemplates()) {
             Document document = ToscaEngine.getEntityTemplateProperties(nodeTemplate);
+            if (document.getDocumentElement() == null) {
+                continue;
+            }
             NodeList nodeList = Objects.requireNonNull(document).getDocumentElement().getChildNodes();
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node node = nodeList.item(i);
@@ -212,6 +215,9 @@ public class BPMNSubprocessHandler {
         ArrayList<String> properties = new ArrayList<>();
 
         Document document = ToscaEngine.getEntityTemplateProperties(nodeTemplate);
+        if (document.getDocumentElement() == null) {
+            return properties;
+        }
         NodeList nodeList = Objects.requireNonNull(document).getDocumentElement().getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
