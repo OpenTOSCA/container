@@ -12,6 +12,7 @@ import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 
+import com.google.common.collect.Maps;
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpmn.context.BPMNPlanContext;
@@ -399,8 +400,11 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
                                    final Variable deviceMappingVar, final Variable containerMountPath,
                                    final Variable remoteVolumeDataVariable, final Variable hostVolumeDataVariable,
                                    final Variable vmIpVariable, final Variable vmPrivateKeyVariable) {
+        Map<String, String> propMap = Maps.newHashMap();
         Map<String, String> containerPropMap = ModelUtils.asMap(context.getNodeTemplate().getProperties());
-        Map<String, String> propMap = containerPropMap;
+        // make basically a clone of this map as changing the content somehow changes the properties
+        containerPropMap.forEach((key, val) -> propMap.put(new StringBuilder().append(key).toString(), new StringBuilder().append(val).toString()));
+
         // fetch properties
         String containerPortVar = containerPropMap.getOrDefault(DockerContainerTypePluginPluginConstants.PROPERTY_CONTAINER_PORT, null);
         String portVar = containerPropMap.getOrDefault(DockerContainerTypePluginPluginConstants.PROPERTY_PORT, null);
@@ -484,8 +488,11 @@ public class BPMNDockerContainerTypePluginHandler implements DockerContainerType
         // map properties to input and output parameters
         final Map<String, Variable> createDEInternalExternalPropsInput = new HashMap<>();
         final Map<String, Variable> createDEInternalExternalPropsOutput = new HashMap<>();
+        // I seriously don't understand why we have to change the propMap to LEER, whats the problem with null ?
+        Map<String, String> propMap = Maps.newHashMap();
         Map<String, String> containerPropMap = ModelUtils.asMap(context.getNodeTemplate().getProperties());
-        Map<String, String> propMap = containerPropMap;
+        // make basically a clone of this map as changing the content somehow changes the properties
+        containerPropMap.forEach((key, val) -> propMap.put(new StringBuilder().append(key).toString(), new StringBuilder().append(val).toString()));
         for (final String property : context.getSubprocessElement().getDataObject().getProperties()) {
             String propertyName = property.split("#")[0];
             String propertyValue = property.split("#")[1];
