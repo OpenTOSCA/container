@@ -508,6 +508,8 @@ public class TestUtils {
         while ((state != ServiceTemplateInstanceState.CREATED)) {
             state = serviceTemplateInstanceService.getServiceTemplateInstanceState(s.getId());
         }
+        // update to get the node instances as well for testing, however, this whole method here should be changed...
+        s = serviceTemplateInstanceService.getServiceTemplateInstance(s.getId(), false);
         s.setState(state);
         return s;
     }
