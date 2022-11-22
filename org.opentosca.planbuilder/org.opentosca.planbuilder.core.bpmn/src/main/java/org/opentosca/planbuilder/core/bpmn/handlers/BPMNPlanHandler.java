@@ -155,7 +155,7 @@ public class BPMNPlanHandler {
             LOG.debug("Generate empty subprocess for {}", activity.getId());
             if (activity instanceof NodeTemplateActivity) {
                 subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(activity, plan);
-                LOG.debug"Generate empty node template subprocess for {}", activity.getId());
+                LOG.debug("Generate empty node template subprocess for {}", activity.getId());
                 plan.addSubprocess(subprocess);
                 visitedNodesID.add(activity.getId());
                 for (final AbstractPlan.Link links : plan.getLinks()) {
