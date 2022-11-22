@@ -107,7 +107,7 @@ public class BPMNProcessFragments {
         callNodeOperation = callNodeOperation.replace("NamespaceToSet", bpmnSubprocess.getBuildPlan().getServiceTemplate().getTargetNamespace());
         callNodeOperation = callNodeOperation.replaceAll("CsarToSet", bpmnSubprocess.getBuildPlan().getCsarName());
         callNodeOperation = callNodeOperation.replaceAll("ServiceTemplateNameToSet", bpmnSubprocess.getBuildPlan().getServiceTemplate().getId().trim());
-        callNodeOperation = callNodeOperation.replaceAll("NodeTemplateToSet", bpmnSubprocess.getHostingNodeTemplate().getId());
+        callNodeOperation = callNodeOperation.replace("NodeTemplateToSet", bpmnSubprocess.getHostingNodeTemplate().getId());
         String parentId = bpmnSubprocess.getParentProcess().getId();
         String prefix = BPMNComponentType.DATA_OBJECT_REFERENCE + "_" + BPMNComponentType.DATA_OBJECT;
         String dataObjectReferenceId = parentId.replace("Subprocess", prefix);

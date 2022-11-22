@@ -157,6 +157,11 @@ public class BPMNPluginHandler {
                                                final TRelationshipTemplate relationshipTemplate) {
         boolean result = true;
 
+        for (final IPlanBuilderBPMNPrePhasePlugin prePhasePlugin : this.pluginRegistry.getPreBPMNPlugins()) {
+            if (prePhasePlugin.canHandleCreate(context, bpmnSubprocess.getRelationshipTemplate())) {
+                result &= prePhasePlugin.handleCreate(context, bpmnSubprocess.getRelationshipTemplate());
+            }
+        }
         if (bpmnSubprocess.getActivity().getMetadata().get("ignoreProvisioning") == null) {
 
             LOG.debug("Ignoring RelationshipTemplate {} with activityType {}", relationshipTemplate.getId(),
@@ -172,11 +177,6 @@ public class BPMNPluginHandler {
             }
         }
 
-        for (final IPlanBuilderBPMNPrePhasePlugin prePhasePlugin : this.pluginRegistry.getPreBPMNPlugins()) {
-            if (prePhasePlugin.canHandleCreate(context, bpmnSubprocess.getRelationshipTemplate())) {
-                result &= prePhasePlugin.handleCreate(context, bpmnSubprocess.getRelationshipTemplate());
-            }
-        }
         return result;
     }
 }

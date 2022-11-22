@@ -49,7 +49,7 @@ public class BPMNConnectsToPluginHandler implements ConnectsToBPMNPluginHandler<
                 && startAndStopAvailable(targetNodeTemplate, templateContext.getCsar())) {
                 final String ifaceName = getInterface(targetNodeTemplate,
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, templateContext.getCsar());
-                invoker.handle(templateContext, targetNodeTemplate, false, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP,
+                invoker.handle(templateContext, targetNodeTemplate, true, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP,
                     ifaceName, new HashMap<String,Variable>(), new HashMap<String,Variable>(), null);
             }
 
@@ -61,7 +61,7 @@ public class BPMNConnectsToPluginHandler implements ConnectsToBPMNPluginHandler<
                 && startAndStopAvailable(targetNodeTemplate, templateContext.getCsar())) {
                 final String ifaceName = getInterface(targetNodeTemplate,
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, templateContext.getCsar());
-                invoker.handle(templateContext, targetNodeTemplate, false, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START,
+                invoker.handle(templateContext, targetNodeTemplate, true, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START,
                     ifaceName, new HashMap<String,Variable>(), new HashMap<String,Variable>(), null);
             }
         }
@@ -74,7 +74,7 @@ public class BPMNConnectsToPluginHandler implements ConnectsToBPMNPluginHandler<
                 && startAndStopAvailable(sourceNodeTemplate, templateContext.getCsar())) {
                 final String ifaceName = getInterface(targetNodeTemplate,
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, templateContext.getCsar());
-                invoker.handle(templateContext, targetNodeTemplate, false, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP,
+                invoker.handle(templateContext, targetNodeTemplate, true, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP,
                     ifaceName, new HashMap<String,Variable>(), new HashMap<String,Variable>(), null);
             }
 
@@ -86,7 +86,7 @@ public class BPMNConnectsToPluginHandler implements ConnectsToBPMNPluginHandler<
                 && startAndStopAvailable(sourceNodeTemplate, templateContext.getCsar())) {
                 final String ifaceName = getInterface(targetNodeTemplate,
                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, templateContext.getCsar());
-                invoker.handle(templateContext, targetNodeTemplate, false, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START,
+                invoker.handle(templateContext, targetNodeTemplate, true, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START,
                     ifaceName, new HashMap<String,Variable>(), new HashMap<String,Variable>(), null);
             }
         }
@@ -153,7 +153,7 @@ public class BPMNConnectsToPluginHandler implements ConnectsToBPMNPluginHandler<
         for (final Map.Entry<TParameter, Variable> param2propertyMapEntry : param2propertyMapping.entrySet()) {
             inputParamsForInvoker.put(param2propertyMapEntry.getKey().getName(), param2propertyMapEntry.getValue());
         }
-        final Boolean result = invoker.handle(templateContext, connectToNode, false, connectsToOp.getName(),
+        final Boolean result = invoker.handle(templateContext, connectToNode, true, connectsToOp.getName(),
             connectsToIface.getName(), inputParamsForInvoker, new HashMap<String,Variable>(), null);
         BPMNConnectsToPluginHandler.LOG.debug("Result from adding operation: " + result);
 

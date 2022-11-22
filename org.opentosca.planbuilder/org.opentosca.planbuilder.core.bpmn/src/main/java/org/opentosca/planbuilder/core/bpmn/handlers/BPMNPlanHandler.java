@@ -151,10 +151,11 @@ public class BPMNPlanHandler {
         }
 
         for (final AbstractActivity activity : sortOfActivities) {
+            ArrayList<AbstractActivity> connectsTo = new ArrayList<>();
             LOG.debug("Generate empty subprocess for {}", activity.getId());
             if (activity instanceof NodeTemplateActivity) {
                 subprocess = this.bpmnSubprocessHandler.generateEmptySubprocess(activity, plan);
-                LOG.debug("Generate empty node template subprocess for {}", activity.getId());
+                LOG.debug"Generate empty node template subprocess for {}", activity.getId());
                 plan.addSubprocess(subprocess);
                 visitedNodesID.add(activity.getId());
                 for (final AbstractPlan.Link links : plan.getLinks()) {
@@ -163,11 +164,29 @@ public class BPMNPlanHandler {
                     if (target instanceof RelationshipTemplateActivity && source.getId().equals(activity.getId())) {
                         // special case since connectsTo relationship is only target never source
                         if (((RelationshipTemplateActivity) target).getRelationshipTemplate().getTypeAsQName().equals(Types.connectsToRelationType)) {
+                            //handleRelationshipTemplate(plan, visitedNodesID, relationshipVisitedMap, activity, target, activity);
+                            connectsTo.add(target);
+                        }else{
                             handleRelationshipTemplate(plan, visitedNodesID, relationshipVisitedMap, activity, source, target);
+                            handleRelationshipTemplate(plan, visitedNodesID, relationshipVisitedMap, activity, target, source);
                         }
                     }
-                    handleRelationshipTemplate(plan, visitedNodesID, relationshipVisitedMap, activity, source, target);
-                    handleRelationshipTemplate(plan, visitedNodesID, relationshipVisitedMap, activity, target, source);
+                    if (source instanceof RelationshipTemplateActivity && target.getId().equals(activity.getId())) {
+
+                        if (((RelationshipTemplateActivity) source).getRelationshipTemplate().getTypeAsQName().equals(Types.connectsToRelationType)) {
+                            //connectsTo.add(source);
+                            handleRelationshipTemplate(plan, visitedNodesID, relationshipVisitedMap, activity, activity, target);
+                        }else{
+                            handleRelationshipTemplate(plan, visitedNodesID, relationshipVisitedMap, activity, source, target);
+                            handleRelationshipTemplate(plan, visitedNodesID, relationshipVisitedMap, activity, target, source);
+                        }
+                    }
+
+                }
+                if (!connectsTo.isEmpty()) {
+                    for (AbstractActivity target : connectsTo) {
+                        handleRelationshipTemplate(plan, visitedNodesID, relationshipVisitedMap, activity, target, activity);
+                    }
                 }
             }
         }
