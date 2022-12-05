@@ -31,6 +31,8 @@ public class Types {
 
     public final static QName amazonEc2NodeType = new QName("http://opentosca.org/NodeTypes", "AmazonEC2");
 
+    public final static QName planQKPlatformNodeType = new QName("https://ust-quantil.github.io/nodetypes", "PlanQK-Platform");
+
     // docker nodeTypes
     public final static QName dockerEngineNodeType = new QName("http://opentosca.org/nodetypes", "DockerEngine");
 

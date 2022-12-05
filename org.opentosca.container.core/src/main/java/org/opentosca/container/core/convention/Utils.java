@@ -144,6 +144,10 @@ public class Utils {
             return true;
         }
 
+        if (isSupportedPlanQKPlatformNodeType(nodeType)) {
+            return true;
+        }
+
         return nodeType.equals(Types.raspbianJessieOSNodeType);
     }
 
@@ -231,5 +235,11 @@ public class Utils {
         return nodeType.getNamespaceURI().equalsIgnoreCase(Types.dockerContainerNodeType.getNamespaceURI())
             && VersionUtils.getNameWithoutVersion(nodeType.getLocalPart())
             .equalsIgnoreCase(Types.dockerContainerNodeType.getLocalPart());
+    }
+
+    public static boolean isSupportedPlanQKPlatformNodeType(final QName nodeType) {
+        return nodeType.getNamespaceURI().equalsIgnoreCase(Types.planQKPlatformNodeType.getNamespaceURI())
+            && VersionUtils.getNameWithoutVersion(nodeType.getLocalPart())
+            .equalsIgnoreCase(Types.planQKPlatformNodeType.getLocalPart());
     }
 }
