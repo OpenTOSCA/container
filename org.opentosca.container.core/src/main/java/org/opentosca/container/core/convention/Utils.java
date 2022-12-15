@@ -7,6 +7,12 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.winery.common.version.VersionUtils;
 import org.eclipse.winery.model.ids.definitions.NodeTypeId;
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeType;
+import org.eclipse.winery.model.tosca.TOperation;
+
+import org.opentosca.container.core.model.ModelUtils;
+import org.opentosca.container.core.model.csar.Csar;
 
 public class Utils {
 
@@ -241,5 +247,19 @@ public class Utils {
         return nodeType.getNamespaceURI().equalsIgnoreCase(Types.planQKPlatformNodeType.getNamespaceURI())
             && VersionUtils.getNameWithoutVersion(nodeType.getLocalPart())
             .equalsIgnoreCase(Types.planQKPlatformNodeType.getLocalPart());
+    }
+
+    public static boolean isSupportedPlattformPatternNodeType(final QName nodeTypeId, Csar csar) {
+        TNodeType nodeType = ModelUtils.findNodeType(nodeTypeId, csar);
+        for (TInterface iface : nodeType.getInterfaces()) {
+            if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN)) {
+                for (TOperation operation : iface.getOperations()) {
+                    if (operation.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_CREATE)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
