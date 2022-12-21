@@ -1,6 +1,11 @@
 package org.opentosca.container.war.tests;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -11,6 +16,7 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
+import com.google.gson.Gson;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,11 +35,14 @@ import org.opentosca.container.core.next.services.instances.ServiceTemplateInsta
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.war.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -65,6 +74,8 @@ public class PlanQKServiceIntegrationTest {
     public ICoreEndpointService endpointService;
     private TestUtils testUtils = new TestUtils();
 
+    protected static final Logger LOGGER = LoggerFactory.getLogger(PlanQKServiceIntegrationTest.class);
+
     @Test
     public void test() throws Exception {
 
@@ -75,7 +86,7 @@ public class PlanQKServiceIntegrationTest {
 
         testUtils.invokePlanDeployment(this.control, csar.id(), serviceTemplate);
 
-        assertEquals(3, testUtils.getDeployedPlans(this.endpointService).size());
+        assertEquals(2, testUtils.getDeployedPlans(this.endpointService).size());
 
         assertNotNull(serviceTemplate);
 
@@ -83,11 +94,9 @@ public class PlanQKServiceIntegrationTest {
         assertNotNull(plans);
 
         TPlan buildPlan = testUtils.getBuildPlan(plans);
-        TPlan scaleOutPlan = testUtils.getScaleOutPlan(plans);
         TPlan terminationPlan = testUtils.getTerminationPlan(plans);
 
         assertNotNull("BuildPlan not found", buildPlan);
-        assertNotNull("ScaleOutPlan not found", scaleOutPlan);
         assertNotNull("TerminationPlan not found", terminationPlan);
 
         ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planInstanceService, this.planInvokerService, this.serviceTemplateInstanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
@@ -95,13 +104,8 @@ public class PlanQKServiceIntegrationTest {
         assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
         this.checkStateAfterBuild(serviceTemplateInstance);
 
-        String serviceInstanceUrl = testUtils.createServiceInstanceUrl(csar.id().csarName(), serviceTemplate.getId(), serviceTemplateInstance.getId().toString());
-
-        testUtils.runManagementPlanExecution(this.planInstanceService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, scaleOutPlan, this.getScaleOurPlanInputParameters(serviceInstanceUrl));
-
-        this.checkStateAfterScaleOut(serviceTemplateInstance);
-
         testUtils.runTerminationPlanExecution(this.planInstanceService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
+        // TODO: check if service was deleted from platform
 
         testUtils.invokePlanUndeployment(this.control, csar.id(), serviceTemplate);
 
@@ -115,84 +119,142 @@ public class PlanQKServiceIntegrationTest {
             this.serviceTemplateInstanceService);
     }
 
-    private void checkStateAfterScaleOut(ServiceTemplateInstance serviceTemplateInstance) throws IOException {
-        ServiceTemplateInstance serviceTemplateInstanceUpdated = this.serviceTemplateInstanceService.getServiceTemplateInstance(serviceTemplateInstance.getId(), false);
-        Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstanceUpdated.getNodeTemplateInstances();
-        Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstanceUpdated.getRelationshipTemplateInstances();
-
-        assertEquals(3, nodeTemplateInstances.size());
-        assertEquals(2, relationshipTemplateInstances.size());
-
-        testUtils.checkViaHTTPGET("http://localhost:9991", 200, "My Tiny Todolist");
-    }
-
-    private void checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance) throws IOException {
+    private void checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance) throws InterruptedException {
         Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
         Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
 
         assertEquals(2, nodeTemplateInstances.size());
         assertEquals(1, relationshipTemplateInstances.size());
 
-        boolean foundDockerEngine = false;
-        boolean foundTinyToDo = false;
+        boolean foundPlatform = false;
+        boolean foundService = false;
+        String serviceID = "";
+
         for (NodeTemplateInstance nodeTemplateInstance : nodeTemplateInstances) {
-            if (nodeTemplateInstance.getTemplateId().contains("DockerEngine")) {
-                foundDockerEngine = true;
+            if (nodeTemplateInstance.getTemplateId().contains("PlanQK-Platform")) {
+                foundPlatform = true;
             }
-            if (nodeTemplateInstance.getTemplateId().contains("MyTinyToDo")) {
-                foundTinyToDo = true;
+            if (nodeTemplateInstance.getTemplateId().contains("PlanQK-Service")) {
+                foundService = true;
+
+                var properties = nodeTemplateInstanceService.getNodeTemplateInstanceProperties(nodeTemplateInstance.getId());
+                assertTrue(properties.containsKey("ServiceID"));
+                serviceID = properties.get("ServiceID");
+                assertNotEquals("Service ID of the PlanQK-Service node template is empty", "", serviceID);
             }
         }
 
-        assertTrue(foundDockerEngine);
-        assertTrue(foundTinyToDo);
+        assertTrue(foundPlatform);
+        assertTrue(foundService);
 
-        testUtils.checkViaHTTPGET("http://localhost:9990", 200, "My Tiny Todolist");
-    }
-
-    private List<org.opentosca.container.core.extension.TParameter> getScaleOurPlanInputParameters(String serviceInstanceUrl) {
-        List<org.opentosca.container.core.extension.TParameter> inputParams = new ArrayList<>();
-
-        org.opentosca.container.core.extension.TParameter applicationPort = new org.opentosca.container.core.extension.TParameter();
-        applicationPort.setName("ApplicationPort");
-        applicationPort.setType("String");
-        applicationPort.setValue("9991");
-        applicationPort.setRequired(true);
-
-        org.opentosca.container.core.extension.TParameter serviceInstanceUrlParam = new org.opentosca.container.core.extension.TParameter();
-        serviceInstanceUrlParam.setName("OpenTOSCAContainerAPIServiceInstanceURL");
-        serviceInstanceUrlParam.setType("String");
-        serviceInstanceUrlParam.setValue(serviceInstanceUrl);
-        serviceInstanceUrlParam.setRequired(true);
-
-        inputParams.add(applicationPort);
-        inputParams.add(serviceInstanceUrlParam);
-
-        inputParams.addAll(testUtils.getBaseInputParams());
-
-        return inputParams;
+        assertTrue(checkServiceCreatedSuccessfully(serviceID));
     }
 
     private List<org.opentosca.container.core.extension.TParameter> getBuildPlanInputParameters() {
         List<org.opentosca.container.core.extension.TParameter> inputParams = new ArrayList<>();
 
-        org.opentosca.container.core.extension.TParameter dockerEngineUrl = new org.opentosca.container.core.extension.TParameter();
-        dockerEngineUrl.setName("DockerEngineURL");
-        dockerEngineUrl.setRequired(true);
-        dockerEngineUrl.setType("String");
-        dockerEngineUrl.setValue("tcp://" + testUtils.getDockerHost() + ":2375");
+        org.opentosca.container.core.extension.TParameter planqkApiKeyParam = new org.opentosca.container.core.extension.TParameter();
+        planqkApiKeyParam.setName("PlanqkApiKey");
+        planqkApiKeyParam.setRequired(true);
+        planqkApiKeyParam.setType("String");
 
-        org.opentosca.container.core.extension.TParameter applicationPort = new org.opentosca.container.core.extension.TParameter();
-        applicationPort.setName("ApplicationPort");
-        applicationPort.setType("String");
-        applicationPort.setValue("9990");
-        applicationPort.setRequired(true);
+        String planqkApiKey = System.getenv("PlanqkApiKey");
+        assertNotNull("The PlanQK API key needs to be specified in the environment variable PlanqkApiKey", planqkApiKey);
+        planqkApiKeyParam.setValue(planqkApiKey);
 
-        inputParams.add(dockerEngineUrl);
-        inputParams.add(applicationPort);
+        inputParams.add(planqkApiKeyParam);
 
         inputParams.addAll(testUtils.getBaseInputParams());
 
         return inputParams;
+    }
+
+    private static boolean checkServiceCreatedSuccessfully(String serviceID) throws InterruptedException {
+        String planqkApiKey = System.getenv("PlanqkApiKey");
+
+        while (true) {
+            ServiceDto service = getServiceInfo(serviceID, planqkApiKey);
+            assertNotNull(service);
+            assertEquals(1, service.serviceDefinitions.length);
+            String lifecycle = service.serviceDefinitions[0].lifecycle;
+
+            assertTrue(lifecycle.equals("CREATED") || lifecycle.equals("CREATING"));
+
+            if (lifecycle.equals("CREATED")) {
+                return true;
+            } else {
+                LOGGER.info("Service is still being created.");
+                Thread.sleep(10000);
+            }
+        }
+    }
+
+    private static ServiceDto getServiceInfo(String serviceID, String planqkApiKey) {
+        try {
+            HttpURLConnection con;
+            URL location = new URL("https://platform.planqk.de/qc-catalog/services/" + serviceID);
+
+            con = (HttpURLConnection) location.openConnection();
+            con.setRequestMethod("GET");
+            con.setDoOutput(true);
+            con.setRequestProperty("accept", "application/json");
+            con.setRequestProperty("X-Auth-Token", planqkApiKey);
+
+            con.connect();
+            int status = con.getResponseCode();
+            assertEquals(200, status);
+
+            String responseContent = streamToString(con.getInputStream());
+            Gson gson = new Gson();
+
+            return gson.fromJson(responseContent, ServiceDto.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private static String streamToString(InputStream inputStream) throws IOException {
+        var reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder builder = new StringBuilder();
+
+        for (String line; (line = reader.readLine()) != null; ) {
+            builder.append(line).append(System.lineSeparator());
+        }
+
+        return builder.toString();
+    }
+
+    private static class ServiceDto {
+        String id;
+        String name;
+        ServiceDefinitionDto[] serviceDefinitions;
+        String accessPermissionOfLoggedInUser;
+
+        ServiceDto() {
+
+        }
+    }
+
+    private static class ServiceDefinitionDto {
+        String id;
+        String version;
+        String name;
+        String context;
+        String description;
+        String productionEndpoint;
+        String gatewayEndpoint;
+        String quantumBackend;
+        String type;
+        String lifecycle;
+        String createdAt;
+        String modifiedAt;
+        String createdBy;
+        String modifiedBy;
+
+        ServiceDefinitionDto() {
+
+        }
     }
 }
