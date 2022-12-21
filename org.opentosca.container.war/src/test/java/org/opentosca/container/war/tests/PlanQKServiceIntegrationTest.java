@@ -78,6 +78,8 @@ public class PlanQKServiceIntegrationTest {
 
     @Test
     public void test() throws Exception {
+        String planqkApiKey = System.getenv("PlanqkApiKey");
+        assertNotNull("The PlanQK API key needs to be specified in the environment variable PlanqkApiKey", planqkApiKey);
 
         Csar csar = testUtils.setupCsarTestRepository(this.csarId, this.storage, TESTAPPLICATIONSREPOSITORY);
         testUtils.generatePlans(this.planGenerationService, csar);
@@ -99,13 +101,14 @@ public class PlanQKServiceIntegrationTest {
         assertNotNull("BuildPlan not found", buildPlan);
         assertNotNull("TerminationPlan not found", terminationPlan);
 
-        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planInstanceService, this.planInvokerService, this.serviceTemplateInstanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters());
+        ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planInstanceService, this.planInvokerService, this.serviceTemplateInstanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters(planqkApiKey));
         assertNotNull(serviceTemplateInstance);
         assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
-        this.checkStateAfterBuild(serviceTemplateInstance);
+        String serviceID = this.checkStateAfterBuild(serviceTemplateInstance, planqkApiKey);
 
         testUtils.runTerminationPlanExecution(this.planInstanceService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
-        // TODO: check if service was deleted from platform
+
+        this.checkServiceWasDeleted(serviceID, planqkApiKey);
 
         testUtils.invokePlanUndeployment(this.control, csar.id(), serviceTemplate);
 
@@ -119,7 +122,7 @@ public class PlanQKServiceIntegrationTest {
             this.serviceTemplateInstanceService);
     }
 
-    private void checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance) throws InterruptedException {
+    private String checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance, String planqkApiKey) throws InterruptedException, IOException {
         Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
         Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
 
@@ -147,10 +150,16 @@ public class PlanQKServiceIntegrationTest {
         assertTrue(foundPlatform);
         assertTrue(foundService);
 
-        assertTrue(checkServiceCreatedSuccessfully(serviceID));
+        assertTrue(checkServiceCreatedSuccessfully(serviceID, planqkApiKey));
+
+        return serviceID;
     }
 
-    private List<org.opentosca.container.core.extension.TParameter> getBuildPlanInputParameters() {
+    private void checkServiceWasDeleted(String serviceID, String planqkApiKey) throws IOException {
+        assertEquals(404, sendServiceInfoRequest(serviceID, planqkApiKey).getResponseCode());
+    }
+
+    private List<org.opentosca.container.core.extension.TParameter> getBuildPlanInputParameters(String planqkApiKey) {
         List<org.opentosca.container.core.extension.TParameter> inputParams = new ArrayList<>();
 
         org.opentosca.container.core.extension.TParameter planqkApiKeyParam = new org.opentosca.container.core.extension.TParameter();
@@ -158,8 +167,7 @@ public class PlanQKServiceIntegrationTest {
         planqkApiKeyParam.setRequired(true);
         planqkApiKeyParam.setType("String");
 
-        String planqkApiKey = System.getenv("PlanqkApiKey");
-        assertNotNull("The PlanQK API key needs to be specified in the environment variable PlanqkApiKey", planqkApiKey);
+
         planqkApiKeyParam.setValue(planqkApiKey);
 
         inputParams.add(planqkApiKeyParam);
@@ -169,9 +177,7 @@ public class PlanQKServiceIntegrationTest {
         return inputParams;
     }
 
-    private static boolean checkServiceCreatedSuccessfully(String serviceID) throws InterruptedException {
-        String planqkApiKey = System.getenv("PlanqkApiKey");
-
+    private static boolean checkServiceCreatedSuccessfully(String serviceID, String planqkApiKey) throws InterruptedException, IOException {
         while (true) {
             ServiceDto service = getServiceInfo(serviceID, planqkApiKey);
             assertNotNull(service);
@@ -189,30 +195,30 @@ public class PlanQKServiceIntegrationTest {
         }
     }
 
-    private static ServiceDto getServiceInfo(String serviceID, String planqkApiKey) {
-        try {
-            HttpURLConnection con;
-            URL location = new URL("https://platform.planqk.de/qc-catalog/services/" + serviceID);
+    private static ServiceDto getServiceInfo(String serviceID, String planqkApiKey) throws IOException {
+        HttpURLConnection con = sendServiceInfoRequest(serviceID, planqkApiKey);
+        int status = con.getResponseCode();
+        assertEquals(200, status);
 
-            con = (HttpURLConnection) location.openConnection();
-            con.setRequestMethod("GET");
-            con.setDoOutput(true);
-            con.setRequestProperty("accept", "application/json");
-            con.setRequestProperty("X-Auth-Token", planqkApiKey);
+        String responseContent = streamToString(con.getInputStream());
+        Gson gson = new Gson();
 
-            con.connect();
-            int status = con.getResponseCode();
-            assertEquals(200, status);
+        return gson.fromJson(responseContent, ServiceDto.class);
+    }
 
-            String responseContent = streamToString(con.getInputStream());
-            Gson gson = new Gson();
+    private static HttpURLConnection sendServiceInfoRequest(String serviceID, String planqkApiKey) throws IOException {
+        HttpURLConnection con;
+        URL location = new URL("https://platform.planqk.de/qc-catalog/services/" + serviceID);
 
-            return gson.fromJson(responseContent, ServiceDto.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        con = (HttpURLConnection) location.openConnection();
+        con.setRequestMethod("GET");
+        con.setDoOutput(true);
+        con.setRequestProperty("accept", "application/json");
+        con.setRequestProperty("X-Auth-Token", planqkApiKey);
 
-        return null;
+        con.connect();
+
+        return con;
     }
 
     private static String streamToString(InputStream inputStream) throws IOException {
