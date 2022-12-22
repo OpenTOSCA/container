@@ -58,6 +58,7 @@ jobs:
       run: mvn -B package --file pom.xml --fail-at-end
       env:
         PlanqkApiKey: ${{ secrets.PLANQK_API_KEY }}
+        OrganizationID: "eecfa1d7-5f52-45d4-accc-b470ad05959f"
     - name: Run codacy-coverage-reporter
       if: ${{ github.repository_owner == 'OpenTOSCA' }}
       uses: codacy/codacy-coverage-reporter-action@master

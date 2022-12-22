@@ -80,6 +80,12 @@ public class PlanQKServiceIntegrationTest {
         String planqkApiKey = System.getenv("PlanqkApiKey");
         assertNotNull("The PlanQK API key needs to be specified in the environment variable PlanqkApiKey", planqkApiKey);
 
+        String organizationID = System.getenv("OrganizationID");
+
+        if (organizationID == null) {
+            organizationID = "";
+        }
+
         Csar csar = testUtils.setupCsarTestRepository(this.csarId, this.storage, TESTAPPLICATIONSREPOSITORY);
         testUtils.generatePlans(this.planGenerationService, csar);
 
@@ -103,7 +109,14 @@ public class PlanQKServiceIntegrationTest {
         try {
             deleteServiceIfStillPresent("TestService", planqkApiKey);
 
-            ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planInstanceService, this.planInvokerService, this.serviceTemplateInstanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters(planqkApiKey));
+            ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(
+                this.planInstanceService,
+                this.planInvokerService,
+                this.serviceTemplateInstanceService,
+                csar,
+                serviceTemplate,
+                buildPlan,
+                this.getBuildPlanInputParameters(planqkApiKey, organizationID));
             assertNotNull(serviceTemplateInstance);
             assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
             String serviceID = this.checkStateAfterBuild(serviceTemplateInstance, planqkApiKey);
@@ -170,17 +183,22 @@ public class PlanQKServiceIntegrationTest {
         assertEquals(404, sendServiceInfoRequest(serviceID, planqkApiKey).getResponseCode());
     }
 
-    private List<org.opentosca.container.core.extension.TParameter> getBuildPlanInputParameters(String planqkApiKey) {
+    private List<org.opentosca.container.core.extension.TParameter> getBuildPlanInputParameters(String planqkApiKey, String organizationID) {
         List<org.opentosca.container.core.extension.TParameter> inputParams = new ArrayList<>();
 
         org.opentosca.container.core.extension.TParameter planqkApiKeyParam = new org.opentosca.container.core.extension.TParameter();
         planqkApiKeyParam.setName("PlanqkApiKey");
         planqkApiKeyParam.setRequired(true);
         planqkApiKeyParam.setType("String");
-
         planqkApiKeyParam.setValue(planqkApiKey);
-
         inputParams.add(planqkApiKeyParam);
+
+        org.opentosca.container.core.extension.TParameter organizationIDParam = new org.opentosca.container.core.extension.TParameter();
+        organizationIDParam.setName("OrganizationID");
+        organizationIDParam.setRequired(true);
+        organizationIDParam.setType("String");
+        organizationIDParam.setValue(organizationID);
+        inputParams.add(organizationIDParam);
 
         inputParams.addAll(testUtils.getBaseInputParams());
 
