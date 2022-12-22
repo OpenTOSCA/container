@@ -101,6 +101,8 @@ public class PlanQKServiceIntegrationTest {
         assertNotNull("TerminationPlan not found", terminationPlan);
 
         try {
+            deleteServiceIfStillPresent("TestService", planqkApiKey);
+
             ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(this.planInstanceService, this.planInvokerService, this.serviceTemplateInstanceService, csar, serviceTemplate, buildPlan, this.getBuildPlanInputParameters(planqkApiKey));
             assertNotNull(serviceTemplateInstance);
             assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
