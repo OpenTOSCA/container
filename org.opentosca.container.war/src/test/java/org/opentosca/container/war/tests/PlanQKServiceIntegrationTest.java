@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,6 +52,7 @@ import static org.junit.Assert.assertTrue;
 public class PlanQKServiceIntegrationTest {
 
     public static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/UST-QuAntiL/tosca-definitions-qc-applications";
+    protected static final Logger LOGGER = LoggerFactory.getLogger(PlanQKServiceIntegrationTest.class);
 
     public QName csarId = new QName("https://ust-quantil.github.io/quantum/applications/servicetemplates", "PlanQK-Service-Example_w1");
     @Inject
@@ -75,8 +74,6 @@ public class PlanQKServiceIntegrationTest {
     @Inject
     public ICoreEndpointService endpointService;
     private TestUtils testUtils = new TestUtils();
-
-    protected static final Logger LOGGER = LoggerFactory.getLogger(PlanQKServiceIntegrationTest.class);
 
     @Test
     public void test() throws Exception {
@@ -178,7 +175,6 @@ public class PlanQKServiceIntegrationTest {
         planqkApiKeyParam.setName("PlanqkApiKey");
         planqkApiKeyParam.setRequired(true);
         planqkApiKeyParam.setType("String");
-
 
         planqkApiKeyParam.setValue(planqkApiKey);
 
