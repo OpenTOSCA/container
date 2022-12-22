@@ -56,6 +56,8 @@ jobs:
         time: '120s'
     - name: Build with Maven
       run: mvn -B package --file pom.xml --fail-at-end
+      env:
+        PlanqkApiKey: ${{ secrets.PLANQK_API_KEY }}
     - name: Run codacy-coverage-reporter
       if: ${{ github.repository_owner == 'OpenTOSCA' }}
       uses: codacy/codacy-coverage-reporter-action@master
