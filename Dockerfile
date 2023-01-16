@@ -5,7 +5,7 @@ RUN rm /dev/random && ln -s /dev/urandom /dev/random
 WORKDIR /tmp/opentosca/container
 COPY . /tmp/opentosca/container
 
-RUN apt-get update && apt-get install unzip
+RUN apt-get update && apt-get -y install --no-install-recommends unzip=6.0-26ubuntu3
 RUN mvn package -DskipTests=true -Dmaven.javadoc.skip=true -B \
     && mkdir /tmp/build \
     && unzip /tmp/opentosca/container/org.opentosca.container.war/target/OpenTOSCA-container.war -d /tmp/build/container
