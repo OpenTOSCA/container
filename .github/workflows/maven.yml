@@ -33,6 +33,11 @@ jobs:
           coverage-reports: org.opentosca.container.reporting/target/site/jacoco-aggregate/jacoco.xml
 
   tests:
+    strategy:
+      matrix:
+        test:
+          - MyTinyToDoIntegrationTest
+          - MyTinyToDoSqlIntegrationTest
     runs-on: ubuntu-latest
     timeout-minutes: 80
     needs: build
@@ -75,7 +80,7 @@ jobs:
       with:
         time: '120s'
     - name: Test with Maven
-      run: mvn -B -DfailIfNoTests=false -Dtest=org.opentosca.container.war.tests.MyTinyToDoIntegrationTest --offline test --file pom.xml --fail-at-end
+      run: mvn -B -DfailIfNoTests=false -Dtest=org.opentosca.container.war.tests.${{ matrix.test }} --offline test --file pom.xml --fail-at-end
       env:
         PlanqkApiKey: ${{ secrets.PLANQK_API_KEY }}
         OrganizationID: "eecfa1d7-5f52-45d4-accc-b470ad05959f"
