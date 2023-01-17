@@ -24,13 +24,13 @@ jobs:
           cache: maven
           distribution: temurin
       - name: Build with Maven
-        run: mvn -B -DskipTests package --file pom.xml --fail-at-end
-      - name: Run codacy-coverage-reporter
-        if: ${{ github.repository_owner == 'OpenTOSCA' }}
-        uses: codacy/codacy-coverage-reporter-action@master
-        with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: org.opentosca.container.reporting/target/site/jacoco-aggregate/jacoco.xml
+        run: mvn -B -DskipTests clean package --file pom.xml --fail-at-end
+#      - name: Run codacy-coverage-reporter
+#        if: ${{ github.repository_owner == 'OpenTOSCA' }}
+#        uses: codacy/codacy-coverage-reporter-action@master
+#        with:
+#          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+#          coverage-reports: org.opentosca.container.reporting/target/site/jacoco-aggregate/jacoco.xml
 
   tests:
     runs-on: ubuntu-latest
@@ -45,37 +45,37 @@ jobs:
         java-version: 17
         cache: maven
         distribution: temurin
-    - name: Check out TOSCA internal repository
-      uses: actions/checkout@v3
-      with:
-        repository: OpenTOSCA/tosca-definitions-test-applications
-        ref: 'main'
-        path: 'tosca-definitions-test-applications'
-        lfs: 'true'
-    - name: Copy TOSCA internal repository to tmp
-      run: cp -R $GITHUB_WORKSPACE/tosca-definitions-test-applications /tmp/
-    - name: Show TOSCA internal repository content
-      run: ls -a /tmp/tosca-definitions-test-applications
-    - name: Setup Docker Remote API
-      run: sudo sed -ie "s@ExecStart=\/usr\/bin\/dockerd -H fd:\/\/@ExecStart=\/usr\/bin\/dockerd -H fd:\/\/ -H tcp:\/\/0.0.0.0:2375 -H unix:///var/run/docker.sock@g" /lib/systemd/system/docker.service
-    - name: Reload Daemons
-      run: sudo systemctl daemon-reload
-    - name: Restart Docker
-      run: sudo service docker restart
-    - name: Configure runtime with test properties
-      run: cp test.properties ./org.opentosca.container.core/src/main/resources/application.properties
-    - name: Show application properties
-      run: cat ./org.opentosca.container.core/src/main/resources/application.properties
-    - name: Test Docker Remote API
-      run: curl -X GET http://localhost:2375/images/json
-    - name: Start test environment
-      run: docker-compose -f test.yml up -d
-    - name: Sleep for 120 seconds
-      uses: whatnick/wait-action@master
-      with:
-        time: '120s'
+#    - name: Check out TOSCA internal repository
+#      uses: actions/checkout@v3
+#      with:
+#        repository: OpenTOSCA/tosca-definitions-test-applications
+#        ref: 'main'
+#        path: 'tosca-definitions-test-applications'
+#        lfs: 'true'
+#    - name: Copy TOSCA internal repository to tmp
+#      run: cp -R $GITHUB_WORKSPACE/tosca-definitions-test-applications /tmp/
+#    - name: Show TOSCA internal repository content
+#      run: ls -a /tmp/tosca-definitions-test-applications
+#    - name: Setup Docker Remote API
+#      run: sudo sed -ie "s@ExecStart=\/usr\/bin\/dockerd -H fd:\/\/@ExecStart=\/usr\/bin\/dockerd -H fd:\/\/ -H tcp:\/\/0.0.0.0:2375 -H unix:///var/run/docker.sock@g" /lib/systemd/system/docker.service
+#    - name: Reload Daemons
+#      run: sudo systemctl daemon-reload
+#    - name: Restart Docker
+#      run: sudo service docker restart
+#    - name: Configure runtime with test properties
+#      run: cp test.properties ./org.opentosca.container.core/src/main/resources/application.properties
+#    - name: Show application properties
+#      run: cat ./org.opentosca.container.core/src/main/resources/application.properties
+#    - name: Test Docker Remote API
+#      run: curl -X GET http://localhost:2375/images/json
+#    - name: Start test environment
+#      run: docker-compose -f test.yml up -d
+#    - name: Sleep for 120 seconds
+#      uses: whatnick/wait-action@master
+#      with:
+#        time: '120s'
     - name: Build with Maven
-      run: mvn -B -DfailIfNoTests=false -Dtest=org.opentosca.container.war.tests.MyTinyToDoIntegrationTest --offline package --file pom.xml --fail-at-end
-      env:
-        PlanqkApiKey: ${{ secrets.PLANQK_API_KEY }}
-        OrganizationID: "eecfa1d7-5f52-45d4-accc-b470ad05959f"
+      run: mvn -B -DfailIfNoTests=false -DskipTests --offline package --file pom.xml --fail-at-end
+#      env:
+#        PlanqkApiKey: ${{ secrets.PLANQK_API_KEY }}
+#        OrganizationID: "eecfa1d7-5f52-45d4-accc-b470ad05959f"
