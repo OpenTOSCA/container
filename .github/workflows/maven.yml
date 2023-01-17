@@ -75,7 +75,7 @@ jobs:
       with:
         time: '120s'
     - name: Build with Maven
-      run: mvn -B -DfailIfNoTests=false -Dtest=org.opentosca.container.war.tests.MyTinyToDoIntegrationTest package --file pom.xml --fail-at-end
+      run: mvn -B -DfailIfNoTests=false -Dtest=org.opentosca.container.war.tests.MyTinyToDoIntegrationTest --offline package --file pom.xml --fail-at-end
       env:
         PlanqkApiKey: ${{ secrets.PLANQK_API_KEY }}
         OrganizationID: "eecfa1d7-5f52-45d4-accc-b470ad05959f"
