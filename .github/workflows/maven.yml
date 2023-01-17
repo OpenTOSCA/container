@@ -24,7 +24,7 @@ jobs:
           cache: maven
           distribution: temurin
       - name: Build with Maven
-        run: mvn -B -DskipTests --file pom.xml --fail-at-end
+        run: mvn -B -DskipTests --file pom.xml --fail-at-end compile
       - name: Run codacy-coverage-reporter
         if: ${{ github.repository_owner == 'OpenTOSCA' }}
         uses: codacy/codacy-coverage-reporter-action@master
