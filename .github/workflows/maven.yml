@@ -23,6 +23,12 @@ jobs:
           java-version: 17
           cache: maven
           distribution: temurin
+      - name: Cache compiled files
+        id: compiled-cache
+        uses: actions/cache@v3
+        with:
+          path: "**/target"
+          key: compiled-cache-${{ github.run_id }}-${{ github.run_attempt }}  # new key for each workflow run
       - name: Build with Maven
         run: mvn -B -DskipTests clean package --file pom.xml --fail-at-end
 #      - name: Run codacy-coverage-reporter
@@ -45,6 +51,12 @@ jobs:
         java-version: 17
         cache: maven
         distribution: temurin
+    - name: Cache compiled files
+      id: compiled-cache
+      uses: actions/cache@v3
+      with:
+        path: "**/target"
+        key: compiled-cache-${{ github.run_id }}-${{ github.run_attempt }}  # new key for each workflow run
 #    - name: Check out TOSCA internal repository
 #      uses: actions/checkout@v3
 #      with:
