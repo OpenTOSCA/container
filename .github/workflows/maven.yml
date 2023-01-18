@@ -89,7 +89,7 @@ jobs:
       with:
         time: '120s'
     - name: Test with Maven
-      timeout-minutes: 5
+      timeout-minutes: 10
       continue-on-error: true
       run: mvn -B -DfailIfNoTests=false -Dtest=org.opentosca.container.war.tests.${{ matrix.test }} --offline test --file pom.xml --fail-at-end
       env:
