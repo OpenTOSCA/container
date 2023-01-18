@@ -101,6 +101,6 @@ jobs:
       if: ${{ always() }}
       with:
         name: engine-ia-log
-        path:
-          - engine-ia-java17.log
-          - engine-ia-java8.log
+        path: |
+          engine-ia-java17.log
+          engine-ia-java8.log
