@@ -36,15 +36,15 @@ jobs:
     strategy:
       matrix:
         test:
-#          - AdaptMultiMyTinyToDoIntegrationTest
-#          - ApacheWebAppIntegrationTest
-#          - MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest
-#          - MultiMyTinyToDoIntegrationTest
-#          - MyTinyToDoBPMNIntegrationTest
-#          - MyTinyToDoIntegrationTest
-#          - MyTinyToDoSqlIntegrationTest
+          - AdaptMultiMyTinyToDoIntegrationTest
+          - ApacheWebAppIntegrationTest
+          - MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest
+          - MultiMyTinyToDoIntegrationTest
+          - MyTinyToDoBPMNIntegrationTest
+          - MyTinyToDoIntegrationTest
+          - MyTinyToDoSqlIntegrationTest
           - PlanQKServiceIntegrationTest
-#          - QHAnaTest
+          - QHAnaTest
     runs-on: ubuntu-latest
     timeout-minutes: 80
     needs: build
@@ -89,7 +89,7 @@ jobs:
       with:
         time: '120s'
     - name: Test with Maven
-      timeout-minutes: 10
+      timeout-minutes: 15
       run: mvn -B -DfailIfNoTests=false -Dtest=org.opentosca.container.war.tests.${{ matrix.test }} --offline test --file pom.xml --fail-at-end
       env:
         PlanqkApiKey: ${{ secrets.PLANQK_API_KEY }}
