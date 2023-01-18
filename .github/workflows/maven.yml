@@ -91,7 +91,7 @@ jobs:
       with:
         time: '120s'
     - name: Test with Maven
-      timeout-minutes: 15
+      timeout-minutes: 60
       run: mvn -B -DfailIfNoTests=false -Dtest=org.opentosca.container.war.tests.${{ matrix.test }} test --file pom.xml --fail-at-end
       env:
         PlanqkApiKey: ${{ secrets.PLANQK_API_KEY }}
