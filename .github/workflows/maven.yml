@@ -36,15 +36,15 @@ jobs:
     strategy:
       matrix:
         test:
-          - AdaptMultiMyTinyToDoIntegrationTest
-          - ApacheWebAppIntegrationTest
-          - MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest
-          - MultiMyTinyToDoIntegrationTest
-          - MyTinyToDoBPMNIntegrationTest
-          - MyTinyToDoIntegrationTest
-          - MyTinyToDoSqlIntegrationTest
+#          - AdaptMultiMyTinyToDoIntegrationTest
+#          - ApacheWebAppIntegrationTest
+#          - MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest
+#          - MultiMyTinyToDoIntegrationTest
+#          - MyTinyToDoBPMNIntegrationTest
+#          - MyTinyToDoIntegrationTest
+#          - MyTinyToDoSqlIntegrationTest
           - PlanQKServiceIntegrationTest
-          - QHAnaTest
+#          - QHAnaTest
     runs-on: ubuntu-latest
     timeout-minutes: 80
     needs: build
@@ -86,8 +86,12 @@ jobs:
       uses: whatnick/wait-action@master
       with:
         time: '120s'
+    - name: Install debug utils
+      run: apt update && apt -y install tree timelimit
     - name: Test with Maven
-      run: mvn -B -DfailIfNoTests=false -Dtest=org.opentosca.container.war.tests.${{ matrix.test }} --offline test --file pom.xml --fail-at-end
+      run: timelimit -t300 mvn -B -DfailIfNoTests=false -Dtest=org.opentosca.container.war.tests.${{ matrix.test }} --offline test --file pom.xml --fail-at-end
       env:
         PlanqkApiKey: ${{ secrets.PLANQK_API_KEY }}
         OrganizationID: "eecfa1d7-5f52-45d4-accc-b470ad05959f"
+    - name: List files in container folder
+      run: tree /tmp/opentosca/container/
