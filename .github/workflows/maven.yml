@@ -90,13 +90,13 @@ jobs:
         time: '120s'
     - name: Test with Maven
       timeout-minutes: 10
-      continue-on-error: true
       run: mvn -B -DfailIfNoTests=false -Dtest=org.opentosca.container.war.tests.${{ matrix.test }} --offline test --file pom.xml --fail-at-end
       env:
         PlanqkApiKey: ${{ secrets.PLANQK_API_KEY }}
         OrganizationID: "eecfa1d7-5f52-45d4-accc-b470ad05959f"
     - name: Store engine-ia log
       uses: actions/upload-artifact@v3
+      if: ${{ always() }}
       with:
         name: engine-ia-log
         path: engine-ia-java17.log
