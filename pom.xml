@@ -20,7 +20,7 @@
         <junit.version>4.13.2</junit.version>
         <logback.version>1.1.11</logback.version>
         <!-- needs to match the jersey version used in winery to avoid conflicts -->
-        <jersey.version>2.30.1</jersey.version>
+        <jersey.version>2.37</jersey.version>
         <spring.version>5.3.20</spring.version>
         <springdata.version>2.5.10</springdata.version>
         <springboot.version>2.5.12</springboot.version>
@@ -75,7 +75,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.6</version>
+                <version>0.8.8</version>
                 <configuration>
                     <append>${jacoco.append}</append>
                     <destFile>${jacoco.reportPath}</destFile>
@@ -129,7 +129,7 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.0</version>
                     <configuration>
-                        <release>11</release>
+                        <release>17</release>
                     </configuration>
                 </plugin>
             </plugins>

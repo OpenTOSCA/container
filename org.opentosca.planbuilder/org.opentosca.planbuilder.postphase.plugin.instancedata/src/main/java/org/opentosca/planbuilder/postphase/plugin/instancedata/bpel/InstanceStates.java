@@ -48,6 +48,13 @@ public class InstanceStates {
 
         operationPreStates.put("removeContainer", "DELETING");
         operationPostStates.put("removeContainer", "DELETED");
+
+        // Containers
+        operationPreStates.put("create", "CREATING");
+        operationPostStates.put("create", "CREATED");
+
+        operationPreStates.put("terminate", "TERMINATING");
+        operationPostStates.put("terminate", "TERMINATED");
     }
 
     public static String getOperationPreState(final String operationName) {
@@ -98,7 +105,7 @@ public class InstanceStates {
             // given state is stable
             switch (state) {
                 case "INITIAL":
-                    return "CREATED";
+                    return "CREATED";  // FIXME: unreachable, because operationPostStates doesn't contain value "INITIAL"
                 case "CREATED":
                     return "CONFIGURED";
                 case "CONFIGURED":

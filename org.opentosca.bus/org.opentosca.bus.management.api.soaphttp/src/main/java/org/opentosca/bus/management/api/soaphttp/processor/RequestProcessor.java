@@ -5,11 +5,13 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -44,6 +46,7 @@ import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.bus.management.service.impl.Constants;
 import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.engine.ResolvedArtifacts;
 import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedDeploymentArtifact;
@@ -179,6 +182,13 @@ public class RequestProcessor implements Processor {
                             }
                         }
                     });
+                }
+
+                if (Utils.isSupportedPlattformPatternNodeType(nodeTemplate.getType(), csar)) {
+                    Collection<TNodeTemplate> appNodes = ModelUtils.getIngoingRelations(nodeTemplate, csar).stream()
+                        .filter(r -> r.getType().equals(Types.hostedOnRelationType))
+                        .map(r -> (TNodeTemplate) r.getSourceElement().getRef()).collect(Collectors.toList());
+                    appNodes.forEach(a -> resolvedDAs.addAll(this.containerEngine.resolvedDeploymentArtifactsForNodeTemplate(csar, a)));
                 }
 
                 final ResolvedArtifacts resolvedArtifacts = this.containerEngine.resolvedDeploymentArtifacts(csar,
