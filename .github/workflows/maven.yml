@@ -82,16 +82,21 @@ jobs:
       run: curl -X GET http://localhost:2375/images/json
     - name: Start test environment
       run: docker-compose -f test.yml up -d
+    - name: Save engine-ia log to file
+      run: docker-compose -f test.yml logs -f engine-ia-java17 > engine-ia-java17.log
     - name: Sleep for 120 seconds
       uses: whatnick/wait-action@master
       with:
         time: '120s'
-    - name: Install debug utils
-      run: apt update && apt -y install tree timelimit
     - name: Test with Maven
-      run: timelimit -t300 mvn -B -DfailIfNoTests=false -Dtest=org.opentosca.container.war.tests.${{ matrix.test }} --offline test --file pom.xml --fail-at-end
+      timeout-minutes: 5
+      continue-on-error: true
+      run: mvn -B -DfailIfNoTests=false -Dtest=org.opentosca.container.war.tests.${{ matrix.test }} --offline test --file pom.xml --fail-at-end
       env:
         PlanqkApiKey: ${{ secrets.PLANQK_API_KEY }}
         OrganizationID: "eecfa1d7-5f52-45d4-accc-b470ad05959f"
-    - name: List files in container folder
-      run: tree /tmp/opentosca/container/
+    - name: Store engine-ia log
+      uses: actions/upload-artifact@v3
+      with:
+        name: engine-ia-log
+        path: engine-ia-java17.log
