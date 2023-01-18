@@ -83,7 +83,7 @@ jobs:
     - name: Start test environment
       run: docker-compose -f test.yml up -d
     - name: Save engine-ia log to file
-      run: docker-compose -f test.yml logs -f engine-ia-java17 > engine-ia-java17.log
+      run: docker-compose -f test.yml logs -f engine-ia-java17 > engine-ia-java17.log &
     - name: Sleep for 120 seconds
       uses: whatnick/wait-action@master
       with:
