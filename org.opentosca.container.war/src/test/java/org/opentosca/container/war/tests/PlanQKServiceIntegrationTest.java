@@ -107,7 +107,7 @@ public class PlanQKServiceIntegrationTest {
         assertNotNull("TerminationPlan not found", terminationPlan);
 
         try {
-            deleteServiceIfStillPresent("TestService", planqkApiKey);
+            deleteServiceIfStillPresent("TestService", planqkApiKey, organizationID);
 
             ServiceTemplateInstance serviceTemplateInstance = testUtils.runBuildPlanExecution(
                 this.planInstanceService,
@@ -119,18 +119,18 @@ public class PlanQKServiceIntegrationTest {
                 this.getBuildPlanInputParameters(planqkApiKey, organizationID));
             assertNotNull(serviceTemplateInstance);
             assertEquals(ServiceTemplateInstanceState.CREATED, serviceTemplateInstance.getState());
-            String serviceID = this.checkStateAfterBuild(serviceTemplateInstance, planqkApiKey);
+            String serviceID = this.checkStateAfterBuild(serviceTemplateInstance, planqkApiKey, organizationID);
 
             testUtils.runTerminationPlanExecution(this.planInstanceService, this.planInvokerService, csar, serviceTemplate, serviceTemplateInstance, terminationPlan);
 
-            this.checkServiceWasDeleted(serviceID, planqkApiKey);
+            this.checkServiceWasDeleted(serviceID, planqkApiKey, organizationID);
 
             testUtils.invokePlanUndeployment(this.control, csar.id(), serviceTemplate);
 
             assertEquals(0, testUtils.getDeployedPlans(this.endpointService).size());
         } catch (Exception e) {
             try {
-                deleteServiceIfStillPresent("TestService", planqkApiKey);
+                deleteServiceIfStillPresent("TestService", planqkApiKey, organizationID);
             } catch (Exception e2) {
                 e2.printStackTrace();
             }
@@ -146,7 +146,7 @@ public class PlanQKServiceIntegrationTest {
             this.serviceTemplateInstanceService);
     }
 
-    private String checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance, String planqkApiKey) throws InterruptedException, IOException {
+    private String checkStateAfterBuild(ServiceTemplateInstance serviceTemplateInstance, String planqkApiKey, String organizationID) throws InterruptedException, IOException {
         Collection<NodeTemplateInstance> nodeTemplateInstances = serviceTemplateInstance.getNodeTemplateInstances();
         Collection<RelationshipTemplateInstance> relationshipTemplateInstances = serviceTemplateInstance.getRelationshipTemplateInstances();
 
@@ -174,13 +174,13 @@ public class PlanQKServiceIntegrationTest {
         assertTrue(foundPlatform);
         assertTrue(foundService);
 
-        assertTrue(checkServiceCreatedSuccessfully(serviceID, planqkApiKey));
+        assertTrue(checkServiceCreatedSuccessfully(serviceID, planqkApiKey, organizationID));
 
         return serviceID;
     }
 
-    private void checkServiceWasDeleted(String serviceID, String planqkApiKey) throws IOException {
-        assertEquals(404, sendServiceInfoRequest(serviceID, planqkApiKey).getResponseCode());
+    private void checkServiceWasDeleted(String serviceID, String planqkApiKey, String organizationID) throws IOException {
+        assertEquals(404, sendServiceInfoRequest(serviceID, planqkApiKey, organizationID).getResponseCode());
     }
 
     private List<org.opentosca.container.core.extension.TParameter> getBuildPlanInputParameters(String planqkApiKey, String organizationID) {
@@ -205,9 +205,9 @@ public class PlanQKServiceIntegrationTest {
         return inputParams;
     }
 
-    private static boolean checkServiceCreatedSuccessfully(String serviceID, String planqkApiKey) throws InterruptedException, IOException {
+    private static boolean checkServiceCreatedSuccessfully(String serviceID, String planqkApiKey, String organizationID) throws InterruptedException, IOException {
         while (true) {
-            ServiceDto service = getServiceInfo(serviceID, planqkApiKey);
+            ServiceDto service = getServiceInfo(serviceID, planqkApiKey, organizationID);
             assertNotNull(service);
             assertEquals(1, service.serviceDefinitions.length);
             String lifecycle = service.serviceDefinitions[0].lifecycle;
@@ -223,7 +223,7 @@ public class PlanQKServiceIntegrationTest {
         }
     }
 
-    private static void deleteServiceIfStillPresent(String serviceName, String planqkApiKey) throws IOException {
+    private static void deleteServiceIfStillPresent(String serviceName, String planqkApiKey, String organizationID) throws IOException {
         HttpURLConnection con;
         URL location = new URL("https://platform.planqk.de/qc-catalog/services");
 
@@ -232,6 +232,7 @@ public class PlanQKServiceIntegrationTest {
         con.setDoOutput(true);
         con.setRequestProperty("accept", "application/json");
         con.setRequestProperty("X-Auth-Token", planqkApiKey);
+        con.setRequestProperty("X-OrganizationId", organizationID);
 
         con.connect();
 
@@ -245,7 +246,7 @@ public class PlanQKServiceIntegrationTest {
 
         for (var service : services) {
             if (service.name.equals(serviceName)) {
-                deleteService(service.id, planqkApiKey);
+                deleteService(service.id, planqkApiKey, organizationID);
                 LOGGER.info("service {} was deleted", serviceName);
 
                 return;
@@ -255,20 +256,21 @@ public class PlanQKServiceIntegrationTest {
         LOGGER.info("no service with name {} found", serviceName);
     }
 
-    private static void deleteService(String serviceID, String planqkApiKey) throws IOException {
+    private static void deleteService(String serviceID, String planqkApiKey, String organizationID) throws IOException {
         HttpURLConnection con;
         URL location = new URL("https://platform.planqk.de/qc-catalog/services/" + serviceID);
 
         con = (HttpURLConnection) location.openConnection();
         con.setRequestMethod("DELETE");
         con.setRequestProperty("X-Auth-Token", planqkApiKey);
+        con.setRequestProperty("X-OrganizationId", organizationID);
         con.connect();
 
         assertEquals(204, con.getResponseCode());
     }
 
-    private static ServiceDto getServiceInfo(String serviceID, String planqkApiKey) throws IOException {
-        HttpURLConnection con = sendServiceInfoRequest(serviceID, planqkApiKey);
+    private static ServiceDto getServiceInfo(String serviceID, String planqkApiKey, String organizationID) throws IOException {
+        HttpURLConnection con = sendServiceInfoRequest(serviceID, planqkApiKey, organizationID);
         int status = con.getResponseCode();
         assertEquals(200, status);
 
@@ -278,7 +280,7 @@ public class PlanQKServiceIntegrationTest {
         return gson.fromJson(responseContent, ServiceDto.class);
     }
 
-    private static HttpURLConnection sendServiceInfoRequest(String serviceID, String planqkApiKey) throws IOException {
+    private static HttpURLConnection sendServiceInfoRequest(String serviceID, String planqkApiKey, String organizationID) throws IOException {
         HttpURLConnection con;
         URL location = new URL("https://platform.planqk.de/qc-catalog/services/" + serviceID);
 
@@ -287,6 +289,7 @@ public class PlanQKServiceIntegrationTest {
         con.setDoOutput(true);
         con.setRequestProperty("accept", "application/json");
         con.setRequestProperty("X-Auth-Token", planqkApiKey);
+        con.setRequestProperty("X-OrganizationId", organizationID);
 
         con.connect();
 
