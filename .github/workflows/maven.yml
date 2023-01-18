@@ -82,8 +82,10 @@ jobs:
       run: curl -X GET http://localhost:2375/images/json
     - name: Start test environment
       run: docker-compose -f test.yml up -d
-    - name: Save engine-ia log to file
+    - name: Save engine-ia-java17 log to file
       run: docker-compose -f test.yml logs -f engine-ia-java17 > engine-ia-java17.log &
+    - name: Save engine-ia-java8 log to file
+      run: docker-compose -f test.yml logs -f engine-ia-java8 > engine-ia-java8.log &
     - name: Sleep for 120 seconds
       uses: whatnick/wait-action@master
       with:
@@ -99,4 +101,6 @@ jobs:
       if: ${{ always() }}
       with:
         name: engine-ia-log
-        path: engine-ia-java17.log
+        path:
+          - engine-ia-java17.log
+          - engine-ia-java8.log
