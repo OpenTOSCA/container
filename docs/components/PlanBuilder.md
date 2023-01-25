@@ -75,7 +75,7 @@ In the following section we will describe how a TOSCA relationship template is p
 
 #### Overall execution within a TOSCA Plan
 
-Each connectTo relationshiptemplate that connects a nodetemplate A with nodetemplate B (i.e. A -conectsTo-> B) within a TOSCA Topology is processed within a TOSCA Plan in the following flow:
+Each connectTo relationshiptemplate that connects a nodetemplate A with nodetemplate B (i.e. A -conectsTo-> B) within a TOSCA Topology is processed within a TOSCA Plan in the following flow (See also [ConnectTo PlanBuilder Plugin](https://github.com/OpenTOSCA/container/tree/master/org.opentosca.planbuilder/org.opentosca.planbuilder.type.plugin.connectsto "ConnectTo PlanBuilder Plugin")):
 
 - In case of creating an instance of a topology or some fragments of a topology: A and B are provisioninable in parallel **BEFORE** the connectTo relationschiptemplate c is instantiated
 - In case of terminating an instance of a topology of some fragments of a topology: a connectTo relationshiptemplate instance is deleted **BEFORE** the nodetemplates A and B it connects are deleted
