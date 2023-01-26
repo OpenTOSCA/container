@@ -56,7 +56,6 @@ E.g., in the Scale-Out Plan figure the goal is to create a new instance of the A
 The application is a member of a region and the Nodes that are connected to such a region must be annotated with a so-called Selection Strategy, that specifies with which algorithm an instance selection shall occur.
 The Plan Builder is able to generate Scale-Out Plans from Topology Templates with these regions as described in the following:
 
-![Scale-Out Plan Generation](graphics/PlanBuilder/PlanBuilder/scaleoutplans.png)
 
 ##### 1. Scale-Out Plan Abstract Control Flow Generation
 The Abstract Control Flow of Scale-Out Plan is generated based on the Topology Templates structure and the defined region.
@@ -80,9 +79,15 @@ Each connectTo relationshiptemplate that connects a nodetemplate A with nodetemp
 - In case of creating an instance of a topology or some fragments of a topology: A and B are provisioninable in parallel **BEFORE** the connectTo relationschiptemplate c is instantiated
 - In case of terminating an instance of a topology of some fragments of a topology: a connectTo relationshiptemplate instance is deleted **BEFORE** the nodetemplates A and B it connects are deleted
 
-#### Steps of creating an instance of a relationshiptempalte within TOSCA Plan
+#### Steps of creating an instance of a relationshiptemplate within TOSCA Plan
 
 Each connectTo relationshiptemplate C that connects a nodetemplate A with nodetemplate B (i.e. A -conectsTo-> B) within a TOSCA Topology the steps to create an instance of C are the following:
 
 1. If B has an Operation of the name connectTo in any interface it is invoked with a proper parameter to property matching
 2. If A has an Operation of the name connectTo in any interface it is invoked with a proper parameter to property matching
+
+Additionally, if the connectTo operation is under an interface with name http://opentosca.org/interfaces/connections/nonInterruptive the following steps are added:
+
+1. If B has a start or stop operation under a lifecycle interface, before calling the connectTo operation the stop operation on B is called and after the connectTo operation the start operation is called.
+2. If A has a start or stop operation under a lifecycle interface, before calling the connectTo operation the stop operation on B is called and after the connectTo operation the start operation is called.
+
