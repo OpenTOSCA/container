@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.type.plugin.connectsto.bpel.handler;
 
+import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,16 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         final TRelationshipTemplate relationTemplate = templateContext.getRelationshipTemplate();
         final TNodeTemplate sourceNodeTemplate = ModelUtils.getSource(relationTemplate, templateContext.getCsar());
         final TNodeTemplate targetNodeTemplate = ModelUtils.getTarget(relationTemplate, templateContext.getCsar());
+
+
+        List<TInterface> sourceInterfaces = ModelUtils.findNodeType(sourceNodeTemplate, templateContext.getCsar()).getInterfaces();
+        if(executeOn(sourceInterfaces, sourceNodeTemplate, "source")){
+            System.out.println("Execute on source");
+        }
+        List<TInterface> targetInterfaces = ModelUtils.findNodeType(targetNodeTemplate, templateContext.getCsar()).getInterfaces();
+        if(executeOn(targetInterfaces, sourceNodeTemplate, "target")){
+            System.out.println("Execute on target");
+        }
 
         // if the target has connectTo we execute it
         if (hasOperation(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO, templateContext.getCsar())) {
@@ -416,5 +427,28 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             }
         }
         return true;
+    }
+
+    private boolean executeOn(List<TInterface> interfaces, TNodeTemplate nodeTemplate, String targetNode){
+        if (interfaces != null) {
+            for (final TInterface iface : interfaces) {
+                for (final TOperation op : iface.getOperations()) {
+                    if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO)) {
+                        System.out.println(iface.getName());
+                        final String[] split = iface.getName().split("/");
+                        if(split.length>=2){
+                            final String nodeType = split[split.length - 1];
+                            final String sourceOrTarget = split[split.length -2];
+                            if(sourceOrTarget.equals(targetNode) && nodeTemplate.getType().getLocalPart().split("_")[0].equals(nodeType)){
+                                return true;
+                            }
+
+                        }
+
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
