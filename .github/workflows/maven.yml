@@ -42,7 +42,7 @@ jobs:
           - MultiMyTinyToDoIntegrationTest
           - MyTinyToDoBPMNIntegrationTest
           - MyTinyToDoIntegrationTest
-          #- MyTinyToDoSqlIntegrationTest
+          - MyTinyToDoSqlIntegrationTest
           - PlanQKServiceIntegrationTest
           - QHAnaTest
     runs-on: ubuntu-latest

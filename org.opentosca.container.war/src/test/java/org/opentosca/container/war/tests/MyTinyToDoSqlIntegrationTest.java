@@ -72,7 +72,6 @@ public class MyTinyToDoSqlIntegrationTest {
 
     private String wineryRepositoryUrl = "http://localhost:8091/winery";
 
-    @Disabled
     @Test
     public void test() throws Exception {
         String wineryRepositoryUrlForDockerContainer = "http://" + testUtils.getDockerHost() + ":8091/winery";
