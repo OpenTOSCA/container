@@ -41,12 +41,12 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         final TNodeTemplate targetNodeTemplate = ModelUtils.getTarget(relationTemplate, templateContext.getCsar());
 
         if (checkExecution(templateContext.getCsar(), sourceNodeTemplate, ExecutionRole.SOURCE)) {
-            handleConnectsTo(sourceNodeTemplate, targetNodeTemplate, templateContext);
+            handleConnectsTo(sourceNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
         } else if (checkExecution(templateContext.getCsar(), sourceNodeTemplate, ExecutionRole.TARGET)) {
-            handleConnectsTo(targetNodeTemplate, sourceNodeTemplate, templateContext);
+            handleConnectsTo(targetNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
         } else {
-            handleConnectsTo(targetNodeTemplate, sourceNodeTemplate, templateContext);
-            handleConnectsTo(sourceNodeTemplate, targetNodeTemplate, templateContext);
+            handleConnectsTo(targetNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
+            handleConnectsTo(sourceNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
         }
 
         return true;
@@ -56,10 +56,11 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
      * Handles the execution of a connectsTo operation including start and stop of the node
      *
      * @param nodeTemplateForExecution  connectsTo logic is executed on this node template
-     * @param nodeTemplateForConnection the remote node template to which the connection gets established
+     * @param sourceNodeTemplate        node template of source node
+     * @param targetNodeTemplate        node template of target node
      * @param templateContext           the context of this operation call
      */
-    private void handleConnectsTo(TNodeTemplate nodeTemplateForExecution, TNodeTemplate nodeTemplateForConnection, BPELPlanContext templateContext) {
+    private void handleConnectsTo(TNodeTemplate nodeTemplateForExecution, TNodeTemplate sourceNodeTemplate, TNodeTemplate targetNodeTemplate, BPELPlanContext templateContext) {
         if (hasOperation(nodeTemplateForExecution, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO, templateContext.getCsar())) {
             // if we can stop and start the node, and it is not defined as non-interruptive, stop it
             if (!ModelUtils.hasInterface(nodeTemplateForExecution, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
@@ -71,7 +72,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             }
 
             // connectTo
-            executeConnectsTo(templateContext, nodeTemplateForExecution, nodeTemplateForConnection, nodeTemplateForExecution);
+            executeConnectsTo(templateContext, nodeTemplateForExecution, sourceNodeTemplate, targetNodeTemplate);
 
             // start the node again
             if (!ModelUtils.hasInterface(nodeTemplateForExecution, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
