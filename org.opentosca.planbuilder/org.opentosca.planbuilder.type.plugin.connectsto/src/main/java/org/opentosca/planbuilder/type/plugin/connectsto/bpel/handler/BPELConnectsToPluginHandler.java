@@ -40,14 +40,21 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         final TNodeTemplate sourceNodeTemplate = ModelUtils.getSource(relationTemplate, templateContext.getCsar());
         final TNodeTemplate targetNodeTemplate = ModelUtils.getTarget(relationTemplate, templateContext.getCsar());
 
-        if (checkExecution(templateContext.getCsar(), sourceNodeTemplate, ExecutionRole.SOURCE)) {
-            handleConnectsTo(sourceNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
-        } else if (checkExecution(templateContext.getCsar(), sourceNodeTemplate, ExecutionRole.TARGET)) {
-            handleConnectsTo(targetNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
-        } else {
-            handleConnectsTo(targetNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
-            handleConnectsTo(sourceNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
-        }
+        final boolean execOnSource = checkExecution(templateContext.getCsar(), sourceNodeTemplate, ExecutionRole.SOURCE);
+        final boolean execOnTarget = checkExecution(templateContext.getCsar(), targetNodeTemplate, ExecutionRole.TARGET);
+
+//        if (execOnTarget) {
+//            handleConnectsTo(targetNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
+//        }
+//        if (execOnSource) {
+//            handleConnectsTo(sourceNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
+//        }
+//        if (!(execOnSource || execOnTarget)) {
+//            handleConnectsTo(targetNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
+//            handleConnectsTo(sourceNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
+//        }
+        handleConnectsTo(targetNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
+        handleConnectsTo(sourceNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
 
         return true;
     }
@@ -55,10 +62,10 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
     /**
      * Handles the execution of a connectsTo operation including start and stop of the node
      *
-     * @param nodeTemplateForExecution  connectsTo logic is executed on this node template
-     * @param sourceNodeTemplate        node template of source node
-     * @param targetNodeTemplate        node template of target node
-     * @param templateContext           the context of this operation call
+     * @param nodeTemplateForExecution connectsTo logic is executed on this node template
+     * @param sourceNodeTemplate       node template of source node
+     * @param targetNodeTemplate       node template of target node
+     * @param templateContext          the context of this operation call
      */
     private void handleConnectsTo(TNodeTemplate nodeTemplateForExecution, TNodeTemplate sourceNodeTemplate, TNodeTemplate targetNodeTemplate, BPELPlanContext templateContext) {
         if (hasOperation(nodeTemplateForExecution, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO, templateContext.getCsar())) {
@@ -119,6 +126,36 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                         BPELConnectsToPluginHandler.LOG.warn("Didn't find necessary matchings from parameter to property. Can't initialize connectsTo relationship.");
                     } else {
                         // executable operation found
+                        BPELConnectsToPluginHandler.LOG.info("Source: " + sourceParameterNode.getName());
+                        BPELConnectsToPluginHandler.LOG.info("Target: " + targetParameterNode.getName());
+                        BPELConnectsToPluginHandler.LOG.info(iface.getName());
+                        if (iface.getName().matches(".*/source(/[^/]+)?$")) {
+                            BPELConnectsToPluginHandler.LOG.info("connectTo source defined");
+                            if (!connectToNode.equals(sourceParameterNode)){
+                                BPELConnectsToPluginHandler.LOG.info("source does not match");
+                                continue;
+                            }
+                            if (!iface.getName().endsWith("/source")) {
+                                final String targetTypeWithoutVersion = targetParameterNode.getType().getLocalPart().split("_")[0];
+                                if (!iface.getName().endsWith(targetTypeWithoutVersion)) {
+                                    continue;
+                                }
+                            }
+
+                        } else if (iface.getName().matches(".*/target(/[^/]+)?$")) {
+                            BPELConnectsToPluginHandler.LOG.info("connectTo target defined");
+                            if (!connectToNode.equals(targetParameterNode)){
+                                continue;
+                            }
+                            if (!iface.getName().endsWith("/target")) {
+                                final String sourceTypeWithoutVersion = sourceParameterNode.getType().getLocalPart().split("_")[0];
+                                if (!iface.getName().endsWith(sourceTypeWithoutVersion)) {
+                                    continue;
+                                }
+                            }
+
+                        }
+                        BPELConnectsToPluginHandler.LOG.info("Execute");
                         connectsToIface = iface;
                         connectsToOp = op;
                         break;
@@ -137,10 +174,10 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         }
 
         // execute the connectTo operation with the found parameters
-        BPELConnectsToPluginHandler.LOG.debug("Adding connectTo operation execution to build plan.");
+        BPELConnectsToPluginHandler.LOG.info("Adding connectTo operation execution to build plan.");
         final Boolean result = templateContext.executeOperation(connectToNode, connectsToIface.getName(),
             connectsToOp.getName(), param2propertyMapping);
-        BPELConnectsToPluginHandler.LOG.debug("Result from adding operation: " + result);
+        BPELConnectsToPluginHandler.LOG.info("Result from adding operation: " + result);
 
         return true;
     }
