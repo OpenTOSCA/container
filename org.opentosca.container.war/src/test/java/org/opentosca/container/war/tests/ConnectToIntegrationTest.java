@@ -43,7 +43,7 @@ public class ConnectToIntegrationTest {
 
     public static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-test-applications";
 
-    public QName csarId = QName.valueOf("{http://opentosca.org/test/applications/servicetemplates}ConnectTo-Test-Application_w1-wip1");
+    public QName csarId = QName.valueOf("{http://opentosca.org/test/applications/servicetemplates}ConnectTo-Test-Application_w1");
     @Inject
     public OpenToscaControlService control;
     @Inject

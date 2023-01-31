@@ -40,19 +40,6 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         final TNodeTemplate sourceNodeTemplate = ModelUtils.getSource(relationTemplate, templateContext.getCsar());
         final TNodeTemplate targetNodeTemplate = ModelUtils.getTarget(relationTemplate, templateContext.getCsar());
 
-        final boolean execOnSource = checkExecution(templateContext.getCsar(), sourceNodeTemplate, ExecutionRole.SOURCE);
-        final boolean execOnTarget = checkExecution(templateContext.getCsar(), targetNodeTemplate, ExecutionRole.TARGET);
-
-//        if (execOnTarget) {
-//            handleConnectsTo(targetNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
-//        }
-//        if (execOnSource) {
-//            handleConnectsTo(sourceNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
-//        }
-//        if (!(execOnSource || execOnTarget)) {
-//            handleConnectsTo(targetNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
-//            handleConnectsTo(sourceNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
-//        }
         handleConnectsTo(targetNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
         handleConnectsTo(sourceNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
 
@@ -126,36 +113,39 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                         BPELConnectsToPluginHandler.LOG.warn("Didn't find necessary matchings from parameter to property. Can't initialize connectsTo relationship.");
                     } else {
                         // executable operation found
-                        BPELConnectsToPluginHandler.LOG.info("Source: " + sourceParameterNode.getName());
-                        BPELConnectsToPluginHandler.LOG.info("Target: " + targetParameterNode.getName());
-                        BPELConnectsToPluginHandler.LOG.info(iface.getName());
+                        BPELConnectsToPluginHandler.LOG.debug("Source: " + sourceParameterNode.getName());
+                        BPELConnectsToPluginHandler.LOG.debug("Target: " + targetParameterNode.getName());
+                        BPELConnectsToPluginHandler.LOG.debug(iface.getName());
                         if (iface.getName().matches(".*/source(/[^/]+)?$")) {
-                            BPELConnectsToPluginHandler.LOG.info("connectTo source defined");
+                            BPELConnectsToPluginHandler.LOG.debug("connectTo source defined");
                             if (!connectToNode.equals(sourceParameterNode)){
-                                BPELConnectsToPluginHandler.LOG.info("source does not match");
+                                BPELConnectsToPluginHandler.LOG.debug("source does not match");
                                 continue;
                             }
                             if (!iface.getName().endsWith("/source")) {
                                 final String targetTypeWithoutVersion = targetParameterNode.getType().getLocalPart().split("_")[0];
                                 if (!iface.getName().endsWith(targetTypeWithoutVersion)) {
+                                    BPELConnectsToPluginHandler.LOG.debug("target type does not match");
                                     continue;
                                 }
                             }
 
                         } else if (iface.getName().matches(".*/target(/[^/]+)?$")) {
-                            BPELConnectsToPluginHandler.LOG.info("connectTo target defined");
+                            BPELConnectsToPluginHandler.LOG.debug("connectTo target defined");
                             if (!connectToNode.equals(targetParameterNode)){
+                                BPELConnectsToPluginHandler.LOG.debug("target does not match");
                                 continue;
                             }
                             if (!iface.getName().endsWith("/target")) {
                                 final String sourceTypeWithoutVersion = sourceParameterNode.getType().getLocalPart().split("_")[0];
                                 if (!iface.getName().endsWith(sourceTypeWithoutVersion)) {
+                                    BPELConnectsToPluginHandler.LOG.debug("source type does not match");
                                     continue;
                                 }
                             }
 
                         }
-                        BPELConnectsToPluginHandler.LOG.info("Execute");
+                        BPELConnectsToPluginHandler.LOG.debug("Execute");
                         connectsToIface = iface;
                         connectsToOp = op;
                         break;
@@ -174,10 +164,10 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         }
 
         // execute the connectTo operation with the found parameters
-        BPELConnectsToPluginHandler.LOG.info("Adding connectTo operation execution to build plan.");
+        BPELConnectsToPluginHandler.LOG.debug("Adding connectTo operation execution to build plan.");
         final Boolean result = templateContext.executeOperation(connectToNode, connectsToIface.getName(),
             connectsToOp.getName(), param2propertyMapping);
-        BPELConnectsToPluginHandler.LOG.info("Result from adding operation: " + result);
+        BPELConnectsToPluginHandler.LOG.debug("Result from adding operation: " + result);
 
         return true;
     }
@@ -446,40 +436,5 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             }
         }
         return true;
-    }
-
-    /**
-     * Checks if the execution for a specific node type is restricted to source or target
-     *
-     * @param csar         CSAR
-     * @param nodeTemplate node template for which the execution should be checked
-     * @param execRole     role of the node template, either source or target
-     * @return true if connectsTo should be executed on the node template in the specific role
-     */
-    private boolean checkExecution(Csar csar, TNodeTemplate nodeTemplate, ExecutionRole execRole) {
-        List<TInterface> interfaces = ModelUtils.findNodeType(nodeTemplate, csar).getInterfaces();
-        if (interfaces == null) return false;
-        return interfaces.stream()
-            .filter(iface -> iface.getOperations()
-                .stream()
-                .anyMatch(op -> op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO)))
-            .map(TInterface::getName)
-            .filter(ifaceName -> ifaceName.endsWith(execRole.getRole() + "/" + nodeTemplate.getType().getLocalPart().split("_")[0]))
-            .toList().size() > 0;
-    }
-
-    private enum ExecutionRole {
-        TARGET("target"),
-        SOURCE("source");
-
-        private final String execRole;
-
-        ExecutionRole(String execRole) {
-            this.execRole = execRole;
-        }
-
-        public String getRole() {
-            return execRole;
-        }
     }
 }
