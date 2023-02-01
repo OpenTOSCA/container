@@ -118,7 +118,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                         BPELConnectsToPluginHandler.LOG.debug(iface.getName());
                         if (iface.getName().matches(".*/source(/[^/]+)?$")) {
                             BPELConnectsToPluginHandler.LOG.debug("connectTo source defined");
-                            if (!connectToNode.equals(sourceParameterNode)){
+                            if (!connectToNode.equals(sourceParameterNode)) {
                                 BPELConnectsToPluginHandler.LOG.debug("source does not match");
                                 continue;
                             }
@@ -129,10 +129,9 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                                     continue;
                                 }
                             }
-
                         } else if (iface.getName().matches(".*/target(/[^/]+)?$")) {
                             BPELConnectsToPluginHandler.LOG.debug("connectTo target defined");
-                            if (!connectToNode.equals(targetParameterNode)){
+                            if (!connectToNode.equals(targetParameterNode)) {
                                 BPELConnectsToPluginHandler.LOG.debug("target does not match");
                                 continue;
                             }
@@ -143,7 +142,6 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                                     continue;
                                 }
                             }
-
                         }
                         BPELConnectsToPluginHandler.LOG.debug("Execute");
                         connectsToIface = iface;
