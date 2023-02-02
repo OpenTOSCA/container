@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.eclipse.winery.common.version.VersionUtils;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
@@ -123,7 +124,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                                 continue;
                             }
                             if (!iface.getName().endsWith("/source")) {
-                                final String targetTypeWithoutVersion = targetParameterNode.getType().getLocalPart().split("_")[0];
+                                final String targetTypeWithoutVersion = VersionUtils.getNameWithoutVersion(targetParameterNode.getType().getLocalPart());
                                 if (!iface.getName().endsWith(targetTypeWithoutVersion)) {
                                     BPELConnectsToPluginHandler.LOG.debug("target type does not match");
                                     continue;
@@ -136,7 +137,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                                 continue;
                             }
                             if (!iface.getName().endsWith("/target")) {
-                                final String sourceTypeWithoutVersion = sourceParameterNode.getType().getLocalPart().split("_")[0];
+                                final String sourceTypeWithoutVersion = VersionUtils.getNameWithoutVersion(sourceParameterNode.getType().getLocalPart());
                                 if (!iface.getName().endsWith(sourceTypeWithoutVersion)) {
                                     BPELConnectsToPluginHandler.LOG.debug("source type does not match");
                                     continue;
