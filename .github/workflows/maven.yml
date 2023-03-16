@@ -38,6 +38,7 @@ jobs:
         test:
           - AdaptMultiMyTinyToDoIntegrationTest
           - ApacheWebAppIntegrationTest
+          - ConnectToIntegrationTest
           - MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest
           - MultiMyTinyToDoIntegrationTest
           - MyTinyToDoBPMNIntegrationTest
