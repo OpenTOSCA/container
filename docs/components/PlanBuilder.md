@@ -91,3 +91,13 @@ Additionally, if the connectTo operation is under an interface with name http://
 1. If B has a start or stop operation under a lifecycle interface, before calling the connectTo operation the stop operation on B is called and after the connectTo operation the start operation is called.
 2. If A has a start or stop operation under a lifecycle interface, before calling the connectTo operation the stop operation on B is called and after the connectTo operation the start operation is called.
 
+## Naming convention
+
+To circumvent that the `ConnectTo` operation is invoked multiple times on a target node if it connects to another node as a source node use the following naming convention where `{type_without_version}` is considered to be the only `name/id` without double encoding:
+
+1. Whenever the node is the source node: `http://opentosca.org/interfaces/connections/source/{type_without_version}`
+2. Whenever the node is the target node: `http://opentosca.org/interfaces/connections/target/{type_without_version}`
+
+
+It is the recommended way to use the connectsTo operation as it also prevents error when the source node has multiple connectsTo with the same properties.
+
