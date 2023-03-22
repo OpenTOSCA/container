@@ -35,7 +35,7 @@ jobs:
   tests:
     strategy:
       matrix:
-        test: # TODO: reenable tests
+        test: [] # TODO: reenable tests
           # - AdaptMultiMyTinyToDoIntegrationTest
           # - ApacheWebAppIntegrationTest
           # - ConnectToIntegrationTest
