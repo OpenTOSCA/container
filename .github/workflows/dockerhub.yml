@@ -38,7 +38,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push
-        if: ${{ steps.vars.outputs.tag == 'master' }}
+        if: ${{ github.ref == 'refs/heads/master' }}
         uses: docker/build-push-action@v4
         with:
           context: .

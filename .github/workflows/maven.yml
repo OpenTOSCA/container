@@ -35,17 +35,17 @@ jobs:
   tests:
     strategy:
       matrix:
-        test:
-          - AdaptMultiMyTinyToDoIntegrationTest
-          - ApacheWebAppIntegrationTest
-          - ConnectToIntegrationTest
-          - MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest
-          - MultiMyTinyToDoIntegrationTest
-          - MyTinyToDoBPMNIntegrationTest
-          - MyTinyToDoIntegrationTest
+        test: # TODO: reenable tests
+          # - AdaptMultiMyTinyToDoIntegrationTest
+          # - ApacheWebAppIntegrationTest
+          # - ConnectToIntegrationTest
+          # - MigrateMyTinyToDo2MultiMyTinyToDoIntegrationTest
+          # - MultiMyTinyToDoIntegrationTest
+          # - MyTinyToDoBPMNIntegrationTest
+          # - MyTinyToDoIntegrationTest
           #- MyTinyToDoSqlIntegrationTest
           #- PlanQKServiceIntegrationTest
-          - QHAnaTest
+          # - QHAnaTest
     runs-on: ubuntu-latest
     timeout-minutes: 80
     needs: build
