@@ -1,8 +1,13 @@
-# This workflow will build the Container and push a corresponding Docker image to Dockerhub
-name: Push stable docker image to Dockerhub
+# This workflow will build the Container and push a corresponding Docker image to the GitHub registry
+name: Push docker image to the GitHub registry
 
 on:
-  push:
+  workflow_run:
+    workflows:
+      - Java CI with Maven
+    branches: [master]
+    types:
+      - completed
     tags:
       - "v*.*.*"
 
@@ -12,6 +17,7 @@ env:
 
 jobs:
   multi:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,8 +37,8 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build and push
+        if: ${{ github.ref == 'refs/heads/master' }}
         uses: docker/build-push-action@v4
         with:
           context: .
