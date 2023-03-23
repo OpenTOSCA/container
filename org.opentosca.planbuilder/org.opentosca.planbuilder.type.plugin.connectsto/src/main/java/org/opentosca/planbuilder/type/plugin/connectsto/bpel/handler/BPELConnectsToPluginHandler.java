@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.eclipse.winery.common.version.VersionUtils;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
@@ -40,56 +41,43 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         final TNodeTemplate sourceNodeTemplate = ModelUtils.getSource(relationTemplate, templateContext.getCsar());
         final TNodeTemplate targetNodeTemplate = ModelUtils.getTarget(relationTemplate, templateContext.getCsar());
 
-        // if the target has connectTo we execute it
-        if (hasOperation(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO, templateContext.getCsar())) {
-            // if we can stop and start the node, and it is not defined as non-interruptive, stop it
-            if (!ModelUtils.hasInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
-                && startAndStopAvailable(targetNodeTemplate, templateContext.getCsar())) {
-                final String ifaceName =
-                    getInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, templateContext.getCsar());
-                templateContext.executeOperation(targetNodeTemplate, ifaceName,
-                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, null);
-            }
-
-            // connectTo
-            executeConnectsTo(templateContext, targetNodeTemplate, sourceNodeTemplate, targetNodeTemplate);
-
-            // start the node again
-            if (!ModelUtils.hasInterface(targetNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
-                && startAndStopAvailable(targetNodeTemplate, templateContext.getCsar())) {
-                templateContext.executeOperation(targetNodeTemplate,
-                    getInterface(targetNodeTemplate,
-                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, templateContext.getCsar()),
-                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, null);
-            }
-        }
-
-        // if the source has connectTo we execute it
-        if (hasOperation(sourceNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO, templateContext.getCsar())) {
-
-            // if we can stop and start the node and it is not defined as non interruptive, stop it
-            if (!ModelUtils.hasInterface(sourceNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
-                && startAndStopAvailable(sourceNodeTemplate, templateContext.getCsar())) {
-                templateContext.executeOperation(sourceNodeTemplate,
-                    getInterface(sourceNodeTemplate,
-                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, templateContext.getCsar()),
-                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, null);
-            }
-
-            // connectTo
-            executeConnectsTo(templateContext, sourceNodeTemplate, sourceNodeTemplate, targetNodeTemplate);
-
-            // start the node again
-            if (!ModelUtils.hasInterface(sourceNodeTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
-                && startAndStopAvailable(sourceNodeTemplate, templateContext.getCsar())) {
-                templateContext.executeOperation(sourceNodeTemplate,
-                    getInterface(sourceNodeTemplate,
-                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, templateContext.getCsar()),
-                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, null);
-            }
-        }
+        handleConnectsTo(targetNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
+        handleConnectsTo(sourceNodeTemplate, sourceNodeTemplate, targetNodeTemplate, templateContext);
 
         return true;
+    }
+
+    /**
+     * Handles the execution of a connectsTo operation including start and stop of the node
+     *
+     * @param nodeTemplateForExecution connectsTo logic is executed on this node template
+     * @param sourceNodeTemplate       node template of source node
+     * @param targetNodeTemplate       node template of target node
+     * @param templateContext          the context of this operation call
+     */
+    private void handleConnectsTo(TNodeTemplate nodeTemplateForExecution, TNodeTemplate sourceNodeTemplate, TNodeTemplate targetNodeTemplate, BPELPlanContext templateContext) {
+        if (hasOperation(nodeTemplateForExecution, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO, templateContext.getCsar())) {
+            // if we can stop and start the node, and it is not defined as non-interruptive, stop it
+            if (!ModelUtils.hasInterface(nodeTemplateForExecution, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
+                && startAndStopAvailable(nodeTemplateForExecution, templateContext.getCsar())) {
+                final String ifaceName =
+                    getInterface(nodeTemplateForExecution, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, templateContext.getCsar());
+                templateContext.executeOperation(nodeTemplateForExecution, ifaceName,
+                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_STOP, null);
+            }
+
+            // connectTo
+            executeConnectsTo(templateContext, nodeTemplateForExecution, sourceNodeTemplate, targetNodeTemplate);
+
+            // start the node again
+            if (!ModelUtils.hasInterface(nodeTemplateForExecution, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_NON_INTERRUPTIVE, templateContext.getCsar())
+                && startAndStopAvailable(nodeTemplateForExecution, templateContext.getCsar())) {
+                templateContext.executeOperation(nodeTemplateForExecution,
+                    getInterface(nodeTemplateForExecution,
+                        Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, templateContext.getCsar()),
+                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_LIFECYCLE_START, null);
+            }
+        }
     }
 
     /**
@@ -126,6 +114,37 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                         BPELConnectsToPluginHandler.LOG.warn("Didn't find necessary matchings from parameter to property. Can't initialize connectsTo relationship.");
                     } else {
                         // executable operation found
+                        BPELConnectsToPluginHandler.LOG.debug("Source: " + sourceParameterNode.getName());
+                        BPELConnectsToPluginHandler.LOG.debug("Target: " + targetParameterNode.getName());
+                        BPELConnectsToPluginHandler.LOG.debug(iface.getName());
+                        if (iface.getName().matches(".*/source(/[^/]+)?$")) {
+                            BPELConnectsToPluginHandler.LOG.debug("connectTo source defined");
+                            if (!connectToNode.equals(sourceParameterNode)) {
+                                BPELConnectsToPluginHandler.LOG.debug("source does not match");
+                                continue;
+                            }
+                            if (!iface.getName().endsWith("/source")) {
+                                final String targetTypeWithoutVersion = VersionUtils.getNameWithoutVersion(targetParameterNode.getType().getLocalPart());
+                                if (!iface.getName().endsWith(targetTypeWithoutVersion)) {
+                                    BPELConnectsToPluginHandler.LOG.debug("target type does not match");
+                                    continue;
+                                }
+                            }
+                        } else if (iface.getName().matches(".*/target(/[^/]+)?$")) {
+                            BPELConnectsToPluginHandler.LOG.debug("connectTo target defined");
+                            if (!connectToNode.equals(targetParameterNode)) {
+                                BPELConnectsToPluginHandler.LOG.debug("target does not match");
+                                continue;
+                            }
+                            if (!iface.getName().endsWith("/target")) {
+                                final String sourceTypeWithoutVersion = VersionUtils.getNameWithoutVersion(sourceParameterNode.getType().getLocalPart());
+                                if (!iface.getName().endsWith(sourceTypeWithoutVersion)) {
+                                    BPELConnectsToPluginHandler.LOG.debug("source type does not match");
+                                    continue;
+                                }
+                            }
+                        }
+                        BPELConnectsToPluginHandler.LOG.debug("Execute");
                         connectsToIface = iface;
                         connectsToOp = op;
                         break;
