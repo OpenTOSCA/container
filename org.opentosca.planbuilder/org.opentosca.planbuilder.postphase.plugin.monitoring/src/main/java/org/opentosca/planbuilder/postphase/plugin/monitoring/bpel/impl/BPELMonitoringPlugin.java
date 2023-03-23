@@ -115,7 +115,7 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
                 } else if (Utils.isSupportedSSHKeyProperty(propName)) {
                     sshKeyVar = context.getPropertyVariable(propName);
                     propMatchCount++;
-                } else if (Utils.isSupportedSSHUserPropery(propName)) {
+                } else if (Utils.isSupportedSSHUserProperty(propName)) {
                     sshUserVar = context.getPropertyVariable(propName);
                     propMatchCount++;
                 }

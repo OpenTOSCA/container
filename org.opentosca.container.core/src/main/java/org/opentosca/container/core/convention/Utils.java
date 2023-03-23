@@ -56,7 +56,7 @@ public class Utils {
         return Utils.loginPasswordPropertyNames;
     }
 
-    public static boolean isSupportedSSHUserPropery(final String name) {
+    public static boolean isSupportedSSHUserProperty(final String name) {
         return getSupportedVirtualMachineLoginUserNamePropertyNames().contains(name);
     }
 
@@ -75,6 +75,12 @@ public class Utils {
             || name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP)
             || name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_CONTAINERIP)
             || name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP);
+    }
+
+    public static boolean isSupportedProperty(String name) {
+        return isSupportedVirtualMachineIPProperty(name)
+            || isSupportedSSHKeyProperty(name)
+            || isSupportedSSHUserProperty(name);
     }
 
     /**
@@ -249,13 +255,15 @@ public class Utils {
             .equalsIgnoreCase(Types.planQKPlatformNodeType.getLocalPart());
     }
 
-    public static boolean isSupportedPlattformPatternNodeType(final QName nodeTypeId, Csar csar) {
+    public static boolean isSupportedPlatformPatternNodeType(final QName nodeTypeId, Csar csar) {
         TNodeType nodeType = ModelUtils.findNodeType(nodeTypeId, csar);
-        for (TInterface iface : nodeType.getInterfaces()) {
-            if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN)) {
-                for (TOperation operation : iface.getOperations()) {
-                    if (operation.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_CREATE)) {
-                        return true;
+        if (nodeType.getInterfaces() != null) {
+            for (TInterface anInterface : nodeType.getInterfaces()) {
+                if (anInterface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN)) {
+                    for (TOperation operation : anInterface.getOperations()) {
+                        if (operation.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_CREATE)) {
+                            return true;
+                        }
                     }
                 }
             }

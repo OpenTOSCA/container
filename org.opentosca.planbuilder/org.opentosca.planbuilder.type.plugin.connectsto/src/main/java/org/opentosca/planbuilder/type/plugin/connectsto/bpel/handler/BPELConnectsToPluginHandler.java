@@ -157,7 +157,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
      * convention: 1. check if there is a property with the same name as the parameter on the node having the connectTo
      * operation 2. if not 1. then look for the property on the opposite stack of the connectTo operation first (if op
      * on source then look on target stack and so on) 3. if not 2. then look for the property on its own stack (if op on
-     * soruce then look on source stack)
+     * source then look on source stack)
      *
      * @param templateContext       the plan context
      * @param connectToNode         the node on which we want to call connectTo
@@ -397,7 +397,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             return false;
         } else {
             return nodeType.getInterfaces().stream().flatMap(inter -> inter.getOperations().stream())
-                .filter(op -> op.getName().equals(operationName)).findFirst().isPresent();
+                .anyMatch(op -> op.getName().equals(operationName));
         }
     }
 

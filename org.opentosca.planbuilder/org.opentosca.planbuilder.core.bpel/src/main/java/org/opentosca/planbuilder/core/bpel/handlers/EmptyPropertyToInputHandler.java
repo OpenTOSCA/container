@@ -43,7 +43,7 @@ public class EmptyPropertyToInputHandler {
      * @param var           the variable to assign the value to
      * @param context       a context for the manipulation
      */
-    private void addToPlanInput(final BPELPlan buildPlan, final String propLocalName, final Variable var,
+    public void addToPlanInput(final BPELPlan buildPlan, final String propLocalName, final Variable var,
                                 final BPELPlanContext context) {
 
         // add to input
@@ -64,7 +64,7 @@ public class EmptyPropertyToInputHandler {
     }
 
     /**
-     * Appends the given node the the main sequence of the buildPlan this context belongs to
+     * Appends the given node the main sequence of the buildPlan this context belongs to
      *
      * @param node a XML DOM Node
      * @return true if adding the node to the main sequence was successfull

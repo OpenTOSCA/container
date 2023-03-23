@@ -19,6 +19,7 @@ import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 import org.opentosca.container.core.convention.Interfaces;
+import org.opentosca.container.core.convention.Utils;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.PlanType;
@@ -29,6 +30,7 @@ import org.opentosca.planbuilder.core.bpel.handlers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.CorrelationIDInitializer;
 import org.opentosca.planbuilder.core.bpel.handlers.DeployTechDescriptorHandler;
+import org.opentosca.planbuilder.core.bpel.handlers.EmptyPropertyToInputHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.PropertyVariableHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.SimplePlanBuilderServiceInstanceHandler;
@@ -242,34 +244,60 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
                         final Map<TParameter, Variable> inputMapping = new HashMap<>();
                         final Map<TParameter, Variable> outputMapping = new HashMap<>();
 
-                        // search for input parameters
-                        LOG.debug("Test {} on NodeTemplate {} needs the following input parameters:",
-                            testOperation.getName(), nodeTemplate.getName());
-                        for (final TParameter param : testOperation.getInputParameters()) {
-                            LOG.debug("Input param: {}", param.getName());
-                            boolean found = false;
-                            // search in deployment technology descriptors
-                            Optional<PropertyVariable> var = descriptorMap.getVariableByNodeAndProp(nodeTemplate, param.getName());
-                            if (var.isPresent()) {
-                                inputMapping.put(param, var.get());
-                                LOG.debug("Found variable |{}|", var.get().getVariableName());
-                                found = true;
-                            }
-                            // search in the topology stack
-                            for (int i = 0; i < nodesForMatching.size() && !found; i++) {
-                                TNodeTemplate nodeForMatching = nodesForMatching.get(i);
-                                for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
-                                    if (param.getName().equals(propName)) {
-                                        PropertyVariable propVar = context.getPropertyVariable(nodeForMatching, propName);
-                                        inputMapping.put(param, propVar);
-                                        LOG.debug("Found variable |{}|", propVar.getVariableName());
-                                        found = true;
-                                        break;
+                        if (testOperation.getInputParameters() != null) {
+                            // search for input parameters
+                            LOG.debug("Test {} on NodeTemplate {} needs the following input parameters:",
+                                testOperation.getName(), nodeTemplate.getName());
+                            for (final TParameter param : testOperation.getInputParameters()) {
+                                LOG.debug("Input param: {}", param.getName());
+                                boolean found = false;
+                                // search in deployment technology descriptors
+                                Optional<PropertyVariable> var = descriptorMap.getVariableByNodeAndProp(nodeTemplate, param.getName());
+                                if (var.isPresent()) {
+                                    inputMapping.put(param, var.get());
+                                    LOG.debug("Found variable |{}|", var.get().getVariableName());
+                                    found = true;
+                                }
+                                // search in the topology stack
+                                for (int i = 0; i < nodesForMatching.size() && !found; i++) {
+                                    TNodeTemplate nodeForMatching = nodesForMatching.get(i);
+                                    for (final String propName : ModelUtils.getPropertyNames(nodeForMatching)) {
+                                        if (param.getName().equals(propName)) {
+                                            PropertyVariable propVar = context.getPropertyVariable(nodeForMatching, propName);
+                                            inputMapping.put(param, propVar);
+                                            LOG.debug("Found variable |{}|", propVar.getVariableName());
+                                            found = true;
+                                            break;
+                                        }
                                     }
                                 }
+
+                                if (param.getRequired() && (
+                                    (!found && !Utils.isSupportedProperty(param.getName())) // we assume, the bus finds the correct prop
+                                        ||
+                                        (found && inputMapping.get(param) instanceof PropertyVariable propertyVariable
+                                            && (propertyVariable.getContent() == null || propertyVariable.getContent().isBlank()))
+                                )) {
+                                    String inputPropertyName = nodeTemplate.getId() + "-" + param.getName();
+                                    String inputPropertyVarName = this.planHandler.addGlobalStringVariable(inputPropertyName, testPlan);
+
+                                    Variable bpelVar = BPELPlanContext.getVariable(inputPropertyVarName);
+                                    inputMapping.put(param, bpelVar);
+
+                                    new EmptyPropertyToInputHandler(null)
+                                        .addToPlanInput(testPlan, inputPropertyName, bpelVar, context);
+                                }
                             }
+                        } else {
+                            LOG.debug("Test {} on NodeTemplate {} does not need input parameters!",
+                                testOperation.getName(), nodeTemplate.getName());
                         }
 
+                        if (testOperation.getOutputParameters() == null) {
+                            LOG.error("Test {} on NodeTemplate {} does not define output parameters! Cannot proceed...",
+                                testOperation.getName(), nodeTemplate.getName());
+                            return;
+                        }
                         // create output variable if 'Result' is defined as output parameter
                         final Optional<TParameter> optional =
                             testOperation.getOutputParameters().stream()
@@ -290,7 +318,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
 
                             // add result to the plan output message
                             final String outputName =
-                                "Tests-" + nodeTemplate.getName() + "-" + testOperation.getName() + "-result";
+                                "Tests-" + nodeTemplate.getName() + "-" + testOperation.getName() + "-Result";
                             this.planHandler.addStringElementToPlanResponse(outputName, testPlan);
                             this.planHandler.assginOutputWithVariableValue(resultVarName, outputName, testPlan);
                         } else {
