@@ -11,10 +11,16 @@ import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TOperation;
 
+import org.opentosca.container.core.common.NotFoundException;
+import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Utils {
+
+    private  static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
     private static final List<String> ipPropertyNames;
     private static final List<String> instanceIdPropertyNames;
@@ -257,17 +263,27 @@ public class Utils {
 
     public static boolean isSupportedPlatformPatternNodeType(final QName nodeTypeId, Csar csar) {
         TNodeType nodeType = ModelUtils.findNodeType(nodeTypeId, csar);
-        if (nodeType.getInterfaces() != null) {
-            for (TInterface anInterface : nodeType.getInterfaces()) {
-                if (anInterface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN)) {
-                    for (TOperation operation : anInterface.getOperations()) {
-                        if (operation.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_CREATE)) {
-                            return true;
+        try {
+            return ToscaEngine.resolveNodeTypeHierarchy(csar, nodeType).stream()
+                .anyMatch(type -> {
+                    if (nodeType.getInterfaces() != null) {
+                        for (TInterface anInterface : nodeType.getInterfaces()) {
+                            if (anInterface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN)) {
+                                for (TOperation operation : anInterface.getOperations()) {
+                                    if (operation.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONTAINERPATTERN_CREATE)) {
+                                        return true;
+                                    }
+                                }
+                            }
                         }
                     }
-                }
-            }
+
+                    return false;
+                });
+        } catch (NotFoundException e) {
+            LOGGER.error("Could not find Node Type...!", e);
         }
+
         return false;
     }
 }

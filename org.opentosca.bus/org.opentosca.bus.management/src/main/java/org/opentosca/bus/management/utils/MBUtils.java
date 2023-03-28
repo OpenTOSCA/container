@@ -461,7 +461,8 @@ public class MBUtils {
                 continue;
             }
             final TNodeType currentNodeType = ToscaEngine.resolveNodeType(csar, current);
-            if (isOperatingSystemNodeType(csar, currentNodeType)) {
+            if (ToscaEngine.resolveNodeTypeHierarchy(csar, currentNodeType).stream()
+                .anyMatch(type -> isOperatingSystemNodeType(csar, type))) {
                 // just return the first result if we don't need to check for a node instance
                 if (!mustHaveNodeInstance) {
                     return current;

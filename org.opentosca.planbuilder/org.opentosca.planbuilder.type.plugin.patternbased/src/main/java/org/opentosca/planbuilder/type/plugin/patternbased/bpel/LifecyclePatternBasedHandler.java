@@ -9,11 +9,14 @@ import java.util.Set;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.eclipse.winery.model.tosca.TInterface;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.eclipse.winery.model.tosca.TOperation;
 
+import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.convention.Interfaces;
 import org.opentosca.container.core.convention.Types;
+import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
@@ -112,18 +115,24 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
         boolean foundRunScript = false;
         boolean foundTransferFile = false;
         for (TNodeTemplate node : nodeTemplates) {
-            List<TInterface> interfaces = ModelUtils.findNodeType(node, csar).getInterfaces();
-            if (interfaces != null) {
-                for (TInterface iface : interfaces) {
-                    for (TOperation op : iface.getOperations()) {
-                        if (op.getName().equals("runScript")) {
-                            foundRunScript = true;
-                        }
-                        if (op.getName().equals("transferFile")) {
-                            foundTransferFile = true;
+            try {
+                for (TNodeType nodeType : ToscaEngine.resolveNodeTypeHierarchy(csar, ModelUtils.findNodeType(node, csar))) {
+                    List<TInterface> interfaces = nodeType.getInterfaces();
+                    if (interfaces != null) {
+                        for (TInterface iface : interfaces) {
+                            for (TOperation op : iface.getOperations()) {
+                                if (op.getName().equals("runScript")) {
+                                    foundRunScript = true;
+                                }
+                                if (op.getName().equals("transferFile")) {
+                                    foundTransferFile = true;
+                                }
+                            }
                         }
                     }
                 }
+            } catch (NotFoundException e) {
+                throw new RuntimeException(e);
             }
         }
 
