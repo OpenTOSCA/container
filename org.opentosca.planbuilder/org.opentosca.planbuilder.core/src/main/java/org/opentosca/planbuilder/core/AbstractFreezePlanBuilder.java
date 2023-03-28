@@ -30,7 +30,8 @@ import org.opentosca.planbuilder.model.plan.RelationshipTemplateActivity;
 
 public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilder {
 
-    QName statefulComponentPolicy = new QName("http://opentosca.org/management/features/policytypes", "StatefulComponent");
+    QName statefulComponentPolicyLegacy = new QName("http://opentosca.org/management/features/policytypes", "StatefulComponent");
+    QName statefulComponentPolicy = QName.valueOf("{https://patternpedia.org/patternLanguages/cloudComputingPatterns}Stateful-Component");
     QName freezableComponentPolicy = new QName("http://opentosca.org/management/features/policytypes", "FreezableComponent");
 
     public AbstractFreezePlanBuilder(PluginRegistry pluginRegistry) {
@@ -93,7 +94,8 @@ public abstract class AbstractFreezePlanBuilder extends AbstractSimplePlanBuilde
     }
 
     protected boolean hasStatefulComponentPolicy(final TNodeTemplate nodeTemplate) {
-        return hasPolicy(nodeTemplate, this.statefulComponentPolicy);
+        return hasPolicy(nodeTemplate, this.statefulComponentPolicy)
+            || hasPolicy(nodeTemplate, this.statefulComponentPolicyLegacy);
     }
 
     protected boolean hasFreezableComponentPolicy(final TNodeTemplate nodeTemplate) {

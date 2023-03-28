@@ -184,7 +184,7 @@ public class RequestProcessor implements Processor {
                     });
                 }
 
-                if (Utils.isSupportedPlattformPatternNodeType(nodeTemplate.getType(), csar)) {
+                if (Utils.isSupportedPlatformPatternNodeType(nodeTemplate.getType(), csar)) {
                     Collection<TNodeTemplate> appNodes = ModelUtils.getIngoingRelations(nodeTemplate, csar).stream()
                         .filter(r -> r.getType().equals(Types.hostedOnRelationType))
                         .map(r -> (TNodeTemplate) r.getSourceElement().getRef()).collect(Collectors.toList());
