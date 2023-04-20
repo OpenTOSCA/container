@@ -266,9 +266,11 @@ public class BPELBackupManagementProcessBuilder extends AbstractManagementFeatur
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar) {
         LOG.debug("Building the Backup Management Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
+        TDefinitions definitions = csar.entryDefinitions();
+
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
             if (containsManagementInterface(serviceTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_STATE, csar)) {

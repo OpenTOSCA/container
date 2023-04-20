@@ -188,8 +188,10 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
      * org.opentosca.planbuilder.model.tosca.TDefinitions)
      */
     @Override
-    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar) {
         final List<AbstractPlan> plans = new ArrayList<>();
+        TDefinitions definitions = csar.entryDefinitions();
+
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
             if (ModelUtils.findServiceTemplateOperation(definitions, OpenTOSCA_LifecycleInterface, OpenTOSCA_TerminationPlanOperation) == null) {

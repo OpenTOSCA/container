@@ -20,9 +20,13 @@ import org.opentosca.container.core.engine.ToscaEngine;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 public class LifecyclePatternBasedHandler extends PatternBasedHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LifecyclePatternBasedHandler.class);
 
     public boolean handleCreate(final BPELPlanContext context, final TNodeTemplate nodeTemplate, Element elementToAppendTo) {
 
@@ -132,7 +136,7 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
                     }
                 }
             } catch (NotFoundException e) {
-                throw new RuntimeException(e);
+                LOGGER.error("Error while reading Node Type Hierarchy...", e);
             }
         }
 

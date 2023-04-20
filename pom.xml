@@ -26,7 +26,7 @@
         <springboot.version>2.5.12</springboot.version>
         <swagger.version>1.5.24</swagger.version>
         <tomcat.version>9.0.43</tomcat.version>
-        <winery.version>ustutt-SNAPSHOT</winery.version>
+        <winery.version>patternBasedModeling-0ee97f7bee-1</winery.version>
         <winery.groupid>com.github.opentosca.winery</winery.groupid>
         <!--
             If you need to debug/fix something in regards to winery you can debug your changes in the following way:

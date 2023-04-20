@@ -192,9 +192,11 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar) {
         LOG.debug("Building the Test Management Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
+        TDefinitions definitions = csar.entryDefinitions();
+
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
             if (containsManagementInterface(serviceTemplate, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_TEST, csar)) {
@@ -330,7 +332,7 @@ public class BPELTestManagementProcessBuilder extends AbstractManagementFeatureP
                             testOperation.getName(), inputMapping, outputMapping);
                     }
                 } else {
-                    LOG.error("Unable to find test interface for NodeTemplate {}", nodeTemplate.getName());
+                    LOG.warn("Unable to find test interface for NodeTemplate \"{}\"", nodeTemplate.getId());
                 }
             } else if (bpelScope.getRelationshipTemplate() != null) {
                 // handling relationshiptemplate

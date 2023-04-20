@@ -155,10 +155,8 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
 
         try {
             appendGenerateStatefulServiceTemplateLogic(newFreezePlan);
-        } catch (final IOException e) {
-            e.printStackTrace();
-        } catch (final SAXException e) {
-            e.printStackTrace();
+        } catch (final IOException | SAXException e) {
+            LOG.error("Could no generate StatefulServiceTemplateLogic", e);
         }
 
         runPlugins(newFreezePlan, propMap, csar);
@@ -194,9 +192,11 @@ public class BPELFreezeProcessBuilder extends AbstractFreezePlanBuilder {
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar) {
         LOG.debug("Building the Freeze Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
+        TDefinitions definitions = csar.entryDefinitions();
+
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
             if (!this.isStateful(serviceTemplate, csar)) {
                 continue;

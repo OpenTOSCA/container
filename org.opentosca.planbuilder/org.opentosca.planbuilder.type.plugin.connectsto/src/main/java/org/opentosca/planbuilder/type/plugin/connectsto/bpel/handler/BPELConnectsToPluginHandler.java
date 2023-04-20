@@ -104,47 +104,48 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                 if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CONNECT_CONNECTTO)) {
                     // find properties that match the params on the target nodes' stack or prefixed
                     // properties at the source stack
-                    BPELConnectsToPluginHandler.LOG.debug("Found connectTo operation. Searching for matching parameters in the properties.");
+                    LOG.debug("Found connectTo operation. Searching for matching parameters in the properties.");
                     param2propertyMapping = findInputParameters(templateContext, op, connectToNode, sourceParameterNode,
                         targetParameterNode);
 
                     // check if all input params (or at least all required input params) can be matched with properties
                     if (param2propertyMapping.size() != op.getInputParameters().size()
                         && !allRequiredParamsAreMatched(op.getInputParameters(), param2propertyMapping)) {
-                        BPELConnectsToPluginHandler.LOG.warn("Didn't find necessary matchings from parameter to property. Can't initialize connectsTo relationship.");
+                        LOG.warn("Didn't find necessary matchings from parameter to property. Can't initialize connectsTo relationship from \"{}\" --> \"{}\"",
+                            sourceParameterNode.getId(), targetParameterNode.getId());
                     } else {
                         // executable operation found
-                        BPELConnectsToPluginHandler.LOG.debug("Source: " + sourceParameterNode.getName());
-                        BPELConnectsToPluginHandler.LOG.debug("Target: " + targetParameterNode.getName());
-                        BPELConnectsToPluginHandler.LOG.debug(iface.getName());
+                        LOG.debug("Source: " + sourceParameterNode.getName());
+                        LOG.debug("Target: " + targetParameterNode.getName());
+                        LOG.debug(iface.getName());
                         if (iface.getName().matches(".*/source(/[^/]+)?$")) {
-                            BPELConnectsToPluginHandler.LOG.debug("connectTo source defined");
+                            LOG.debug("connectTo source defined");
                             if (!connectToNode.equals(sourceParameterNode)) {
-                                BPELConnectsToPluginHandler.LOG.debug("source does not match");
+                                LOG.debug("source does not match");
                                 continue;
                             }
                             if (!iface.getName().endsWith("/source")) {
                                 final String targetTypeWithoutVersion = VersionUtils.getNameWithoutVersion(targetParameterNode.getType().getLocalPart());
                                 if (!iface.getName().endsWith(targetTypeWithoutVersion)) {
-                                    BPELConnectsToPluginHandler.LOG.debug("target type does not match");
+                                    LOG.debug("target type does not match");
                                     continue;
                                 }
                             }
                         } else if (iface.getName().matches(".*/target(/[^/]+)?$")) {
-                            BPELConnectsToPluginHandler.LOG.debug("connectTo target defined");
+                            LOG.debug("connectTo target defined");
                             if (!connectToNode.equals(targetParameterNode)) {
-                                BPELConnectsToPluginHandler.LOG.debug("target does not match");
+                                LOG.debug("target does not match");
                                 continue;
                             }
                             if (!iface.getName().endsWith("/target")) {
                                 final String sourceTypeWithoutVersion = VersionUtils.getNameWithoutVersion(sourceParameterNode.getType().getLocalPart());
                                 if (!iface.getName().endsWith(sourceTypeWithoutVersion)) {
-                                    BPELConnectsToPluginHandler.LOG.debug("source type does not match");
+                                    LOG.debug("source type does not match");
                                     continue;
                                 }
                             }
                         }
-                        BPELConnectsToPluginHandler.LOG.debug("Execute");
+                        LOG.debug("Execute");
                         connectsToIface = iface;
                         connectsToOp = op;
                         break;
@@ -158,15 +159,15 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
 
         // no connectTo operation found with matching parameters
         if (connectsToOp == null) {
-            BPELConnectsToPluginHandler.LOG.warn("No executable connectTo operation found.");
+            LOG.warn("No executable connectTo operation found.");
             return false;
         }
 
         // execute the connectTo operation with the found parameters
-        BPELConnectsToPluginHandler.LOG.debug("Adding connectTo operation execution to build plan.");
+        LOG.debug("Adding connectTo operation execution to build plan.");
         final Boolean result = templateContext.executeOperation(connectToNode, connectsToIface.getName(),
             connectsToOp.getName(), param2propertyMapping);
-        BPELConnectsToPluginHandler.LOG.debug("Result from adding operation: " + result);
+        LOG.debug("Result from adding operation: " + result);
 
         return true;
     }

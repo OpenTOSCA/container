@@ -195,9 +195,11 @@ public class BPELUpdateProcessBuilder extends AbstractUpdatePlanBuilder {
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(Csar csar, TDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(Csar csar) {
         LOG.debug("Building the Update Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
+        TDefinitions definitions = csar.entryDefinitions();
+
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
             LOG.debug("ServiceTemplate {} has no Update Plan, generating Update Plan",

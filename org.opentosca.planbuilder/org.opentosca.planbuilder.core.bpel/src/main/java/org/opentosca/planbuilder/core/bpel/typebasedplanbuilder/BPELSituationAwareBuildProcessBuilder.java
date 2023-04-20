@@ -207,8 +207,10 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
      * org.opentosca.planbuilder.model.tosca.TDefinitions)
      */
     @Override
-    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar) {
         final List<AbstractPlan> plans = new ArrayList<>();
+        TDefinitions definitions = csar.entryDefinitions();
+
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
             if (ModelUtils.doesNotHaveBuildPlan(serviceTemplate)) {
@@ -233,7 +235,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
     }
 
     private Map<TPolicy, String> nodePolicyToId(Map<TNodeTemplate, Collection<TPolicy>> situationPolicies) {
-        Map<TPolicy, String> nodePolicyToIdMap = new HashMap<TPolicy, String>();
+        Map<TPolicy, String> nodePolicyToIdMap = new HashMap<>();
 
         for (TNodeTemplate node : situationPolicies.keySet()) {
             for (TPolicy policy : situationPolicies.get(node)) {
@@ -246,8 +248,7 @@ public class BPELSituationAwareBuildProcessBuilder extends AbstractBuildPlanBuil
     }
 
     private Map<TNodeTemplate, Collection<TPolicy>> getSituationPolicies(TServiceTemplate serviceTemplate) {
-        Map<TNodeTemplate, Collection<TPolicy>> nodeToPolicies =
-            new HashMap<TNodeTemplate, Collection<TPolicy>>();
+        Map<TNodeTemplate, Collection<TPolicy>> nodeToPolicies = new HashMap<>();
 
         if (serviceTemplate.getTopologyTemplate() == null) {
             return nodeToPolicies;

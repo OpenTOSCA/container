@@ -42,9 +42,10 @@ import static org.opentosca.container.core.convention.PlanConstants.OpenTOSCA_Li
 
 /**
  * <p>
- * This Class represents the high-level algorithm of the concept in <a href= "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=BCLR-0043&mod=0&engl=1&inst=FAK"
- * >Konzept und Implementierung eine Java-Komponente zur Generierung von WS-BPEL 2.0 BuildPlans fuer OpenTOSCA</a>. It
- * is responsible for generating the Build Plan Skeleton and assign plugins to handle the different templates inside a
+ * This Class represents the high-level algorithm of the concept in <a href=
+ * "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=BCLR-0043&mod=0&engl=1&inst=FAK" >Konzept
+ * und Implementierung eine Java-Komponente zur Generierung von WS-BPEL 2.0 BuildPlans fuer OpenTOSCA</a>. It is
+ * responsible for generating the Build Plan Skeleton and assign plugins to handle the different templates inside a
  * TopologyTemplate.
  * </p>
  * <p>
@@ -215,8 +216,10 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
      * org.opentosca.planbuilder.model.tosca.TDefinitions)
      */
     @Override
-    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar) {
         final List<AbstractPlan> plans = new ArrayList<>();
+        TDefinitions definitions = csar.entryDefinitions();
+
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
             if (ModelUtils.findServiceTemplateOperation(definitions, OpenTOSCA_LifecycleInterface, OpenTOSCA_BuildPlanOperation) == null) {

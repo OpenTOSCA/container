@@ -162,7 +162,6 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
     }
 
     private boolean isDefrostable(final TServiceTemplate serviceTemplate, Csar csar) {
-
         for (final TNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
             if (this.isDefrostable(nodeTemplate, csar)) {
                 return true;
@@ -225,9 +224,11 @@ public class BPELDefrostProcessBuilder extends AbstractDefrostPlanBuilder {
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar) {
         BPELDefrostProcessBuilder.LOG.debug("Building the Plans");
         final List<AbstractPlan> plans = new ArrayList<>();
+        TDefinitions definitions = csar.entryDefinitions();
+
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 
             if (!this.isDefrostable(serviceTemplate, csar)) {

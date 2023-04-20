@@ -235,8 +235,9 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
     }
 
     @Override
-    public List<AbstractPlan> buildPlans(final Csar csar, final TDefinitions definitions) {
+    public List<AbstractPlan> buildPlans(final Csar csar) {
         final List<AbstractPlan> plans = new ArrayList<>();
+        TDefinitions definitions = csar.entryDefinitions();
 
         for (final TServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
             plans.addAll(buildScalingPlans(csar, definitions, new QName(serviceTemplate.getTargetNamespace(), serviceTemplate.getId())));
