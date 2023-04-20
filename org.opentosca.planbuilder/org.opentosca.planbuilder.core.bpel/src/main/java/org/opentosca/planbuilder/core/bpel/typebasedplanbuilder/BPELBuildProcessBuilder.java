@@ -65,8 +65,8 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
     private final ServiceTemplateBoundaryPropertyMappingsToOutputHandler propertyOutputInitializer;
     private final BPELScopeBuilder scopeBuilder;
     // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
-    // class for finalizing build plans (e.g when some template didn't receive
-    // some provisioning logic and they must be filled with empty elements)
+    // class for finalizing build plans (e.g. when some template didn't receive
+    // some provisioning logic, and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
     private final BPELPluginHandler bpelPluginHandler;
     private final EmptyPropertyToInputHandler emptyPropInit;
@@ -271,8 +271,8 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                     LOG.debug("Skipping the provisioning of NodeTemplate "
                         + bpelScope.getNodeTemplate().getId() + "  because state=running is set.");
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                        if (postPhasePlugin.canHandleCreate(context, bpelScope.getNodeTemplate())) {
-                            postPhasePlugin.handleCreate(context, bpelScope.getNodeTemplate());
+                        if (postPhasePlugin.canHandleCreate(context, nodeTemplate)) {
+                            postPhasePlugin.handleCreate(context, nodeTemplate);
                         }
                     }
                     continue;
@@ -284,7 +284,17 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 // handling relationshiptemplate
                 final TRelationshipTemplate relationshipTemplate = bpelScope.getRelationshipTemplate();
 
-                this.bpelPluginHandler.handleActivity(context, bpelScope, relationshipTemplate);
+                if (!isRunning(relationshipTemplate)
+                    // TODO: quick-hack to avoid executing connectTos on instance models
+                    && !csar.entryServiceTemplate().getTargetNamespace().toLowerCase().contains("retrieved/instances")) {
+                    this.bpelPluginHandler.handleActivity(context, bpelScope, relationshipTemplate);
+                } else {
+                    for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
+                        if (postPhasePlugin.canHandleCreate(context, relationshipTemplate)) {
+                            postPhasePlugin.handleCreate(context, relationshipTemplate);
+                        }
+                    }
+                }
             } else {
                 this.bpelPluginHandler.handleActivity(context, bpelScope);
             }

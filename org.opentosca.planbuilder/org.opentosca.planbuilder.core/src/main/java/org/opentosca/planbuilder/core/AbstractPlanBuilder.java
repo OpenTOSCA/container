@@ -4,6 +4,7 @@ import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 
@@ -19,7 +20,7 @@ public abstract class AbstractPlanBuilder {
         this.pluginRegistry = pluginRegistry;
     }
 
-    public boolean isRunning(final TNodeTemplate nodeTemplate) {
+    public boolean isRunning(final TEntityTemplate nodeTemplate) {
         if (nodeTemplate.getProperties() != null) {
             String val = ModelUtils.asMap(nodeTemplate.getProperties()).get("State");
             return val != null && val.equals("Running");

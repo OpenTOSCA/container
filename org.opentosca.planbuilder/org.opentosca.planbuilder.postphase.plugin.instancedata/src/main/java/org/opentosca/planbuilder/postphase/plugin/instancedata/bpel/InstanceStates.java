@@ -35,6 +35,13 @@ public class InstanceStates {
         operationPostStates.put("start", "STARTED");
         operationPostStates.put("stop", "STOPPED");
 
+        // freeze/defrost
+        /* Do not set it for freeze as it is also used in backup...
+        operationPreStates.put("freeze", "DELETING");
+        operationPostStates.put("freeze", "DELETED");*/
+        operationPreStates.put("defrost", "STARTING");
+        operationPostStates.put("defrost", "STARTED");
+
         // VM's
         operationPreStates.put("createVM", "STARTING");
         operationPreStates.put("waitForAvailability", "STARTING");
