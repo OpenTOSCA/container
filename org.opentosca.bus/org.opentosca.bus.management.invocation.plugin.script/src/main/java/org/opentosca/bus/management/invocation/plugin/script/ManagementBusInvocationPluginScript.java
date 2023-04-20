@@ -3,7 +3,6 @@ package org.opentosca.bus.management.invocation.plugin.script;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -337,22 +336,11 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
      */
     private String createDANamePathMapEnvVar(final Csar csar, final TNodeType nodeType, final TNodeTemplate nodeTemplate) {
         LOG.debug("Checking if NodeTemplate {} has DAs...", nodeTemplate.getName());
-        List<String> daArtifactReferences;
-
         final Map<String, List<String>> daNameReferenceMapping = new HashMap<>();
 
-        final ResolvedArtifacts resolvedArtifacts = containerEngine.resolvedDeploymentArtifacts(csar, nodeTemplate);
-        for (final ResolvedDeploymentArtifact resolvedDA : resolvedArtifacts.getDeploymentArtifacts()) {
-            daArtifactReferences = resolvedDA.getReferences();
-
-            for (final String daArtifactReference : daArtifactReferences) {
-                LOG.debug("Artifact reference for DA: {} found: {} .", resolvedDA.getName(), daArtifactReference);
-                List<String> currentValue = daNameReferenceMapping.computeIfAbsent(resolvedDA.getName(), k -> new ArrayList<>());
-                currentValue.add(daArtifactReference);
-            }
-        }
-
         final List<TNodeTypeImplementation> nodeTypeImpls = ToscaEngine.getNodeTypeImplementations(csar, nodeType);
+        // The list of NTIs is ordered from concrete to abstract.
+        // As the more concrete NTIs override DAs with the same name, just ignore already existing DA names...
         for (final TNodeTypeImplementation nodeTypeImpl : nodeTypeImpls) {
             List<TDeploymentArtifact> das = nodeTypeImpl.getDeploymentArtifacts();
             if (das != null) {
@@ -360,22 +348,28 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
                     final TArtifactTemplate daArtifactTemplate;
                     try {
                         daArtifactTemplate = ToscaEngine.resolveArtifactTemplate(csar, da.getArtifactRef());
+                        if (daArtifactTemplate.getArtifactReferences() != null && !daNameReferenceMapping.containsKey(da.getName())) {
+                            daNameReferenceMapping.put(
+                                da.getName(),
+                                daArtifactTemplate.getArtifactReferences().stream()
+                                    .map(TArtifactReference::getReference)
+                                    .peek(ref -> LOG.debug("Artifact reference for DA: {} found: {} .", da.getName(), ref))
+                                    .toList()
+                            );
+                        }
                     } catch (NotFoundException e) {
                         LOG.warn("Failed to find ArtifactTemplate with reference [{}] for DeploymentArtifact {}", da.getArtifactRef(), da.getName());
-                        continue;
-                    }
-                    if (daArtifactTemplate.getArtifactReferences() == null) {
-                        continue;
-                    }
-                    for (final TArtifactReference daArtifactReference : daArtifactTemplate.getArtifactReferences()) {
-                        LOG.debug("Artifact reference for DA: {} found: {} .", da.getName(), daArtifactReference);
-
-                        List<String> currentValue = daNameReferenceMapping.computeIfAbsent(da.getName(), k -> new ArrayList<>());
-                        currentValue.add(daArtifactReference.getReference());
                     }
                 }
             }
         }
+
+        // DAs at the Node Template override the ones from the Node Type Implementations
+        final ResolvedArtifacts resolvedArtifacts = containerEngine.resolvedDeploymentArtifacts(csar, nodeTemplate);
+        for (final ResolvedDeploymentArtifact resolvedDA : resolvedArtifacts.getDeploymentArtifacts()) {
+            daNameReferenceMapping.put(resolvedDA.getName(), resolvedDA.getReferences());
+        }
+
         StringBuilder daEnvMap = new StringBuilder();
         if (!daNameReferenceMapping.isEmpty()) {
             LOG.debug("NodeTemplate {} has {} DAs.", nodeTemplate.getName(), daNameReferenceMapping.size());
@@ -528,7 +522,8 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
     /**
      * Escapes special characters inside the given string conforming to bash argument values.
      * <p>
-     * See e.g. <a href="https://stackoverflow.com/questions/1250079/how-to-escape-single-quotes-within-single-quoted-strings">Stackoverflow:
+     * See e.g. <a
+     * href="https://stackoverflow.com/questions/1250079/how-to-escape-single-quotes-within-single-quoted-strings">Stackoverflow:
      * Escape single quites within single quoted string</a>
      *
      * @return a String with escaped singles quotes

@@ -314,7 +314,7 @@ public abstract class ToscaEngine {
                 } catch (NotFoundException e) {
                     return false;
                 }
-            }).collect(Collectors.toList()));
+            }).toList());
         }
 
         return result;
