@@ -5,9 +5,7 @@ on:
   workflow_run:
     workflows:
       - Java CI with Maven
-    branches: [master]
-    types:
-      - completed
+    branches:
     tags:
       - "v*.*.*"
 
