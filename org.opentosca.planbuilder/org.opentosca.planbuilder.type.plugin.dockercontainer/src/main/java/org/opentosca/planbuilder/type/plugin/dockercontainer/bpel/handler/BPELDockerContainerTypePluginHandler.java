@@ -79,9 +79,11 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
 
         for (final TNodeTypeImplementation nodeTypeImpl : ModelUtils.findNodeTypeImplementation(nodeTemplate, csar)) {
-            for (final TDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
-                if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_VOLUME_ARTIFACTTYPE)) {
-                    das.add(da);
+            if (nodeTypeImpl.getDeploymentArtifacts() != null) {
+                for (final TDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
+                    if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_VOLUME_ARTIFACTTYPE)) {
+                        das.add(da);
+                    }
                 }
             }
         }
