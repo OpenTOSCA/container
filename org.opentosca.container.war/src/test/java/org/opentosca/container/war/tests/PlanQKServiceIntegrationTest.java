@@ -54,7 +54,7 @@ public class PlanQKServiceIntegrationTest {
     public static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/UST-QuAntiL/tosca-definitions-qc-applications";
     protected static final Logger LOGGER = LoggerFactory.getLogger(PlanQKServiceIntegrationTest.class);
 
-    public QName csarId = new QName("https://ust-quantil.github.io/quantum/applications/servicetemplates", "PlanQK-Service-Example_w1");
+    public QName csarId = new QName("https://ust-quantil.github.io/quantum/applications/servicetemplates", "PlanQK-Service-Example_w2");
     @Inject
     public OpenToscaControlService control;
     @Inject
