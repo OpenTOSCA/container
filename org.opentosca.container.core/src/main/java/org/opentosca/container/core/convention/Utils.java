@@ -97,6 +97,7 @@ public class Utils {
             || nodeType.equals(Types.openStackLiberty12NodeType)
             || nodeType.equals(Types.openStackTrainNodeType_legacy)
             || nodeType.equals(Types.openStackTrainNodeType)
+            || nodeType.equals(Types.ec2NEWNodeType)
             || (
             nodeType.getNamespaceURI().equals(Types.openStackLiberty12NodeTypeGenerated.getNamespaceURI())
                 && (nodeType.getLocalPart().startsWith(Types.openStackLiberty12NodeTypeGenerated.getLocalPart())

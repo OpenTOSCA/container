@@ -27,6 +27,10 @@ public class Types {
         new QName("http://opentosca.org/nodetypes", "OpenStack_Train-w1");
     public final static QName openStackTrainNodeType =
         new QName("http://opentosca.org/nodetypes", "OpenStack_15-Train-w1");
+
+    public final static QName ec2NEWNodeType =
+        new QName("http://opentosca.org/nodetypes", "EC2-w1");
+
     public final static QName vmWareVsphere55NodeType = new QName("http://opentosca.org/nodetypes", "VSphere_5.5");
 
     public final static QName amazonEc2NodeType = new QName("http://opentosca.org/NodeTypes", "AmazonEC2");
