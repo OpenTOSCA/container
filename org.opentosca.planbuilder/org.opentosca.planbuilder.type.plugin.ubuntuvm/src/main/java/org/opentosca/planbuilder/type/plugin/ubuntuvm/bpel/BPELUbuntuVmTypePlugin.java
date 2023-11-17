@@ -292,6 +292,6 @@ public class BPELUbuntuVmTypePlugin implements IPlanBuilderTypePlugin<BPELPlanCo
     @Override
     public int getPriority() {
         //
-        return 0;
+        return 2;
     }
 }
