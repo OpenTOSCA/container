@@ -201,6 +201,13 @@ public class BPELPluginHandler {
             final List<IPlanBuilderTypePlugin<?>> plugins = this.pluginRegistry.findTypePluginForCreation(nodeTemplate, context.getCsar());
             if (plugins.isEmpty()) {
                 LOG.debug("Couldn't handle provisioning code generation of NodeTemplate {} with type plugin", nodeTemplate.getId());
+                // generate code the post handling, e.g., update instance data, logs etc.
+                for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
+                    if (postPhasePlugin.canHandleCreate(context, bpelScope.getNodeTemplate())) {
+                        LOG.debug("Handling NodeTemplate {} with post plugin {}", nodeTemplate.getId(), postPhasePlugin.getID());
+                        result &= postPhasePlugin.handleCreate(context, bpelScope.getNodeTemplate());
+                    }
+                }
             }
             for (final IPlanBuilderTypePlugin plugin : plugins) {
                 LOG.debug("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(), plugin.getID());

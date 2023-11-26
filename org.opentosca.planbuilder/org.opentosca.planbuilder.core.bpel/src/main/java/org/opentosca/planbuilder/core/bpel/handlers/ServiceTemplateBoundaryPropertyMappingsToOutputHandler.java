@@ -326,6 +326,7 @@ public class ServiceTemplateBoundaryPropertyMappingsToOutputHandler {
                     if (var.getPropertyName().equals(propertyName)) {
                         addedVar = true;
                         augmentedFunctionParts.add("$" + var.getVariableName());
+                        break;
                     }
                 }
 
