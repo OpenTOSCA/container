@@ -25,6 +25,7 @@ import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceProperty;
+import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +38,12 @@ public class PropertyMappingsHelper {
     private static final Logger logger = LoggerFactory.getLogger(PropertyMappingsHelper.class);
     private final CsarStorageService storage;
 
-    public PropertyMappingsHelper(CsarStorageService storage) {
+
+    private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository;
+
+    public PropertyMappingsHelper(CsarStorageService storage, NodeTemplateInstanceRepository nodeTemplateInstanceRepository) {
         this.storage = storage;
+        this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
     }
 
     /**
@@ -200,16 +205,12 @@ public class PropertyMappingsHelper {
             if (functionPart.trim().startsWith("'")) {
                 // string function part, just add to list
                 augmentedFunctionParts.add(functionPart.trim());
-            } else if (functionPart.trim().split("\\.").length == 3) {
+            } else if (functionPart.trim().split(".Properties.").length == 2) {
                 // "DSL" Query
-                final String[] queryParts = functionPart.trim().split("\\.");
-                // fast check for validity
-                if (!queryParts[1].equals("Properties")) {
-                    return null;
-                }
+                final String[] queryParts = functionPart.trim().split(".Properties.");
 
                 final String nodeTemplateName = queryParts[0];
-                final String propertyName = queryParts[2];
+                final String propertyName = queryParts[1];
 
                 if (getNodeInstanceWithName(nodeInstance, nodeTemplateName) != null) {
 
@@ -239,7 +240,7 @@ public class PropertyMappingsHelper {
 
         for (final NodeTemplateInstance nodeInstance : nodeInstances) {
             if (nodeInstance.getTemplateId().equals(nodeTemplateId)) {
-                return nodeInstance;
+                return nodeTemplateInstanceRepository.findById(nodeInstance.getId()).get();
             }
         }
 
