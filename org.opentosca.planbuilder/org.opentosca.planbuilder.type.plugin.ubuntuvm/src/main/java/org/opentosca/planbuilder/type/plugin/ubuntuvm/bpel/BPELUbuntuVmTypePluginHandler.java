@@ -57,12 +57,13 @@ public class BPELUbuntuVmTypePluginHandler {
     private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(BPELUbuntuVmTypePluginHandler.class);
     // create method external input parameters without CorrelationId (old)
     private final static String[] createEC2InstanceExternalInputParams =
-        {"securityGroup", "keyPairName", "secretKey", "accessKey", "regionEndpoint", "AMIid", "instanceType"};
+        {"VMKeyPairName", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_REGION", "VMImageID", "VMType",
+            "VMUserPassword", "VMPublicKey", "VMKeyPairName", "VMOpenPorts", "VMNetworks"};
 
     // new possible external params
     private final static String[] createVMInstanceExternalInputParams =
         {"VMKeyPairName", "HypervisorUserPassword", "HypervisorUserName", "HypervisorEndpoint", "VMImageID", "VMType",
-            "HypervisorTenantID", "VMUserPassword", "VMPublicKey", "VMKeyPairName"};
+            "HypervisorTenantID", "VMUserPassword", "VMPublicKey", "VMKeyPairName", "VMOpenPorts", "VMNetworks"};
 
     // mandatory params for the local hypervisor node
     private final static String[] localCreateVMInstanceExternalInputParams =
@@ -609,7 +610,15 @@ public class BPELUbuntuVmTypePluginHandler {
          * property is found but not set, we will set an input param and take the value from plan input.
          * Everything else aborts this method
          */
-        for (final String externalParameter : BPELUbuntuVmTypePluginHandler.createVMInstanceExternalInputParams) {
+        String[] properties;
+        if (findCloudProviderNode(ubuntuNodeTemplate, context.getCsar()).getType().equals(Types.ec2NEWNodeType)){
+            LOG.debug("Searching EC2 properties");
+            properties = BPELUbuntuVmTypePluginHandler.createEC2InstanceExternalInputParams;
+        } else {
+            LOG.debug("Searching Openstack properties");
+            properties = BPELUbuntuVmTypePluginHandler.createVMInstanceExternalInputParams;
+        }
+        for (final String externalParameter : properties) {
             // find the variable for the inputParam
 
             PropertyVariable variable = context.getPropertyVariable(ubuntuNodeTemplate, externalParameter);

@@ -25,6 +25,7 @@ import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceProperty;
+import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,12 +34,18 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import static org.opentosca.container.core.next.model.NodeTemplateInstanceState.STARTED;
+
 public class PropertyMappingsHelper {
     private static final Logger logger = LoggerFactory.getLogger(PropertyMappingsHelper.class);
     private final CsarStorageService storage;
 
-    public PropertyMappingsHelper(CsarStorageService storage) {
+
+    private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository;
+
+    public PropertyMappingsHelper(CsarStorageService storage, NodeTemplateInstanceRepository nodeTemplateInstanceRepository) {
         this.storage = storage;
+        this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
     }
 
     /**
@@ -110,18 +117,18 @@ public class PropertyMappingsHelper {
                     continue;
                 }
 
-                final Document nodeProperties = new DocumentConverter().convertToEntityAttribute(firstProperty.get().getValue());
-                final Element nodePropertiesRoot = (Element) nodeProperties.getFirstChild();
-                final String nodeTemplatePropertyQuery = mapping.getTargetPropertyRef();
-                final List<Element> nodePropertyElements = queryElementList(nodePropertiesRoot, nodeTemplatePropertyQuery);
+                if (mapping.getTargetPropertyRef().trim().split(".Properties.").length == 2) {
+                    // "DSL" Query
+                    final String[] queryParts = mapping.getTargetPropertyRef().trim().split(".Properties.");
 
-                if (nodePropertyElements.size() != 1) {
-                    // skip this property, we expect only one
-                    continue;
+                    NodeTemplateInstance nodeTemplateInstance = getNodeInstanceWithName(serviceInstance.getNodeTemplateInstances(), queryParts[0]);
+                    if (Objects.nonNull(nodeTemplateInstance)) {
+                        final String propValue = fetchPropertyValueFromNodeInstance(nodeTemplateInstance, queryParts[1]);
+
+                        // change the serviceTemplateProperty
+                        serviceTemplatePropertyElements.get(0).setTextContent(propValue);
+                    }
                 }
-
-                // change the serviceTemplateProperty
-                serviceTemplatePropertyElements.get(0).setTextContent(nodePropertyElements.get(0).getTextContent());
             }
         }
 
@@ -200,16 +207,12 @@ public class PropertyMappingsHelper {
             if (functionPart.trim().startsWith("'")) {
                 // string function part, just add to list
                 augmentedFunctionParts.add(functionPart.trim());
-            } else if (functionPart.trim().split("\\.").length == 3) {
+            } else if (functionPart.trim().split(".Properties.").length == 2) {
                 // "DSL" Query
-                final String[] queryParts = functionPart.trim().split("\\.");
-                // fast check for validity
-                if (!queryParts[1].equals("Properties")) {
-                    return null;
-                }
+                final String[] queryParts = functionPart.trim().split(".Properties.");
 
                 final String nodeTemplateName = queryParts[0];
-                final String propertyName = queryParts[2];
+                final String propertyName = queryParts[1];
 
                 if (getNodeInstanceWithName(nodeInstance, nodeTemplateName) != null) {
 
@@ -238,8 +241,8 @@ public class PropertyMappingsHelper {
                                                          final String nodeTemplateId) {
 
         for (final NodeTemplateInstance nodeInstance : nodeInstances) {
-            if (nodeInstance.getTemplateId().equals(nodeTemplateId)) {
-                return nodeInstance;
+            if (nodeInstance.getTemplateId().equals(nodeTemplateId) && nodeInstance.getState() == STARTED) {
+                return nodeTemplateInstanceRepository.findById(nodeInstance.getId()).get();
             }
         }
 
@@ -269,7 +272,9 @@ public class PropertyMappingsHelper {
 
         for (final NodeTemplateInstance nodeInstance : nodeInstances) {
             if (nodeInstance.getTemplateId().equals(template.getId())) {
-                return nodeInstance;
+                if (nodeInstance.getState() == STARTED) {
+                    return nodeTemplateInstanceRepository.findById(nodeInstance.getId()).get();
+                }
             }
         }
         return null;

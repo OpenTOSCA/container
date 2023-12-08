@@ -27,6 +27,9 @@ public interface NodeTemplateInstanceRepository extends JpaRepository<NodeTempla
     List<NodeTemplateInstance> findByServiceTemplateInstanceAndTemplateId(ServiceTemplateInstance serviceTemplateInstance, String templateId);
 
     @EntityGraph(attributePaths = {"properties"})
+    Optional<NodeTemplateInstance> findById(Long id);
+
+    @EntityGraph(attributePaths = {"properties"})
     Optional<NodeTemplateInstance> findWithPropertiesById(Long id);
 
     @EntityGraph(attributePaths = {"properties", "outgoingRelations"})

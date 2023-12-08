@@ -16,6 +16,7 @@ import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
+import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.next.services.templates.ServiceTemplateService;
@@ -37,18 +38,21 @@ public class ServiceTemplateInstanceService {
     private final PlanInstanceRepository planInstanceRepository;
     private final PlanInstanceService planInstanceService;
 
+    private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository;
+
     private final PropertyMappingsHelper helper;
 
     public ServiceTemplateInstanceService(ServiceTemplateInstanceRepository serviceTemplateInstanceRepository,
                                           ServiceTemplateService serviceTemplateService,
                                           PlanInstanceRepository planInstanceRepository,
-                                          PlanInstanceService planInstanceService, CsarStorageService storage) {
+                                          PlanInstanceService planInstanceService, NodeTemplateInstanceRepository nodeTemplateInstanceRepository, CsarStorageService storage) {
         this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
         this.serviceTemplateService = serviceTemplateService;
         this.planInstanceRepository = planInstanceRepository;
         this.planInstanceService = planInstanceService;
+        this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
 
-        helper = new PropertyMappingsHelper(storage);
+        helper = new PropertyMappingsHelper(storage, this.nodeTemplateInstanceRepository);
     }
 
     /**
