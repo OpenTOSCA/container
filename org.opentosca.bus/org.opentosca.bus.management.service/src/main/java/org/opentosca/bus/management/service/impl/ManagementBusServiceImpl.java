@@ -7,12 +7,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -62,12 +64,14 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.Endpoint;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.trigger.SituationTriggerInstanceListener;
 import org.opentosca.container.core.plan.ChoreographyHandler;
@@ -135,14 +139,17 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     private final PlanInstanceHandler planInstanceHandler;
     private final PlanInstanceRepository planInstanceRepository;
 
+    private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository;
+
     @Inject
     public ManagementBusServiceImpl(DeploymentDistributionDecisionMaker decisionMaker,
                                     CollaborationContext collaborationContext, ICoreEndpointService endpointService,
                                     ParameterHandler parameterHandler, PluginHandler pluginHandler,
                                     PluginRegistry pluginRegistry, DeploymentPluginCapabilityChecker capabilityChecker,
                                     CsarStorageService storage, ChoreographyHandler choreographyHandler, MBUtils mbUtils,
-                                    PlanInstanceHandler planInstanceHandler, PlanInstanceRepository planInstanceRepository) {
+                                    PlanInstanceHandler planInstanceHandler, PlanInstanceRepository planInstanceRepository, NodeTemplateInstanceRepository nodeTemplateInstanceRepository) {
         LOG.info("Instantiating ManagementBus Service");
+        this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
         this.planInstanceRepository = planInstanceRepository;
         this.planInstanceHandler = planInstanceHandler;
         this.mbUtils = mbUtils;
@@ -1286,9 +1293,64 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         if (exchange == null) {
             return;
         }
+
+        // get message to retrieve headers and result body
+        Message in = exchange.getIn();
+
         // Response message back to caller.
         final ProducerTemplate template = this.collaborationContext.getProducer();
-        final String caller = exchange.getIn().getHeader(MBHeader.APIID_STRING.toString(), String.class);
+        final String caller = in.getHeader(MBHeader.APIID_STRING.toString(), String.class);
+
+        // check if IA invocation is performed and update properties
+        final String nodeTemplate = in.getHeader(MBHeader.NODETEMPLATEID_STRING.toString(), String.class);
+        final String nodeTemplateInstanceId = in.getHeader(MBHeader.NODEINSTANCEID_STRING.toString(), String.class);
+        if (Objects.nonNull(nodeTemplateInstanceId) && Objects.nonNull(nodeTemplate)) {
+            LOG.debug("Handling response for NodeTemplate {} and corresponding ID {}!", nodeTemplate, nodeTemplateInstanceId);
+
+            // load NodeTemplateInstance and corresponding properties from repository
+            NodeTemplateInstance nodeTemplateInstance = nodeTemplateInstanceRepository.findById(Long.parseLong(nodeTemplateInstanceId)).get();
+            Map<String, String> properties = nodeTemplateInstance.getPropertiesAsMap();
+            LOG.debug("Properties to update: {}", properties);
+
+            if (in.getBody() instanceof HashMap<?,?>) {
+                HashMap<String, String> result = (HashMap<String, String>) in.getBody();
+                LOG.debug("Result is of type HashMap and contains properties: {}", result);
+
+                if(result.containsKey("xml")) {
+                    String xmlProperties = result.get("xml");
+                    LOG.debug("Found XML properties: {}", result);
+
+                    // update properties with the same name if defined at NodeTemplateInstance
+                    for (Entry<String, String> property : result.entrySet()) {
+
+                        LOG.debug("Checking if XML contains property with name: {}", property.getKey());
+                        if(xmlProperties.contains(property.getKey())) {
+                            LOG.debug("Updating XML for property: {}", property.getValue());
+
+                            // split string to adapt content
+                            String[] propertyParts = xmlProperties.split(property.getKey());
+                            xmlProperties = propertyParts[0] + property.getKey() + ">" + property.getValue() + "</" + property.getKey() + propertyParts[2];
+                        } else {
+                            LOG.debug("XML does not contain property with name: {}", property.getKey());
+                        }
+                    }
+
+                    // update XML string on NodeTemplateInstance
+                    Set<NodeTemplateInstanceProperty> propertySet = new HashSet<>();
+                    NodeTemplateInstanceProperty instanceProperty = new NodeTemplateInstanceProperty();
+                    instanceProperty.setNodeTemplateInstance(nodeTemplateInstance);
+                    instanceProperty.setName("xml");
+                    instanceProperty.setValue(xmlProperties);
+                    propertySet.add(instanceProperty);
+                    nodeTemplateInstance.setProperties(propertySet);
+                }
+                nodeTemplateInstanceRepository.save(nodeTemplateInstance);
+            } else {
+                LOG.warn("Result is not of type HashMap, unable to parse result: {}", in.getBody().getClass());
+            }
+        } else {
+            LOG.warn("Unable to find properties for NodeTemplate {} and corresponding ID {}", nodeTemplate, nodeTemplateInstanceId);
+        }
 
         if (caller == null) {
             // notably the Java API does not set the APIID, because it never uses the information returned.

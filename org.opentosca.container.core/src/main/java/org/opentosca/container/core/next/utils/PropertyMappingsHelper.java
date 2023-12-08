@@ -34,6 +34,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import static org.opentosca.container.core.next.model.NodeTemplateInstanceState.STARTED;
+
 public class PropertyMappingsHelper {
     private static final Logger logger = LoggerFactory.getLogger(PropertyMappingsHelper.class);
     private final CsarStorageService storage;
@@ -115,18 +117,18 @@ public class PropertyMappingsHelper {
                     continue;
                 }
 
-                final Document nodeProperties = new DocumentConverter().convertToEntityAttribute(firstProperty.get().getValue());
-                final Element nodePropertiesRoot = (Element) nodeProperties.getFirstChild();
-                final String nodeTemplatePropertyQuery = mapping.getTargetPropertyRef();
-                final List<Element> nodePropertyElements = queryElementList(nodePropertiesRoot, nodeTemplatePropertyQuery);
+                if (mapping.getTargetPropertyRef().trim().split(".Properties.").length == 2) {
+                    // "DSL" Query
+                    final String[] queryParts = mapping.getTargetPropertyRef().trim().split(".Properties.");
 
-                if (nodePropertyElements.size() != 1) {
-                    // skip this property, we expect only one
-                    continue;
+                    NodeTemplateInstance nodeTemplateInstance = getNodeInstanceWithName(serviceInstance.getNodeTemplateInstances(), queryParts[0]);
+                    if (Objects.nonNull(nodeTemplateInstance)) {
+                        final String propValue = fetchPropertyValueFromNodeInstance(nodeTemplateInstance, queryParts[1]);
+
+                        // change the serviceTemplateProperty
+                        serviceTemplatePropertyElements.get(0).setTextContent(propValue);
+                    }
                 }
-
-                // change the serviceTemplateProperty
-                serviceTemplatePropertyElements.get(0).setTextContent(nodePropertyElements.get(0).getTextContent());
             }
         }
 
@@ -239,7 +241,7 @@ public class PropertyMappingsHelper {
                                                          final String nodeTemplateId) {
 
         for (final NodeTemplateInstance nodeInstance : nodeInstances) {
-            if (nodeInstance.getTemplateId().equals(nodeTemplateId)) {
+            if (nodeInstance.getTemplateId().equals(nodeTemplateId) && nodeInstance.getState() == STARTED) {
                 return nodeTemplateInstanceRepository.findById(nodeInstance.getId()).get();
             }
         }
@@ -270,7 +272,9 @@ public class PropertyMappingsHelper {
 
         for (final NodeTemplateInstance nodeInstance : nodeInstances) {
             if (nodeInstance.getTemplateId().equals(template.getId())) {
-                return nodeInstance;
+                if (nodeInstance.getState() == STARTED) {
+                    return nodeTemplateInstanceRepository.findById(nodeInstance.getId()).get();
+                }
             }
         }
         return null;
