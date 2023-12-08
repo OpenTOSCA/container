@@ -17,7 +17,7 @@
     </appender>-->
 
     <!-- code under our direct control -->
-    <logger name="org.opentosca" level="INFO"/>
+    <logger name="org.opentosca" level="DEBUG"/>
     <logger name="org.opentosca.bus.management" level="INFO"/>
 
     <!-- Reducing logging noise  -->
