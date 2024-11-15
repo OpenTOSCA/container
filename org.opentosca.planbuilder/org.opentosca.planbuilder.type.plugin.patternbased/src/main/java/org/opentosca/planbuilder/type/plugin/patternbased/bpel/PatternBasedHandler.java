@@ -159,7 +159,8 @@ public abstract class PatternBasedHandler {
         LOG.debug("Required input parameters: {}", inputParamSize);
         LOG.debug("Matched input parameters: {}", matching.inputMatching.size());
         LOG.debug("Matching? {}", matching.inputMatching.size() == inputParamSize);
-        return matching.inputMatching.size() == inputParamSize;
+        // TODO: refactor to check that all required input parameters are available
+        return matching.inputMatching.size() >= inputParamSize;
     }
 
     protected OperationMatching createPropertyToParameterMatching(final Collection<TNodeTemplate> nodesForMatching,
