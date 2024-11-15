@@ -1,11 +1,19 @@
 package org.opentosca.bus.management.deployment.plugin.tomcat;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
@@ -319,7 +327,22 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
             // store WAR artifact as temporary file
             final File tempFile = File.createTempFile("Artifact", ".war");
             tempFile.deleteOnExit();
-            FileUtils.copyURLToFile(warURL, tempFile);
+
+            URLConnection urlConn = warURL.openConnection();
+            urlConn.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
+            urlConn.setRequestProperty("Accept-Encoding", "gzip, deflate");
+            urlConn.setRequestProperty("Accept-Language", "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7");
+            urlConn.setRequestProperty("Accept-Charset", "UTF-8");
+            InputStream stream = urlConn.getInputStream();
+            OutputStream os = new FileOutputStream(tempFile);
+            byte[] buffer = new byte[4096];
+            int len;
+            while ((len = stream.read(buffer)) != -1) {
+                os.write(buffer, 0, len);
+            }
+            os.close();
+            stream.close();
+
             return tempFile;
         } catch (final IOException e) {
             LOG.error("Failed to retrieve WAR-File: {}", e.getMessage());

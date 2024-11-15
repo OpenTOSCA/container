@@ -473,12 +473,17 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
         if (commandsString.contains("{{") && commandsString.contains("}}")) {
             LOG.debug("Replacing the placeholder of the generic command with properties data and/or provided input parameter...");
 
-            final Map<String, String> paramsMap;
+            Map<String, String> paramsMap;
             if (params instanceof HashMap) {
                 paramsMap = (HashMap<String, String>) params;
             } else if (params instanceof Document) {
                 final Document paramsDoc = (Document) params;
-                paramsMap = MBUtils.docToMap(paramsDoc, true);
+                paramsMap = new HashMap<>();
+                try {
+                    paramsMap = MBUtils.docToMap(paramsDoc, true);
+                } catch (Exception e) {
+                    LOG.error("Error while parsing doc to map!");
+                }
             } else {
                 paramsMap = new HashMap<>();
             }

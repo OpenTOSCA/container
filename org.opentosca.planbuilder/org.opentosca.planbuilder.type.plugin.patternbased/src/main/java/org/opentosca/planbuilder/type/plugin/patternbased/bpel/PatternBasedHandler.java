@@ -21,9 +21,12 @@ import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.PropertyVariable;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 public abstract class PatternBasedHandler {
+    private final static Logger LOG = LoggerFactory.getLogger(PatternBasedHandler.class);
 
     protected static final BPELInvokerPlugin invoker = new BPELInvokerPlugin();
 
@@ -142,15 +145,20 @@ public abstract class PatternBasedHandler {
                                           final TInterface ifaceToMatch,
                                           final TOperation operationToMatch) {
 
+        LOG.debug("Searching for matching for operation: {}", operationToMatch.getName());
+
         final OperationMatching matching =
             createPropertyToParameterMatching(nodesForMatching, ifaceToMatch, operationToMatch);
 
         int inputParamSize = 0;
 
         if (operationToMatch.getInputParameters() != null) {
-            inputParamSize = operationToMatch.getInputParameters().size();
+            inputParamSize = operationToMatch.getInputParameters().stream().filter(TParameter::getRequired).toList().size();
         }
 
+        LOG.debug("Required input parameters: {}", inputParamSize);
+        LOG.debug("Matched input parameters: {}", matching.inputMatching.size());
+        LOG.debug("Matching? {}", matching.inputMatching.size() == inputParamSize);
         return matching.inputMatching.size() == inputParamSize;
     }
 
