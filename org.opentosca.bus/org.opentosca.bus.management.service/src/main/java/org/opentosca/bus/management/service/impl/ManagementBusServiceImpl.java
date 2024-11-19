@@ -75,6 +75,7 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.RelationshipTemplateInstanceRepository;
+import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.next.trigger.SituationTriggerInstanceListener;
 import org.opentosca.container.core.plan.ChoreographyHandler;
 import org.opentosca.container.core.service.CsarStorageService;
@@ -144,7 +145,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     private final PlanInstanceRepository planInstanceRepository;
 
     private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository;
-    private final RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository;
+    private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
 
     @Inject
     public ManagementBusServiceImpl(DeploymentDistributionDecisionMaker decisionMaker,
@@ -152,10 +153,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                     ParameterHandler parameterHandler, PluginHandler pluginHandler,
                                     PluginRegistry pluginRegistry, DeploymentPluginCapabilityChecker capabilityChecker,
                                     CsarStorageService storage, ChoreographyHandler choreographyHandler, MBUtils mbUtils,
-                                    PlanInstanceHandler planInstanceHandler, PlanInstanceRepository planInstanceRepository, NodeTemplateInstanceRepository nodeTemplateInstanceRepository, RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository) {
+                                    PlanInstanceHandler planInstanceHandler, PlanInstanceRepository planInstanceRepository, NodeTemplateInstanceRepository nodeTemplateInstanceRepository, ServiceTemplateInstanceRepository serviceTemplateInstanceRepository) {
         LOG.info("Instantiating ManagementBus Service");
         this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
-        this.relationshipTemplateInstanceRepository = relationshipTemplateInstanceRepository;
+        this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
         this.planInstanceRepository = planInstanceRepository;
         this.planInstanceHandler = planInstanceHandler;
         this.mbUtils = mbUtils;
@@ -1338,8 +1339,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                             xmlProperties = propertyParts[0] + property.getKey() + ">" + property.getValue() + "</" + property.getKey() + propertyParts[2];
                         } else {
                             LOG.debug("XML does not contain property with name: {}", property.getKey());
-                            LOG.debug("Searching for connected NodeTemplateInstance with given property name... ");
-                            updateConnectedNodeTemplateInstance(nodeTemplateInstance, property);
+                            LOG.debug("Searching for NodeTemplateInstance with given property name... ");
+                            updateNodeTemplateInstances(nodeTemplateInstance, property);
                         }
                     }
 
@@ -1354,10 +1355,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 } else {
                     LOG.debug("Result is not based on XML properties. Updating HashMap...");
                     for (Entry<String, String> property : result.entrySet()) {
-                        // TODO: search locally for property
-
-                        LOG.debug("Searching for connected NodeTemplateInstance with given property name... ");
-                        updateConnectedNodeTemplateInstance(nodeTemplateInstance, property);
+                         LOG.debug("Searching for NodeTemplateInstance with given property name... ");
+                        updateNodeTemplateInstances(nodeTemplateInstance, property);
                     }
                 }
                 nodeTemplateInstanceRepository.save(nodeTemplateInstance);
@@ -1381,41 +1380,69 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
     }
 
-    private void updateConnectedNodeTemplateInstance(NodeTemplateInstance nodeTemplateInstance, Entry<String, String> property) {
-        LOG.debug("Trying to find connected NodeTemplateInstance with property name: {}", property.getKey());
-        LOG.debug("NodeTemplateInstance has {} outgoing relations...", nodeTemplateInstance.getOutgoingRelations().size());
-        Optional<RelationshipTemplateInstance> optional = nodeTemplateInstance.getOutgoingRelations().stream().filter(rel -> rel.getTemplateType().equals(hostedOnRelationType)).findFirst();
+    private void updateNodeTemplateInstances(NodeTemplateInstance nodeTemplateInstance, Entry<String, String> property) {
+        LOG.debug("Trying to find NodeTemplateInstance with property name: {}", property.getKey());
 
-        if (optional.isPresent()) {
-            RelationshipTemplateInstance relation = optional.get();
-            LOG.debug("Found RelationshipTemplateInstance with ID: {}", relation.getTemplateId());
-            relation = relationshipTemplateInstanceRepository.findWithPropertiesById(relation.getId());
-
-            NodeTemplateInstance target = relation.getTarget();
-            LOG.debug("Searching for NodeTemplateInstance with ID: {}", target.getTemplateId());
-            target = nodeTemplateInstanceRepository.findWithPropertiesAndOutgoingById(target.getId()).get();
-            LOG.debug("Found connected NodeTemplateInstance via hostedOn relation: {}", target.getTemplateId());
+        ServiceTemplateInstance serviceTemplateInstance = serviceTemplateInstanceRepository.findWithNodeTemplateInstancesById(nodeTemplateInstance.getServiceTemplateInstance().getId()).get();
+        for (NodeTemplateInstance instance : serviceTemplateInstance.getNodeTemplateInstances()) {
+            LOG.debug("Searching for NodeTemplateInstance with ID: {}", instance.getTemplateId());
+            NodeTemplateInstance newNodeTemplateInstance = nodeTemplateInstanceRepository.findWithPropertiesAndOutgoingById(instance.getId()).get();
 
             // get properties of connected NodeTemplateInstance
-            Collection<NodeTemplateInstanceProperty> properties = nodeTemplateInstance.getProperties();
-            LOG.debug("Found {} properties of connected NodeTemplateInstance: {}", properties.size(), properties);
+            Collection<NodeTemplateInstanceProperty> properties = newNodeTemplateInstance.getProperties();
+            LOG.debug("Found {} properties of NodeTemplateInstance: {}", properties.size(), properties);
             for (NodeTemplateInstanceProperty nodeTemplateInstanceProperty : properties) {
                 LOG.debug("Found property with name: {}", nodeTemplateInstanceProperty.getName());
                 if (property.getKey().equals(nodeTemplateInstanceProperty.getName())) {
                     LOG.debug("Found matching property. Changing value from {} to {}!", nodeTemplateInstanceProperty.getValue(), property.getValue());
                     nodeTemplateInstanceProperty.setValue(property.getValue());
-                    target.setProperties(new HashSet<>(properties));
-                    nodeTemplateInstanceRepository.save(target);
+                    newNodeTemplateInstance.setProperties(new HashSet<>(properties));
+                    nodeTemplateInstanceRepository.save(newNodeTemplateInstance);
 
-                    // abort recursion once property is updated
+                    // abort once property is updated
                     return;
                 }
+
+                // handle XML properties
+                if (nodeTemplateInstanceProperty.getName().equals("xml")) {
+
+                    LOG.debug("Checking if XML contains property with name: {}", property.getKey());
+
+                    String xmlProperties = nodeTemplateInstanceProperty.getValue();
+                    LOG.debug("Found XML properties: {}", xmlProperties);
+
+                    if(xmlProperties.contains(property.getKey())) {
+                        LOG.debug("Updating XML for property: {}", property.getValue());
+
+                        // split string to adapt content
+                        if (xmlProperties.contains("<" + property.getKey() + "/>")) {
+                            String[] propertyParts = xmlProperties.split("<" + property.getKey() + "/>");
+                            xmlProperties = propertyParts[0] + "<" + property.getKey() + ">" + property.getValue() + "</" + property.getKey() + ">" + propertyParts[1];
+                        } else{
+                            String[] propertyParts = xmlProperties.split(property.getKey());
+                            xmlProperties = propertyParts[0] + property.getKey() + ">" + property.getValue() + "</" + property.getKey() + propertyParts[2];
+                        }
+
+                        // update XML string on NodeTemplateInstance
+                        Set<NodeTemplateInstanceProperty> propertySet = new HashSet<>();
+                        NodeTemplateInstanceProperty instanceProperty = new NodeTemplateInstanceProperty();
+                        instanceProperty.setNodeTemplateInstance(newNodeTemplateInstance);
+                        instanceProperty.setName("xml");
+                        instanceProperty.setType(nodeTemplateInstanceProperty.getType());
+                        instanceProperty.setValue(xmlProperties);
+                        propertySet.add(instanceProperty);
+                        newNodeTemplateInstance.setProperties(propertySet);
+                        nodeTemplateInstanceRepository.save(newNodeTemplateInstance);
+
+                        // abort once property is updated
+                        return;
+                    } else {
+                        LOG.debug("XML does not contain property with name: {}", property.getKey());
+                    }
+                }
             }
-            LOG.debug("Searching for new connected NodeTemplateInstance starting from: {}", nodeTemplateInstance.getTemplateId());
-            updateConnectedNodeTemplateInstance(target, property);
-        } else{
-            LOG.debug("No connected NodeTemplateInstance via hostedOn relation found. Aborting property update!");
         }
+        LOG.debug("No NodeTemplateInstance with given property found. Aborting property update!");
     }
 
     @Override
