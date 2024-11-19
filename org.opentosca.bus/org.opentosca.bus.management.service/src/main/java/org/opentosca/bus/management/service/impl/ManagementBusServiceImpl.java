@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -82,6 +83,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import static org.opentosca.container.core.convention.Types.hostedOnRelationType;
 
 /**
  * Engine for delegating invoke-requests of implementation artifacts or plans to matching plug-ins.<br>
@@ -1332,6 +1335,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                             xmlProperties = propertyParts[0] + property.getKey() + ">" + property.getValue() + "</" + property.getKey() + propertyParts[2];
                         } else {
                             LOG.debug("XML does not contain property with name: {}", property.getKey());
+                            LOG.debug("Searching for connected NodeTemplateInstance with given property name... ");
+                            updateConnectedNodeTemplateInstance(nodeTemplateInstance, property);
                         }
                     }
 
@@ -1362,6 +1367,35 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         exchange = template.send("direct-vm:" + caller, exchange);
         if (exchange.isFailed()) {
             LOG.error("Sending exchange message failed! {}", exchange.getException().getMessage());
+        }
+    }
+
+    private void updateConnectedNodeTemplateInstance(NodeTemplateInstance nodeTemplateInstance, Entry<String, String> property) {
+        LOG.debug("Trying to find connected NodeTemplateInstance with property name: {}", property.getKey());
+        LOG.debug("NodeTemplateInstance has {} outgoing relations...", nodeTemplateInstance.getOutgoingRelations());
+        Optional<RelationshipTemplateInstance> optional = nodeTemplateInstance.getOutgoingRelations().stream().filter(rel -> rel.getTemplateType().equals(hostedOnRelationType)).findFirst();
+
+        if (optional.isPresent()) {
+            NodeTemplateInstance target = optional.get().getTarget();
+            LOG.debug("Found connected NodeTemplateInstance via hostedOn relation: {}", target.getTemplateId());
+
+            // get properties of connected NodeTemplateInstance
+            Collection<NodeTemplateInstanceProperty> properties = nodeTemplateInstance.getProperties();
+            LOG.debug("Found {} properties of connected NodeTemplateInstance: {}", properties.size(), properties);
+            for (NodeTemplateInstanceProperty nodeTemplateInstanceProperty : properties) {
+                LOG.debug("Found property with name: {}", nodeTemplateInstanceProperty.getName());
+                if (property.getKey().equals(nodeTemplateInstanceProperty.getName())) {
+                    LOG.debug("Found matching property. Updating...");
+                    // TODO
+
+                    // abort recursion once property is updated
+                    return;
+                }
+            }
+            LOG.debug("Searching for new connected NodeTemplateInstance starting from: {}", nodeTemplateInstance.getTemplateId());
+            updateConnectedNodeTemplateInstance(target, property);
+        } else{
+            LOG.debug("No connected NodeTemplateInstance via hostedOn relation found. Aborting property update!");
         }
     }
 
