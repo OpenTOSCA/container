@@ -74,6 +74,7 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
+import org.opentosca.container.core.next.repository.RelationshipTemplateInstanceRepository;
 import org.opentosca.container.core.next.trigger.SituationTriggerInstanceListener;
 import org.opentosca.container.core.plan.ChoreographyHandler;
 import org.opentosca.container.core.service.CsarStorageService;
@@ -143,6 +144,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     private final PlanInstanceRepository planInstanceRepository;
 
     private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository;
+    private final RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository;
 
     @Inject
     public ManagementBusServiceImpl(DeploymentDistributionDecisionMaker decisionMaker,
@@ -150,9 +152,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                     ParameterHandler parameterHandler, PluginHandler pluginHandler,
                                     PluginRegistry pluginRegistry, DeploymentPluginCapabilityChecker capabilityChecker,
                                     CsarStorageService storage, ChoreographyHandler choreographyHandler, MBUtils mbUtils,
-                                    PlanInstanceHandler planInstanceHandler, PlanInstanceRepository planInstanceRepository, NodeTemplateInstanceRepository nodeTemplateInstanceRepository) {
+                                    PlanInstanceHandler planInstanceHandler, PlanInstanceRepository planInstanceRepository, NodeTemplateInstanceRepository nodeTemplateInstanceRepository, RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository) {
         LOG.info("Instantiating ManagementBus Service");
         this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
+        this.relationshipTemplateInstanceRepository = relationshipTemplateInstanceRepository;
         this.planInstanceRepository = planInstanceRepository;
         this.planInstanceHandler = planInstanceHandler;
         this.mbUtils = mbUtils;
@@ -1384,7 +1387,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         Optional<RelationshipTemplateInstance> optional = nodeTemplateInstance.getOutgoingRelations().stream().filter(rel -> rel.getTemplateType().equals(hostedOnRelationType)).findFirst();
 
         if (optional.isPresent()) {
-            NodeTemplateInstance target = optional.get().getTarget();
+            RelationshipTemplateInstance relation = optional.get();
+            LOG.debug("Found RelationshipTemplateInstance with ID: {}", relation.getTemplateId());
+            relation = relationshipTemplateInstanceRepository.findWithPropertiesById(relation.getId());
+
+            NodeTemplateInstance target = relation.getTarget();
+            LOG.debug("Searching for NodeTemplateInstance with ID: {}", target.getTemplateId());
+            target = nodeTemplateInstanceRepository.findWithPropertiesAndOutgoingById(target.getId()).get();
             LOG.debug("Found connected NodeTemplateInstance via hostedOn relation: {}", target.getTemplateId());
 
             // get properties of connected NodeTemplateInstance
