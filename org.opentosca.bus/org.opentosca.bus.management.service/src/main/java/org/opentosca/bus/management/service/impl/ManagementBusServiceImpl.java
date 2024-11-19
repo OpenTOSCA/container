@@ -1311,7 +1311,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             LOG.debug("Handling response for NodeTemplate {} and corresponding ID {}!", nodeTemplate, nodeTemplateInstanceId);
 
             // load NodeTemplateInstance and corresponding properties from repository
-            NodeTemplateInstance nodeTemplateInstance = nodeTemplateInstanceRepository.findById(Long.parseLong(nodeTemplateInstanceId)).get();
+            NodeTemplateInstance nodeTemplateInstance = nodeTemplateInstanceRepository.findWithPropertiesAndOutgoingById(Long.parseLong(nodeTemplateInstanceId)).get();
             Map<String, String> properties = nodeTemplateInstance.getPropertiesAsMap();
             LOG.debug("Properties to update: {}", properties);
 
@@ -1348,6 +1348,14 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     instanceProperty.setValue(xmlProperties);
                     propertySet.add(instanceProperty);
                     nodeTemplateInstance.setProperties(propertySet);
+                } else {
+                    LOG.debug("Result is not based on XML properties. Updating HashMap...");
+                    for (Entry<String, String> property : result.entrySet()) {
+                        // TODO: search locally for property
+
+                        LOG.debug("Searching for connected NodeTemplateInstance with given property name... ");
+                        updateConnectedNodeTemplateInstance(nodeTemplateInstance, property);
+                    }
                 }
                 nodeTemplateInstanceRepository.save(nodeTemplateInstance);
             } else {
@@ -1372,7 +1380,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
     private void updateConnectedNodeTemplateInstance(NodeTemplateInstance nodeTemplateInstance, Entry<String, String> property) {
         LOG.debug("Trying to find connected NodeTemplateInstance with property name: {}", property.getKey());
-        LOG.debug("NodeTemplateInstance has {} outgoing relations...", nodeTemplateInstance.getOutgoingRelations());
+        LOG.debug("NodeTemplateInstance has {} outgoing relations...", nodeTemplateInstance.getOutgoingRelations().size());
         Optional<RelationshipTemplateInstance> optional = nodeTemplateInstance.getOutgoingRelations().stream().filter(rel -> rel.getTemplateType().equals(hostedOnRelationType)).findFirst();
 
         if (optional.isPresent()) {
@@ -1385,8 +1393,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             for (NodeTemplateInstanceProperty nodeTemplateInstanceProperty : properties) {
                 LOG.debug("Found property with name: {}", nodeTemplateInstanceProperty.getName());
                 if (property.getKey().equals(nodeTemplateInstanceProperty.getName())) {
-                    LOG.debug("Found matching property. Updating...");
-                    // TODO
+                    LOG.debug("Found matching property. Changing value from {} to {}!", nodeTemplateInstanceProperty.getValue(), property.getValue());
+                    nodeTemplateInstanceProperty.setValue(property.getValue());
+                    target.setProperties(new HashSet<>(properties));
+                    nodeTemplateInstanceRepository.save(target);
 
                     // abort recursion once property is updated
                     return;
