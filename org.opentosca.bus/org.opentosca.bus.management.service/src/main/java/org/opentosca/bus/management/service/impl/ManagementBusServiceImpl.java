@@ -66,6 +66,7 @@ import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.Endpoint;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
+import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanLanguage;
@@ -1387,6 +1388,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         for (NodeTemplateInstance instance : serviceTemplateInstance.getNodeTemplateInstances()) {
             LOG.debug("Searching for NodeTemplateInstance with ID: {}", instance.getTemplateId());
             NodeTemplateInstance newNodeTemplateInstance = nodeTemplateInstanceRepository.findWithPropertiesAndOutgoingById(instance.getId()).get();
+
+            // avoid updating instances that are not already started
+            if (newNodeTemplateInstance.getState().equals(NodeTemplateInstanceState.INITIAL)) {
+                LOG.debug("Skipping NodeTemplateInstance with ID {} as it is in state INITIAL", instance.getTemplateId());
+                continue;
+            }
 
             // get properties of connected NodeTemplateInstance
             Collection<NodeTemplateInstanceProperty> properties = newNodeTemplateInstance.getProperties();
