@@ -46,6 +46,11 @@
             <url>https://repo1.maven.org/maven2/</url>
         </repository>
         <repository>
+            <id>maven.restlet.org</id>
+            <name>maven.restlet.org</name>
+            <url>https://maven.restlet.talend.com</url>
+        </repository>
+        <repository>
             <name>JCenter Public Repository</name>
             <id>jcenter</id>
             <url>https://jcenter.bintray.com/</url>
@@ -57,7 +62,6 @@
     </repositories>
 
     <modules>
-        <module>org.opentosca.broker.mqtt</module>
         <module>org.opentosca.bus</module>
         <module>org.opentosca.container.control</module>
         <module>org.opentosca.container.core</module>

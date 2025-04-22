@@ -191,7 +191,7 @@ public class NodeTemplateInstanceController {
     @Produces( {MediaType.APPLICATION_XML})
     @ApiOperation(hidden = true, value = "")
     public Response getNodeTemplateInstanceProperties(@PathParam("id") final Long id) {
-        logger.debug("Invoking getNodeTemplateInstanceProperties");
+        logger.debug("Invoking getNodeTemplateInstanceProperties for ID: {}", id);
         final Document properties = this.nodeTemplateInstanceService.getNodeTemplateInstancePropertiesDocument(id);
 
         if (properties == null) {

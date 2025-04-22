@@ -276,7 +276,7 @@ public class BPELPolicyAwareBuildProcessBuilder extends AbstractBuildPlanBuilder
                 }
 
                 if (nodeTemplate.getPolicies().isEmpty()) {
-                    final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate, csar);
+                    final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate, csar).stream().findFirst().orElse(null);
                     if (plugin != null) {
                         LOG.info("Handling NodeTemplate {} with type plugin {}",
                             nodeTemplate.getId(), plugin.getID());

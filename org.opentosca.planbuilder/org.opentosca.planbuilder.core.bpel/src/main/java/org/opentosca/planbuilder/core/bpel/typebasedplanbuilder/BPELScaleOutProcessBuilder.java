@@ -675,7 +675,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             }
         }
 
-        final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate, context.getCsar());
+        final IPlanBuilderTypePlugin plugin = this.pluginRegistry.findTypePluginForCreation(nodeTemplate, context.getCsar()).stream().findFirst().orElse(null);
         if (plugin != null) {
 
             LOG.debug("Handling NodeTemplate {} with type plugin {}", nodeTemplate.getId(),

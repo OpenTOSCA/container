@@ -12,6 +12,6 @@ public interface RelationshipTemplateInstanceRepository extends JpaRepository<Re
 
     List<RelationshipTemplateInstance> findByTemplateId(String templateId);
 
-    @EntityGraph(attributePaths = {"properties"})
+    @EntityGraph(attributePaths = {"properties", "target"})
     RelationshipTemplateInstance findWithPropertiesById(Long id);
 }

@@ -4,15 +4,18 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -62,13 +65,18 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.next.model.Endpoint;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
+import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
+import org.opentosca.container.core.next.repository.RelationshipTemplateInstanceRepository;
+import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.next.trigger.SituationTriggerInstanceListener;
 import org.opentosca.container.core.plan.ChoreographyHandler;
 import org.opentosca.container.core.service.CsarStorageService;
@@ -78,6 +86,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import static org.opentosca.container.core.convention.Types.hostedOnRelationType;
 
 /**
  * Engine for delegating invoke-requests of implementation artifacts or plans to matching plug-ins.<br>
@@ -135,14 +145,19 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     private final PlanInstanceHandler planInstanceHandler;
     private final PlanInstanceRepository planInstanceRepository;
 
+    private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository;
+    private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository;
+
     @Inject
     public ManagementBusServiceImpl(DeploymentDistributionDecisionMaker decisionMaker,
                                     CollaborationContext collaborationContext, ICoreEndpointService endpointService,
                                     ParameterHandler parameterHandler, PluginHandler pluginHandler,
                                     PluginRegistry pluginRegistry, DeploymentPluginCapabilityChecker capabilityChecker,
                                     CsarStorageService storage, ChoreographyHandler choreographyHandler, MBUtils mbUtils,
-                                    PlanInstanceHandler planInstanceHandler, PlanInstanceRepository planInstanceRepository) {
+                                    PlanInstanceHandler planInstanceHandler, PlanInstanceRepository planInstanceRepository, NodeTemplateInstanceRepository nodeTemplateInstanceRepository, ServiceTemplateInstanceRepository serviceTemplateInstanceRepository) {
         LOG.info("Instantiating ManagementBus Service");
+        this.nodeTemplateInstanceRepository = nodeTemplateInstanceRepository;
+        this.serviceTemplateInstanceRepository = serviceTemplateInstanceRepository;
         this.planInstanceRepository = planInstanceRepository;
         this.planInstanceHandler = planInstanceHandler;
         this.mbUtils = mbUtils;
@@ -1286,9 +1301,72 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         if (exchange == null) {
             return;
         }
+
+        // get message to retrieve headers and result body
+        Message in = exchange.getIn();
+
         // Response message back to caller.
         final ProducerTemplate template = this.collaborationContext.getProducer();
-        final String caller = exchange.getIn().getHeader(MBHeader.APIID_STRING.toString(), String.class);
+        final String caller = in.getHeader(MBHeader.APIID_STRING.toString(), String.class);
+
+        // check if IA invocation is performed and update properties
+        final String nodeTemplate = in.getHeader(MBHeader.NODETEMPLATEID_STRING.toString(), String.class);
+        final String nodeTemplateInstanceId = in.getHeader(MBHeader.NODEINSTANCEID_STRING.toString(), String.class);
+        if (Objects.nonNull(nodeTemplateInstanceId) && Objects.nonNull(nodeTemplate)) {
+            LOG.debug("Handling response for NodeTemplate {} and corresponding ID {}!", nodeTemplate, nodeTemplateInstanceId);
+
+            // load NodeTemplateInstance and corresponding properties from repository
+            NodeTemplateInstance nodeTemplateInstance = nodeTemplateInstanceRepository.findWithPropertiesAndOutgoingById(Long.parseLong(nodeTemplateInstanceId)).get();
+            Map<String, String> properties = nodeTemplateInstance.getPropertiesAsMap();
+            LOG.debug("Properties to update: {}", properties);
+
+            if (in.getBody() instanceof HashMap<?,?>) {
+                HashMap<String, String> result = (HashMap<String, String>) in.getBody();
+                LOG.debug("Result is of type HashMap and contains properties: {}", result);
+
+                if(result.containsKey("xml")) {
+                    String xmlProperties = result.get("xml");
+                    LOG.debug("Found XML properties: {}", result);
+
+                    // update properties with the same name if defined at NodeTemplateInstance
+                    for (Entry<String, String> property : result.entrySet()) {
+
+                        LOG.debug("Checking if XML contains property with name: {}", property.getKey());
+                        if(xmlProperties.contains(property.getKey())) {
+                            LOG.debug("Updating XML for property: {}", property.getValue());
+
+                            // split string to adapt content
+                            String[] propertyParts = xmlProperties.split(property.getKey());
+                            xmlProperties = propertyParts[0] + property.getKey() + ">" + property.getValue() + "</" + property.getKey() + propertyParts[2];
+                        } else {
+                            LOG.debug("XML does not contain property with name: {}", property.getKey());
+                            LOG.debug("Searching for NodeTemplateInstance with given property name... ");
+                            updateNodeTemplateInstances(nodeTemplateInstance, property);
+                        }
+                    }
+
+                    // update XML string on NodeTemplateInstance
+                    Set<NodeTemplateInstanceProperty> propertySet = new HashSet<>();
+                    NodeTemplateInstanceProperty instanceProperty = new NodeTemplateInstanceProperty();
+                    instanceProperty.setNodeTemplateInstance(nodeTemplateInstance);
+                    instanceProperty.setName("xml");
+                    instanceProperty.setValue(xmlProperties);
+                    propertySet.add(instanceProperty);
+                    nodeTemplateInstance.setProperties(propertySet);
+                } else {
+                    LOG.debug("Result is not based on XML properties. Updating HashMap...");
+                    for (Entry<String, String> property : result.entrySet()) {
+                         LOG.debug("Searching for NodeTemplateInstance with given property name... ");
+                        updateNodeTemplateInstances(nodeTemplateInstance, property);
+                    }
+                }
+                nodeTemplateInstanceRepository.save(nodeTemplateInstance);
+            } else {
+                LOG.warn("Result is not of type HashMap, unable to parse result: {}", in.getBody().getClass());
+            }
+        } else {
+            LOG.warn("Unable to find properties for NodeTemplate {} and corresponding ID {}", nodeTemplate, nodeTemplateInstanceId);
+        }
 
         if (caller == null) {
             // notably the Java API does not set the APIID, because it never uses the information returned.
@@ -1301,6 +1379,77 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         if (exchange.isFailed()) {
             LOG.error("Sending exchange message failed! {}", exchange.getException().getMessage());
         }
+    }
+
+    private void updateNodeTemplateInstances(NodeTemplateInstance nodeTemplateInstance, Entry<String, String> property) {
+        LOG.debug("Trying to find NodeTemplateInstance with property name: {}", property.getKey());
+
+        ServiceTemplateInstance serviceTemplateInstance = serviceTemplateInstanceRepository.findWithNodeTemplateInstancesById(nodeTemplateInstance.getServiceTemplateInstance().getId()).get();
+        for (NodeTemplateInstance instance : serviceTemplateInstance.getNodeTemplateInstances()) {
+            LOG.debug("Searching for NodeTemplateInstance with ID: {}", instance.getTemplateId());
+            NodeTemplateInstance newNodeTemplateInstance = nodeTemplateInstanceRepository.findWithPropertiesAndOutgoingById(instance.getId()).get();
+
+            // avoid updating instances that are not already started
+            if (newNodeTemplateInstance.getState().equals(NodeTemplateInstanceState.INITIAL)) {
+                LOG.debug("Skipping NodeTemplateInstance with ID {} as it is in state INITIAL", instance.getTemplateId());
+                continue;
+            }
+
+            // get properties of connected NodeTemplateInstance
+            Collection<NodeTemplateInstanceProperty> properties = newNodeTemplateInstance.getProperties();
+            LOG.debug("Found {} properties of NodeTemplateInstance: {}", properties.size(), properties);
+            for (NodeTemplateInstanceProperty nodeTemplateInstanceProperty : properties) {
+                LOG.debug("Found property with name: {}", nodeTemplateInstanceProperty.getName());
+                if (property.getKey().equals(nodeTemplateInstanceProperty.getName())) {
+                    LOG.debug("Found matching property. Changing value from {} to {}!", nodeTemplateInstanceProperty.getValue(), property.getValue());
+                    nodeTemplateInstanceProperty.setValue(property.getValue());
+                    newNodeTemplateInstance.setProperties(new HashSet<>(properties));
+                    nodeTemplateInstanceRepository.save(newNodeTemplateInstance);
+
+                    // abort once property is updated
+                    return;
+                }
+
+                // handle XML properties
+                if (nodeTemplateInstanceProperty.getName().equals("xml")) {
+
+                    LOG.debug("Checking if XML contains property with name: {}", property.getKey());
+
+                    String xmlProperties = nodeTemplateInstanceProperty.getValue();
+                    LOG.debug("Found XML properties: {}", xmlProperties);
+
+                    if(xmlProperties.contains(property.getKey())) {
+                        LOG.debug("Updating XML for property: {}", property.getValue());
+
+                        // split string to adapt content
+                        if (xmlProperties.contains("<" + property.getKey() + "/>")) {
+                            String[] propertyParts = xmlProperties.split("<" + property.getKey() + "/>");
+                            xmlProperties = propertyParts[0] + "<" + property.getKey() + ">" + property.getValue() + "</" + property.getKey() + ">" + propertyParts[1];
+                        } else{
+                            String[] propertyParts = xmlProperties.split(property.getKey());
+                            xmlProperties = propertyParts[0] + property.getKey() + ">" + property.getValue() + "</" + property.getKey() + propertyParts[2];
+                        }
+
+                        // update XML string on NodeTemplateInstance
+                        Set<NodeTemplateInstanceProperty> propertySet = new HashSet<>();
+                        NodeTemplateInstanceProperty instanceProperty = new NodeTemplateInstanceProperty();
+                        instanceProperty.setNodeTemplateInstance(newNodeTemplateInstance);
+                        instanceProperty.setName("xml");
+                        instanceProperty.setType(nodeTemplateInstanceProperty.getType());
+                        instanceProperty.setValue(xmlProperties);
+                        propertySet.add(instanceProperty);
+                        newNodeTemplateInstance.setProperties(propertySet);
+                        nodeTemplateInstanceRepository.save(newNodeTemplateInstance);
+
+                        // abort once property is updated
+                        return;
+                    } else {
+                        LOG.debug("XML does not contain property with name: {}", property.getKey());
+                    }
+                }
+            }
+        }
+        LOG.debug("No NodeTemplateInstance with given property found. Aborting property update!");
     }
 
     @Override

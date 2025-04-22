@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -226,13 +227,12 @@ public class PluginRegistry {
             .orElse(null);
     }
 
-    public IPlanBuilderTypePlugin<?> findTypePluginForCreation(final TNodeTemplate nodeTemplate, Csar csar) {
+    public List<IPlanBuilderTypePlugin<?>> findTypePluginForCreation(final TNodeTemplate nodeTemplate, Csar csar) {
         return getTypePlugins().stream()
             .filter(p -> p.canHandleCreate(csar, nodeTemplate))
             // sort highest priority first
             .sorted(Comparator.comparingInt(IPlanBuilderPlugin::getPriority).reversed())
-            .findFirst()
-            .orElse(null);
+            .collect(Collectors.toList());
     }
 
     public IPlanBuilderTypePlugin<?> findTypePluginForUpdate(final TNodeTemplate nodeTemplate, Csar csar) {

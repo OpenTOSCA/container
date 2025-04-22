@@ -115,7 +115,9 @@ public class PlanInstanceDTO extends ResourceSupport {
 
             dto.setCorrelationId(object.getCorrelationId());
 
-            dto.setServiceTemplateInstanceId(object.getServiceTemplateInstance().getId());
+            if (object.getServiceTemplateInstance() != null) {
+                dto.setServiceTemplateInstanceId(object.getServiceTemplateInstance().getId());
+            }
             dto.setType(object.getType());
 
             dto.setLogs(new ArrayList<>());

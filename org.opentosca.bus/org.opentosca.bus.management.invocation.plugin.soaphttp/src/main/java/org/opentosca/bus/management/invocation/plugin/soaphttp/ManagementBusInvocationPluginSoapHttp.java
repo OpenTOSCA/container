@@ -237,7 +237,12 @@ public class ManagementBusInvocationPluginSoapHttp extends IManagementBusInvocat
         if (exchange.getIn().getHeader("ParamsMode") != null
             && exchange.getIn().getHeader("ParamsMode").equals("HashMap")) {
             LOG.debug("Transforming Document to HashMap...");
-            final HashMap<String, String> responseMap = MBUtils.docToMap(response, false);
+            HashMap<String, String> responseMap = new HashMap<>();
+            try {
+                responseMap = MBUtils.docToMap(response, false);
+            } catch (Exception e) {
+                LOG.error("Error while parsing doc to map!");
+            }
             exchange.getIn().setBody(responseMap);
         } else {
             exchange.getIn().setBody(response);

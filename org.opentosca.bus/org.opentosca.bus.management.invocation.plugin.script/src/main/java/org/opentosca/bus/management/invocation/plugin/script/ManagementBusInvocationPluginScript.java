@@ -290,15 +290,17 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
      * @param operation The script service operation to check
      */
     private void addOutputParametersToResultMap(final Map<String, String> resultMap, final Object result, final TOperation operation) throws UnsupportedEncodingException {
+        LOG.debug("Checking if operation has output parameters to update: {}", operation.getName());
         final boolean hasOutputParams = operation.getOutputParameters() != null;
         if (!hasOutputParams) {
+            LOG.debug("No output parameters defined!");
             return;
         }
+        LOG.debug("Adding output parameters to the response message.");
         if (!(result instanceof HashMap<?, ?>)) {
             LOG.warn("Result of type {} not supported. The bus should return a HashMap as result class when it is used as input.", result.getClass());
             return;
         }
-        LOG.debug("Adding output parameters to the response message.");
         final Map<?, ?> resultHashMap = (HashMap<?, ?>) result;
 
         // get ScriptResult part of the response which contains the parameters
@@ -317,11 +319,15 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
         // split result in line breaks as every parameter is returned in a separate "echo" command
         final String[] resultParameters = scriptResultString.split("[\\r\\n]+");
 
+        LOG.debug("Searching for {} output parameters...", operation.getOutputParameters().size());
         // add each parameter that is defined in the operation and passed back
         for (final TParameter outputParameter : operation.getOutputParameters()) {
+            LOG.debug("Searching for output parameter: {}", outputParameter.getName());
             // we expect the outputparameters at the end of the result in multiple lines
+            LOG.debug("Found {} lines in script result...", resultParameters.length);
             for (int i = resultParameters.length - 1; i >= 0; i--) {
                 if (resultParameters[i].startsWith(outputParameter.getName())) {
+                    LOG.debug("Found parameter with given name: {}", outputParameter.getName());
                     final String value = resultParameters[i].substring(resultParameters[i].indexOf("=") + 1);
 
                     LOG.debug("Adding parameter {} with value: {}", outputParameter, value);
@@ -473,12 +479,17 @@ public class ManagementBusInvocationPluginScript extends IManagementBusInvocatio
         if (commandsString.contains("{{") && commandsString.contains("}}")) {
             LOG.debug("Replacing the placeholder of the generic command with properties data and/or provided input parameter...");
 
-            final Map<String, String> paramsMap;
+            Map<String, String> paramsMap;
             if (params instanceof HashMap) {
                 paramsMap = (HashMap<String, String>) params;
             } else if (params instanceof Document) {
                 final Document paramsDoc = (Document) params;
-                paramsMap = MBUtils.docToMap(paramsDoc, true);
+                paramsMap = new HashMap<>();
+                try {
+                    paramsMap = MBUtils.docToMap(paramsDoc, true);
+                } catch (Exception e) {
+                    LOG.error("Error while parsing doc to map!");
+                }
             } else {
                 paramsMap = new HashMap<>();
             }

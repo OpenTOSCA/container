@@ -17,9 +17,12 @@ import org.opentosca.container.core.convention.Types;
 import org.opentosca.container.core.model.ModelUtils;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 public class LifecyclePatternBasedHandler extends PatternBasedHandler {
+    private final static Logger LOG = LoggerFactory.getLogger(LifecyclePatternBasedHandler.class);
 
     public boolean handleCreate(final BPELPlanContext context, final TNodeTemplate nodeTemplate, Element elementToAppendTo) {
 
@@ -153,41 +156,54 @@ public class LifecyclePatternBasedHandler extends PatternBasedHandler {
     }
 
     public boolean isProvisionableByLifecyclePattern(final TNodeTemplate nodeTemplate, Csar csar) {
-
+        LOG.debug("Checking if nodeTemplate {} can be handled by lifecycle pattern", nodeTemplate.getId());
         if (!hasLifecycleProvisioningMethods(nodeTemplate, csar)) {
+            LOG.debug("No lifecycle method available...");
             return false;
         }
 
         Set<TNodeTemplate> nodesForMatching = this.getNodesForMatching(nodeTemplate, csar);
+        LOG.debug("Number of nodes for matching: {}", nodesForMatching.size());
 
         // Small check if we have to find runScript and transferFile operations
         boolean hasScriptImplementation;
 
         // check if the lifecycle operations can be matched against the nodes
-        TOperation op;
         TInterface iface = this.getLifecyclePatternInterface(nodeTemplate, csar);
-        if (((op = this.getLifecyclePatternInstallMethod(nodeTemplate, csar)) != null)
-            && !hasCompleteMatching(nodesForMatching, iface, op)) {
-            return false;
+
+        TOperation op = this.getLifecyclePatternInstallMethod(nodeTemplate, csar);
+        if (op != null) {
+            LOG.debug("Found lifecycle install operation, searching for matching...");
+            if (!hasCompleteMatching(nodesForMatching, iface, op)) {
+                LOG.debug("No matching for lifecycle install operation...");
+                return false;
+            }
         }
 
         hasScriptImplementation = this.isImplementedAsScript(iface, nodeTemplate, csar);
 
-        if (((op = this.getLifecyclePatternConfigureMethod(nodeTemplate, csar)) != null)
-            && !hasCompleteMatching(nodesForMatching, iface, op)) {
-            return false;
+        op = this.getLifecyclePatternConfigureMethod(nodeTemplate, csar);
+        if (op != null) {
+            LOG.debug("Found lifecycle configure operation, searching for matching...");
+            if (!hasCompleteMatching(nodesForMatching, iface, op)) {
+                LOG.debug("No matching for lifecycle configure operation...");
+                return false;
+            }
         }
 
         hasScriptImplementation |= this.isImplementedAsScript(iface, nodeTemplate, csar);
 
         if (((op = this.getLifecyclePatternStartMethod(nodeTemplate, csar)) != null)
             && !hasCompleteMatching(nodesForMatching, iface, op)) {
+            LOG.debug("No matching for lifecycle start operation...");
             return false;
         }
 
         hasScriptImplementation |= this.isImplementedAsScript(iface, nodeTemplate, csar);
 
+        LOG.debug("Checking availability of operations to handle scripts required: {}", hasScriptImplementation);
         if (hasScriptImplementation) {
+            LOG.debug("Searching for run script and transfer file operations...");
             return this.checkForRunScriptAndTransferFile(nodeTemplate, csar);
         }
 
